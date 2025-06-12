@@ -4,9 +4,10 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 
 export const metadata: Metadata = {
-  title: "APIGateway",
-  description: "Created with v0",
-  generator: "v0.dev",
+  title: "Nexfron - API Gateway",
+  description: "Created with Nexfron",
+  generator: "Nexfron",
+  icons:'/nexfron_favicon.png'
 }
 
 export default function RootLayout({

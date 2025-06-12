@@ -1,4 +1,5 @@
-import { AppLayout } from "@/components/app-layout";
+// import { AppLayout } from "@/components/app-layout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { ProjectList } from "@/components/project-list";
 import Head from "next/head";
 

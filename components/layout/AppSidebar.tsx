@@ -1,37 +1,28 @@
-"use client"
-
-import type React from "react"
-import { useState } from "react"
-import { usePathname, useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Avatar } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { ThemeToggle, CollapseThemeToggle } from "../theme-toggle";
+import { Avatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Settings } from "lucide-react";
+import { projectsData, navItems, userMenuItems } from "@/constants/app-layout-data";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, Dispatch, SetStateAction } from "react";
+import { NavButtonProps } from "@/types";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import {
-  Search,
-  Menu,
-  X,
-  Settings,
   ChevronDown,
   ChevronRight,
   WaypointsIcon as Gateway,
 } from "lucide-react"
-import { ThemeToggle, CollapseThemeToggle } from "./theme-toggle"
-import { NotificationDropdown } from "./notification-dropdown"
-import {AppLayoutProps, NavButtonProps } from "@/types"
-import { projectsData, navItems,userMenuItems } from "@/constants/app-layout-data"
 
+interface AppSidebarProps {
+  sidebarCollapsed: boolean;
+  setSidebarCollapsed: Dispatch<SetStateAction<boolean>>;
+  projectSlug?: string;
+}
 
+// NavButton 컴포넌트는 별도 파일로 분리 가능
 const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps) => {
   const Icon = item.icon
   const [isOpen, setIsOpen] = useState(item.label === "Infra Packages") // Services 1은 기본적으로 열려있음
@@ -54,7 +45,8 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
   }
 
   if (item.subItems) {
-    return (
+      return (
+           <TooltipProvider>
       <Collapsible open={isOpen} onOpenChange={setIsOpen} className="transition-all duration-300 ease-in-out">
         <Tooltip>
           <TooltipTrigger asChild>
@@ -114,10 +106,12 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
           </CollapsibleContent>
         )}
       </Collapsible>
-    )
+    </TooltipProvider>
+              )
   }
 
-  return (
+    return (
+      <TooltipProvider>
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
@@ -143,29 +137,20 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
           {item.label}
         </TooltipContent>
       )}
-    </Tooltip>
+            </Tooltip>
+            </TooltipProvider>
   )
 }
 
-export function AppLayout({ children, projectSlug }: AppLayoutProps) {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [imageLoaded, setImageLoaded] = useState(true)
-  const pathname = usePathname()
-  const router = useRouter()
 
-  const currentProject = projectSlug ? projectsData.find((p) => p.slug === projectSlug) : null
-  const isDashboard = pathname === "/dashboard"
-  const isProjectPage = pathname?.startsWith("/project/")
+export function AppSidebar({ sidebarCollapsed, setSidebarCollapsed, projectSlug }: AppSidebarProps) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const currentProject = projectSlug ? projectsData.find((p) => p.slug === projectSlug) : null;
+  const isProjectPage = pathname?.startsWith("/project/");
 
-  const handleImageLoad = () => {
-    setImageLoaded(true)
-  }
 
-  const handleImageError = () => {
-    setImageLoaded(false)
-  }
-
-  const handleUserMenuClick = (action: string) => {
+      const handleUserMenuClick = (action: string) => {
     switch (action) {
       case "profile":
         router.push("/profile")
@@ -184,60 +169,11 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
     }
   }
 
+    
   return (
-    <TooltipProvider>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        {/* Header */}
-        <header className="sticky top-0 z-50 w-full border-b border-blue-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60">
-          <div className="flex h-14 items-center px-4">
-            <div className="mr-4 flex">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                className="mr-2 hover:bg-blue-100 dark:hover:bg-gray-800"
-              >
-                {!sidebarCollapsed ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-              </Button>
-              <a className="mr-6 flex items-center space-x-2" href="/dashboard">
-                <div className="h-7 w-7">
-                  <img src={"/nexfron_favicon.png"} alt="NEXFRON" />
-                </div>
-                <span className="hidden font-extrabold text-[20px] sm:inline-block text-black dark:text-white">
-                  NEXFRON
-                </span>
-              </a>
-            </div>
-
-            <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-              <div className="w-full flex-1 md:w-auto md:flex-none">
-                <div className="relative">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="search"
-                    placeholder="Search projects, issues, merge requests..."
-                    className="pl-8 md:w-[300px] lg:w-[400px] border-blue-200 dark:border-gray-700 focus:border-blue-400 focus:ring-blue-400 dark:bg-gray-800"
-                  />
-                </div>
-              </div>
-              <nav className="flex items-center space-x-2">
-                <NotificationDropdown />
-              </nav>
-            </div>
-          </div>
-        </header>
-
-        <div className="flex">
-          {/* Sidebar */}
-          <aside
-            className={`fixed top-14 z-40 h-[calc(100vh-3.5rem)] border-r border-blue-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60 transition-all duration-500 ease-in-out transform ${
-              sidebarCollapsed ? "w-16" : "w-[270px]"
-            }`}
-          >
-            <div className="flex h-full flex-col">
-             
-
-              {/* Context Information - Only show for project pages */}
+    <aside className={`fixed top-14 z-40 h-[calc(100vh-3.5rem)] border-r border-blue-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60 transition-all duration-500 ease-in-out transform ${sidebarCollapsed ? "w-16" : "w-[270px]"}`}>
+      <div className="flex h-full flex-col">
+        {/* Context Information - Only show for project pages */}
               {isProjectPage && currentProject && !sidebarCollapsed && (
                 <div className="border-b border-blue-200/50 dark:border-gray-700/50 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/50 dark:to-indigo-900/50">
                   <div className="space-y-3">
@@ -356,15 +292,7 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
                 </div>
                   
               }
-            </div>
-          </aside>
-
-          {/* Main Content */}
-          <main className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? "ml-16" : "ml-[270px]"}`}>
-            {children}
-          </main>
-        </div>
       </div>
-    </TooltipProvider>
-  )
+    </aside>
+  );
 }
