@@ -28,7 +28,7 @@ const mockEurekaData = {
   overview: {
     totalServices: 12,
     totalInstances: 45,
-    activeInstances: 42,
+    selfPreservation: true,
     zones: ["us-east-1a", "us-east-1b", "us-east-1c"],
     instancesByStatus: {
       UP: 42,
@@ -41,7 +41,7 @@ const mockEurekaData = {
       "us-east-1c": 12,
     },
     recentChanges: [
-      { instanceId: "user-service-001", status: "UP", timestamp: "2024-01-15T10:30:00Z", service: "user-service" },
+      { instanceId: "auth-server:8081", status: "UP", timestamp: "1718087200000", service: "AUTH-SERVER" },
       {
         instanceId: "payment-service-002",
         status: "DOWN",
@@ -195,17 +195,6 @@ export default function EurekaPage() {
   return (
     <AppLayout>
       <div className="container mx-auto px-4 py-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Eureka Service Registry</h1>
-            <p className="text-gray-600 dark:text-gray-400">마이크로서비스 등록 및 발견 서비스 모니터링</p>
-          </div>
-          <Button onClick={handleRefresh} disabled={refreshing} className="flex items-center gap-2">
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
-            새로고침
-          </Button>
-        </div>
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -241,16 +230,16 @@ export default function EurekaPage() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800">
+              <Card className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 border-amber-200 dark:border-amber-800">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">전체 인스턴스</CardTitle>
-                  <Database className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  <Database className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+                  <div className="text-2xl font-bold text-amber-700 dark:text-amber-300">
                     {mockEurekaData.overview.totalInstances}
                   </div>
-                  <p className="text-xs text-green-600 dark:text-green-400">총 인스턴스 수</p>
+                  <p className="text-xs text-amber-600 dark:text-amber-400">총 인스턴스 수</p>
                 </CardContent>
               </Card>
 
@@ -259,38 +248,8 @@ export default function EurekaPage() {
                   <CardTitle className="text-sm font-medium">활성 인스턴스</CardTitle>
                   <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
-                    {mockEurekaData.overview.activeInstances}
-                  </div>
-                  <p className="text-xs text-emerald-600 dark:text-emerald-400">정상 작동 중</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">가용존</CardTitle>
-                  <MapPin className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">
-                    {mockEurekaData.overview.zones.length}
-                  </div>
-                  <p className="text-xs text-purple-600 dark:text-purple-400">활성 가용존</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Status Distribution */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="w-5 h-5" />
-                    인스턴스 상태 분포
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+               
+                <CardContent className="space-y-2 mt-2">
                   {Object.entries(mockEurekaData.overview.instancesByStatus).map(([status, count]) => (
                     <div key={status} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -299,33 +258,36 @@ export default function EurekaPage() {
                             status === "UP" ? "bg-green-500" : status === "DOWN" ? "bg-red-500" : "bg-yellow-500"
                           } animate-pulse`}
                         />
-                        <span className="font-medium">{status}</span>
+                        <span className={`text-[12px] font-bold ${
+                            status === "UP" ? "text-emerald-700 dark:text-emerald-300" : status === "DOWN" ? "text-red-700 dark:text-red-300" : "text-yellow-700 dark:text-yellow-300"
+                          }`}>{status}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Progress value={(count / mockEurekaData.overview.totalInstances) * 100} className="w-20 h-2" />
-                        <span className="text-sm font-bold">{count}</span>
+                        <Progress value={(count / mockEurekaData.overview.totalInstances) * 100} status={status as "UP" | "DOWN" | "OUT_OF_SERVICE"} className="w-20 h-2" />
+                        <span className={`text-[12px] font-bold ${
+                            status === "UP" ? "text-emerald-700 dark:text-emerald-300" : status === "DOWN" ? "text-red-700 dark:text-red-300" : "text-yellow-700 dark:text-yellow-300"
+                          }`}>{count}</span>
                       </div>
                     </div>
                   ))}
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MapPin className="w-5 h-5" />
-                    가용존별 인스턴스 분포
-                  </CardTitle>
+              <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">가용존</CardTitle>
+                  <MapPin className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                 </CardHeader>
-                <CardContent className="space-y-4">
+              
+                <CardContent className="space-y-2 mt-2">
                   {Object.entries(mockEurekaData.overview.instancesByZone).map(([zone, count]) => (
                     <div key={zone} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Globe className="w-4 h-4 text-blue-500" />
-                        <span className="font-medium">{zone}</span>
+                        <span className="text-[12px] font-bold">{zone}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Progress value={(count / mockEurekaData.overview.totalInstances) * 100} className="w-20 h-2" />
+                        <Progress value={(count / mockEurekaData.overview.totalInstances) * 100} className="w-20 h-2" status={"InstancesByZone"} />
                         <span className="text-sm font-bold">{count}</span>
                       </div>
                     </div>
@@ -339,7 +301,7 @@ export default function EurekaPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Clock className="w-5 h-5" />
-                  최근 상태 변화
+                 최근 등록/변경된 인스턴스 목록
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -356,8 +318,8 @@ export default function EurekaPage() {
                           }`}
                         />
                         <div>
-                          <div className="font-medium">{change.instanceId}</div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">{change.service}</div>
+                          <div className="font-medium">{change.service}</div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">{change.instanceId}</div>
                         </div>
                       </div>
                       <div className="text-right">
