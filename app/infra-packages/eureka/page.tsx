@@ -17,10 +17,7 @@ import {
   XCircle,
   Network,
   Database,
-  ShieldCheck,
-  Zap,
 } from "lucide-react"
-import { Switch } from "@/components/ui/switch"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 // Mock data
@@ -504,7 +501,7 @@ export default function EurekaPage() {
                   <CardTitle className="text-sm font-medium">활성 인스턴스</CardTitle>
                   <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
@@ -514,15 +511,15 @@ export default function EurekaPage() {
                     </div>
                     <MiniDonutChart data={mockEurekaData.overview.instancesByStatus} size={50} />
                   </div>
-                   <div className="flex justify-center gap-4">
-                      {mockEurekaData.overview.instancesByStatus.map((item, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                          <span className="text-[10px] font-medium">{item.name}</span>
-                          <span className="text-[10px] text-gray-500">({item.value})</span>
-                        </div>
-                      ))}
-                    </div>
+                  <div className="flex flex-wrap justify-center gap-2 pt-1">
+                    {mockEurekaData.overview.instancesByStatus.map((item, index) => (
+                      <div key={index} className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
+                        <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">{item.name}</span>
+                        <span className="text-[10px] text-gray-500">({item.value})</span>
+                      </div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
 
@@ -532,7 +529,7 @@ export default function EurekaPage() {
                   <CardTitle className="text-sm font-medium">가용존</CardTitle>
                   <MapPin className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">
@@ -541,26 +538,21 @@ export default function EurekaPage() {
                       <p className="text-xs text-purple-600 dark:text-purple-400">활성 가용존</p>
                     </div>
                     <MiniBarChart data={mockEurekaData.overview.instancesByZone} width={50} height={30} />
-                    
-                    {/* <LargeBarChart data={mockEurekaData.overview.instancesByZone} width={50} height={50} /> */}
                   </div>
-                  <div className="flex justify-center gap-4">
-  {mockEurekaData.overview.instancesByZone.map((zone, index) => (
-    <div key={index} className="flex items-center gap-2">
-      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: zone.color }} />
-      <span className="text-[10px] font-medium">{zone.name}</span>
-      <span className="text-[10px] text-gray-500">({zone.value})</span>
-    </div>
-  ))}
-</div>
-
+                  <div className="flex flex-wrap justify-center gap-2 pt-1">
+                    {mockEurekaData.overview.instancesByZone.map((zone, index) => (
+                      <div key={index} className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: zone.color }} />
+                        <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300">{zone.name}</span>
+                        <span className="text-[10px] text-gray-500">({zone.value})</span>
+                      </div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
-
-
             </div>
-              {/* 자기보호모드 카드 추가 */}
-              {/* <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-800">
+            {/* 자기보호모드 카드 추가 */}
+            {/* <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-800">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">자기보호모드</CardTitle>
                   <ShieldCheck className="h-4 w-4 text-orange-600 dark:text-orange-400" />
@@ -584,7 +576,7 @@ export default function EurekaPage() {
                   </div>
                 </CardContent>
               </Card> */}
-  
+
             {/* Recent Changes */}
             <Card>
               <CardHeader>
@@ -683,7 +675,7 @@ export default function EurekaPage() {
 
         {/* Instance Detail Modal */}
         <Dialog open={!!selectedInstance} onOpenChange={() => setSelectedInstance(null)}>
-          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto rounded-lg">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Database className="w-5 h-5" />
@@ -741,17 +733,27 @@ export default function EurekaPage() {
                       <span className="text-sm text-gray-600 dark:text-gray-400">호스트명</span>
                       <span className="text-sm font-medium">{selectedInstance.hostName}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-600 dark:text-gray-400">HTTP 포트</span>
-                      <Badge variant={selectedInstance.isPortEnabled ? "default" : "secondary"}>
-                        {selectedInstance.port} {selectedInstance.isPortEnabled ? "(활성)" : "(비활성)"}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">{selectedInstance.port}</span>
+                        {selectedInstance.isPortEnabled ? (
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <XCircle className="w-4 h-4 text-red-500" />
+                        )}
+                      </div>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-600 dark:text-gray-400">HTTPS 포트</span>
-                      <Badge variant={selectedInstance.isSecurePortEnabled ? "default" : "secondary"}>
-                        {selectedInstance.securePort} {selectedInstance.isSecurePortEnabled ? "(활성)" : "(비활성)"}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">{selectedInstance.securePort}</span>
+                        {selectedInstance.isSecurePortEnabled ? (
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <XCircle className="w-4 h-4 text-red-500" />
+                        )}
+                      </div>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-gray-600 dark:text-gray-400">데이터센터</span>
