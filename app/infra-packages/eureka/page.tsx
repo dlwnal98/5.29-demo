@@ -471,8 +471,8 @@ export default function EurekaPage() {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
             {/* Metrics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-              <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
+              <Card className="col-span-2 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">전체 서비스</CardTitle>
                   <Server className="h-4 w-4 text-blue-600 dark:text-blue-400" />
@@ -485,7 +485,7 @@ export default function EurekaPage() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 border-amber-200 dark:border-amber-800">
+              <Card className="col-span-2 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 border-amber-200 dark:border-amber-800">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">전체 인스턴스</CardTitle>
                   <Database className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -499,7 +499,7 @@ export default function EurekaPage() {
               </Card>
 
               {/* 활성 인스턴스 카드에 미니 도넛 차트 추가 */}
-              <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border-emerald-200 dark:border-emerald-800">
+              <Card className="col-span-4 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border-emerald-200 dark:border-emerald-800">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">활성 인스턴스</CardTitle>
                   <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
@@ -514,11 +514,20 @@ export default function EurekaPage() {
                     </div>
                     <MiniDonutChart data={mockEurekaData.overview.instancesByStatus} size={50} />
                   </div>
+                   <div className="flex justify-center gap-4">
+                      {mockEurekaData.overview.instancesByStatus.map((item, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                          <span className="text-[10px] font-medium">{item.name}</span>
+                          <span className="text-[10px] text-gray-500">({item.value})</span>
+                        </div>
+                      ))}
+                    </div>
                 </CardContent>
               </Card>
 
               {/* 가용존 카드에 미니 바 차트 추가 */}
-              <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
+              <Card className="col-span-4 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">가용존</CardTitle>
                   <MapPin className="h-4 w-4 text-purple-600 dark:text-purple-400" />
@@ -532,12 +541,26 @@ export default function EurekaPage() {
                       <p className="text-xs text-purple-600 dark:text-purple-400">활성 가용존</p>
                     </div>
                     <MiniBarChart data={mockEurekaData.overview.instancesByZone} width={50} height={30} />
+                    
+                    {/* <LargeBarChart data={mockEurekaData.overview.instancesByZone} width={50} height={50} /> */}
                   </div>
+                  <div className="flex justify-center gap-4">
+  {mockEurekaData.overview.instancesByZone.map((zone, index) => (
+    <div key={index} className="flex items-center gap-2">
+      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: zone.color }} />
+      <span className="text-[10px] font-medium">{zone.name}</span>
+      <span className="text-[10px] text-gray-500">({zone.value})</span>
+    </div>
+  ))}
+</div>
+
                 </CardContent>
               </Card>
 
+
+            </div>
               {/* 자기보호모드 카드 추가 */}
-              <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-800">
+              {/* <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-800">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">자기보호모드</CardTitle>
                   <ShieldCheck className="h-4 w-4 text-orange-600 dark:text-orange-400" />
@@ -560,47 +583,8 @@ export default function EurekaPage() {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-            </div>
-
-            {/* 대형 차트 섹션 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="w-5 h-5" />
-                    인스턴스 상태 분포
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex justify-center">
-                  <div className="space-y-4">
-                    <LargeDonutChart data={mockEurekaData.overview.instancesByStatus} size={180} />
-                    <div className="flex justify-center gap-4">
-                      {mockEurekaData.overview.instancesByStatus.map((item, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                          <span className="text-sm font-medium">{item.name}</span>
-                          <span className="text-sm text-gray-500">({item.value})</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MapPin className="w-5 h-5" />
-                    가용존별 인스턴스 분포
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex justify-center">
-                  <LargeBarChart data={mockEurekaData.overview.instancesByZone} width={280} height={180} />
-                </CardContent>
-              </Card>
-            </div>
-
+              </Card> */}
+  
             {/* Recent Changes */}
             <Card>
               <CardHeader>
@@ -861,7 +845,7 @@ export default function EurekaPage() {
                         className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-800/50 rounded"
                       >
                         <span className="text-sm text-gray-600 dark:text-gray-400">{key}</span>
-                        <span className="text-sm font-medium">{value}</span>
+                        <span className="text-sm font-medium">{String(value)}</span>
                       </div>
                     ))}
                   </div>
