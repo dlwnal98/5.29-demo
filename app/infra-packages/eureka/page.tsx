@@ -17,6 +17,7 @@ import {
   XCircle,
   Network,
   Database,
+  Lightbulb
 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
@@ -469,6 +470,19 @@ export default function EurekaPage() {
           <TabsContent value="overview" className="space-y-6">
             {/* Metrics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
+               <Card className="col-span-2 bg-gradient-to-br from-rose-50 to-rose-100 dark:from-rose-900/20 dark:to-rose-800/20 border-rose-200 dark:border-rose-800">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">자기 보호 모드</CardTitle>
+                    <Lightbulb className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-rose-700 dark:text-rose-300">
+                    ON
+                  </div>
+                  <p className="text-xs text-rose-600 dark:text-rose-400">자기 보호 모드 활성화 여부 </p>
+                </CardContent>
+              </Card>
+
               <Card className="col-span-2 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">전체 서비스</CardTitle>
@@ -496,7 +510,7 @@ export default function EurekaPage() {
               </Card>
 
               {/* 활성 인스턴스 카드에 미니 도넛 차트 추가 */}
-              <Card className="col-span-4 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border-emerald-200 dark:border-emerald-800">
+              <Card className="col-span-3 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border-emerald-200 dark:border-emerald-800">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">활성 인스턴스</CardTitle>
                   <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
@@ -524,7 +538,7 @@ export default function EurekaPage() {
               </Card>
 
               {/* 가용존 카드에 미니 바 차트 추가 */}
-              <Card className="col-span-4 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
+              <Card className="col-span-3 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">가용존</CardTitle>
                   <MapPin className="h-4 w-4 text-purple-600 dark:text-purple-400" />
@@ -618,15 +632,15 @@ export default function EurekaPage() {
 
           {/* Services Tab */}
           <TabsContent value="services" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {mockEurekaData.services.map((service) => (
                 <Card key={service.name} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Server className="w-5 h-5" />
+                      <Server className="w-5 h-5 relative top-[3px]" />
                       {service.name}
                       <Badge variant="outline" className="ml-auto">
-                        {service.instanceCount} 인스턴스
+                        {service.instanceCount} Instance
                       </Badge>
                     </CardTitle>
                   </CardHeader>
@@ -648,7 +662,7 @@ export default function EurekaPage() {
                             <div>
                               <div className="text-sm font-medium">{instance.instanceId}</div>
                               <div className="text-xs text-gray-500">
-                                {instance.ipAddr}:{instance.port} • {instance.zone}
+                                {instance.ipAddr}:{instance.port} • {instance.version}
                               </div>
                             </div>
                           </div>
@@ -658,9 +672,9 @@ export default function EurekaPage() {
                               <Badge variant="outline" className="text-xs">
                                 {instance.zone}
                               </Badge>
-                              <Badge variant="secondary" className="text-xs">
+                              {/* <Badge variant="secondary" className="text-xs">
                                 {instance.version}
-                              </Badge>
+                              </Badge> */}
                             </div>
                           </div>
                         </div>
