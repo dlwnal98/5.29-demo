@@ -3,7 +3,7 @@ import { Activity, BarChart3, Server, Settings, Shield, Network } from "lucide-r
 
 export type AppStatus = "running" | "stopped" | "error" | "maintenance"
 
-const createIcon = (Icon: any) => {
+  const createIcon = (Icon: any) => {
   return <Icon className="h-8 w-8" />
 }
 

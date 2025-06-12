@@ -66,7 +66,7 @@ import {
   tooltipDescriptions,
   eventData,
   logData,
-} from "../app/mockData/dashboardData";
+} from "@/constants/dashboardData";
 
 // 로그 뷰어 모달 컴포넌트
 function LogViewerModal() {
@@ -871,6 +871,7 @@ export function Dashboard() {
     }
   };
 
+
   return (
     <div className="bg-transparent">
       <div className="container mx-auto px-4 py-6">
@@ -882,50 +883,52 @@ export function Dashboard() {
             Infra Packages
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {dashboardApps.map((app) => (
-              <Card
-                key={app.id}
-                className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-blue-200/50 bg-white/70 backdrop-blur-sm hover:bg-white/80 hover:scale-105 dark:bg-[#303C9D1F]"
-                onClick={() => handleAppClick(app.url)}
-              >
-                <CardContent className="p-6 text-center">
-                  {/* App Icon */}
-                  <div
-                    className={`mx-auto mb-4 h-16 w-16 bg-gradient-to-br ${app.color} rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300`}
-                  >
-                    <div className="text-white">{app.icon}</div>
-                  </div>
+            {dashboardApps.map((app) => {
+              return (
+                <Card
+                  key={app.id}
+                  className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-blue-200/50 bg-white/70 backdrop-blur-sm hover:bg-white/80 hover:scale-105 dark:bg-[#303C9D1F]"
+                  onClick={() => handleAppClick(app.url)}
+                >
+                  <CardContent className="p-6 text-center">
+                    {/* App Icon */}
+                    <div
+                      className={`mx-auto mb-4 h-16 w-16 bg-gradient-to-br ${app.color} rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300`}
+                    >
+                      <div className="text-white">{app.icon}</div>
+                    </div>
 
-                  {/* App Name */}
-                  <h3 className="font-semibold text-sm mb-2 truncate">
-                    {app.name}
-                  </h3>
+                    {/* App Name */}
+                    <h3 className="font-semibold text-sm mb-2 truncate">
+                      {app.name}
+                    </h3>
 
-                  {/* App Description */}
-                  {/* <p className="text-xs text-muted-foreground mb-3 line-clamp-2 h-8">
+                    {/* App Description */}
+                    {/* <p className="text-xs text-muted-foreground mb-3 line-clamp-2 h-8">
                     {app.description}
                   </p> */}
 
-                  {/* Status Badge */}
-                  <Badge
-                    variant="outline"
-                    className={`text-xs ${getStatusColor(app.status)} mb-2`}
-                  >
-                    {app.status}
-                  </Badge>
+                    {/* Status Badge */}
+                    <Badge
+                      variant="outline"
+                      className={`text-xs ${getStatusColor(app.status)} mb-2`}
+                    >
+                      {app.status}
+                    </Badge>
 
-                  {/* Version */}
-                  {/* <p className="text-xs text-muted-foreground">
+                    {/* Version */}
+                    {/* <p className="text-xs text-muted-foreground">
                     v{app.version}
                   </p> */}
 
-                  {/* External Link Icon */}
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <ExternalLink className="h-3 w-3 text-muted-foreground" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    {/* External Link Icon */}
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         </div>
 

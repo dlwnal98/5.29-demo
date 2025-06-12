@@ -134,7 +134,7 @@ export function NotificationDropdown() {
         <Button
           variant="ghost"
           size="sm"
-          className={`relative hover:bg-blue-100 dark:hover:bg-gray-800`}
+          className={`relative hover:bg-red-100 dark:hover:bg-red-900`}
         >
           <Bell className={`h-4 w-4 ${unreadCount > 0 ? "text-red-500" : "text-gray-600 dark:text-gray-400"}`} />
           {unreadCount > 0 && (
