@@ -5,8 +5,6 @@ import { AppLayout } from "@/components/app-layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
 import {
   Server,
   Activity,
@@ -17,29 +15,32 @@ import {
   AlertCircle,
   CheckCircle,
   XCircle,
-  RefreshCw,
-  Eye,
   Network,
   Database,
+  ShieldCheck,
+  Zap,
 } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 // Mock data
 const mockEurekaData = {
   overview: {
     totalServices: 12,
     totalInstances: 45,
-    selfPreservation: true,
+    activeInstances: 42,
+    selfPreservationMode: true,
     zones: ["us-east-1a", "us-east-1b", "us-east-1c"],
-    instancesByStatus: {
-      UP: 42,
-      DOWN: 2,
-      OUT_OF_SERVICE: 1,
-    },
-    instancesByZone: {
-      "us-east-1a": 15,
-      "us-east-1b": 18,
-      "us-east-1c": 12,
-    },
+    instancesByStatus: [
+      { name: "UP", value: 42, color: "#10b981", percentage: 93.3 },
+      { name: "DOWN", value: 2, color: "#ef4444", percentage: 4.4 },
+      { name: "OUT_OF_SERVICE", value: 1, color: "#f59e0b", percentage: 2.2 },
+    ],
+    instancesByZone: [
+      { name: "us-east-1a", value: 15, color: "#3b82f6", percentage: 33.3 },
+      { name: "us-east-1b", value: 18, color: "#8b5cf6", percentage: 40.0 },
+      { name: "us-east-1c", value: 12, color: "#06b6d4", percentage: 26.7 },
+    ],
     recentChanges: [
       { instanceId: "auth-server:8081", status: "UP", timestamp: "1718087200000", service: "AUTH-SERVER" },
       {
@@ -59,93 +60,352 @@ const mockEurekaData = {
   services: [
     {
       name: "user-service",
-      instanceCount: 8,
-      status: "UP",
-      zones: ["us-east-1a", "us-east-1b"],
-      versions: ["v1.2.3", "v1.2.2"],
+      instanceCount: 3,
       instances: [
         {
           instanceId: "user-service-001",
-          host: "192.168.1.10",
-          port: 8080,
           status: "UP",
+          ipAddr: "192.168.1.10",
+          hostName: "user-service-001.local",
+          port: 8080,
+          isPortEnabled: true,
+          securePort: 8443,
+          isSecurePortEnabled: true,
           zone: "us-east-1a",
-          commitHash: "abc123ef",
-          lastUpdated: "2024-01-15T10:30:00Z",
+          version: "v1.2.3",
+          dataCenter: "us-east-1",
+          overriddenStatus: "UNKNOWN",
+          actionType: "ADDED",
+          isCoordinatingDiscoveryServer: false,
+          leaseInfo: {
+            renewalIntervalInSecs: 30,
+            durationInSecs: 90,
+            registrationTimestamp: "2024-01-15T09:00:00Z",
+            lastRenewalTimestamp: "2024-01-15T10:30:00Z",
+          },
+          lastUpdatedTimestamp: "2024-01-15T10:30:00Z",
+          lastDirtyTimestamp: "2024-01-15T10:29:45Z",
+          homePageUrl: "http://192.168.1.10:8080/",
+          statusPageUrl: "http://192.168.1.10:8080/actuator/info",
+          healthCheckUrl: "http://192.168.1.10:8080/actuator/health",
+          vipAddress: "user-service",
+          secureVipAddress: "user-service",
+          metadata: {
+            version: "v1.2.3",
+            gitCommit: "abc123ef",
+            managementPort: "8081",
+            team: "backend-team",
+          },
         },
         {
           instanceId: "user-service-002",
-          host: "192.168.1.11",
-          port: 8080,
           status: "UP",
+          ipAddr: "192.168.1.11",
+          hostName: "user-service-002.local",
+          port: 8080,
+          isPortEnabled: true,
+          securePort: 8443,
+          isSecurePortEnabled: true,
           zone: "us-east-1b",
-          commitHash: "def456gh",
-          lastUpdated: "2024-01-15T10:29:00Z",
+          version: "v1.2.3",
+          dataCenter: "us-east-1",
+          overriddenStatus: "UNKNOWN",
+          actionType: "ADDED",
+          isCoordinatingDiscoveryServer: false,
+          leaseInfo: {
+            renewalIntervalInSecs: 30,
+            durationInSecs: 90,
+            registrationTimestamp: "2024-01-15T09:00:00Z",
+            lastRenewalTimestamp: "2024-01-15T10:29:00Z",
+          },
+          lastUpdatedTimestamp: "2024-01-15T10:29:00Z",
+          lastDirtyTimestamp: "2024-01-15T10:28:45Z",
+          homePageUrl: "http://192.168.1.11:8080/",
+          statusPageUrl: "http://192.168.1.11:8080/actuator/info",
+          healthCheckUrl: "http://192.168.1.11:8080/actuator/health",
+          vipAddress: "user-service",
+          secureVipAddress: "user-service",
+          metadata: {
+            version: "v1.2.3",
+            gitCommit: "def456gh",
+            managementPort: "8081",
+            team: "backend-team",
+          },
+        },
+        {
+          instanceId: "user-service-003",
+          status: "DOWN",
+          ipAddr: "192.168.1.12",
+          hostName: "user-service-003.local",
+          port: 8080,
+          isPortEnabled: true,
+          securePort: 8443,
+          isSecurePortEnabled: false,
+          zone: "us-east-1c",
+          version: "v1.2.2",
+          dataCenter: "us-east-1",
+          overriddenStatus: "UNKNOWN",
+          actionType: "MODIFIED",
+          isCoordinatingDiscoveryServer: false,
+          leaseInfo: {
+            renewalIntervalInSecs: 30,
+            durationInSecs: 90,
+            registrationTimestamp: "2024-01-15T09:00:00Z",
+            lastRenewalTimestamp: "2024-01-15T10:20:00Z",
+          },
+          lastUpdatedTimestamp: "2024-01-15T10:25:00Z",
+          lastDirtyTimestamp: "2024-01-15T10:24:45Z",
+          homePageUrl: "http://192.168.1.12:8080/",
+          statusPageUrl: "http://192.168.1.12:8080/actuator/info",
+          healthCheckUrl: "http://192.168.1.12:8080/actuator/health",
+          vipAddress: "user-service",
+          secureVipAddress: "user-service",
+          metadata: {
+            version: "v1.2.2",
+            gitCommit: "ghi789jk",
+            managementPort: "8081",
+            team: "backend-team",
+          },
         },
       ],
     },
     {
       name: "payment-service",
-      instanceCount: 6,
-      status: "PARTIAL",
-      zones: ["us-east-1a", "us-east-1c"],
-      versions: ["v2.1.0"],
+      instanceCount: 2,
       instances: [
         {
           instanceId: "payment-service-001",
-          host: "192.168.1.20",
-          port: 8081,
           status: "UP",
+          ipAddr: "192.168.1.20",
+          hostName: "payment-service-001.local",
+          port: 8081,
+          isPortEnabled: true,
+          securePort: 8444,
+          isSecurePortEnabled: true,
           zone: "us-east-1a",
-          commitHash: "ghi789jk",
-          lastUpdated: "2024-01-15T10:28:00Z",
+          version: "v2.1.0",
+          dataCenter: "us-east-1",
+          overriddenStatus: "UNKNOWN",
+          actionType: "ADDED",
+          isCoordinatingDiscoveryServer: true,
+          leaseInfo: {
+            renewalIntervalInSecs: 30,
+            durationInSecs: 90,
+            registrationTimestamp: "2024-01-15T09:00:00Z",
+            lastRenewalTimestamp: "2024-01-15T10:28:00Z",
+          },
+          lastUpdatedTimestamp: "2024-01-15T10:28:00Z",
+          lastDirtyTimestamp: "2024-01-15T10:27:45Z",
+          homePageUrl: "http://192.168.1.20:8081/",
+          statusPageUrl: "http://192.168.1.20:8081/actuator/info",
+          healthCheckUrl: "http://192.168.1.20:8081/actuator/health",
+          vipAddress: "payment-service",
+          secureVipAddress: "payment-service",
+          metadata: {
+            version: "v2.1.0",
+            gitCommit: "lmn012op",
+            managementPort: "8082",
+            team: "payment-team",
+          },
         },
         {
           instanceId: "payment-service-002",
-          host: "192.168.1.21",
-          port: 8081,
           status: "DOWN",
+          ipAddr: "192.168.1.21",
+          hostName: "payment-service-002.local",
+          port: 8081,
+          isPortEnabled: true,
+          securePort: 8444,
+          isSecurePortEnabled: true,
           zone: "us-east-1c",
-          commitHash: "lmn012op",
-          lastUpdated: "2024-01-15T10:25:00Z",
+          version: "v2.1.0",
+          dataCenter: "us-east-1",
+          overriddenStatus: "OUT_OF_SERVICE",
+          actionType: "MODIFIED",
+          isCoordinatingDiscoveryServer: false,
+          leaseInfo: {
+            renewalIntervalInSecs: 30,
+            durationInSecs: 90,
+            registrationTimestamp: "2024-01-15T09:00:00Z",
+            lastRenewalTimestamp: "2024-01-15T10:20:00Z",
+          },
+          lastUpdatedTimestamp: "2024-01-15T10:25:00Z",
+          lastDirtyTimestamp: "2024-01-15T10:24:45Z",
+          homePageUrl: "http://192.168.1.21:8081/",
+          statusPageUrl: "http://192.168.1.21:8081/actuator/info",
+          healthCheckUrl: "http://192.168.1.21:8081/actuator/health",
+          vipAddress: "payment-service",
+          secureVipAddress: "payment-service",
+          metadata: {
+            version: "v2.1.0",
+            gitCommit: "qrs345tu",
+            managementPort: "8082",
+            team: "payment-team",
+          },
         },
       ],
     },
   ],
 }
 
-const mockInstanceDetail = {
-  instanceId: "user-service-001",
-  status: "UP",
-  host: "192.168.1.10",
-  port: 8080,
-  securePort: 8443,
-  httpEnabled: true,
-  httpsEnabled: true,
-  datacenter: "us-east-1",
-  renewalInterval: 30,
-  metadata: {
-    "management.port": "8081",
-    "git.commit": "abc123ef",
-    "git.branch": "main",
-    "build.version": "v1.2.3",
-  },
-  homePageUrl: "http://192.168.1.10:8080/",
-  statusPageUrl: "http://192.168.1.10:8080/actuator/info",
-  healthCheckUrl: "http://192.168.1.10:8080/actuator/health",
-  vipAddress: "user-service",
-  secureVipAddress: "user-service",
-  isCoordinator: false,
-  lastUpdated: "2024-01-15T10:30:00Z",
-  lastDirtyTimestamp: "2024-01-15T10:29:45Z",
-  actionType: "ADDED",
+// 미니 도넛 차트 컴포넌트
+const MiniDonutChart = ({ data, size = 60 }: { data: any[]; size?: number }) => {
+  const radius = size / 2 - 5
+  const circumference = 2 * Math.PI * radius
+  let cumulativePercentage = 0
+
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="transform -rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="#e5e7eb"
+          strokeWidth="4"
+          className="dark:stroke-gray-700"
+        />
+        {data.map((item, index) => {
+          const strokeDasharray = `${(item.percentage / 100) * circumference} ${circumference}`
+          const strokeDashoffset = (-cumulativePercentage * circumference) / 100
+          cumulativePercentage += item.percentage
+
+          return (
+            <circle
+              key={index}
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              fill="none"
+              stroke={item.color}
+              strokeWidth="4"
+              strokeDasharray={strokeDasharray}
+              strokeDashoffset={strokeDashoffset}
+              className="transition-all duration-300"
+            />
+          )
+        })}
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
+          {data.reduce((sum, item) => sum + item.value, 0)}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+// 미니 바 차트 컴포넌트
+const MiniBarChart = ({ data, width = 60, height = 40 }: { data: any[]; width?: number; height?: number }) => {
+  const maxValue = Math.max(...data.map((item) => item.value))
+  const barWidth = width / data.length - 2
+
+  return (
+    <div className="flex items-end justify-center gap-1" style={{ width, height }}>
+      {data.map((item, index) => {
+        const barHeight = (item.value / maxValue) * height
+        return (
+          <div
+            key={index}
+            className="rounded-t transition-all duration-300 hover:opacity-80"
+            style={{
+              width: barWidth,
+              height: barHeight,
+              backgroundColor: item.color,
+            }}
+          />
+        )
+      })}
+    </div>
+  )
+}
+
+// 대형 도넛 차트 컴포넌트
+const LargeDonutChart = ({ data, size = 200 }: { data: any[]; size?: number }) => {
+  const radius = size / 2 - 20
+  const circumference = 2 * Math.PI * radius
+  let cumulativePercentage = 0
+
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="transform -rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="#e5e7eb"
+          strokeWidth="8"
+          className="dark:stroke-gray-700"
+        />
+        {data.map((item, index) => {
+          const strokeDasharray = `${(item.percentage / 100) * circumference} ${circumference}`
+          const strokeDashoffset = (-cumulativePercentage * circumference) / 100
+          cumulativePercentage += item.percentage
+
+          return (
+            <circle
+              key={index}
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              fill="none"
+              stroke={item.color}
+              strokeWidth="8"
+              strokeDasharray={strokeDasharray}
+              strokeDashoffset={strokeDashoffset}
+              className="transition-all duration-500 hover:stroke-opacity-80"
+            />
+          )
+        })}
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-2xl font-bold text-gray-700 dark:text-gray-300">
+          {data.reduce((sum, item) => sum + item.value, 0)}
+        </span>
+        <span className="text-xs text-gray-500">총 인스턴스</span>
+      </div>
+    </div>
+  )
+}
+
+// 대형 바 차트 컴포넌트
+const LargeBarChart = ({ data, width = 300, height = 200 }: { data: any[]; width?: number; height?: number }) => {
+  const maxValue = Math.max(...data.map((item) => item.value))
+  const barWidth = (width - 40) / data.length - 10
+
+  return (
+    <div className="flex flex-col items-center" style={{ width, height }}>
+      <div className="flex items-end justify-center gap-2 flex-1" style={{ height: height - 40 }}>
+        {data.map((item, index) => {
+          const barHeight = (item.value / maxValue) * (height - 60)
+          return (
+            <div key={index} className="flex flex-col items-center gap-2">
+              <div className="text-xs font-bold text-gray-700 dark:text-gray-300">{item.value}</div>
+              <div
+                className="rounded-t transition-all duration-500 hover:opacity-80"
+                style={{
+                  width: barWidth,
+                  height: barHeight,
+                  backgroundColor: item.color,
+                }}
+              />
+              <div className="text-xs text-gray-500 text-center max-w-16 truncate">{item.name}</div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
 }
 
 export default function EurekaPage() {
   const [activeTab, setActiveTab] = useState("overview")
   const [selectedService, setSelectedService] = useState<string | null>(null)
-  const [selectedInstance, setSelectedInstance] = useState<string | null>(null)
+  const [selectedInstance, setSelectedInstance] = useState<any>(null)
   const [refreshing, setRefreshing] = useState(false)
+  const [selfPreservationMode, setSelfPreservationMode] = useState(mockEurekaData.overview.selfPreservationMode)
 
   const handleRefresh = async () => {
     setRefreshing(true)
@@ -185,7 +445,7 @@ export default function EurekaPage() {
   const StatusBadge = ({ status }: { status: string }) => (
     <Badge
       variant={status === "UP" ? "default" : status === "DOWN" ? "destructive" : "secondary"}
-      className="flex items-center gap-1 animate-pulse"
+      className="flex items-center gap-1"
     >
       {getStatusIcon(status)}
       {status}
@@ -195,10 +455,9 @@ export default function EurekaPage() {
   return (
     <AppLayout>
       <div className="container mx-auto px-4 py-6 space-y-6">
-
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <Activity className="w-4 h-4" />
               전역 대시보드
@@ -207,16 +466,12 @@ export default function EurekaPage() {
               <Server className="w-4 h-4" />
               서비스 목록
             </TabsTrigger>
-            <TabsTrigger value="instances" className="flex items-center gap-2">
-              <Database className="w-4 h-4" />
-              인스턴스 상세
-            </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
             {/* Metrics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
               <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">전체 서비스</CardTitle>
@@ -243,55 +498,105 @@ export default function EurekaPage() {
                 </CardContent>
               </Card>
 
+              {/* 활성 인스턴스 카드에 미니 도넛 차트 추가 */}
               <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border-emerald-200 dark:border-emerald-800">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">활성 인스턴스</CardTitle>
                   <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 </CardHeader>
-               
-                <CardContent className="space-y-2 mt-2">
-                  {Object.entries(mockEurekaData.overview.instancesByStatus).map(([status, count]) => (
-                    <div key={status} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-3 h-3 rounded-full ${
-                            status === "UP" ? "bg-green-500" : status === "DOWN" ? "bg-red-500" : "bg-yellow-500"
-                          } animate-pulse`}
-                        />
-                        <span className={`text-[12px] font-bold ${
-                            status === "UP" ? "text-emerald-700 dark:text-emerald-300" : status === "DOWN" ? "text-red-700 dark:text-red-300" : "text-yellow-700 dark:text-yellow-300"
-                          }`}>{status}</span>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
+                        {mockEurekaData.overview.activeInstances}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Progress value={(count / mockEurekaData.overview.totalInstances) * 100} status={status as "UP" | "DOWN" | "OUT_OF_SERVICE"} className="w-20 h-2" />
-                        <span className={`text-[12px] font-bold ${
-                            status === "UP" ? "text-emerald-700 dark:text-emerald-300" : status === "DOWN" ? "text-red-700 dark:text-red-300" : "text-yellow-700 dark:text-yellow-300"
-                          }`}>{count}</span>
-                      </div>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400">정상 작동 중</p>
                     </div>
-                  ))}
+                    <MiniDonutChart data={mockEurekaData.overview.instancesByStatus} size={50} />
+                  </div>
                 </CardContent>
               </Card>
 
+              {/* 가용존 카드에 미니 바 차트 추가 */}
               <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">가용존</CardTitle>
                   <MapPin className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                 </CardHeader>
-              
-                <CardContent className="space-y-2 mt-2">
-                  {Object.entries(mockEurekaData.overview.instancesByZone).map(([zone, count]) => (
-                    <div key={zone} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Globe className="w-4 h-4 text-blue-500" />
-                        <span className="text-[12px] font-bold">{zone}</span>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">
+                        {mockEurekaData.overview.zones.length}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Progress value={(count / mockEurekaData.overview.totalInstances) * 100} className="w-20 h-2" status={"InstancesByZone"} />
-                        <span className="text-sm font-bold">{count}</span>
-                      </div>
+                      <p className="text-xs text-purple-600 dark:text-purple-400">활성 가용존</p>
                     </div>
-                  ))}
+                    <MiniBarChart data={mockEurekaData.overview.instancesByZone} width={50} height={30} />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 자기보호모드 카드 추가 */}
+              <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-800">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">자기보호모드</CardTitle>
+                  <ShieldCheck className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-lg font-bold text-orange-700 dark:text-orange-300">
+                        {selfPreservationMode ? "활성화" : "비활성화"}
+                      </div>
+                      <p className="text-xs text-orange-600 dark:text-orange-400">네트워크 분할 보호</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={selfPreservationMode}
+                        onCheckedChange={setSelfPreservationMode}
+                        className="data-[state=checked]:bg-orange-500"
+                      />
+                      {selfPreservationMode && <Zap className="w-4 h-4 text-orange-500 animate-pulse" />}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* 대형 차트 섹션 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="w-5 h-5" />
+                    인스턴스 상태 분포
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center">
+                  <div className="space-y-4">
+                    <LargeDonutChart data={mockEurekaData.overview.instancesByStatus} size={180} />
+                    <div className="flex justify-center gap-4">
+                      {mockEurekaData.overview.instancesByStatus.map((item, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                          <span className="text-sm font-medium">{item.name}</span>
+                          <span className="text-sm text-gray-500">({item.value})</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPin className="w-5 h-5" />
+                    가용존별 인스턴스 분포
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center">
+                  <LargeBarChart data={mockEurekaData.overview.instancesByZone} width={280} height={180} />
                 </CardContent>
               </Card>
             </div>
@@ -301,7 +606,7 @@ export default function EurekaPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Clock className="w-5 h-5" />
-                 최근 등록/변경된 인스턴스 목록
+                  최근 등록/변경된 인스턴스 목록
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -339,57 +644,26 @@ export default function EurekaPage() {
           <TabsContent value="services" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {mockEurekaData.services.map((service) => (
-                <Card key={service.name} className="hover:shadow-lg transition-shadow cursor-pointer">
+                <Card key={service.name} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2">
-                        <Server className="w-5 h-5" />
-                        {service.name}
-                      </CardTitle>
-                      <StatusBadge status={service.status} />
-                    </div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Server className="w-5 h-5" />
+                      {service.name}
+                      <Badge variant="outline" className="ml-auto">
+                        {service.instanceCount} 인스턴스
+                      </Badge>
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">인스턴스 수</div>
-                        <div className="text-2xl font-bold">{service.instanceCount}</div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">가용존</div>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {service.zones.map((zone) => (
-                            <Badge key={zone} variant="outline" className="text-xs">
-                              {zone}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">버전</div>
-                      <div className="flex flex-wrap gap-1">
-                        {service.versions.map((version) => (
-                          <Badge key={version} variant="secondary" className="text-xs">
-                            {version}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-
                     <div className="space-y-2">
                       <div className="text-sm text-gray-600 dark:text-gray-400">인스턴스 목록</div>
                       {service.instances.map((instance) => (
                         <div
                           key={instance.instanceId}
-                          className="flex items-center justify-between p-2 rounded bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
-                          onClick={() => {
-                            setSelectedInstance(instance.instanceId)
-                            setActiveTab("instances")
-                          }}
+                          className="flex items-center justify-between p-3 rounded bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                          onClick={() => setSelectedInstance(instance)}
                         >
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-3">
                             <div
                               className={`w-2 h-2 rounded-full ${
                                 instance.status === "UP" ? "bg-green-500" : "bg-red-500"
@@ -398,157 +672,177 @@ export default function EurekaPage() {
                             <div>
                               <div className="text-sm font-medium">{instance.instanceId}</div>
                               <div className="text-xs text-gray-500">
-                                {instance.host}:{instance.port} • {instance.zone}
+                                {instance.ipAddr}:{instance.port} • {instance.zone}
                               </div>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <Badge variant="outline" className="text-xs">
-                              {instance.commitHash}
-                            </Badge>
-                            <div className="text-xs text-gray-500 mt-1">
-                              {new Date(instance.lastUpdated).toLocaleTimeString()}
+                          <div className="text-right space-y-1">
+                            <StatusBadge status={instance.status} />
+                            <div className="flex gap-1">
+                              <Badge variant="outline" className="text-xs">
+                                {instance.zone}
+                              </Badge>
+                              <Badge variant="secondary" className="text-xs">
+                                {instance.version}
+                              </Badge>
                             </div>
                           </div>
                         </div>
                       ))}
                     </div>
-
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => {
-                        setSelectedService(service.name)
-                        setActiveTab("instances")
-                      }}
-                    >
-                      <Eye className="w-4 h-4 mr-2" />
-                      상세 보기
-                    </Button>
                   </CardContent>
                 </Card>
               ))}
             </div>
           </TabsContent>
+        </Tabs>
 
-          {/* Instance Detail Tab */}
-          <TabsContent value="instances" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Database className="w-5 h-5" />
-                  인스턴스 상세 정보
-                  {selectedInstance && (
-                    <Badge variant="outline" className="ml-2">
-                      {selectedInstance}
-                    </Badge>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Basic Info */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <Card className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Activity className="w-4 h-4 text-blue-500" />
-                      <span className="font-medium">상태 정보</span>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">상태</span>
-                        <StatusBadge status={mockInstanceDetail.status} />
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">데이터센터</span>
-                        <span className="text-sm font-medium">{mockInstanceDetail.datacenter}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">코디네이터</span>
-                        <Badge variant={mockInstanceDetail.isCoordinator ? "default" : "secondary"}>
-                          {mockInstanceDetail.isCoordinator ? "예" : "아니오"}
-                        </Badge>
-                      </div>
-                    </div>
-                  </Card>
+        {/* Instance Detail Modal */}
+        <Dialog open={!!selectedInstance} onOpenChange={() => setSelectedInstance(null)}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Database className="w-5 h-5" />
+                인스턴스 상세 정보
+                {selectedInstance && (
+                  <Badge variant="outline" className="ml-2">
+                    {selectedInstance.instanceId}
+                  </Badge>
+                )}
+              </DialogTitle>
+            </DialogHeader>
 
-                  <Card className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Network className="w-4 h-4 text-green-500" />
-                      <span className="font-medium">네트워크 정보</span>
+            {selectedInstance && (
+              <div className="space-y-6">
+                {/* Status Info */}
+                <Card className="p-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Activity className="w-4 h-4 text-blue-500" />
+                    <span className="font-medium">상태 정보</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">현재 상태</span>
+                      <StatusBadge status={selectedInstance.status} />
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">호스트</span>
-                        <span className="text-sm font-medium">{mockInstanceDetail.host}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">HTTP 포트</span>
-                        <Badge variant={mockInstanceDetail.httpEnabled ? "default" : "secondary"}>
-                          {mockInstanceDetail.port}
-                        </Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">HTTPS 포트</span>
-                        <Badge variant={mockInstanceDetail.httpsEnabled ? "default" : "secondary"}>
-                          {mockInstanceDetail.securePort}
-                        </Badge>
-                      </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">덮어쓴 상태</span>
+                      <Badge variant="secondary">{selectedInstance.overriddenStatus}</Badge>
                     </div>
-                  </Card>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">마지막 이벤트</span>
+                      <Badge variant="outline">{selectedInstance.actionType}</Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">코디네이터 역할</span>
+                      <Badge variant={selectedInstance.isCoordinatingDiscoveryServer ? "default" : "secondary"}>
+                        {selectedInstance.isCoordinatingDiscoveryServer ? "예" : "아니오"}
+                      </Badge>
+                    </div>
+                  </div>
+                </Card>
 
-                  <Card className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Clock className="w-4 h-4 text-purple-500" />
-                      <span className="font-medium">갱신 정보</span>
+                {/* Network Info */}
+                <Card className="p-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Network className="w-4 h-4 text-green-500" />
+                    <span className="font-medium">네트워크 정보</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">IP 주소</span>
+                      <span className="text-sm font-medium">{selectedInstance.ipAddr}</span>
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">갱신 주기</span>
-                        <span className="text-sm font-medium">{mockInstanceDetail.renewalInterval}초</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">최근 갱신</span>
-                        <span className="text-sm font-medium">
-                          {new Date(mockInstanceDetail.lastUpdated).toLocaleTimeString()}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">마지막 이벤트</span>
-                        <Badge variant="outline">{mockInstanceDetail.actionType}</Badge>
-                      </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">호스트명</span>
+                      <span className="text-sm font-medium">{selectedInstance.hostName}</span>
                     </div>
-                  </Card>
-                </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">HTTP 포트</span>
+                      <Badge variant={selectedInstance.isPortEnabled ? "default" : "secondary"}>
+                        {selectedInstance.port} {selectedInstance.isPortEnabled ? "(활성)" : "(비활성)"}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">HTTPS 포트</span>
+                      <Badge variant={selectedInstance.isSecurePortEnabled ? "default" : "secondary"}>
+                        {selectedInstance.securePort} {selectedInstance.isSecurePortEnabled ? "(활성)" : "(비활성)"}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">데이터센터</span>
+                      <span className="text-sm font-medium">{selectedInstance.dataCenter}</span>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Lease Info */}
+                <Card className="p-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Clock className="w-4 h-4 text-purple-500" />
+                    <span className="font-medium">갱신 정보</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">갱신 주기</span>
+                      <span className="text-sm font-medium">{selectedInstance.leaseInfo.renewalIntervalInSecs}초</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">지속 시간</span>
+                      <span className="text-sm font-medium">{selectedInstance.leaseInfo.durationInSecs}초</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">최근 갱신</span>
+                      <span className="text-sm font-medium">
+                        {new Date(selectedInstance.lastUpdatedTimestamp).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">마지막 Dirty</span>
+                      <span className="text-sm font-medium">
+                        {new Date(selectedInstance.lastDirtyTimestamp).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </Card>
 
                 {/* URLs */}
                 <Card className="p-4">
                   <div className="flex items-center gap-2 mb-4">
                     <Globe className="w-4 h-4 text-blue-500" />
-                    <span className="font-medium">진입점 URL</span>
+                    <span className="font-medium">주요 진입 지점 URL</span>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
                     <div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">홈페이지</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">홈페이지 URL</div>
                       <div className="text-sm font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
-                        {mockInstanceDetail.homePageUrl}
+                        {selectedInstance.homePageUrl}
                       </div>
                     </div>
                     <div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">상태 페이지</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">상태 페이지 URL</div>
                       <div className="text-sm font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
-                        {mockInstanceDetail.statusPageUrl}
+                        {selectedInstance.statusPageUrl}
                       </div>
                     </div>
                     <div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">헬스체크</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">헬스체크 URL</div>
                       <div className="text-sm font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
-                        {mockInstanceDetail.healthCheckUrl}
+                        {selectedInstance.healthCheckUrl}
                       </div>
                     </div>
-                    <div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">VIP 주소</div>
-                      <div className="text-sm font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
-                        {mockInstanceDetail.vipAddress}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">VIP 주소</div>
+                        <div className="text-sm font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
+                          {selectedInstance.vipAddress}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">보안 VIP 주소</div>
+                        <div className="text-sm font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
+                          {selectedInstance.secureVipAddress}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -561,7 +855,7 @@ export default function EurekaPage() {
                     <span className="font-medium">메타데이터</span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(mockInstanceDetail.metadata).map(([key, value]) => (
+                    {Object.entries(selectedInstance.metadata).map(([key, value]) => (
                       <div
                         key={key}
                         className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-800/50 rounded"
@@ -572,10 +866,10 @@ export default function EurekaPage() {
                     ))}
                   </div>
                 </Card>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </AppLayout>
   )
