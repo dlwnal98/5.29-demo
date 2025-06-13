@@ -104,7 +104,7 @@ export function LogViewerModal() {
         {/* 필터 및 검색 */}
         <div className="flex flex-col sm:flex-row gap-4 py-4">
           <div className="flex items-center space-x-2">
-            <Label htmlFor="log-filter">필터:</Label>
+            {/* <Label htmlFor="log-filter">필터:</Label> */}
             <Select value={selectedFilter} onValueChange={setSelectedFilter}>
               <SelectTrigger className="w-32">
                 <SelectValue />
@@ -129,7 +129,7 @@ export function LogViewerModal() {
             <div className="flex space-x-2">
               <Button variant="outline" size="sm">
                 <RefreshCw className="h-4 w-4 mr-2" />
-                새로고침
+                {/* 새로고침 */}
               </Button>
               {/* <Button variant="outline" size="sm">
                 내보내기
@@ -139,25 +139,27 @@ export function LogViewerModal() {
           <div className="flex items-center space-x-2 text-sm text-gray-500">
             <div className="flex items-center space-x-1">
               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              <span>
+              <span className="text-[12px]">
                 ERROR: {logData.filter((log) => log.level === "ERROR").length}
               </span>
             </div>
             <div className="flex items-center space-x-1">
               <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-              <span>
+              <span className="text-[12px]">
                 WARNING:{" "}
                 {logData.filter((log) => log.level === "WARNING").length}
               </span>
             </div>
             <div className="flex items-center space-x-1">
               <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span>
+              <span className="text-[12px]">
                 INFO: {logData.filter((log) => log.level === "INFO").length}
               </span>
             </div>
             <div className="flex items-center space-x-1">
-              <span>총 {filteredLogs.length}개 로그</span>
+              <Badge variant="secondary" className="text-[13px] font-lightbold">
+                총 {filteredLogs.length}개 로그
+              </Badge>
             </div>
           </div>
         </div>
