@@ -100,6 +100,13 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"),require('tailwind-scrollbar-hide')],
+  plugins: [require("tailwindcss-animate"), require("tailwind-scrollbar-hide")],
+  safelist: [
+    {
+      pattern:
+        /(from|to|border|text|bg)-(rose|blue|amber|emerald|purple|teal|green|indigo|pink|orange)-(50|100|200|300|600|700|800|900)/,
+      variants: ["dark"],
+    },
+  ],
 };
 export default config;
