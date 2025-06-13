@@ -10,7 +10,10 @@ interface AppHeaderProps {
   setSidebarCollapsed: Dispatch<SetStateAction<boolean>>;
 }
 
-export function AppHeader({ sidebarCollapsed, setSidebarCollapsed }: AppHeaderProps) {
+export function AppHeader({
+  sidebarCollapsed,
+  setSidebarCollapsed,
+}: AppHeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-blue-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60">
       <div className="flex h-14 items-center px-4">
@@ -21,7 +24,11 @@ export function AppHeader({ sidebarCollapsed, setSidebarCollapsed }: AppHeaderPr
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             className="mr-2 hover:bg-blue-100 dark:hover:bg-gray-800"
           >
-            {!sidebarCollapsed ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            {!sidebarCollapsed ? (
+              <X className="h-4 w-4" />
+            ) : (
+              <Menu className="h-4 w-4" />
+            )}
           </Button>
           <a className="mr-6 flex items-center space-x-2" href="/dashboard">
             <div className="h-7 w-7">
@@ -33,7 +40,7 @@ export function AppHeader({ sidebarCollapsed, setSidebarCollapsed }: AppHeaderPr
           </a>
         </div>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
+          {/* <div className="w-full flex-1 md:w-auto md:flex-none">
             <div className="relative">
               <Input
                 type="search"
@@ -41,7 +48,7 @@ export function AppHeader({ sidebarCollapsed, setSidebarCollapsed }: AppHeaderPr
                 className="pl-8 md:w-[300px] lg:w-[400px] border-blue-200 dark:border-gray-700 focus:border-blue-400 focus:ring-blue-400 dark:bg-gray-800"
               />
             </div>
-          </div>
+          </div> */}
           <nav className="flex items-center space-x-2">
             <NotificationDropdown />
           </nav>

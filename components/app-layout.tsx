@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { usePathname, useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Avatar } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
+import type React from "react";
+import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,9 +14,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+} from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   Search,
   Menu,
@@ -25,37 +34,51 @@ import {
   ChevronDown,
   ChevronRight,
   WaypointsIcon as Gateway,
-} from "lucide-react"
-import { ThemeToggle, CollapseThemeToggle } from "./theme-toggle"
-import { NotificationDropdown } from "./notification-dropdown"
-import {AppLayoutProps, NavButtonProps } from "@/types"
-import { projectsData, navItems,userMenuItems } from "@/constants/app-layout-data"
+} from "lucide-react";
+import { ThemeToggle, CollapseThemeToggle } from "./theme-toggle";
+import { NotificationDropdown } from "./notification-dropdown";
+import { AppLayoutProps, NavButtonProps } from "@/types";
+import {
+  projectsData,
+  navItems,
+  userMenuItems,
+} from "@/constants/app-layout-data";
 
-
-const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps) => {
-  const Icon = item.icon
-  const [isOpen, setIsOpen] = useState(item.label === "Infra Packages") // Services 1은 기본적으로 열려있음
-  const router = useRouter()
+const NavButton = ({
+  item,
+  sidebarCollapsed,
+  onClick,
+  pathname,
+}: NavButtonProps) => {
+  const Icon = item.icon;
+  const [isOpen, setIsOpen] = useState(item.label === "Infra Packages"); // Services 1은 기본적으로 열려있음
+  const router = useRouter();
 
   const isActive =
-    pathname === item.href || (item.subItems && item.subItems.some((subItem) => pathname === subItem.href))
+    pathname === item.href ||
+    (item.subItems &&
+      item.subItems.some((subItem) => pathname === subItem.href));
 
   const handleClick = () => {
     if (item.subItems) {
-      setIsOpen(!isOpen)
+      setIsOpen(!isOpen);
     } else if (item.href) {
-      router.push(item.href)
+      router.push(item.href);
     }
-    onClick?.()
-  }
+    onClick?.();
+  };
 
   const handleSubItemClick = (href: string) => {
-    router.push(href)
-  }
+    router.push(href);
+  };
 
   if (item.subItems) {
     return (
-      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="transition-all duration-300 ease-in-out">
+      <Collapsible
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        className="transition-all duration-300 ease-in-out"
+      >
         <Tooltip>
           <TooltipTrigger asChild>
             <CollapsibleTrigger asChild>
@@ -76,7 +99,11 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
                   <>
                     <span className="ml-2 flex-1 text-left">{item.label}</span>
                     <div className="flex items-center space-x-1">
-                      {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                      {isOpen ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
                     </div>
                   </>
                 )}
@@ -84,37 +111,37 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
             </CollapsibleTrigger>
           </TooltipTrigger>
           {sidebarCollapsed && (
-            <TooltipContent side="right">
-              {item.label}
-            </TooltipContent>
+            <TooltipContent side="right">{item.label}</TooltipContent>
           )}
         </Tooltip>
         {!sidebarCollapsed && (
           <CollapsibleContent className="collapsible-content overflow-hidden transition-all duration-300 ease-in-out">
             <div className="ml-6 space-y-1 py-1">
               {item.subItems.map((subItem) => {
-                const SubIcon = subItem.icon
-                const isSubActive = pathname === subItem.href
+                const SubIcon = subItem.icon;
+                const isSubActive = pathname === subItem.href;
                 return (
                   <Button
                     key={subItem.href}
                     variant="ghost"
                     size="sm"
                     className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-200 transform hover:translate-x-1 ${
-                      isSubActive ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" : ""
+                      isSubActive
+                        ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                        : ""
                     }`}
                     onClick={() => handleSubItemClick(subItem.href)}
                   >
                     <SubIcon className="h-3 w-3" />
                     <span className="ml-2 text-sm">{subItem.label}</span>
                   </Button>
-                )
+                );
               })}
             </div>
           </CollapsibleContent>
         )}
       </Collapsible>
-    )
+    );
   }
 
   return (
@@ -133,56 +160,54 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
           onClick={handleClick}
         >
           <Icon className="h-4 w-4" />
-          {!sidebarCollapsed && (
-              <span className="ml-2">{item.label}</span>
-          )}
+          {!sidebarCollapsed && <span className="ml-2">{item.label}</span>}
         </Button>
       </TooltipTrigger>
       {sidebarCollapsed && (
-        <TooltipContent side="right">
-          {item.label}
-        </TooltipContent>
+        <TooltipContent side="right">{item.label}</TooltipContent>
       )}
     </Tooltip>
-  )
-}
+  );
+};
 
 export function AppLayout({ children, projectSlug }: AppLayoutProps) {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [imageLoaded, setImageLoaded] = useState(true)
-  const pathname = usePathname()
-  const router = useRouter()
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(true);
+  const pathname = usePathname();
+  const router = useRouter();
 
-  const currentProject = projectSlug ? projectsData.find((p) => p.slug === projectSlug) : null
-  const isDashboard = pathname === "/dashboard"
-  const isProjectPage = pathname?.startsWith("/project/")
+  const currentProject = projectSlug
+    ? projectsData.find((p) => p.slug === projectSlug)
+    : null;
+  const isDashboard = pathname === "/dashboard";
+  const isProjectPage = pathname?.startsWith("/project/");
 
   const handleImageLoad = () => {
-    setImageLoaded(true)
-  }
+    setImageLoaded(true);
+  };
 
   const handleImageError = () => {
-    setImageLoaded(false)
-  }
+    setImageLoaded(false);
+  };
 
   const handleUserMenuClick = (action: string) => {
     switch (action) {
       case "profile":
-        router.push("/profile")
-        break
+        router.push("/profile");
+        break;
       case "account":
-        router.push("/settings/account")
-        break
+        router.push("/settings/account");
+        break;
       case "settings":
-        router.push("/settings")
-        break
+        router.push("/settings");
+        break;
       case "logout":
-        router.push("/login")
-        break
+        router.push("/login");
+        break;
       default:
-        break
+        break;
     }
-  }
+  };
 
   return (
     <TooltipProvider>
@@ -197,7 +222,11 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                 className="mr-2 hover:bg-blue-100 dark:hover:bg-gray-800"
               >
-                {!sidebarCollapsed ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+                {!sidebarCollapsed ? (
+                  <X className="h-4 w-4" />
+                ) : (
+                  <Menu className="h-4 w-4" />
+                )}
               </Button>
               <a className="mr-6 flex items-center space-x-2" href="/dashboard">
                 <div className="h-7 w-7">
@@ -210,7 +239,7 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
             </div>
 
             <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-              <div className="w-full flex-1 md:w-auto md:flex-none">
+              {/* <div className="w-full flex-1 md:w-auto md:flex-none">
                 <div className="relative">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -219,7 +248,7 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
                     className="pl-8 md:w-[300px] lg:w-[400px] border-blue-200 dark:border-gray-700 focus:border-blue-400 focus:ring-blue-400 dark:bg-gray-800"
                   />
                 </div>
-              </div>
+              </div> */}
               <nav className="flex items-center space-x-2">
                 <NotificationDropdown />
               </nav>
@@ -235,8 +264,6 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
             }`}
           >
             <div className="flex h-full flex-col">
-             
-
               {/* Context Information - Only show for project pages */}
               {isProjectPage && currentProject && !sidebarCollapsed && (
                 <div className="border-b border-blue-200/50 dark:border-gray-700/50 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/50 dark:to-indigo-900/50">
@@ -265,106 +292,139 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
               {/* Navigation */}
               <nav className="flex-1 overflow-y-auto p-2 space-y-1">
                 {navItems.map((item) => (
-                  <NavButton key={item.label} item={item} sidebarCollapsed={sidebarCollapsed} pathname={pathname} />
+                  <NavButton
+                    key={item.label}
+                    item={item}
+                    sidebarCollapsed={sidebarCollapsed}
+                    pathname={pathname}
+                  />
                 ))}
               </nav>
 
-               {/* User Profile Section */}
+              {/* User Profile Section */}
               <div className="border-t border-blue-200/50 dark:border-gray-700/50 p-4">
                 <div className="flex items-center justify-between">
                   {!sidebarCollapsed ? (
                     <>
-                       <div className="flex items-center space-x-3 w-full">
-                            <Avatar className="h-10 w-10 flex items-center justify-center bg-gradient-to-br shadow-lg from-blue-600 to-indigo-600 text-white text-sm font-bold">
+                      <div className="flex items-center space-x-3 w-full">
+                        <Avatar className="h-10 w-10 flex items-center justify-center bg-gradient-to-br shadow-lg from-blue-600 to-indigo-600 text-white text-sm font-bold">
+                          JD
+                        </Avatar>
+                        <div className="flex-1 min-w-0 text-left">
+                          <h3 className="text-sm font-semibold truncate">
+                            John Doe
+                          </h3>
+                          <p className="text-xs text-muted-foreground">
+                            john@example.com
+                          </p>
+                        </div>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="w-auto justify-end p-3 h-auto hover:bg-blue-50 dark:hover:bg-gray-800"
+                          >
+                            <Settings />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          className="w-56"
+                          align="start"
+                          forceMount
+                        >
+                          <DropdownMenuLabel className="font-normal">
+                            <div className="flex flex-col space-y-1">
+                              <p className="text-sm font-medium leading-none">
+                                John Doe
+                              </p>
+                              <p className="text-xs leading-none text-muted-foreground">
+                                Developer
+                              </p>
+                            </div>
+                          </DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          {userMenuItems.map((item) => (
+                            <DropdownMenuItem
+                              key={item.action}
+                              onClick={() => handleUserMenuClick(item.action)}
+                            >
+                              <item.icon className="mr-2 h-4 w-4" />
+                              <span>{item.label}</span>
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-center p-2 hover:bg-blue-50 dark:hover:bg-gray-800"
+                          >
+                            <Avatar className="h-8 w-8 flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-xs font-bold">
                               JD
                             </Avatar>
-                            <div className="flex-1 min-w-0 text-left">
-                              <h3 className="text-sm font-semibold truncate">John Doe</h3>
-                              <p className="text-xs text-muted-foreground">john@example.com</p>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          className="w-56"
+                          align="start"
+                          forceMount
+                        >
+                          <DropdownMenuLabel className="font-normal">
+                            <div className="flex flex-col space-y-1">
+                              <p className="text-sm font-medium leading-none">
+                                John Doe
+                              </p>
+                              <p className="text-xs leading-none text-muted-foreground">
+                                john@example.com
+                              </p>
                             </div>
-                          </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                           <Button
-                          variant="ghost"
-                          className="w-auto justify-end p-3 h-auto hover:bg-blue-50 dark:hover:bg-gray-800"
-                        >
-                      <Settings />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-56" align="start" forceMount>
-                        <DropdownMenuLabel className="font-normal">
-                          <div className="flex flex-col space-y-1">
-                            <p className="text-sm font-medium leading-none">John Doe</p>
-                            <p className="text-xs leading-none text-muted-foreground">Developer</p>
-                          </div>
-                        </DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        {userMenuItems.map((item) => (
-                          <DropdownMenuItem key={item.action} onClick={() => handleUserMenuClick(item.action)}>
-                            <item.icon className="mr-2 h-4 w-4" />
-                            <span>{item.label}</span>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
+                          </DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          {userMenuItems.map((item) => (
+                            <DropdownMenuItem
+                              key={item.action}
+                              onClick={() => handleUserMenuClick(item.action)}
+                            >
+                              <item.icon className="mr-2 h-4 w-4" />
+                              <span>{item.label}</span>
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
                       </DropdownMenu>
-                      </>
-                  ) : (
-                      <>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="w-full justify-center p-2 hover:bg-blue-50 dark:hover:bg-gray-800"
-                        >
-                          <Avatar className="h-8 w-8 flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-xs font-bold">
-                            JD
-                          </Avatar>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-56" align="start" forceMount>
-                        <DropdownMenuLabel className="font-normal">
-                          <div className="flex flex-col space-y-1">
-                            <p className="text-sm font-medium leading-none">John Doe</p>
-                            <p className="text-xs leading-none text-muted-foreground">john@example.com</p>
-                          </div>
-                        </DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        {userMenuItems.map((item) => (
-                          <DropdownMenuItem key={item.action} onClick={() => handleUserMenuClick(item.action)}>
-                            <item.icon className="mr-2 h-4 w-4" />
-                            <span>{item.label}</span>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                        </DropdownMenu>
-                        </>
+                    </>
                   )}
                 </div>
               </div>
 
               {/* Theme Toggle */}
-              {!sidebarCollapsed ? 
+              {!sidebarCollapsed ? (
                 <div className=" p-2 flex justify-end">
                   <ThemeToggle />
                 </div>
-              
-                :
+              ) : (
                 <div className="p-2 flex justify-center">
                   <CollapseThemeToggle />
                 </div>
-                  
-              }
+              )}
             </div>
           </aside>
 
           {/* Main Content */}
-          <main className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? "ml-16" : "ml-[270px]"}`}>
+          <main
+            className={`flex-1 transition-all duration-300 ${
+              sidebarCollapsed ? "ml-16" : "ml-[270px]"
+            }`}
+          >
             {children}
           </main>
         </div>
       </div>
     </TooltipProvider>
-  )
+  );
 }
