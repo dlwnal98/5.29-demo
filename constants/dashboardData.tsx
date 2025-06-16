@@ -1,60 +1,67 @@
-import type { ReactNode } from "react"
-import { Activity, BarChart3, Server, Settings, Shield, Network } from "lucide-react"
+import type { ReactNode } from "react";
+import {
+  Activity,
+  BarChart3,
+  Server,
+  Settings,
+  Shield,
+  Network,
+} from "lucide-react";
 
-export type AppStatus = "running" | "stopped" | "error" | "maintenance"
+export type AppStatus = "running" | "stopped" | "error" | "maintenance";
 
-  const createIcon = (Icon: any) => {
-  return <Icon className="h-8 w-8" />
-}
+const createIcon = (Icon: any) => {
+  return <Icon className="h-8 w-8" />;
+};
 
 export interface DashboardApp {
-  id: string
-  name: string
-  description: string
-  icon: ReactNode
-  color: string
-  url: string
-  status: AppStatus
-  version: string
+  id: string;
+  name: string;
+  description: string;
+  icon: ReactNode;
+  color: string;
+  url: string;
+  status: AppStatus;
+  version: string;
 }
 export const dashboardApps = [
- {
+  {
     id: "api-gateway",
     name: "API Gateway",
     description: "API Management & Routing",
     icon: <Activity className="h-8 w-8" />,
     color: "from-teal-500 to-blue-500",
-    url: "https://spring.io/projects/spring-cloud-gateway",
+    url: "/infra-packages/gateway",
     status: "running",
     version: "4.0.7",
   },
-    {
+  {
     id: "eureka-server",
     name: "Service Discovery",
     description: "Eureka Server",
     icon: <Server className="h-8 w-8" />,
     color: "from-green-500 to-emerald-500",
-    url: "https://github.com/Netflix/eureka",
+    url: "/infra-packages/eureka",
     status: "running",
     version: "1.10.17",
   },
-    {
+  {
     id: "config-server",
     name: "Configuration Manager",
     description: "Config Server",
     icon: <Settings className="h-8 w-8" />,
     color: "from-purple-500 to-indigo-500",
-    url: "https://spring.io/projects/spring-cloud-config",
+    url: "/infra-packages/config",
     status: "running",
     version: "4.0.4",
   },
-    {
+  {
     id: "auth-server",
     name: "Auth Server",
     description: "Authentication & Authorization",
     icon: <Shield className="h-8 w-8" />,
     color: "from-pink-500 to-rose-500",
-    url: "https://spring.io/projects/spring-authorization-server",
+    url: "/infra-packages/auth",
     status: "running",
     version: "1.1.3",
   },
@@ -78,8 +85,9 @@ export const tooltipDescriptions = {
   disk: "디스크 사용량은 서버의 저장 공간 사용률을 나타냅니다. 높은 값은 디스크 공간이 부족할 수 있음을 의미합니다.",
   network:
     "네트워크 트래픽은 서버의 네트워크 인터페이스를 통한 데이터 전송량을 나타냅니다. BPS는 초당 바이트, PPS는 초당 패킷을 의미합니다.",
-  events: "이벤트는 서버에서 발생한 중요한 알림, 경고 및 오류를 표시합니다. 시스템 상태를 모니터링하는 데 중요합니다.",
-}
+  events:
+    "이벤트는 서버에서 발생한 중요한 알림, 경고 및 오류를 표시합니다. 시스템 상태를 모니터링하는 데 중요합니다.",
+};
 
 // 이벤트 데이터
 export const eventData = {
@@ -137,7 +145,7 @@ export const eventData = {
       state: "완료",
     },
   ],
-}
+};
 
 // 예시 로그 데이터
 export const logData = [
@@ -147,7 +155,8 @@ export const logData = [
     level: "ERROR",
     source: "API Gateway",
     message: "Connection timeout to auth-service after 30 seconds",
-    details: "Failed to establish connection to auth-service:8080. Retrying in 5 seconds...",
+    details:
+      "Failed to establish connection to auth-service:8080. Retrying in 5 seconds...",
   },
   {
     id: 2,
@@ -155,7 +164,8 @@ export const logData = [
     level: "WARNING",
     source: "Database",
     message: "High memory usage detected: 89%",
-    details: "Memory usage has exceeded 85% threshold. Consider scaling up the database instance.",
+    details:
+      "Memory usage has exceeded 85% threshold. Consider scaling up the database instance.",
   },
   {
     id: 3,
@@ -171,7 +181,8 @@ export const logData = [
     level: "ERROR",
     source: "Eureka Server",
     message: "Service registration failed for user-service",
-    details: "Health check endpoint returned 503 status code. Service marked as DOWN.",
+    details:
+      "Health check endpoint returned 503 status code. Service marked as DOWN.",
   },
   {
     id: 5,
@@ -179,7 +190,8 @@ export const logData = [
     level: "WARNING",
     source: "Load Balancer",
     message: "Uneven traffic distribution detected",
-    details: "Server instance-1 receiving 70% of traffic while instance-2 receiving 30%.",
+    details:
+      "Server instance-1 receiving 70% of traffic while instance-2 receiving 30%.",
   },
   {
     id: 6,
@@ -187,7 +199,8 @@ export const logData = [
     level: "INFO",
     source: "API Gateway",
     message: "Rate limiting applied to client 192.168.1.100",
-    details: "Client exceeded 1000 requests per minute limit. Throttling for 60 seconds.",
+    details:
+      "Client exceeded 1000 requests per minute limit. Throttling for 60 seconds.",
   },
   {
     id: 7,
@@ -211,7 +224,8 @@ export const logData = [
     level: "WARNING",
     source: "Cache Server",
     message: "Cache hit ratio below optimal threshold",
-    details: "Current hit ratio: 65%. Recommended minimum: 80%. Consider cache warming.",
+    details:
+      "Current hit ratio: 65%. Recommended minimum: 80%. Consider cache warming.",
   },
   {
     id: 10,
@@ -227,7 +241,8 @@ export const logData = [
     level: "ERROR",
     source: "File Storage",
     message: "Disk space critically low on /var/log partition",
-    details: "Available space: 2.1GB (5% remaining). Immediate cleanup required.",
+    details:
+      "Available space: 2.1GB (5% remaining). Immediate cleanup required.",
   },
   {
     id: 12,
@@ -237,4 +252,4 @@ export const logData = [
     message: "Daily backup completed successfully",
     details: "Backup size: 2.4GB. Stored in S3 bucket: prod-backups-2025",
   },
-]
+];

@@ -37,6 +37,7 @@ import {
   eventData,
 } from "@/constants/dashboardData";
 import { LogViewerModal } from "@/app/dashboard/components/LogViewerModal";
+import { useRouter } from "next/navigation";
 
 // 로그 뷰어 모달 컴포넌트
 
@@ -645,8 +646,14 @@ function EventsSection() {
 }
 
 export function Dashboard() {
+  const router = useRouter();
+
   const handleAppClick = (url: string) => {
-    window.open(url, "_blank", "noopener,noreferrer");
+    if (url.includes("/infra-packages")) {
+      router.push(url);
+    } else {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
   };
 
   const getStatusColor = (status: string) => {

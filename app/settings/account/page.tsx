@@ -1,26 +1,38 @@
-import { AppLayout } from "@/components/app-layout"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { AppLayout } from "@/components/app-layout";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function AccountPage() {
   return (
     <AppLayout>
       <div className="container mx-auto px-4 py-6">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Account Settings</h1>
-          <p className="text-gray-600 dark:text-gray-400">개인 정보 및 계정 설정을 관리합니다.</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            계정 설정
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            개인 정보 및 계정 설정을 관리합니다.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>프로필 정보</CardTitle>
-                <CardDescription>기본 프로필 정보를 수정할 수 있습니다.</CardDescription>
+                <CardTitle className="text-xl">프로필 정보</CardTitle>
+                <CardDescription>
+                  기본 프로필 정보를 수정할 수 있습니다.
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-4">
@@ -32,7 +44,9 @@ export default function AccountPage() {
                     <Button variant="outline" size="sm">
                       사진 변경
                     </Button>
-                    <p className="text-sm text-muted-foreground mt-1">JPG, PNG 파일만 업로드 가능합니다.</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      JPG, PNG 파일만 업로드 가능합니다.
+                    </p>
                   </div>
                 </div>
 
@@ -49,7 +63,11 @@ export default function AccountPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="email">이메일</Label>
-                  <Input id="email" type="email" defaultValue="john@example.com" />
+                  <Input
+                    id="email"
+                    type="email"
+                    defaultValue="john@example.com"
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -68,7 +86,9 @@ export default function AccountPage() {
             <Card>
               <CardHeader>
                 <CardTitle>계정 보안</CardTitle>
-                <CardDescription>비밀번호 및 보안 설정을 관리합니다.</CardDescription>
+                <CardDescription>
+                  비밀번호 및 보안 설정을 관리합니다.
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -102,11 +122,15 @@ export default function AccountPage() {
                   <span className="text-sm font-medium">2023년 1월 15일</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">마지막 로그인</span>
+                  <span className="text-sm text-muted-foreground">
+                    마지막 로그인
+                  </span>
                   <span className="text-sm font-medium">2시간 전</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">프로젝트 수</span>
+                  <span className="text-sm text-muted-foreground">
+                    프로젝트 수
+                  </span>
                   <span className="text-sm font-medium">12개</span>
                 </div>
               </CardContent>
@@ -115,7 +139,9 @@ export default function AccountPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-red-600">위험 구역</CardTitle>
-                <CardDescription>계정 삭제 등 되돌릴 수 없는 작업들입니다.</CardDescription>
+                <CardDescription>
+                  계정 삭제 등 되돌릴 수 없는 작업들입니다.
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <Button variant="destructive" size="sm">
@@ -127,5 +153,5 @@ export default function AccountPage() {
         </div>
       </div>
     </AppLayout>
-  )
+  );
 }

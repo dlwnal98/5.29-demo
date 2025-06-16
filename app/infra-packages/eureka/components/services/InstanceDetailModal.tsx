@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useRef } from "react";
 import { AppLayout } from "@/components/app-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -71,6 +73,8 @@ export default function InstanceDetailModal({
   // 인스턴스 변경 시 스크롤을 최상위로 이동하는 함수
   const handleInstanceChange = (instance: any) => {
     onOpenChange(instance);
+
+    //instanceId 로 api 호출해서 해당 인스턴스 데이터 불러와서 뿌려줘야함
 
     // 다음 렌더링 후 스크롤 이동
     setTimeout(() => {
@@ -305,7 +309,6 @@ export default function InstanceDetailModal({
                 </div>
               </div>
             </Card>
-
             {/* Metadata */}
             <Card className="p-4">
               <div className="flex items-center gap-2 mb-4">
