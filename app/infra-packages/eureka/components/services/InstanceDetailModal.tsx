@@ -93,7 +93,7 @@ export default function InstanceDetailModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Database className="w-5 h-5" />
-            <span>{instanceData.app || "서비스"} - 인스턴스 상세 정보</span>
+            <span>{instanceData.appName || "서비스"} - 인스턴스 상세 정보</span>
             {selectedInstance && (
               <Badge variant="outline" className="ml-2">
                 {instanceData.instanceId}
