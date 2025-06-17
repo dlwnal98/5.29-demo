@@ -1,4 +1,5 @@
 // import { AppLayout } from "@/components/app-layout";
+import { Dashboard } from "@/components/dashboard";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ProjectList } from "@/components/project-list";
 import Head from "next/head";
@@ -13,7 +14,8 @@ import Head from "next/head";
 export default function Page() {
   return (
     <AppLayout>
-      <ProjectList />
+      <Dashboard />
+      {/* <ProjectList /> */}
     </AppLayout>
   );
 }

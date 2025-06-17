@@ -1,4 +1,4 @@
-import { Project, NavItem} from "@/types"
+import { Project, NavItem } from "@/types";
 import {
   User,
   LogOut,
@@ -13,8 +13,7 @@ import {
   Cog,
   Server,
   Lock,
-} from "lucide-react"
-
+} from "lucide-react";
 
 // 사이드 바
 
@@ -41,7 +40,7 @@ export const projectsData: Project[] = [
     lastCommit: "1 day ago",
     contributors: 3,
   },
-]
+];
 
 export const navItems: NavItem[] = [
   {
@@ -62,7 +61,7 @@ export const navItems: NavItem[] = [
       {
         icon: Cog,
         label: "Config",
-        href: "/infra-packages/config",
+        href: "http://1.224.162.188:51435",
       },
       {
         icon: Server,
@@ -96,7 +95,7 @@ export const navItems: NavItem[] = [
     label: "Settings",
     href: "/settings",
   },
-]
+];
 
 export const userMenuItems = [
   {
@@ -114,4 +113,4 @@ export const userMenuItems = [
     label: "로그아웃",
     action: "logout",
   },
-]
+];

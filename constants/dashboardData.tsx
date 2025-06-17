@@ -51,7 +51,7 @@ export const dashboardApps = [
     description: "Config Server",
     icon: <Settings className="h-8 w-8" />,
     color: "from-purple-500 to-indigo-500",
-    url: "/infra-packages/config",
+    url: "http://1.224.162.188:51435",
     status: "running",
     version: "4.0.4",
   },

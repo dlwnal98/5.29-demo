@@ -147,6 +147,24 @@ export default function InstanceDetailModal({
                       : "아니오"}
                   </Badge>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    최근 갱신
+                  </span>
+                  <span className="text-sm font-medium">
+                    {new Date(
+                      instanceData.lastUpdatedTimestamp
+                    ).toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    마지막 Dirty
+                  </span>
+                  <span className="text-sm font-medium">
+                    {new Date(instanceData.lastDirtyTimestamp).toLocaleString()}
+                  </span>
+                </div>
               </div>
             </Card>
 
@@ -209,50 +227,6 @@ export default function InstanceDetailModal({
                   </span>
                   <span className="text-sm font-medium">
                     {instanceData.dataCenter}
-                  </span>
-                </div>
-              </div>
-            </Card>
-
-            {/* Lease Info */}
-            <Card className="p-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Clock className="w-4 h-4 text-purple-500" />
-                <span className="font-medium">갱신 정보</span>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    갱신 주기
-                  </span>
-                  <span className="text-sm font-medium">
-                    {instanceData.leaseInfo.renewalIntervalInSecs}초
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    지속 시간
-                  </span>
-                  <span className="text-sm font-medium">
-                    {instanceData.leaseInfo.durationInSecs}초
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    최근 갱신
-                  </span>
-                  <span className="text-sm font-medium">
-                    {new Date(
-                      instanceData.lastUpdatedTimestamp
-                    ).toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    마지막 Dirty
-                  </span>
-                  <span className="text-sm font-medium">
-                    {new Date(instanceData.lastDirtyTimestamp).toLocaleString()}
                   </span>
                 </div>
               </div>
