@@ -36,7 +36,7 @@ import {
   tooltipDescriptions,
   eventData,
 } from "@/constants/dashboardData";
-import { LogViewerModal } from "@/app/dashboard/components/LogViewerModal";
+import { LogViewerModal } from "@/app/LogViewerModal";
 import { useRouter } from "next/navigation";
 
 // 로그 뷰어 모달 컴포넌트

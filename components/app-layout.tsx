@@ -63,13 +63,21 @@ const NavButton = ({
     if (item.subItems) {
       setIsOpen(!isOpen);
     } else if (item.href) {
-      router.push(item.href);
+      if (item.href.includes("/infra-packages")) {
+        router.push(item.href);
+      } else {
+        window.open(item.href, "_blank", "noopener,noreferrer");
+      }
     }
     onClick?.();
   };
 
   const handleSubItemClick = (href: string) => {
-    router.push(href);
+    if (href.includes("/infra-packages")) {
+      router.push(href);
+    } else {
+      window.open(href, "_blank", "noopener,noreferrer");
+    }
   };
 
   if (item.subItems) {
@@ -228,7 +236,7 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
                   <Menu className="h-4 w-4" />
                 )}
               </Button>
-              <a className="mr-6 flex items-center space-x-2" href="/dashboard">
+              <a className="mr-6 flex items-center space-x-2" href="/">
                 <div className="h-7 w-7">
                   <img src={"/nexfron_favicon.png"} alt="NEXFRON" />
                 </div>

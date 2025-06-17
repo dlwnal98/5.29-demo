@@ -30,7 +30,7 @@ export function AppHeader({
               <Menu className="h-4 w-4" />
             )}
           </Button>
-          <a className="mr-6 flex items-center space-x-2" href="/dashboard">
+          <a className="mr-6 flex items-center space-x-2" href="/">
             <div className="h-7 w-7">
               <img src={"/nexfron_favicon.png"} alt="NEXFRON" />
             </div>
