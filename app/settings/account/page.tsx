@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function AccountPage() {
@@ -25,8 +24,8 @@ export default function AccountPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="lg:col-1 space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="text-xl">프로필 정보</CardTitle>
@@ -50,15 +49,18 @@ export default function AccountPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">이름</Label>
-                    <Input id="firstName" defaultValue="John" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">성</Label>
-                    <Input id="lastName" defaultValue="Doe" />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="userID">ID</Label>
+                  <Input
+                    id="userID"
+                    defaultValue="userId01239"
+                    disabled={true}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">이름</Label>
+                  <Input id="lastName" defaultValue="Doe" />
                 </div>
 
                 <div className="space-y-2">
@@ -71,18 +73,15 @@ export default function AccountPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="bio">소개</Label>
-                  <Textarea
-                    id="bio"
-                    placeholder="자신에 대해 간단히 소개해주세요..."
-                    defaultValue="풀스택 개발자로 웹 애플리케이션 개발에 관심이 많습니다."
-                  />
+                  <Label htmlFor="organiztion">그룹</Label>
+                  <Input id="organiztion" type="text" defaultValue="Nexfron" />
                 </div>
 
                 <Button>변경사항 저장</Button>
               </CardContent>
             </Card>
-
+          </div>
+          <div className="lg:col-1 space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>계정 보안</CardTitle>
@@ -106,41 +105,14 @@ export default function AccountPage() {
                   <Input id="confirmPassword" type="password" />
                 </div>
 
-                <Button variant="outline">비밀번호 변경</Button>
+                <Button>비밀번호 변경</Button>
               </CardContent>
             </Card>
-          </div>
-
-          <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>계정 통계</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">가입일</span>
-                  <span className="text-sm font-medium">2023년 1월 15일</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    마지막 로그인
-                  </span>
-                  <span className="text-sm font-medium">2시간 전</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    프로젝트 수
-                  </span>
-                  <span className="text-sm font-medium">12개</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-red-600">위험 구역</CardTitle>
+                <CardTitle className="text-red-600">계정 삭제</CardTitle>
                 <CardDescription>
-                  계정 삭제 등 되돌릴 수 없는 작업들입니다.
+                  되돌릴 수 없는 작업입니다. 그래도 삭제하시겠습니까?
                 </CardDescription>
               </CardHeader>
               <CardContent>

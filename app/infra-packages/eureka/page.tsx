@@ -10,8 +10,13 @@ import TabMenu from "./components/common/TabMenu";
 import { StatusCards } from "./components/dashboard/StatusCards";
 import InstanceList from "./components/dashboard/InstanceList";
 import ServiceCard from "./components/services/ServiceCard";
+import { useEurekaData } from "@/hooks/useEurekaData";
 
 export default function EurekaPage() {
+  // const { data, isLoading, isError } = useEurekaData();
+  // if (isLoading) <div>로딩중입니다.</div>;
+  // if (isError) <div>오류가 발견되었습니다.</div>;
+
   const [activeTab, setActiveTab] = useState("overview");
   const [refreshing, setRefreshing] = useState(false);
 

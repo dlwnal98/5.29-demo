@@ -98,11 +98,11 @@ export const navItems: NavItem[] = [
 ];
 
 export const userMenuItems = [
-  {
-    icon: User,
-    label: "프로필",
-    action: "profile",
-  },
+  // {
+  //   icon: User,
+  //   label: "프로필",
+  //   action: "profile",
+  // },
   {
     icon: UserCog,
     label: "계정 설정",

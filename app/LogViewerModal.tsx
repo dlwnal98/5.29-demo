@@ -90,7 +90,7 @@ export function LogViewerModal() {
           <Plus className="h-4 w-4 text-gray-400" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-4xl max-h-[80vh]">
+      <DialogContent className="sm:max-w-4xl max-h-[80vh] gap-1 overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Monitor className="h-5 w-5" />
@@ -128,7 +128,7 @@ export function LogViewerModal() {
 
             <div className="flex space-x-2">
               <Button variant="outline" size="sm">
-                <RefreshCw className="h-4 w-4 mr-2" />
+                <RefreshCw className="h-4 w-4" />
                 {/* 새로고침 */}
               </Button>
               {/* <Button variant="outline" size="sm">

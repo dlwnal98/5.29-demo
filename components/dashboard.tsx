@@ -649,7 +649,7 @@ export function Dashboard() {
   const router = useRouter();
 
   const handleAppClick = (url: string) => {
-    if (url.includes("/infra-packages")) {
+    if (!url.includes("http")) {
       router.push(url);
     } else {
       window.open(url, "_blank", "noopener,noreferrer");

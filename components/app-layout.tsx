@@ -63,7 +63,7 @@ const NavButton = ({
     if (item.subItems) {
       setIsOpen(!isOpen);
     } else if (item.href) {
-      if (item.href.includes("/infra-packages")) {
+      if (!item.href.includes("http")) {
         router.push(item.href);
       } else {
         window.open(item.href, "_blank", "noopener,noreferrer");
@@ -73,7 +73,7 @@ const NavButton = ({
   };
 
   const handleSubItemClick = (href: string) => {
-    if (href.includes("/infra-packages")) {
+    if (!href.includes("http")) {
       router.push(href);
     } else {
       window.open(href, "_blank", "noopener,noreferrer");

@@ -280,6 +280,16 @@ export function AppSidebar({
                     align="start"
                     forceMount
                   >
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                          John Doe
+                        </p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          userID
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {userMenuItems.map((item) => (
                       <DropdownMenuItem
@@ -312,6 +322,16 @@ export function AppSidebar({
                     align="start"
                     forceMount
                   >
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                          John Doe
+                        </p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          userID
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {userMenuItems.map((item) => (
                       <DropdownMenuItem
