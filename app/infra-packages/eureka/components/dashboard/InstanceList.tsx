@@ -3,7 +3,7 @@ import { eurekaDashboardData } from "@/constants/eurekaData";
 import { Badge } from "@/components/ui/badge";
 import { Server } from "lucide-react";
 
-export default function InstanceList() {
+export default function InstanceList({ data }: any) {
   return (
     <Card className="border-blue-200/50 bg-white/70 backdrop-blur-sm dark:bg-[#303C9D1F]">
       <CardContent className="p-6">
@@ -27,7 +27,7 @@ export default function InstanceList() {
             </div>
 
             {/* 테이블 바디 */}
-            {eurekaDashboardData.recentInstances.map((instance, index) => (
+            {data.recent.map((instance: any, index: number) => (
               <div
                 key={instance.instanceId}
                 className="grid grid-cols-12 gap-3 px-3 py-3 text-sm hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors border-b border-gray-100 dark:border-gray-800 last:border-b-0"

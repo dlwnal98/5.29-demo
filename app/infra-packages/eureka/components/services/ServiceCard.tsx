@@ -3,29 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import InstanceDetailModal from "./InstanceDetailModal";
+import { EurekaServices } from "@/types/eureka";
+import { useEurekaServices } from "@/hooks/useEurekaData";
 
-interface Instance {
-  instanceId: string;
-  ip: string;
-  port: number;
-  status: string;
-  zone: string;
-  gitCommit: string;
-  lastUpdatedTimestamp: number;
-}
+export default function ServiceCard() {
+  const { data: servicesData } = useEurekaServices();
 
-interface Service {
-  serviceName: string;
-  instances: Instance[];
-  zones: string[];
-  versions: string[];
-}
-
-interface ServiceCardProps {
-  data: Service[];
-}
-
-export default function ServiceCard({ data }: ServiceCardProps) {
   const [selectedInstance, setSelectedInstance] = useState<any>(null);
   const modalContentRef = useRef<HTMLDivElement>(null);
   // 인스턴스 변경 시 스크롤을 최상위로 이동하는 함수
@@ -70,7 +53,7 @@ export default function ServiceCard({ data }: ServiceCardProps) {
 
   return (
     <>
-      {data.map((service: any) => (
+      {servicesData?.map((service: any) => (
         <Card
           key={service.serviceName}
           className="hover:shadow-lg transition-shadow"
@@ -129,10 +112,13 @@ export default function ServiceCard({ data }: ServiceCardProps) {
           </CardContent>
         </Card>
       ))}
-      <InstanceDetailModal
-        selectedInstance={selectedInstance}
-        onOpenChange={setSelectedInstance}
-      />
+      {selectedInstance && servicesData && (
+        <InstanceDetailModal
+          eurekaServicesData={servicesData}
+          selectedInstance={selectedInstance}
+          onOpenChange={setSelectedInstance}
+        />
+      )}
     </>
   );
 }

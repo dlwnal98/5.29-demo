@@ -10,10 +10,16 @@ import TabMenu from "./components/common/TabMenu";
 import { StatusCards } from "./components/dashboard/StatusCards";
 import InstanceList from "./components/dashboard/InstanceList";
 import ServiceCard from "./components/services/ServiceCard";
-import { useEurekaData } from "@/hooks/useEurekaData";
+import {
+  useEurekaInstances,
+  useEurekaServices,
+  useEurekaSummary,
+} from "@/hooks/useEurekaData";
 
 export default function EurekaPage() {
-  // const { data, isLoading, isError } = useEurekaData();
+  const { data: servicesData } = useEurekaServices();
+  const { data: summaryData } = useEurekaSummary();
+
   // if (isLoading) <div>로딩중입니다.</div>;
   // if (isError) <div>오류가 발견되었습니다.</div>;
 
@@ -82,12 +88,12 @@ export default function EurekaPage() {
         <TabMenu activeTab={activeTab} onTabChange={setActiveTab} />
 
         {/* 전역 대쉬보드 */}
-        {activeTab === "overview" && (
+        {activeTab === "overview" && summaryData && (
           <div className="space-y-4">
             {/* 상태값 카드 */}
-            <StatusCards />
+            <StatusCards data={summaryData} />
             {/* 최근 등록/변경된 인스턴스 */}
-            <InstanceList />
+            <InstanceList data={summaryData} />
           </div>
         )}
 
@@ -110,7 +116,7 @@ export default function EurekaPage() {
 
             {/* 서비스 목록 */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <ServiceCard data={filteredServices} />
+              <ServiceCard />
             </div>
           </div>
         )}

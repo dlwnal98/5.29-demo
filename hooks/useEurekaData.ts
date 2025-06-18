@@ -1,18 +1,62 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { EurekaServices, EurekaInstance, EurekaSummary } from "../types/eureka";
 
-const fetchEurekaData = async () => {
-  const { data } = await axios.get(
-    "http://192.168.123.102:8761/admin/services"
-  );
+const fetchEurekaSummary = async () => {
+  const { data } = await axios.get("/admin/summary");
   return data;
 };
 
-export function useEurekaData() {
-  return useQuery({
-    queryKey: ["eureka"],
-    queryFn: fetchEurekaData,
-    refetchInterval: 10 * 1000, // 10초마다 자동 호출
-    staleTime: 0, // 즉시 stale 처리 (매번 refetch 유도)
+export function useEurekaSummary() {
+  return useQuery<EurekaSummary>({
+    queryKey: ["summary"],
+    queryFn: fetchEurekaSummary,
+    staleTime: Infinity, // 캐시 무한히 신선하다고 간주
+    refetchOnWindowFocus: false, // 포커스돼도 재요청 안 함
+    refetchOnMount: false, // 마운트 시 재요청 안 함
+    refetchOnReconnect: false, // 재접속 시 재요청 안 함
+    enabled: true, // 자동 호출은 한 번만 발생 (true가 기본)
+  });
+}
+
+const fetchEurekaServices = async () => {
+  const { data } = await axios.get("/admin/services");
+  return data;
+};
+
+export function useEurekaServices() {
+  return useQuery<EurekaServices[]>({
+    queryKey: ["services"],
+    queryFn: fetchEurekaServices,
+    // refetchInterval: 5000,
+    // staleTime: 1000,
+    // retry: 3,
+    // retryDelay: 1000,
+    staleTime: Infinity, // 캐시 무한히 신선하다고 간주
+    refetchOnWindowFocus: false, // 포커스돼도 재요청 안 함
+    refetchOnMount: false, // 마운트 시 재요청 안 함
+    refetchOnReconnect: false, // 재접속 시 재요청 안 함
+    enabled: true, // 자동 호출은 한 번만 발생 (true가 기본)
+  });
+}
+
+const fetchEurekaInstances = async (instanceId: string) => {
+  const { data } = await axios.get(`/admin/instance/${instanceId}`);
+  return data;
+};
+
+export function useEurekaInstances(instanceId: string) {
+  return useQuery<EurekaInstance>({
+    queryKey: ["instances", instanceId],
+    queryFn: () => fetchEurekaInstances(instanceId),
+    // refetchInterval: 5000,
+    // staleTime: 1000,
+    // retry: 3,
+    // retryDelay: 1000,
+    staleTime: Infinity, // 캐시 무한히 신선하다고 간주
+    refetchOnWindowFocus: false, // 포커스돼도 재요청 안 함
+    refetchOnMount: false, // 마운트 시 재요청 안 함
+    refetchOnReconnect: false, // 재접속 시 재요청 안 함
+    enabled: true, // 자동 호출은 한 번만 발생 (true가 기본)
   });
 }
