@@ -5,16 +5,11 @@ import { AppLayout } from "@/components/app-layout";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { eurekaServicesData } from "@/constants/eurekaData";
-
 import TabMenu from "./components/common/TabMenu";
 import { StatusCards } from "./components/dashboard/StatusCards";
 import InstanceList from "./components/dashboard/InstanceList";
 import ServiceCard from "./components/services/ServiceCard";
-import {
-  useEurekaInstances,
-  useEurekaServices,
-  useEurekaSummary,
-} from "@/hooks/useEurekaData";
+import { useEurekaServices, useEurekaSummary } from "@/hooks/useEurekaData";
 
 export default function EurekaPage() {
   const { data: servicesData } = useEurekaServices();
@@ -24,7 +19,6 @@ export default function EurekaPage() {
   // if (isError) <div>오류가 발견되었습니다.</div>;
 
   const [activeTab, setActiveTab] = useState("overview");
-  const [refreshing, setRefreshing] = useState(false);
 
   // 상태 추가
   const [searchTerm, setSearchTerm] = useState("");
@@ -73,13 +67,6 @@ export default function EurekaPage() {
 
     return serviceNameMatch || ipMatch || portMatch;
   });
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setRefreshing(false);
-  };
 
   return (
     <AppLayout>

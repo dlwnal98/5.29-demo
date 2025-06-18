@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { eurekaDashboardData } from "@/constants/eurekaData";
 import { Lightbulb, Server, Database, CheckCircle, MapPin } from "lucide-react";
 import { MiniDonutChart, MiniBarChart } from "@/components/eureka-chart";
 import { EurekaSummary } from "@/types/eureka";

@@ -1,21 +1,18 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { AppLayout } from "@/components/app-layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRef } from "react";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Server,
   Activity,
   Globe,
   Shield,
-  Clock,
   AlertCircle,
   CheckCircle,
   XCircle,
   Network,
   Database,
-  Search,
 } from "lucide-react";
 import {
   Dialog,
@@ -23,11 +20,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import {
-  eurekaDashboardData,
-  eurekaServicesData,
-} from "@/constants/eurekaData";
 import { useEurekaInstances } from "@/hooks/useEurekaData";
 import { ServicesInstance, EurekaServices } from "@/types/eureka";
 
