@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { AppLayout } from "@/components/app-layout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { eurekaServicesData } from "@/constants/eurekaData";
 import TabMenu from "./components/common/TabMenu";
 import { StatusCards } from "./components/dashboard/StatusCards";
 import InstanceList from "./components/dashboard/InstanceList";
@@ -13,18 +12,13 @@ import { useEurekaServices, useEurekaSummary } from "@/hooks/useEurekaData";
 
 export default function EurekaPage() {
   const { data: servicesData } = useEurekaServices();
-  const { data: summaryData } = useEurekaSummary();
-
-  // if (isLoading) <div>로딩중입니다.</div>;
-  // if (isError) <div>오류가 발견되었습니다.</div>;
+  const { data: summaryData, isLoading, isError } = useEurekaSummary();
 
   const [activeTab, setActiveTab] = useState("overview");
-
-  // 상태 추가
   const [searchTerm, setSearchTerm] = useState("");
 
   // 검색 필터링 함수 추가
-  const filteredServices = eurekaServicesData.filter((service) => {
+  const filteredServices = servicesData?.filter((service) => {
     const trimmedSearch = searchTerm.trim();
 
     // 검색어가 비어있으면 모든 서비스 표시
@@ -68,6 +62,19 @@ export default function EurekaPage() {
     return serviceNameMatch || ipMatch || portMatch;
   });
 
+  if (isLoading)
+    return (
+      <AppLayout>
+        <div>로딩중입니다.</div>
+      </AppLayout>
+    );
+  if (isError)
+    return (
+      <AppLayout>
+        <div>오류가 발견되었습니다.</div>
+      </AppLayout>
+    );
+
   return (
     <AppLayout>
       <div className="container mx-auto px-4 py-6 space-y-6">
@@ -103,7 +110,7 @@ export default function EurekaPage() {
 
             {/* 서비스 목록 */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <ServiceCard />
+              <ServiceCard servicesData={filteredServices ?? []} />
             </div>
           </div>
         )}

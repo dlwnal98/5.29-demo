@@ -1,17 +1,20 @@
-import { AppLayout } from "@/components/app-layout"
-import { FileCreator } from "@/components/file-creator"
+import { AppLayout } from "@/components/layout/AppLayout";
+import { FileCreator } from "@/components/file-creator";
 
 interface CreateFilePageProps {
   params: {
-    slug: string
-  }
+    slug: string;
+  };
   searchParams: {
-    branch?: string
-    path?: string
-  }
+    branch?: string;
+    path?: string;
+  };
 }
 
-export default function CreateFilePage({ params, searchParams }: CreateFilePageProps) {
+export default function CreateFilePage({
+  params,
+  searchParams,
+}: CreateFilePageProps) {
   return (
     <AppLayout projectSlug={params.slug}>
       <FileCreator
@@ -20,5 +23,5 @@ export default function CreateFilePage({ params, searchParams }: CreateFilePageP
         currentPath={searchParams.path || ""}
       />
     </AppLayout>
-  )
+  );
 }

@@ -20,7 +20,7 @@ import Link from "next/link";
 export default function SignupPage() {
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
+    id: "",
     password: "",
     confirmPassword: "",
   });
@@ -38,24 +38,41 @@ export default function SignupPage() {
     });
   };
 
+  const usernameRegex = /^[a-z][a-z0-9_]{3,15}$/;
+  const passwordRegex =
+    /^(?=\S{8,20}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+=-])/;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSuccess(false);
 
     // 유효성 검사
+
+    if (usernameRegex.test(formData.id)) {
+      setError("유효한 아이디입니다.");
+    } else {
+      setError("아이디 형식이 맞지 않습니다.");
+    }
+
+    if (passwordRegex.test(formData.password)) {
+      setError("유효한 비밀번호입니다.");
+    } else {
+      setError("비밀번호 형식이 맞지 않습니다.");
+    }
+
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      setError("비밀번호가 일치하지 않습니다.");
       return;
     }
 
     if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long");
+      setError("최소 8자 이상 입력해주세요.");
       return;
     }
 
     if (!agreeTerms) {
-      setError("Please agree to the terms and conditions");
+      setError("약관에 동의해주세요.");
       return;
     }
 
@@ -70,7 +87,7 @@ export default function SignupPage() {
         window.location.href = "/login";
       }, 2000);
     } catch (err) {
-      setError("Failed to create account. Please try again.");
+      setError("계정 생성에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setIsLoading(false);
     }
@@ -81,16 +98,16 @@ export default function SignupPage() {
       <Card className="w-full max-w-md bg-white shadow-[8px_8px_24px_rgba(0,0,0,0.1)] border-0 rounded-2xl">
         <CardHeader className="space-y-6 pb-6">
           {/* 회사 로고 */}
-          {/* <div className="flex justify-center">
-          <div className="h-16 w-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-            <Waves className="h-8 w-8 text-white" />
+          <div className="flex justify-center">
+            <div className="h-16 w-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <Waves className="h-8 w-8 text-white" />
+            </div>
           </div>
-        </div> */}
 
           {/* 제목 */}
           <div className="text-center space-y-2">
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Join Nexfron
+              Join Clalink APIM
             </CardTitle>
             <CardDescription className="text-gray-600">
               Create your account to get started
@@ -120,21 +137,18 @@ export default function SignupPage() {
               />
             </div>
 
-            {/* 이메일 입력 */}
+            {/* 아이디 입력 */}
             <div className="space-y-2">
-              <Label
-                htmlFor="email"
-                className="text-sm font-medium text-gray-700"
-              >
-                이메일
+              <Label htmlFor="id" className="text-sm font-medium text-gray-700">
+                아이디
               </Label>
               <Input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
+                id="id"
+                name="id"
+                type="text"
+                value={formData.id}
                 onChange={handleInputChange}
-                placeholder="이메일을 입력해주세요."
+                placeholder="아이디를 입력해주세요."
                 required
                 className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400 rounded-lg"
               />
@@ -277,7 +291,7 @@ export default function SignupPage() {
               <p className="text-sm text-gray-600">
                 이미 계정이 있으신가요?
                 <Link
-                  href="/login"
+                  href="/"
                   className="ml-[5px] text-blue-600 hover:text-blue-700 font-medium hover:underline"
                 >
                   로그인하세요!

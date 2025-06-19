@@ -1,15 +1,24 @@
-import { AppLayout } from "@/components/app-layout"
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Settings, User, Shield, Bell, Palette } from "lucide-react"
-import Link from "next/link"
+import { AppLayout } from "@/components/layout/AppLayout";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Settings, User, Shield, Bell, Palette } from "lucide-react";
+import Link from "next/link";
 
 export default function SettingsPage() {
   return (
     <AppLayout>
       <div className="container mx-auto px-4 py-6">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Settings</h1>
-          <p className="text-gray-600 dark:text-gray-400">시스템 설정 및 개인 설정 관리</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            Settings
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            시스템 설정 및 개인 설정 관리
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -67,5 +76,5 @@ export default function SettingsPage() {
         </div>
       </div>
     </AppLayout>
-  )
+  );
 }

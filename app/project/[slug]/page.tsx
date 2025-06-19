@@ -1,4 +1,4 @@
-import { AppLayout } from "@/components/app-layout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { FileBrowser } from "@/components/file-browser";
 
 interface ProjectPageProps {

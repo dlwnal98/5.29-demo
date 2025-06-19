@@ -46,7 +46,7 @@ export const navItems: NavItem[] = [
   {
     icon: BarChart3,
     label: "Dashboard",
-    href: "/",
+    href: "/dashboard",
     isActive: true,
   },
   {

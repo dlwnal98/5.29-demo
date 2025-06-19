@@ -34,6 +34,10 @@ export default function InstanceDetailModal({
   onOpenChange,
   eurekaServicesData,
 }: ModalProps) {
+  const { data: instanceData } = useEurekaInstances(
+    selectedInstance.instanceId
+  );
+
   const modalContentRef = useRef<HTMLDivElement>(null);
 
   const getStatusIcon = (status: string) => {
@@ -70,7 +74,6 @@ export default function InstanceDetailModal({
     onOpenChange(instance);
 
     //instanceId 로 api 호출해서 해당 인스턴스 데이터 불러와서 뿌려줘야함
-
     // 다음 렌더링 후 스크롤 이동
     setTimeout(() => {
       if (modalContentRef.current) {
@@ -78,12 +81,6 @@ export default function InstanceDetailModal({
       }
     }, 100);
   };
-
-  const { data: instanceData } = useEurekaInstances(
-    selectedInstance.instanceId
-  );
-
-  // console.log(instanceData)
 
   return (
     instanceData && (

@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NotificationDropdown } from "../notification-dropdown";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Waves } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface AppHeaderProps {
@@ -30,17 +30,26 @@ export function AppHeader({
               <Menu className="h-4 w-4" />
             )}
           </Button>
-          <a className="mr-6 flex items-center space-x-2" href="/">
+          {/* <a className="mr-6 flex items-center space-x-2" href="/dashboard">
             <div className="h-7 w-7">
               <img src={"/nexfron_favicon.png"} alt="NEXFRON" />
             </div>
             <span className="hidden font-extrabold text-[20px] sm:inline-block text-black dark:text-white">
               NEXFRON
             </span>
+          </a> */}
+
+          <a className="mr-6 flex items-center space-x-2" href="/dashboard">
+            <div className="h-6 w-6 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg">
+              <Waves className="h-4 w-4 text-white" />
+            </div>
+            <span className="hidden font-bold  text-[18px] sm:inline-block bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Clalink APIM
+            </span>
           </a>
         </div>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          {/* <div className="w-full flex-1 md:w-auto md:flex-none">
+          <div className="w-full flex-1 md:w-auto md:flex-none">
             <div className="relative">
               <Input
                 type="search"
@@ -48,7 +57,7 @@ export function AppHeader({
                 className="pl-8 md:w-[300px] lg:w-[400px] border-blue-200 dark:border-gray-700 focus:border-blue-400 focus:ring-blue-400 dark:bg-gray-800"
               />
             </div>
-          </div> */}
+          </div>
           <nav className="flex items-center space-x-2">
             <NotificationDropdown />
           </nav>

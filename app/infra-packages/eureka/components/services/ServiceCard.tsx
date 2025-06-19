@@ -4,13 +4,15 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import InstanceDetailModal from "./InstanceDetailModal";
 import { EurekaServices } from "@/types/eureka";
-import { useEurekaServices } from "@/hooks/useEurekaData";
 
-export default function ServiceCard() {
-  const { data: servicesData } = useEurekaServices();
-
+export default function ServiceCard({
+  servicesData,
+}: {
+  servicesData: EurekaServices[];
+}) {
   const [selectedInstance, setSelectedInstance] = useState<any>(null);
   const modalContentRef = useRef<HTMLDivElement>(null);
+
   // 인스턴스 변경 시 스크롤을 최상위로 이동하는 함수
   const handleInstanceChange = (instance: any) => {
     setSelectedInstance(instance);

@@ -1,18 +1,21 @@
-import { AppLayout } from "@/components/app-layout"
-import { FileEditor } from "@/components/file-editor"
+import { AppLayout } from "@/components/layout/AppLayout";
+import { FileEditor } from "@/components/file-editor";
 
 interface EditFilePageProps {
   params: {
-    slug: string
-  }
+    slug: string;
+  };
   searchParams: {
-    branch?: string
-    path?: string
-    file?: string
-  }
+    branch?: string;
+    path?: string;
+    file?: string;
+  };
 }
 
-export default function EditFilePage({ params, searchParams }: EditFilePageProps) {
+export default function EditFilePage({
+  params,
+  searchParams,
+}: EditFilePageProps) {
   return (
     <AppLayout projectSlug={params.slug}>
       <FileEditor
@@ -22,5 +25,5 @@ export default function EditFilePage({ params, searchParams }: EditFilePageProps
         fileName={searchParams.file || ""}
       />
     </AppLayout>
-  )
+  );
 }

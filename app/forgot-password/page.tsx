@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
 
       setSuccess(true);
     } catch (err) {
-      setError("Failed to send reset email. Please try again.");
+      setError("이메일 전송에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setIsLoading(false);
     }
@@ -45,11 +45,11 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-md bg-white shadow-[8px_8px_24px_rgba(0,0,0,0.1)] border-0 rounded-2xl">
         <CardHeader className="space-y-6 pb-6">
           {/* 회사 로고 */}
-          {/* <div className="flex justify-center">
-          <div className="h-16 w-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-            <Waves className="h-8 w-8 text-white" />
+          <div className="flex justify-center">
+            <div className="h-16 w-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <Waves className="h-8 w-8 text-white" />
+            </div>
           </div>
-        </div> */}
 
           {/* 제목 */}
           <div className="text-center space-y-2">
@@ -120,7 +120,7 @@ export default function ForgotPasswordPage() {
             {/* 로그인으로 돌아가기 */}
             <div className="text-center">
               <Link
-                href="/login"
+                href="/"
                 className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline"
               >
                 <ArrowLeft className="h-4 w-4 mr-1" />
