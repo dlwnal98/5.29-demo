@@ -35,7 +35,7 @@ export default function InstanceDetailModal({
   eurekaServicesData,
 }: ModalProps) {
   const { data: instanceData } = useEurekaInstances(
-    selectedInstance.instanceId
+    selectedInstance?.instanceId
   );
 
   const modalContentRef = useRef<HTMLDivElement>(null);
@@ -81,6 +81,8 @@ export default function InstanceDetailModal({
       }
     }, 100);
   };
+
+  console.log(`modal : ${selectedInstance}`);
 
   return (
     instanceData && (
@@ -319,7 +321,7 @@ export default function InstanceDetailModal({
                 <Server className="w-4 h-4 text-blue-500" />
                 <span className="font-medium">다른 인스턴스 목록</span>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 overflow-y-auto scrollbar-hide max-h-[50px]">
                 {eurekaServicesData
                   .find((service) =>
                     service.instances.some(

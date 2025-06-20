@@ -53,6 +53,8 @@ export default function ServiceCard({
     </Badge>
   );
 
+  console.log(`serviceCard : ${selectedInstance}`);
+
   return (
     <>
       {servicesData?.map((service: any) => (
@@ -72,7 +74,7 @@ export default function ServiceCard({
                 {service.instances.length}개
               </Badge>
             </div>
-            <div className="space-y-2 max-h-60 overflow-y-auto scrollbar-hide">
+            <div className="space-y-2 max-h-[150px] overflow-y-auto scrollbar-hide">
               {service.instances.map((instance: any) => {
                 const zoneIndex = service.zones.indexOf(instance.zone);
                 const matchedVersion = service.versions[zoneIndex] || "unknown";
@@ -95,7 +97,10 @@ export default function ServiceCard({
                           {instance.instanceId}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {instance.ip}:{instance.port} • v{matchedVersion}
+                          {instance.ip}:{instance.port} • v
+                          {matchedVersion === "unknown"
+                            ? instance.lastUpdatedTimestamp
+                            : matchedVersion}
                         </div>
                       </div>
                     </div>
@@ -114,13 +119,12 @@ export default function ServiceCard({
           </CardContent>
         </Card>
       ))}
-      {selectedInstance && servicesData && (
-        <InstanceDetailModal
-          eurekaServicesData={servicesData}
-          selectedInstance={selectedInstance}
-          onOpenChange={setSelectedInstance}
-        />
-      )}
+
+      <InstanceDetailModal
+        eurekaServicesData={servicesData}
+        selectedInstance={selectedInstance}
+        onOpenChange={setSelectedInstance}
+      />
     </>
   );
 }

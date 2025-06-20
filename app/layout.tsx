@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
 import { ReactNode } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Providers from "@/components/providers";
 
 export const metadata: Metadata = {
-  title: "Nexfron - API Gateway",
+  title: "Clalink",
   description: "Created with Nexfron",
   generator: "Nexfron",
   icons: "/nexfron_favicon.png",

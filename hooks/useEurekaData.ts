@@ -45,18 +45,14 @@ const fetchEurekaInstances = async (instanceId: string) => {
   return data;
 };
 
-export function useEurekaInstances(instanceId: string) {
+export function useEurekaInstances(instanceId?: string) {
   return useQuery<EurekaInstance>({
     queryKey: ["instances", instanceId],
-    queryFn: () => fetchEurekaInstances(instanceId),
-    // refetchInterval: 5000,
-    // staleTime: 1000,
-    // retry: 3,
-    // retryDelay: 1000,
-    staleTime: Infinity, // 캐시 무한히 신선하다고 간주
-    refetchOnWindowFocus: false, // 포커스돼도 재요청 안 함
-    refetchOnMount: false, // 마운트 시 재요청 안 함
-    refetchOnReconnect: false, // 재접속 시 재요청 안 함
-    enabled: true, // 자동 호출은 한 번만 발생 (true가 기본)
+    queryFn: () => fetchEurekaInstances(instanceId!),
+    enabled: !!instanceId, // instanceId가 있을 때만 실행
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 }
