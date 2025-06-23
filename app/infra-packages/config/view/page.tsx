@@ -2,10 +2,7 @@
 
 import { AppLayout } from "@/components/layout/AppLayout"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { Label } from "@/components/ui/label"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,8 +13,13 @@ import {
 } from "@/components/ui/breadcrumb"
 import {
   ArrowLeft,
-  Save,
-  Eye,
+  Edit,
+  Trash2,
+  Download,
+  Copy,
+  GitCommit,
+  User,
+  Calendar,
   GitBranch,
   Folder,
   File,
@@ -26,12 +28,10 @@ import {
   ImageIcon,
   Archive,
   Menu,
-  User,
-  Calendar,
-  GitCommit,
 } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import { useState } from "react"
+import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
 
 // 파일 아이콘 함수
 function getFileIcon(extension?: string) {
@@ -59,7 +59,7 @@ function getFileIcon(extension?: string) {
   }
 }
 
-// 샘플 파일 구조 (동일)
+// 샘플 파일 구조
 const fileStructure = [
   { name: ".github", type: "folder", level: 0 },
   { name: "workflows", type: "folder", level: 1 },
@@ -178,22 +178,17 @@ This project is licensed under the MIT License.`,
   },
 }
 
-export default function EditFilePage() {
+export default function FileViewPage() {
   const searchParams = useSearchParams()
   const branch = searchParams.get("branch") || "main"
   const path = searchParams.get("path") || ""
-  const originalFileName = searchParams.get("file") || ""
+  const fileName = searchParams.get("file") || ""
 
+  const [selectedStructureItem, setSelectedStructureItem] = useState(fileName)
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [selectedStructureItem, setSelectedStructureItem] = useState(originalFileName)
-  const [fileName, setFileName] = useState(originalFileName)
-  const [fileContent, setFileContent] = useState(fileData[originalFileName as keyof typeof fileData]?.content || "")
-  const [commitMessage, setCommitMessage] = useState("")
-  const [commitDescription, setCommitDescription] = useState("")
-  const [isPreview, setIsPreview] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
-  const currentFile = fileData[originalFileName as keyof typeof fileData]
+  const currentFile = fileData[fileName as keyof typeof fileData]
   const fileExtension = fileName.split(".").pop()
 
   const handleBack = () => {
@@ -203,31 +198,22 @@ export default function EditFilePage() {
     window.location.href = `/infra-packages/config?${params.toString()}`
   }
 
-  const handlePreview = () => {
+  const handleEdit = () => {
     const params = new URLSearchParams()
     params.set("branch", branch)
     if (path) params.set("path", path)
     params.set("file", fileName)
-    window.location.href = `/infra-packages/config/view?${params.toString()}`
+    window.location.href = `/infra-packages/config/edit?${params.toString()}`
   }
 
-  const handleSave = async () => {
-    if (!commitMessage.trim()) {
-      alert("Please enter a commit message")
-      return
-    }
+  const handleDelete = () => {
+    setShowDeleteModal(true)
+  }
 
-    setIsSaving(true)
-    try {
-      // 실제 저장 로직 구현
-      await new Promise((resolve) => setTimeout(resolve, 1000)) // 시뮬레이션
-      alert("File saved successfully!")
-      handleBack()
-    } catch (error) {
-      alert("Failed to save file")
-    } finally {
-      setIsSaving(false)
-    }
+  const handleConfirmDelete = () => {
+    // 실제 삭제 로직 구현
+    alert("File deleted successfully!")
+    handleBack()
   }
 
   const handleCommitClick = () => {
@@ -240,29 +226,49 @@ export default function EditFilePage() {
     }
   }
 
-  const renderPreview = () => {
+  const renderFileContent = () => {
+    if (!currentFile) return null
+
     switch (fileExtension) {
       case "md":
         return (
           <div className="prose prose-sm max-w-none">
             <pre className="whitespace-pre-wrap font-mono text-sm bg-gray-50 p-4 rounded-lg overflow-auto">
-              {fileContent}
+              {currentFile.content}
             </pre>
           </div>
         )
       case "json":
         return (
-          <pre className="language-json bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">{fileContent}</pre>
+          <pre className="language-json bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">
+            {currentFile.content}
+          </pre>
+        )
+      case "js":
+      case "ts":
+      case "tsx":
+      case "jsx":
+        return (
+          <pre className="language-javascript bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">
+            {currentFile.content}
+          </pre>
         )
       default:
-        return <pre className="bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">{fileContent}</pre>
+        return (
+          <div className="flex items-center justify-center h-32 text-muted-foreground">
+            <div className="text-center">
+              <File className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p>Preview not available for this file type</p>
+            </div>
+          </div>
+        )
     }
   }
 
   const breadcrumbItems = [
     { name: "/", href: "/" },
     { name: "config", href: `/infra-packages/config` },
-    { name: `Edit ${fileName}`, href: "" },
+    { name: fileName, href: "" },
   ]
 
   return (
@@ -380,133 +386,58 @@ export default function EditFilePage() {
                   </div>
                 )}
 
-                {/* File Name Editor */}
-                <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50">
+                {/* File Header */}
+                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50 mb-6">
                   <div className="flex items-center space-x-3">
                     {getFileIcon(fileExtension)}
-                    <div className="flex-1">
-                      <Label htmlFor="fileName" className="text-sm font-medium text-blue-900 mb-2 block">
-                        File Name
-                      </Label>
-                      <Input
-                        id="fileName"
-                        value={fileName}
-                        onChange={(e) => setFileName(e.target.value)}
-                        className="font-mono"
-                        placeholder="Enter file name..."
-                      />
+                    <div>
+                      <h1 className="text-xl font-semibold text-blue-900">{fileName}</h1>
+                      <p className="text-sm text-muted-foreground">{currentFile?.size}</p>
                     </div>
                   </div>
-                </div>
-
-                {/* Editor/Preview Toggle */}
-                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-2">
                     <Button
-                      variant={!isPreview ? "default" : "outline"}
+                      variant="outline"
                       size="sm"
-                      onClick={() => setIsPreview(false)}
-                      className={!isPreview ? "bg-blue-600 hover:bg-blue-700" : "border-blue-200 hover:bg-blue-50"}
+                      onClick={() => navigator.clipboard.writeText(currentFile?.content || "")}
+                      className="border-blue-200 hover:bg-blue-50"
                     >
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copy
+                    </Button>
+                    <Button variant="outline" size="sm" className="border-blue-200 hover:bg-blue-50">
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
+                    </Button>
+                    <Button onClick={handleEdit} className="bg-blue-600 hover:bg-blue-700 text-white">
+                      <Edit className="h-4 w-4 mr-2" />
                       Edit
                     </Button>
-                    <Button
-                      variant={isPreview ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setIsPreview(true)}
-                      className={isPreview ? "bg-blue-600 hover:bg-blue-700" : "border-blue-200 hover:bg-blue-50"}
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Preview
+                    <Button variant="destructive" onClick={handleDelete}>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
                     </Button>
                   </div>
-                  <Button onClick={handlePreview} variant="outline" className="border-blue-200 hover:bg-blue-50">
-                    <Eye className="h-4 w-4 mr-2" />
-                    View File
-                  </Button>
                 </div>
 
-                {/* Editor/Preview Content */}
-                <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm mb-6">
-                  <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
-                    <h2 className="font-medium text-blue-900">{isPreview ? "Preview" : "Edit File"}</h2>
-                  </div>
-                  <div className="p-6">
-                    {isPreview ? (
-                      renderPreview()
-                    ) : (
-                      <Textarea
-                        value={fileContent}
-                        onChange={(e) => setFileContent(e.target.value)}
-                        className="min-h-[400px] font-mono text-sm resize-none border-0 focus-visible:ring-0 p-0"
-                        placeholder="Enter file content..."
-                      />
-                    )}
-                  </div>
-                </div>
-
-                {/* Commit Section */}
+                {/* File Content */}
                 <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm">
                   <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
-                    <h2 className="font-medium text-blue-900 flex items-center">
-                      <GitCommit className="h-4 w-4 mr-2" />
-                      Commit Changes
-                    </h2>
+                    <h2 className="font-medium text-blue-900">File Contents</h2>
                   </div>
-                  <div className="p-6 space-y-4">
-                    <div>
-                      <Label htmlFor="commitMessage" className="text-sm font-medium mb-2 block">
-                        Commit Message *
-                      </Label>
-                      <Input
-                        id="commitMessage"
-                        value={commitMessage}
-                        onChange={(e) => setCommitMessage(e.target.value)}
-                        placeholder="Update file content"
-                        className="font-mono"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="commitDescription" className="text-sm font-medium mb-2 block">
-                        Extended Description (optional)
-                      </Label>
-                      <Textarea
-                        id="commitDescription"
-                        value={commitDescription}
-                        onChange={(e) => setCommitDescription(e.target.value)}
-                        placeholder="Add more details about your changes..."
-                        className="min-h-[100px] font-mono text-sm"
-                      />
-                    </div>
-                    <div className="flex justify-end space-x-2 pt-4">
-                      <Button variant="outline" onClick={handleBack} disabled={isSaving}>
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={handleSave}
-                        disabled={!commitMessage.trim() || isSaving}
-                        className="bg-green-600 hover:bg-green-700 text-white"
-                      >
-                        {isSaving ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                            Committing...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="h-4 w-4 mr-2" />
-                            Commit Changes
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
+                  <div className="p-6">{renderFileContent()}</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleConfirmDelete}
+        fileName={fileName}
+      />
     </AppLayout>
   )
 }
