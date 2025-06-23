@@ -61,7 +61,8 @@ export const navItems: NavItem[] = [
       {
         icon: Cog,
         label: "Config",
-        href: "http://1.224.162.188:51435",
+        // href: "http://1.224.162.188:51435",
+        href: "/infra-packages/config",
       },
       {
         icon: Server,
@@ -94,6 +95,11 @@ export const navItems: NavItem[] = [
     icon: Settings,
     label: "Settings",
     href: "/settings",
+  },
+  {
+    icon: Settings,
+    label: "Project",
+    href: "/project",
   },
 ];
 

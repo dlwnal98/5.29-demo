@@ -1,17 +1,23 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Search,
   Plus,
@@ -30,8 +36,8 @@ import {
   Filter,
   Grid3X3,
   List,
-} from "lucide-react"
-import { useRouter } from "next/navigation"
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // 샘플 프로젝트 데이터
 const projectsData = [
@@ -129,7 +135,8 @@ const projectsData = [
     id: 6,
     name: "api-gateway",
     slug: "api-gateway",
-    description: "Microservices API gateway with authentication and rate limiting",
+    description:
+      "Microservices API gateway with authentication and rate limiting",
     visibility: "private",
     language: "Go",
     stars: 45,
@@ -143,44 +150,48 @@ const projectsData = [
     avatar: "AG",
     color: "from-indigo-500 to-purple-500",
   },
-]
+];
 
 export function ProjectList() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  const [filterBy, setFilterBy] = useState("all")
-  const router = useRouter()
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [filterBy, setFilterBy] = useState("all");
+  const router = useRouter();
 
   const filteredProjects = projectsData.filter((project) => {
     const matchesSearch =
       project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchQuery.toLowerCase())
+      project.description.toLowerCase().includes(searchQuery.toLowerCase());
 
-    if (filterBy === "all") return matchesSearch
-    if (filterBy === "public") return matchesSearch && project.visibility === "public"
-    if (filterBy === "private") return matchesSearch && project.visibility === "private"
+    if (filterBy === "all") return matchesSearch;
+    if (filterBy === "public")
+      return matchesSearch && project.visibility === "public";
+    if (filterBy === "private")
+      return matchesSearch && project.visibility === "private";
 
-    return matchesSearch
-  })
+    return matchesSearch;
+  });
 
   const handleProjectClick = (slug: string) => {
-    window.location.href = `/project/${slug}`
-  }
+    window.location.href = `/infra-packages/config/${slug}`;
+  };
 
   const handleNewProject = () => {
-    router.push("/new-project")
-  }
+    router.push("/new-project");
+  };
 
   return (
     <div className="bg-transparent">
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
-        <div className="mb-8">
+        {/* <div className="mb-8">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
             Your Projects
           </h1>
-          <p className="text-muted-foreground">Manage and explore your repositories</p>
-        </div>
+          <p className="text-muted-foreground">
+            Manage and explore your repositories
+          </p>
+        </div> */}
 
         {/* Controls */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -200,13 +211,18 @@ export function ProjectList() {
             {/* Filter */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="border-blue-200 hover:bg-blue-50">
+                <Button
+                  variant="outline"
+                  className="border-blue-200 hover:bg-blue-50"
+                >
                   <Filter className="h-4 w-4 mr-2" />
                   Filter
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setFilterBy("all")}>All Projects</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilterBy("all")}>
+                  All Projects
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setFilterBy("public")}>
                   <Globe className="h-4 w-4 mr-2" />
                   Public
@@ -224,7 +240,11 @@ export function ProjectList() {
                 variant={viewMode === "grid" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("grid")}
-                className={viewMode === "grid" ? "bg-blue-600 hover:bg-blue-700" : "hover:bg-blue-50"}
+                className={
+                  viewMode === "grid"
+                    ? "bg-blue-600 hover:bg-blue-700"
+                    : "hover:bg-blue-50"
+                }
               >
                 <Grid3X3 className="h-4 w-4" />
               </Button>
@@ -232,7 +252,11 @@ export function ProjectList() {
                 variant={viewMode === "list" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("list")}
-                className={viewMode === "list" ? "bg-blue-600 hover:bg-blue-700" : "hover:bg-blue-50"}
+                className={
+                  viewMode === "list"
+                    ? "bg-blue-600 hover:bg-blue-700"
+                    : "hover:bg-blue-50"
+                }
               >
                 <List className="h-4 w-4" />
               </Button>
@@ -264,10 +288,14 @@ export function ProjectList() {
                       <div
                         className={`h-10 w-10 bg-gradient-to-br ${project.color} rounded-lg flex items-center justify-center shadow-lg`}
                       >
-                        <span className="text-white text-sm font-bold">{project.avatar}</span>
+                        <span className="text-white text-sm font-bold">
+                          {project.avatar}
+                        </span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <CardTitle className="text-lg truncate">{project.name}</CardTitle>
+                        <CardTitle className="text-lg truncate">
+                          {project.name}
+                        </CardTitle>
                         <div className="flex items-center space-x-2 mt-1">
                           <Badge
                             variant="secondary"
@@ -320,7 +348,9 @@ export function ProjectList() {
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <CardDescription className="mb-4 line-clamp-2">{project.description}</CardDescription>
+                  <CardDescription className="mb-4 line-clamp-2">
+                    {project.description}
+                  </CardDescription>
 
                   <div className="flex items-center justify-between text-sm text-muted-foreground mb-3">
                     <div className="flex items-center space-x-4">
@@ -367,11 +397,15 @@ export function ProjectList() {
                       <div
                         className={`h-12 w-12 bg-gradient-to-br ${project.color} rounded-lg flex items-center justify-center shadow-lg`}
                       >
-                        <span className="text-white font-bold">{project.avatar}</span>
+                        <span className="text-white font-bold">
+                          {project.avatar}
+                        </span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-3 mb-1">
-                          <h3 className="text-lg font-semibold truncate">{project.name}</h3>
+                          <h3 className="text-lg font-semibold truncate">
+                            {project.name}
+                          </h3>
                           <Badge
                             variant="secondary"
                             className={`text-xs ${
@@ -391,7 +425,9 @@ export function ProjectList() {
                             {project.language}
                           </Badge>
                         </div>
-                        <p className="text-muted-foreground mb-2 line-clamp-1">{project.description}</p>
+                        <p className="text-muted-foreground mb-2 line-clamp-1">
+                          {project.description}
+                        </p>
                         <div className="flex items-center space-x-6 text-sm text-muted-foreground">
                           <span className="flex items-center">
                             <Star className="h-3 w-3 mr-1 text-yellow-500" />
@@ -456,9 +492,13 @@ export function ProjectList() {
             <div className="mx-auto w-24 h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mb-4">
               <Search className="h-8 w-8 text-blue-500" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No projects found</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              No projects found
+            </h3>
             <p className="text-muted-foreground mb-4">
-              {searchQuery ? "Try adjusting your search terms" : "Get started by creating your first project"}
+              {searchQuery
+                ? "Try adjusting your search terms"
+                : "Get started by creating your first project"}
             </p>
             <Button
               className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
@@ -478,5 +518,5 @@ export function ProjectList() {
         </div>
       </div>
     </div>
-  )
+  );
 }

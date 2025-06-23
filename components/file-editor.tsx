@@ -1,11 +1,17 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,8 +19,8 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/breadcrumb";
+import { Badge } from "@/components/ui/badge";
 import {
   ArrowLeft,
   FileText,
@@ -30,13 +36,13 @@ import {
   Clock,
   User,
   Calendar,
-} from "lucide-react"
+} from "lucide-react";
 
 interface FileEditorProps {
-  projectSlug: string
-  branch: string
-  currentPath: string
-  fileName: string
+  projectSlug: string;
+  branch: string;
+  currentPath: string;
+  fileName: string;
 }
 
 // 샘플 파일 데이터 (실제로는 API에서 가져올 것)
@@ -201,142 +207,152 @@ const config: Config = {
 
 export default config`,
     },
-  }
+  };
 
-  return fileDatabase[fileName] || null
-}
+  return fileDatabase[fileName] || null;
+};
 
-export function FileEditor({ projectSlug, branch, currentPath, fileName }: FileEditorProps) {
-  const [fileContent, setFileContent] = useState("")
-  const [originalContent, setOriginalContent] = useState("")
-  const [commitMessage, setCommitMessage] = useState("")
-  const [isPreview, setIsPreview] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isLoadingFile, setIsLoadingFile] = useState(true)
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState(false)
-  const [fileData, setFileData] = useState<any>(null)
-  const [hasChanges, setHasChanges] = useState(false)
+export function FileEditor({
+  projectSlug,
+  branch,
+  currentPath,
+  fileName,
+}: FileEditorProps) {
+  const [fileContent, setFileContent] = useState("");
+  const [originalContent, setOriginalContent] = useState("");
+  const [commitMessage, setCommitMessage] = useState("");
+  const [isPreview, setIsPreview] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingFile, setIsLoadingFile] = useState(true);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [fileData, setFileData] = useState<any>(null);
+  const [hasChanges, setHasChanges] = useState(false);
 
   // 브레드크럼 생성
   const breadcrumbItems = [
     { name: "Projects", href: "/" },
-    { name: projectSlug, href: `/project/${projectSlug}` },
-    { name: branch, href: `/project/${projectSlug}?branch=${branch}` },
-  ]
+    { name: projectSlug, href: `/infra-packages/config` },
+    {
+      name: branch,
+      href: `/infra-packages/config?branch=${branch}`,
+    },
+  ];
 
   if (currentPath) {
-    const pathParts = currentPath.split("/").filter(Boolean)
+    const pathParts = currentPath.split("/").filter(Boolean);
     pathParts.forEach((part, index) => {
-      const path = pathParts.slice(0, index + 1).join("/")
+      const path = pathParts.slice(0, index + 1).join("/");
       breadcrumbItems.push({
         name: part,
-        href: `/project/${projectSlug}?branch=${branch}&path=${path}`,
-      })
-    })
+        href: `/infra-packages/config?branch=${branch}&path=${path}`,
+      });
+    });
   }
 
-  breadcrumbItems.push({ name: fileName, href: "" })
-  breadcrumbItems.push({ name: "Edit", href: "" })
+  breadcrumbItems.push({ name: fileName, href: "" });
+  breadcrumbItems.push({ name: "Edit", href: "" });
 
   // 파일 데이터 로드
   useEffect(() => {
     const loadFile = async () => {
-      setIsLoadingFile(true)
+      setIsLoadingFile(true);
       try {
         // 실제로는 API 호출
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-        const data = getFileData(fileName)
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const data = getFileData(fileName);
 
         if (data) {
-          setFileData(data)
-          setFileContent(data.content)
-          setOriginalContent(data.content)
-          setCommitMessage(`Update ${fileName}`)
+          setFileData(data);
+          setFileContent(data.content);
+          setOriginalContent(data.content);
+          setCommitMessage(`Update ${fileName}`);
         } else {
-          setError("File not found")
+          setError("File not found");
         }
       } catch (err) {
-        setError("Failed to load file")
+        setError("Failed to load file");
       } finally {
-        setIsLoadingFile(false)
+        setIsLoadingFile(false);
       }
-    }
+    };
 
     if (fileName) {
-      loadFile()
+      loadFile();
     }
-  }, [fileName])
+  }, [fileName]);
 
   // 변경사항 감지
   useEffect(() => {
-    setHasChanges(fileContent !== originalContent)
-  }, [fileContent, originalContent])
+    setHasChanges(fileContent !== originalContent);
+  }, [fileContent, originalContent]);
 
   const handleSave = async () => {
-    setError("")
-    setSuccess(false)
+    setError("");
+    setSuccess(false);
 
     if (!commitMessage.trim()) {
-      setError("Commit message is required")
-      return
+      setError("Commit message is required");
+      return;
     }
 
     if (!hasChanges) {
-      setError("No changes to save")
-      return
+      setError("No changes to save");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       // 여기서 실제 파일 저장 API 호출
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      setSuccess(true)
-      setOriginalContent(fileContent)
-      setHasChanges(false)
+      setSuccess(true);
+      setOriginalContent(fileContent);
+      setHasChanges(false);
 
       setTimeout(() => {
         // 파일 브라우저로 리다이렉트
-        window.location.href = `/project/${projectSlug}?branch=${branch}&path=${currentPath}`
-      }, 1500)
+        window.location.href = `/infra-packages/config?branch=${branch}&path=${currentPath}`;
+      }, 1500);
     } catch (err) {
-      setError("Failed to save file. Please try again.")
+      setError("Failed to save file. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleCancel = () => {
     if (hasChanges) {
-      const confirmed = window.confirm("You have unsaved changes. Are you sure you want to leave?")
-      if (!confirmed) return
+      const confirmed = window.confirm(
+        "You have unsaved changes. Are you sure you want to leave?"
+      );
+      if (!confirmed) return;
     }
-    window.location.href = `/project/${projectSlug}?branch=${branch}&path=${currentPath}`
-  }
+    window.location.href = `/infra-packages/config?branch=${branch}&path=${currentPath}`;
+  };
 
   const getFileIcon = (filename: string) => {
-    const ext = filename.split(".").pop()?.toLowerCase()
+    const ext = filename.split(".").pop()?.toLowerCase();
     switch (ext) {
       case "md":
-        return <FileText className="h-4 w-4 text-indigo-500" />
+        return <FileText className="h-4 w-4 text-indigo-500" />;
       case "js":
       case "ts":
       case "tsx":
       case "jsx":
       case "json":
-        return <Code className="h-4 w-4 text-amber-500" />
+        return <Code className="h-4 w-4 text-amber-500" />;
       case "png":
       case "jpg":
       case "jpeg":
       case "gif":
       case "svg":
-        return <ImageIcon className="h-4 w-4 text-green-500" />
+        return <ImageIcon className="h-4 w-4 text-green-500" />;
       default:
-        return <FileText className="h-4 w-4 text-gray-500" />
+        return <FileText className="h-4 w-4 text-gray-500" />;
     }
-  }
+  };
 
   if (isLoadingFile) {
     return (
@@ -350,7 +366,7 @@ export function FileEditor({ projectSlug, branch, currentPath, fileName }: FileE
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (!fileData) {
@@ -368,7 +384,7 @@ export function FileEditor({ projectSlug, branch, currentPath, fileName }: FileE
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -377,7 +393,11 @@ export function FileEditor({ projectSlug, branch, currentPath, fileName }: FileE
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
-            <Button variant="outline" onClick={handleCancel} className="border-blue-200 hover:bg-blue-50">
+            <Button
+              variant="outline"
+              onClick={handleCancel}
+              className="border-blue-200 hover:bg-blue-50"
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
@@ -390,9 +410,13 @@ export function FileEditor({ projectSlug, branch, currentPath, fileName }: FileE
                     {index > 0 && <BreadcrumbSeparator />}
                     <BreadcrumbItem>
                       {index === breadcrumbItems.length - 1 ? (
-                        <BreadcrumbPage className="text-blue-600">{item.name}</BreadcrumbPage>
+                        <BreadcrumbPage className="text-blue-600">
+                          {item.name}
+                        </BreadcrumbPage>
                       ) : item.href ? (
-                        <BreadcrumbLink href={item.href}>{item.name}</BreadcrumbLink>
+                        <BreadcrumbLink href={item.href}>
+                          {item.name}
+                        </BreadcrumbLink>
                       ) : (
                         <span>{item.name}</span>
                       )}
@@ -409,13 +433,19 @@ export function FileEditor({ projectSlug, branch, currentPath, fileName }: FileE
               {branch}
             </Badge>
             {currentPath && (
-              <Badge variant="outline" className="border-blue-200 text-blue-700">
+              <Badge
+                variant="outline"
+                className="border-blue-200 text-blue-700"
+              >
                 <Folder className="h-3 w-3 mr-1" />
                 {currentPath}
               </Badge>
             )}
             {hasChanges && (
-              <Badge variant="outline" className="border-orange-200 text-orange-700 bg-orange-50">
+              <Badge
+                variant="outline"
+                className="border-orange-200 text-orange-700 bg-orange-50"
+              >
                 <Clock className="h-3 w-3 mr-1" />
                 Unsaved
               </Badge>
@@ -496,7 +526,11 @@ export function FileEditor({ projectSlug, branch, currentPath, fileName }: FileE
                       </>
                     )}
                   </Button>
-                  <Button variant="outline" onClick={handleCancel} className="border-blue-200 hover:bg-blue-50">
+                  <Button
+                    variant="outline"
+                    onClick={handleCancel}
+                    className="border-blue-200 hover:bg-blue-50"
+                  >
                     Cancel
                   </Button>
                 </div>
@@ -506,7 +540,9 @@ export function FileEditor({ projectSlug, branch, currentPath, fileName }: FileE
             {/* File Info */}
             <Card className="border-blue-200/50 bg-white/70 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="text-blue-900 text-sm">File Information</CardTitle>
+                <CardTitle className="text-blue-900 text-sm">
+                  File Information
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between text-sm">
@@ -543,14 +579,22 @@ export function FileEditor({ projectSlug, branch, currentPath, fileName }: FileE
                   <CardTitle className="text-blue-900 flex items-center">
                     <Code className="h-5 w-5 mr-2" />
                     File Content
-                    {hasChanges && <span className="ml-2 text-orange-600 text-sm">• Modified</span>}
+                    {hasChanges && (
+                      <span className="ml-2 text-orange-600 text-sm">
+                        • Modified
+                      </span>
+                    )}
                   </CardTitle>
                   <div className="flex items-center space-x-2">
                     <Button
                       variant={isPreview ? "outline" : "default"}
                       size="sm"
                       onClick={() => setIsPreview(false)}
-                      className={!isPreview ? "bg-blue-600 hover:bg-blue-700" : "border-blue-200 hover:bg-blue-50"}
+                      className={
+                        !isPreview
+                          ? "bg-blue-600 hover:bg-blue-700"
+                          : "border-blue-200 hover:bg-blue-50"
+                      }
                     >
                       <Code className="h-4 w-4 mr-1" />
                       Edit
@@ -559,24 +603,36 @@ export function FileEditor({ projectSlug, branch, currentPath, fileName }: FileE
                       variant={isPreview ? "default" : "outline"}
                       size="sm"
                       onClick={() => setIsPreview(true)}
-                      className={isPreview ? "bg-blue-600 hover:bg-blue-700" : "border-blue-200 hover:bg-blue-50"}
+                      className={
+                        isPreview
+                          ? "bg-blue-600 hover:bg-blue-700"
+                          : "border-blue-200 hover:bg-blue-50"
+                      }
                     >
                       <Eye className="h-4 w-4 mr-1" />
                       Preview
                     </Button>
                   </div>
                 </div>
-                <CardDescription>{isPreview ? "Preview your changes" : "Edit your file content"}</CardDescription>
+                <CardDescription>
+                  {isPreview
+                    ? "Preview your changes"
+                    : "Edit your file content"}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 {isPreview ? (
                   <div className="border border-blue-200 rounded-lg p-4 bg-gray-50 min-h-96 max-h-96 overflow-auto">
                     {fileName.endsWith(".md") ? (
                       <div className="prose prose-sm max-w-none">
-                        <pre className="whitespace-pre-wrap font-mono text-sm">{fileContent}</pre>
+                        <pre className="whitespace-pre-wrap font-mono text-sm">
+                          {fileContent}
+                        </pre>
                       </div>
                     ) : (
-                      <pre className="whitespace-pre-wrap font-mono text-sm">{fileContent}</pre>
+                      <pre className="whitespace-pre-wrap font-mono text-sm">
+                        {fileContent}
+                      </pre>
                     )}
                   </div>
                 ) : (
@@ -614,5 +670,5 @@ export function FileEditor({ projectSlug, branch, currentPath, fileName }: FileE
         </div>
       </div>
     </div>
-  )
+  );
 }

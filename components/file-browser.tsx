@@ -399,7 +399,7 @@ function FilePreview({
               params.set("branch", "main"); // You might want to get this from props
               if (currentPath) params.set("path", currentPath);
               params.set("file", file.name);
-              window.location.href = `/project/${projectSlug}/edit?${params.toString()}`;
+              window.location.href = `/infra-packages/edit?${params.toString()}`;
             }}
           >
             <Edit className="h-4 w-4 mr-2" />
@@ -461,6 +461,8 @@ interface FileBrowserProps {
 }
 
 export function FileBrowser({ projectSlug }: FileBrowserProps) {
+  console.log(projectSlug);
+
   const [currentBranch, setCurrentBranch] = useState("main");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFile, setSelectedFile] = useState<any>(null);
@@ -494,9 +496,9 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
 
   // Update breadcrumb items to include project name
   const breadcrumbItems = [
-    { name: "Projects", href: "/" },
-    { name: projectSlug, href: `/project/${projectSlug}` },
-    // { name: "main", href: `/project/${projectSlug}/tree/main` },
+    { name: "/", href: "/" },
+    { name: projectSlug, href: `` },
+    // { name: "main", href: `/project/tree/main` },
   ];
 
   return (
@@ -578,7 +580,7 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
                     const params = new URLSearchParams();
                     params.set("branch", currentBranch);
                     if (currentPath) params.set("path", currentPath);
-                    window.location.href = `/project/${projectSlug}/create?${params.toString()}`;
+                    window.location.href = `/infra-packages/config/create?${params.toString()}`;
                   }}
                 >
                   <FileText className="h-4 w-4 mr-2" />
@@ -643,7 +645,7 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
                           const params = new URLSearchParams();
                           params.set("branch", currentBranch);
                           params.set("path", newPath);
-                          window.location.href = `/project/${projectSlug}?${params.toString()}`;
+                          window.location.href = `/infra-packages/config?${params.toString()}`;
                         } else {
                           // Select file for preview
                           handleFileClick(file);
@@ -692,7 +694,7 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
                             params.set("branch", currentBranch);
                             if (currentPath) params.set("path", currentPath);
                             params.set("file", file.name);
-                            window.location.href = `/project/${projectSlug}/edit?${params.toString()}`;
+                            window.location.href = `/infra-packages/config/edit?${params.toString()}`;
                           }}
                         >
                           <Edit className="h-4 w-4 mr-2" />

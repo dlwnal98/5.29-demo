@@ -1,16 +1,22 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Card, CardContent } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   ArrowLeft,
   ArrowRight,
@@ -29,8 +35,8 @@ import {
   ShoppingCart,
   Smartphone,
   Server,
-} from "lucide-react"
-import Link from "next/link"
+} from "lucide-react";
+import Link from "next/link";
 
 // 프로젝트 템플릿 데이터
 const projectTemplates = [
@@ -90,13 +96,13 @@ const projectTemplates = [
     icon: <Database className="h-8 w-8 text-cyan-600" />,
     popular: false,
   },
-]
+];
 
 export function NewProjectForm() {
-  const [currentStep, setCurrentStep] = useState(1)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState(false)
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   // 프로젝트 정보 상태
   const [projectData, setProjectData] = useState({
@@ -108,11 +114,11 @@ export function NewProjectForm() {
     initializeWithReadme: true,
     gitIgnore: true,
     license: "mit",
-  })
+  });
 
   // 프로젝트명 변경 시 자동으로 슬러그 생성
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.value
+    const name = e.target.value;
     setProjectData({
       ...projectData,
       name,
@@ -120,100 +126,98 @@ export function NewProjectForm() {
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-|-$/g, ""),
-    })
-  }
+    });
+  };
 
   // 슬러그 직접 수정
   const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setProjectData({
       ...projectData,
       slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
-    })
-  }
+    });
+  };
 
   // 다음 단계로 이동
   const handleNextStep = () => {
     if (currentStep === 1) {
       if (!projectData.name.trim()) {
-        setError("Project name is required")
-        return
+        setError("Project name is required");
+        return;
       }
       if (!projectData.slug.trim()) {
-        setError("Project slug is required")
-        return
+        setError("Project slug is required");
+        return;
       }
     }
 
-    setError("")
-    setCurrentStep(currentStep + 1)
-  }
+    setError("");
+    setCurrentStep(currentStep + 1);
+  };
 
   // 이전 단계로 이동
   const handlePrevStep = () => {
-    setCurrentStep(currentStep - 1)
-    setError("")
-  }
+    setCurrentStep(currentStep - 1);
+    setError("");
+  };
 
   // 프로젝트 생성 제출
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setSuccess(false)
-    setIsLoading(true)
+    e.preventDefault();
+    setError("");
+    setSuccess(false);
+    setIsLoading(true);
 
     try {
       // 여기서 실제 프로젝트 생성 API 호출
-      await new Promise((resolve) => setTimeout(resolve, 2000)) // 시뮬레이션
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // 시뮬레이션
 
-      setSuccess(true)
+      setSuccess(true);
       setTimeout(() => {
         // 생성된 프로젝트로 리다이렉트
-        window.location.href = `/project/${projectData.slug}`
-      }, 1500)
+        window.location.href = `/config/${projectData.slug}`;
+      }, 1500);
     } catch (err) {
-      setError("Failed to create project. Please try again.")
+      setError("Failed to create project. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* 헤더 */}
-      <div className="mb-8 text-center">
-        <div className="flex justify-center mb-4">
-          <div className="h-16 w-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-            <Waves className="h-8 w-8 text-white" />
-          </div>
-        </div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+    <div className="container mx-auto px-4 py-6">
+      {/* 단계 표시기 */}
+      <div className="mb-5 flex items-center justify-between">
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
           Create New Project
         </h1>
-        <p className="text-gray-600">Set up a new repository for your code</p>
-      </div>
-
-      {/* 단계 표시기 */}
-      <div className="mb-8">
         <div className="flex items-center justify-center">
           <div className="flex items-center">
             <div
-              className={`flex items-center justify-center w-10 h-10 rounded-full ${
+              className={`flex items-center justify-center w-8 h-8 rounded-full ${
                 currentStep >= 1 ? "bg-blue-600" : "bg-gray-200"
               } text-white font-bold`}
             >
               {currentStep > 1 ? <Check className="h-5 w-5" /> : "1"}
             </div>
-            <div className={`w-20 h-1 ${currentStep >= 2 ? "bg-blue-600" : "bg-gray-200"}`}></div>
             <div
-              className={`flex items-center justify-center w-10 h-10 rounded-full ${
+              className={`w-10 h-1 ${
+                currentStep >= 2 ? "bg-blue-600" : "bg-gray-200"
+              }`}
+            ></div>
+            <div
+              className={`flex items-center justify-center w-8 h-8 rounded-full ${
                 currentStep >= 2 ? "bg-blue-600" : "bg-gray-200"
               } text-white font-bold`}
             >
               {currentStep > 2 ? <Check className="h-5 w-5" /> : "2"}
             </div>
-            <div className={`w-20 h-1 ${currentStep >= 3 ? "bg-blue-600" : "bg-gray-200"}`}></div>
             <div
-              className={`flex items-center justify-center w-10 h-10 rounded-full ${
+              className={`w-10 h-1 ${
+                currentStep >= 3 ? "bg-blue-600" : "bg-gray-200"
+              }`}
+            ></div>
+            <div
+              className={`flex items-center justify-center w-8 h-8 rounded-full ${
                 currentStep >= 3 ? "bg-blue-600" : "bg-gray-200"
               } text-white font-bold`}
             >
@@ -221,7 +225,7 @@ export function NewProjectForm() {
             </div>
           </div>
         </div>
-        <div className="flex justify-center mt-2">
+        {/* <div className="flex justify-center mt-2">
           <div className="flex text-sm text-gray-600">
             <span className="w-10 text-center">Info</span>
             <span className="w-20"></span>
@@ -229,7 +233,7 @@ export function NewProjectForm() {
             <span className="w-20"></span>
             <span className="w-10 text-center">Setup</span>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* 단계별 폼 */}
@@ -251,7 +255,9 @@ export function NewProjectForm() {
                     className="h-12 border-blue-200 focus:border-blue-400 focus:ring-blue-400"
                     autoFocus
                   />
-                  <p className="text-xs text-gray-500">Choose a descriptive name for your project</p>
+                  <p className="text-xs text-gray-500">
+                    Choose a descriptive name for your project
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -269,7 +275,8 @@ export function NewProjectForm() {
                     />
                   </div>
                   <p className="text-xs text-gray-500">
-                    This will be used in URLs and file paths. Use lowercase letters, numbers, and hyphens only.
+                    This will be used in URLs and file paths. Use lowercase
+                    letters, numbers, and hyphens only.
                   </p>
                 </div>
 
@@ -280,12 +287,18 @@ export function NewProjectForm() {
                   <Textarea
                     id="description"
                     value={projectData.description}
-                    onChange={(e) => setProjectData({ ...projectData, description: e.target.value })}
+                    onChange={(e) =>
+                      setProjectData({
+                        ...projectData,
+                        description: e.target.value,
+                      })
+                    }
                     placeholder="Briefly describe your project"
                     className="min-h-24 border-blue-200 focus:border-blue-400 focus:ring-blue-400"
                   />
                   <p className="text-xs text-gray-500">
-                    A good description helps others understand your project's purpose
+                    A good description helps others understand your project's
+                    purpose
                   </p>
                 </div>
 
@@ -293,22 +306,40 @@ export function NewProjectForm() {
                   <Label className="text-sm font-medium">Visibility</Label>
                   <RadioGroup
                     value={projectData.visibility}
-                    onValueChange={(value) => setProjectData({ ...projectData, visibility: value })}
+                    onValueChange={(value) =>
+                      setProjectData({ ...projectData, visibility: value })
+                    }
                     className="flex flex-col space-y-2"
                   >
                     <div className="flex items-center space-x-3 rounded-lg border border-blue-200 p-4 hover:bg-blue-50">
-                      <RadioGroupItem value="public" id="public" className="border-blue-400" />
-                      <Label htmlFor="public" className="flex items-center cursor-pointer">
+                      <RadioGroupItem
+                        value="public"
+                        id="public"
+                        className="border-blue-400"
+                      />
+                      <Label
+                        htmlFor="public"
+                        className="flex items-center cursor-pointer"
+                      >
                         <Globe className="h-5 w-5 mr-2 text-blue-600" />
                         <div>
                           <div className="font-medium">Public</div>
-                          <div className="text-sm text-gray-500">Anyone can see this repository</div>
+                          <div className="text-sm text-gray-500">
+                            Anyone can see this repository
+                          </div>
                         </div>
                       </Label>
                     </div>
                     <div className="flex items-center space-x-3 rounded-lg border border-blue-200 p-4 hover:bg-blue-50">
-                      <RadioGroupItem value="private" id="private" className="border-blue-400" />
-                      <Label htmlFor="private" className="flex items-center cursor-pointer">
+                      <RadioGroupItem
+                        value="private"
+                        id="private"
+                        className="border-blue-400"
+                      />
+                      <Label
+                        htmlFor="private"
+                        className="flex items-center cursor-pointer"
+                      >
                         <Lock className="h-5 w-5 mr-2 text-blue-600" />
                         <div>
                           <div className="font-medium">Private</div>
@@ -327,8 +358,12 @@ export function NewProjectForm() {
             {currentStep === 2 && (
               <div className="space-y-6">
                 <div className="text-center mb-4">
-                  <h2 className="text-xl font-semibold text-blue-900">Choose a Template</h2>
-                  <p className="text-gray-600">Select a starting point for your project</p>
+                  <h2 className="text-xl font-semibold text-blue-900">
+                    Choose a Template
+                  </h2>
+                  <p className="text-gray-600">
+                    Select a starting point for your project
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -340,7 +375,12 @@ export function NewProjectForm() {
                           ? "border-blue-400 bg-blue-50"
                           : "border-gray-200 hover:border-blue-300 hover:bg-blue-50/50"
                       }`}
-                      onClick={() => setProjectData({ ...projectData, template: template.id })}
+                      onClick={() =>
+                        setProjectData({
+                          ...projectData,
+                          template: template.id,
+                        })
+                      }
                     >
                       <div className="flex-shrink-0 mt-1">{template.icon}</div>
                       <div className="flex-grow">
@@ -352,7 +392,9 @@ export function NewProjectForm() {
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-gray-600 mt-1">{template.description}</p>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {template.description}
+                        </p>
                       </div>
                       {projectData.template === template.id && (
                         <div className="flex-shrink-0">
@@ -369,8 +411,12 @@ export function NewProjectForm() {
             {currentStep === 3 && (
               <div className="space-y-6">
                 <div className="text-center mb-4">
-                  <h2 className="text-xl font-semibold text-blue-900">Final Setup</h2>
-                  <p className="text-gray-600">Configure additional options for your project</p>
+                  <h2 className="text-xl font-semibold text-blue-900">
+                    Final Setup
+                  </h2>
+                  <p className="text-gray-600">
+                    Configure additional options for your project
+                  </p>
                 </div>
 
                 <div className="space-y-4">
@@ -379,15 +425,23 @@ export function NewProjectForm() {
                       id="readme"
                       checked={projectData.initializeWithReadme}
                       onCheckedChange={(checked) =>
-                        setProjectData({ ...projectData, initializeWithReadme: checked as boolean })
+                        setProjectData({
+                          ...projectData,
+                          initializeWithReadme: checked as boolean,
+                        })
                       }
                       className="border-blue-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 mt-1"
                     />
                     <div>
-                      <Label htmlFor="readme" className="font-medium cursor-pointer">
+                      <Label
+                        htmlFor="readme"
+                        className="font-medium cursor-pointer"
+                      >
                         Initialize with a README
                       </Label>
-                      <p className="text-sm text-gray-600">Add a README file to help others understand your project</p>
+                      <p className="text-sm text-gray-600">
+                        Add a README file to help others understand your project
+                      </p>
                     </div>
                   </div>
 
@@ -395,15 +449,24 @@ export function NewProjectForm() {
                     <Checkbox
                       id="gitignore"
                       checked={projectData.gitIgnore}
-                      onCheckedChange={(checked) => setProjectData({ ...projectData, gitIgnore: checked as boolean })}
+                      onCheckedChange={(checked) =>
+                        setProjectData({
+                          ...projectData,
+                          gitIgnore: checked as boolean,
+                        })
+                      }
                       className="border-blue-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 mt-1"
                     />
                     <div>
-                      <Label htmlFor="gitignore" className="font-medium cursor-pointer">
+                      <Label
+                        htmlFor="gitignore"
+                        className="font-medium cursor-pointer"
+                      >
                         Add .gitignore
                       </Label>
                       <p className="text-sm text-gray-600">
-                        Create a .gitignore file to specify which files Git should ignore
+                        Create a .gitignore file to specify which files Git
+                        should ignore
                       </p>
                     </div>
                   </div>
@@ -414,28 +477,39 @@ export function NewProjectForm() {
                     </Label>
                     <Select
                       value={projectData.license}
-                      onValueChange={(value) => setProjectData({ ...projectData, license: value })}
+                      onValueChange={(value) =>
+                        setProjectData({ ...projectData, license: value })
+                      }
                     >
                       <SelectTrigger className="border-blue-200 focus:border-blue-400">
                         <SelectValue placeholder="Choose a license" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="mit">MIT License</SelectItem>
-                        <SelectItem value="apache">Apache License 2.0</SelectItem>
-                        <SelectItem value="gpl">GNU General Public License v3.0</SelectItem>
-                        <SelectItem value="bsd">BSD 3-Clause License</SelectItem>
+                        <SelectItem value="apache">
+                          Apache License 2.0
+                        </SelectItem>
+                        <SelectItem value="gpl">
+                          GNU General Public License v3.0
+                        </SelectItem>
+                        <SelectItem value="bsd">
+                          BSD 3-Clause License
+                        </SelectItem>
                         <SelectItem value="none">No License</SelectItem>
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-gray-500">
-                      A license tells others what they can and cannot do with your code
+                      A license tells others what they can and cannot do with
+                      your code
                     </p>
                   </div>
                 </div>
 
                 {/* 프로젝트 요약 */}
                 <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50">
-                  <h3 className="font-medium text-blue-900 mb-2">Project Summary</h3>
+                  <h3 className="font-medium text-blue-900 mb-2">
+                    Project Summary
+                  </h3>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div className="text-gray-600">Name:</div>
                     <div className="font-medium">{projectData.name}</div>
@@ -460,7 +534,11 @@ export function NewProjectForm() {
 
                     <div className="text-gray-600">Template:</div>
                     <div className="font-medium">
-                      {projectTemplates.find((t) => t.id === projectData.template)?.name}
+                      {
+                        projectTemplates.find(
+                          (t) => t.id === projectData.template
+                        )?.name
+                      }
                     </div>
                   </div>
                 </div>
@@ -478,7 +556,9 @@ export function NewProjectForm() {
             {success && (
               <div className="flex items-center space-x-2 text-green-600 bg-green-50 p-3 rounded-lg border border-green-200 mt-6">
                 <CheckCircle className="h-4 w-4 flex-shrink-0" />
-                <span className="text-sm">Project created successfully! Redirecting...</span>
+                <span className="text-sm">
+                  Project created successfully! Redirecting...
+                </span>
               </div>
             )}
 
@@ -496,7 +576,10 @@ export function NewProjectForm() {
                 </Button>
               ) : (
                 <Link href="/">
-                  <Button variant="outline" className="border-blue-200 hover:bg-blue-50">
+                  <Button
+                    variant="outline"
+                    className="border-blue-200 hover:bg-blue-50"
+                  >
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Cancel
                   </Button>
@@ -536,5 +619,5 @@ export function NewProjectForm() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

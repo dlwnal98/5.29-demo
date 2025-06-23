@@ -55,6 +55,7 @@ const NavButton = ({
 
   const isActive =
     pathname === item.href ||
+    pathname.includes(item.href ?? "string") ||
     (item.subItems &&
       item.subItems.some((subItem) => pathname === subItem.href));
 
