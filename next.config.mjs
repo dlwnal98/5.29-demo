@@ -17,7 +17,11 @@ const nextConfig = {
       },
       {
         source: "/vi/api/git/:path*",
-        destination: "http://192.168.123.102:8080/:path*",
+        destination: "http://1.224.162.188:58080/:path*",
+      },
+      {
+        source: "/api/vault/key",
+        destination: "http://1.224.162.188:58080/api/vault/key",
       },
     ];
   },

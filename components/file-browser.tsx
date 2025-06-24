@@ -497,7 +497,7 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
 
   return (
     <div className="bg-transparent">
-      <div className="container mx-auto px-4 py-6">
+      <div className="mx-auto px-4 py-6">
         {/* Navigation Bar */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">

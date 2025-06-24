@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { AppLayout } from "@/components/layout/AppLayout"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { AppLayout } from "@/components/layout/AppLayout";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,11 +10,24 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Avatar } from "@/components/ui/avatar"
-import { ArrowLeft, GitCommit, GitBranch, Copy, ExternalLink } from "lucide-react"
-import { useSearchParams } from "next/navigation"
+} from "@/components/ui/breadcrumb";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Avatar } from "@/components/ui/avatar";
+import {
+  ArrowLeft,
+  GitCommit,
+  GitBranch,
+  Copy,
+  ExternalLink,
+} from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 // 샘플 커밋 데이터
 const commitHistory = [
@@ -78,33 +91,32 @@ const commitHistory = [
     additions: 500,
     deletions: 0,
   },
-]
+];
 
 export default function CommitsPage() {
-  const searchParams = useSearchParams()
-  const branch = searchParams.get("branch") || "main"
-  const path = searchParams.get("path") || ""
+  const searchParams = useSearchParams();
+  const branch = searchParams.get("branch") || "main";
+  const path = searchParams.get("path") || "";
 
   const handleCommitClick = (commit: any) => {
-    const params = new URLSearchParams()
-    params.set("branch", branch)
-    params.set("commit", commit.hash)
-    if (path) params.set("path", path)
-    window.location.href = `/infra-packages/config/commit?${params.toString()}`
-  }
+    const params = new URLSearchParams();
+    params.set("branch", branch);
+    params.set("commit", commit.hash);
+    if (path) params.set("path", path);
+    window.location.href = `/infra-packages/config/commit?${params.toString()}`;
+  };
 
   const handleBack = () => {
-    const params = new URLSearchParams()
-    params.set("branch", branch)
-    if (path) params.set("path", path)
-    window.location.href = `/infra-packages/config?${params.toString()}`
-  }
+    const params = new URLSearchParams();
+    params.set("branch", branch);
+    if (path) params.set("path", path);
+    window.location.href = `/infra-packages/config?${params.toString()}`;
+  };
 
   const breadcrumbItems = [
-    { name: "/", href: "/" },
     { name: "config", href: `/infra-packages/config` },
     { name: "Commits", href: "" },
-  ]
+  ];
 
   return (
     <AppLayout projectSlug="config">
@@ -113,7 +125,11 @@ export default function CommitsPage() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
-              <Button variant="outline" onClick={handleBack} className="border-blue-200 hover:bg-blue-50">
+              <Button
+                variant="outline"
+                onClick={handleBack}
+                className="border-blue-200 hover:bg-blue-50"
+              >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
               </Button>
@@ -125,9 +141,13 @@ export default function CommitsPage() {
                       {index > 0 && <BreadcrumbSeparator />}
                       <BreadcrumbItem>
                         {index === breadcrumbItems.length - 1 ? (
-                          <BreadcrumbPage className="text-blue-600">{item.name}</BreadcrumbPage>
+                          <BreadcrumbPage className="text-blue-600">
+                            {item.name}
+                          </BreadcrumbPage>
                         ) : item.href ? (
-                          <BreadcrumbLink href={item.href}>{item.name}</BreadcrumbLink>
+                          <BreadcrumbLink href={item.href}>
+                            {item.name}
+                          </BreadcrumbLink>
                         ) : (
                           <span>{item.name}</span>
                         )}
@@ -139,7 +159,10 @@ export default function CommitsPage() {
             </div>
 
             <div className="flex items-center space-x-2">
-              <Badge variant="outline" className="border-blue-200 text-blue-700">
+              <Badge
+                variant="outline"
+                className="border-blue-200 text-blue-700"
+              >
                 <GitBranch className="h-3 w-3 mr-1" />
                 {branch}
               </Badge>
@@ -149,20 +172,33 @@ export default function CommitsPage() {
           {/* Commit History */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-gray-900">Commit History</h1>
-              <p className="text-sm text-gray-500">{commitHistory.length} commits</p>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Commit History
+              </h1>
+              <p className="text-sm text-gray-500">
+                {commitHistory.length} commits
+              </p>
             </div>
 
             <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm">
               <Table>
                 <TableHeader>
                   <TableRow className="border-b border-blue-100">
-                    <TableHead className="w-[50px] text-blue-700 font-semibold">Author</TableHead>
-                    <TableHead className="w-[120px] text-blue-700 font-semibold">Name</TableHead>
-                    <TableHead className="w-[100px] text-blue-700 font-semibold">Commit</TableHead>
-                    <TableHead className="text-blue-700 font-semibold">Message</TableHead>
-                    <TableHead className="w-[120px] text-blue-700 font-semibold">Date</TableHead>
-                    <TableHead className="w-[100px] text-blue-700 font-semibold">Actions</TableHead>
+                    <TableHead className="w-[150px] text-blue-700 font-semibold">
+                      Name
+                    </TableHead>
+                    <TableHead className="w-[100px] text-blue-700 font-semibold">
+                      Commit
+                    </TableHead>
+                    <TableHead className="text-blue-700 font-semibold">
+                      Message
+                    </TableHead>
+                    <TableHead className="w-[120px] text-blue-700 font-semibold">
+                      Date
+                    </TableHead>
+                    <TableHead className="w-[100px] text-blue-700 font-semibold">
+                      Actions
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -171,19 +207,21 @@ export default function CommitsPage() {
                       key={commit.hash}
                       className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
                     >
-                      <TableCell>
-                        <Avatar className="h-8 w-8 flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs font-bold">
+                      <TableCell className=" flex items-center">
+                        <Avatar className="h-7 w-7 flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs font-bold">
                           {commit.author.charAt(0).toUpperCase()}
                         </Avatar>
+                        <span className="font-medium text-sm ml-[8px]">
+                          {commit.author}
+                        </span>
                       </TableCell>
                       <TableCell>
-                        <span className="font-medium text-sm">{commit.author}</span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
+                        {/* <div className="flex items-center space-x-2"> */}
+                        <code className="flex items-center space-x-2 text-xs font-mono bg-gray-100 px-2 py-1 rounded">
                           <GitCommit className="h-3 w-3 text-gray-400" />
-                          <code className="text-xs font-mono bg-gray-100 px-2 py-1 rounded">{commit.shortHash}</code>
-                        </div>
+                          {commit.shortHash}
+                        </code>
+                        {/* </div> */}
                       </TableCell>
                       <TableCell>
                         <button
@@ -194,7 +232,9 @@ export default function CommitsPage() {
                         </button>
                       </TableCell>
                       <TableCell>
-                        <span className="text-sm text-gray-500">{commit.time}</span>
+                        <span className="text-sm text-gray-500">
+                          {commit.time}
+                        </span>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-1">
@@ -202,8 +242,8 @@ export default function CommitsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={(e) => {
-                              e.stopPropagation()
-                              navigator.clipboard.writeText(commit.hash)
+                              e.stopPropagation();
+                              navigator.clipboard.writeText(commit.hash);
                             }}
                             className="hover:bg-blue-100 p-1 h-auto"
                           >
@@ -213,8 +253,8 @@ export default function CommitsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={(e) => {
-                              e.stopPropagation()
-                              handleCommitClick(commit)
+                              e.stopPropagation();
+                              handleCommitClick(commit);
                             }}
                             className="hover:bg-blue-100 p-1 h-auto"
                           >
@@ -231,5 +271,5 @@ export default function CommitsPage() {
         </div>
       </div>
     </AppLayout>
-  )
+  );
 }
