@@ -1,6 +1,5 @@
-import { Project, NavItem } from "@/types";
+import type { Project, NavItem } from "@/types"
 import {
-  User,
   LogOut,
   Users,
   BarChart3,
@@ -13,7 +12,9 @@ import {
   Cog,
   Server,
   Lock,
-} from "lucide-react";
+  FolderOpen,
+  Key,
+} from "lucide-react"
 
 // 사이드 바
 
@@ -40,7 +41,7 @@ export const projectsData: Project[] = [
     lastCommit: "1 day ago",
     contributors: 3,
   },
-];
+]
 
 export const navItems: NavItem[] = [
   {
@@ -61,8 +62,18 @@ export const navItems: NavItem[] = [
       {
         icon: Cog,
         label: "Config",
-        // href: "http://1.224.162.188:51435",
-        href: "/infra-packages/config",
+        subItems: [
+          {
+            icon: FolderOpen,
+            label: "Projects",
+            href: "/infra-packages/config/projects",
+          },
+          {
+            icon: Key,
+            label: "Secret Key",
+            href: "/infra-packages/config/secret-key",
+          },
+        ],
       },
       {
         icon: Server,
@@ -72,7 +83,18 @@ export const navItems: NavItem[] = [
       {
         icon: Lock,
         label: "Auth",
-        href: "/infra-packages/auth",
+        subItems: [
+          {
+            icon: FolderOpen,
+            label: "Projects",
+            href: "/infra-packages/auth/projects",
+          },
+          {
+            icon: Key,
+            label: "Secret Key",
+            href: "/infra-packages/auth/secret-key",
+          },
+        ],
       },
     ],
   },
@@ -96,7 +118,7 @@ export const navItems: NavItem[] = [
     label: "Settings",
     href: "/settings",
   },
-];
+]
 
 export const userMenuItems = [
   // {
@@ -114,4 +136,4 @@ export const userMenuItems = [
     label: "로그아웃",
     action: "logout",
   },
-];
+]

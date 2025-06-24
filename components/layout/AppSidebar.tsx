@@ -1,9 +1,9 @@
-"use client";
+"use client"
 
-import { ThemeToggle, CollapseThemeToggle } from "../theme-toggle";
-import { Avatar } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { ThemeToggle, CollapseThemeToggle } from "../theme-toggle"
+import { Avatar } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,73 +11,145 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Settings } from "lucide-react";
-import {
-  projectsData,
-  navItems,
-  userMenuItems,
-} from "@/constants/app-layout-data";
-import { usePathname, useRouter } from "next/navigation";
-import { useState, type Dispatch, type SetStateAction } from "react";
-import type { NavButtonProps } from "@/types";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { ChevronDown, ChevronRight } from "lucide-react";
+} from "@/components/ui/dropdown-menu"
+import { Settings } from "lucide-react"
+import { projectsData, navItems, userMenuItems } from "@/constants/app-layout-data"
+import { usePathname, useRouter } from "next/navigation"
+import { useState, type Dispatch, type SetStateAction } from "react"
+import type { NavButtonProps, SubNavItem } from "@/types"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { ChevronDown, ChevronRight } from "lucide-react"
 
 interface AppSidebarProps {
-  sidebarCollapsed: boolean;
-  setSidebarCollapsed: Dispatch<SetStateAction<boolean>>;
-  projectSlug?: string;
+  sidebarCollapsed: boolean
+  setSidebarCollapsed: Dispatch<SetStateAction<boolean>>
+  projectSlug?: string
+}
+
+// SubNavButton 컴포넌트 - 2단계 서브메뉴용
+const SubNavButton = ({
+  subItem,
+  sidebarCollapsed,
+  pathname,
+}: {
+  subItem: SubNavItem
+  sidebarCollapsed: boolean
+  pathname: string
+}) => {
+  const SubIcon = subItem.icon
+  const [isSubOpen, setIsSubOpen] = useState(false)
+  const router = useRouter()
+
+  const isSubActive =
+    pathname === subItem.href ||
+    (subItem.subItems && subItem.subItems.some((subSubItem) => pathname === subSubItem.href))
+
+  const handleSubClick = () => {
+    if (subItem.subItems) {
+      setIsSubOpen(!isSubOpen)
+    } else if (subItem.href) {
+      router.push(subItem.href)
+    }
+  }
+
+  const handleSubSubItemClick = (href: string) => {
+    router.push(href)
+  }
+
+  if (subItem.subItems) {
+    return (
+      <Collapsible open={isSubOpen} onOpenChange={setIsSubOpen} className="transition-all duration-100 ease-in-out">
+        <CollapsibleTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-1 ${
+              isSubActive ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" : ""
+            }`}
+            onClick={handleSubClick}
+          >
+            <SubIcon className="h-3 w-3" />
+            <span className="ml-2 text-sm flex-1 text-left">{subItem.label}</span>
+            <div className="flex items-center space-x-1">
+              {isSubOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+            </div>
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="collapsible-content overflow-hidden transition-all duration-100 ease-in-out">
+          <div className="ml-4 space-y-1 py-1">
+            {subItem.subItems.map((subSubItem) => {
+              const SubSubIcon = subSubItem.icon
+              const isSubSubActive = pathname === subSubItem.href
+              return (
+                <Button
+                  key={subSubItem.href}
+                  variant="ghost"
+                  size="sm"
+                  className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-2 ${
+                    isSubSubActive ? "bg-blue-50 dark:bg-blue-800 text-blue-600 dark:text-blue-400" : ""
+                  }`}
+                  onClick={() => handleSubSubItemClick(subSubItem.href)}
+                >
+                  <SubSubIcon className="h-3 w-3" />
+                  <span className="ml-2 text-xs">{subSubItem.label}</span>
+                </Button>
+              )
+            })}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    )
+  }
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-1 ${
+        isSubActive ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" : ""
+      }`}
+      onClick={handleSubClick}
+    >
+      <SubIcon className="h-3 w-3" />
+      <span className="ml-2 text-sm">{subItem.label}</span>
+    </Button>
+  )
 }
 
 // NavButton 컴포넌트는 별도 파일로 분리 가능
-const NavButton = ({
-  item,
-  sidebarCollapsed,
-  onClick,
-  pathname,
-}: NavButtonProps) => {
-  const Icon = item.icon;
-  const [isOpen, setIsOpen] = useState(item.label === "Infra Packages"); // Services 1은 기본적으로 열려있음
-  const router = useRouter();
+const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps) => {
+  const Icon = item.icon
+  const [isOpen, setIsOpen] = useState(item.label === "Infra Packages") // Services 1은 기본적으로 열려있음
+  const router = useRouter()
 
   const isActive =
     pathname === item.href ||
     pathname.includes(item.href ?? "string") ||
     (item.subItems &&
-      item.subItems.some((subItem) => pathname === subItem.href));
+      item.subItems.some(
+        (subItem) =>
+          pathname === subItem.href ||
+          (subItem.subItems && subItem.subItems.some((subSubItem) => pathname === subSubItem.href)),
+      ))
 
   const handleClick = () => {
     if (item.subItems) {
-      setIsOpen(!isOpen);
+      setIsOpen(!isOpen)
     } else if (item.href) {
-      router.push(item.href);
+      router.push(item.href)
     }
-    onClick?.();
-  };
+    onClick?.()
+  }
 
   const handleSubItemClick = (href: string) => {
-    router.push(href);
-  };
+    router.push(href)
+  }
 
   if (item.subItems) {
     return (
       <TooltipProvider>
-        <Collapsible
-          open={isOpen}
-          onOpenChange={setIsOpen}
-          className="transition-all duration-100 ease-in-out"
-        >
+        <Collapsible open={isOpen} onOpenChange={setIsOpen} className="transition-all duration-100 ease-in-out">
           <Tooltip>
             <TooltipTrigger asChild>
               <CollapsibleTrigger asChild>
@@ -96,15 +168,9 @@ const NavButton = ({
                   <Icon className="h-4 w-4" />
                   {!sidebarCollapsed && (
                     <>
-                      <span className="ml-2 flex-1 text-left">
-                        {item.label}
-                      </span>
+                      <span className="ml-2 flex-1 text-left">{item.label}</span>
                       <div className="flex items-center space-x-1">
-                        {isOpen ? (
-                          <ChevronDown className="h-4 w-4" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4" />
-                        )}
+                        {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                       </div>
                     </>
                   )}
@@ -114,23 +180,44 @@ const NavButton = ({
             {sidebarCollapsed && (
               <TooltipContent side="right" className="p-0">
                 <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg">
-                  {/* <div className="p-2 border-b border-gray-200 dark:border-gray-700">
-                    <span className="font-medium text-sm">{item.label}</span>
-                  </div> */}
                   <div className="p-1">
                     {item.subItems.map((subItem) => {
-                      const SubIcon = subItem.icon;
-                      console.log(subItem.label);
+                      const SubIcon = subItem.icon
                       return (
-                        <button
-                          key={subItem.href}
-                          className="w-full flex items-center space-x-2 px-3 py-2 text-sm hover:bg-blue-50 dark:hover:bg-gray-700 rounded"
-                          onClick={() => handleSubItemClick(subItem.href)}
-                        >
-                          <SubIcon className="h-3 w-3" />
-                          <span>{subItem.label}</span>
-                        </button>
-                      );
+                        <div key={subItem.label}>
+                          {subItem.subItems ? (
+                            <div className="px-3 py-2">
+                              <div className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                <SubIcon className="h-3 w-3" />
+                                <span>{subItem.label}</span>
+                              </div>
+                              <div className="ml-5 space-y-1">
+                                {subItem.subItems.map((subSubItem) => {
+                                  const SubSubIcon = subSubItem.icon
+                                  return (
+                                    <button
+                                      key={subSubItem.href}
+                                      className="w-full flex items-center space-x-2 px-2 py-1 text-xs hover:bg-blue-50 dark:hover:bg-gray-700 rounded"
+                                      onClick={() => handleSubItemClick(subSubItem.href)}
+                                    >
+                                      <SubSubIcon className="h-3 w-3" />
+                                      <span>{subSubItem.label}</span>
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              className="w-full flex items-center space-x-2 px-3 py-2 text-sm hover:bg-blue-50 dark:hover:bg-gray-700 rounded"
+                              onClick={() => handleSubItemClick(subItem.href!)}
+                            >
+                              <SubIcon className="h-3 w-3" />
+                              <span>{subItem.label}</span>
+                            </button>
+                          )}
+                        </div>
+                      )
                     })}
                   </div>
                 </div>
@@ -140,32 +227,20 @@ const NavButton = ({
           {!sidebarCollapsed && (
             <CollapsibleContent className="collapsible-content overflow-hidden transition-all duration-100 ease-in-out">
               <div className="ml-6 space-y-1 py-1">
-                {item.subItems.map((subItem) => {
-                  const SubIcon = subItem.icon;
-                  const isSubActive = pathname === subItem.href;
-                  return (
-                    <Button
-                      key={subItem.href}
-                      variant="ghost"
-                      size="sm"
-                      className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-1 ${
-                        isSubActive
-                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                          : ""
-                      }`}
-                      onClick={() => handleSubItemClick(subItem.href)}
-                    >
-                      <SubIcon className="h-3 w-3" />
-                      <span className="ml-2 text-sm">{subItem.label}</span>
-                    </Button>
-                  );
-                })}
+                {item.subItems.map((subItem) => (
+                  <SubNavButton
+                    key={subItem.label}
+                    subItem={subItem}
+                    sidebarCollapsed={sidebarCollapsed}
+                    pathname={pathname}
+                  />
+                ))}
               </div>
             </CollapsibleContent>
           )}
         </Collapsible>
       </TooltipProvider>
-    );
+    )
   }
 
   return (
@@ -188,46 +263,38 @@ const NavButton = ({
             {!sidebarCollapsed && <span className="ml-2">{item.label}</span>}
           </Button>
         </TooltipTrigger>
-        {sidebarCollapsed && (
-          <TooltipContent side="right">{item.label}</TooltipContent>
-        )}
+        {sidebarCollapsed && <TooltipContent side="right">{item.label}</TooltipContent>}
       </Tooltip>
     </TooltipProvider>
-  );
-};
+  )
+}
 
-export function AppSidebar({
-  sidebarCollapsed,
-  setSidebarCollapsed,
-  projectSlug,
-}: AppSidebarProps) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const currentProject = projectSlug
-    ? projectsData.find((p) => p.slug === projectSlug)
-    : null;
-  const isProjectPage = pathname?.startsWith("/project/");
+export function AppSidebar({ sidebarCollapsed, setSidebarCollapsed, projectSlug }: AppSidebarProps) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const currentProject = projectSlug ? projectsData.find((p) => p.slug === projectSlug) : null
+  const isProjectPage = pathname?.startsWith("/project/")
 
-  const [isHovered, setIsHovered] = useState(false);
+  const [isHovered, setIsHovered] = useState(false)
 
   const handleUserMenuClick = (action: string) => {
     switch (action) {
       case "profile":
-        router.push("/profile");
-        break;
+        router.push("/profile")
+        break
       case "account":
-        router.push("/settings/account");
-        break;
+        router.push("/settings/account")
+        break
       case "settings":
-        router.push("/settings");
-        break;
+        router.push("/settings")
+        break
       case "logout":
-        router.push("/login");
-        break;
+        router.push("/login")
+        break
       default:
-        break;
+        break
     }
-  };
+  }
 
   return (
     <aside
@@ -267,12 +334,7 @@ export function AppSidebar({
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-2 space-y-1">
           {navItems.map((item) => (
-            <NavButton
-              key={item.label}
-              item={item}
-              sidebarCollapsed={sidebarCollapsed}
-              pathname={pathname}
-            />
+            <NavButton key={item.label} item={item} sidebarCollapsed={sidebarCollapsed} pathname={pathname} />
           ))}
         </nav>
 
@@ -287,9 +349,7 @@ export function AppSidebar({
                   </Avatar>
                   <div className="flex-1 min-w-0 text-left">
                     <h3 className="text-sm font-semibold truncate">John Doe</h3>
-                    <p className="text-xs text-muted-foreground">
-                      john@example.com
-                    </p>
+                    <p className="text-xs text-muted-foreground">john@example.com</p>
                   </div>
                 </div>
                 <DropdownMenu>
@@ -301,27 +361,16 @@ export function AppSidebar({
                       <Settings />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    className="w-56"
-                    align="start"
-                    forceMount
-                  >
+                  <DropdownMenuContent className="w-56" align="start" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          John Doe
-                        </p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          userID
-                        </p>
+                        <p className="text-sm font-medium leading-none">John Doe</p>
+                        <p className="text-xs leading-none text-muted-foreground">userID</p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {userMenuItems.map((item) => (
-                      <DropdownMenuItem
-                        key={item.action}
-                        onClick={() => handleUserMenuClick(item.action)}
-                      >
+                      <DropdownMenuItem key={item.action} onClick={() => handleUserMenuClick(item.action)}>
                         {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                         <span>{item.label}</span>
                       </DropdownMenuItem>
@@ -343,27 +392,16 @@ export function AppSidebar({
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    className="w-56"
-                    align="start"
-                    forceMount
-                  >
+                  <DropdownMenuContent className="w-56" align="start" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          John Doe
-                        </p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          userID
-                        </p>
+                        <p className="text-sm font-medium leading-none">John Doe</p>
+                        <p className="text-xs leading-none text-muted-foreground">userID</p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {userMenuItems.map((item) => (
-                      <DropdownMenuItem
-                        key={item.action}
-                        onClick={() => handleUserMenuClick(item.action)}
-                      >
+                      <DropdownMenuItem key={item.action} onClick={() => handleUserMenuClick(item.action)}>
                         {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                         <span>{item.label}</span>
                       </DropdownMenuItem>
@@ -387,5 +425,5 @@ export function AppSidebar({
         )}
       </div>
     </aside>
-  );
+  )
 }
