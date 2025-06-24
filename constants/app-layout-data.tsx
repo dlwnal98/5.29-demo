@@ -1,4 +1,4 @@
-import type { Project, NavItem } from "@/types"
+import type { Project, NavItem } from "@/types";
 import {
   LogOut,
   Users,
@@ -14,7 +14,7 @@ import {
   Lock,
   FolderOpen,
   Key,
-} from "lucide-react"
+} from "lucide-react";
 
 // 사이드 바
 
@@ -41,7 +41,7 @@ export const projectsData: Project[] = [
     lastCommit: "1 day ago",
     contributors: 3,
   },
-]
+];
 
 export const navItems: NavItem[] = [
   {
@@ -86,13 +86,13 @@ export const navItems: NavItem[] = [
         subItems: [
           {
             icon: FolderOpen,
-            label: "Projects",
-            href: "/infra-packages/auth/projects",
+            label: "OAuth",
+            href: "/infra-packages/auth/ouath",
           },
           {
             icon: Key,
-            label: "Secret Key",
-            href: "/infra-packages/auth/secret-key",
+            label: "Key",
+            href: "/infra-packages/auth/key",
           },
         ],
       },
@@ -118,7 +118,7 @@ export const navItems: NavItem[] = [
     label: "Settings",
     href: "/settings",
   },
-]
+];
 
 export const userMenuItems = [
   // {
@@ -136,4 +136,4 @@ export const userMenuItems = [
     label: "로그아웃",
     action: "logout",
   },
-]
+];

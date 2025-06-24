@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { FileBrowser } from "@/components/file-browser";
-import TabMenu from "./components/common/TabMenu";
+import TabMenu from "../components/common/TabMenu";
 import SecretKey from "@/components/secretKey";
 
 interface ProjectPageProps {

@@ -217,7 +217,7 @@ export default function SecretKey() {
   };
 
   return (
-    <>
+    <AppLayout>
       <div className="container mx-auto px-4 py-6 space-y-6">
         {/* Header */}
         {/* <div className="mb-8">
@@ -670,6 +670,6 @@ export default function SecretKey() {
           </DialogContent>
         </Dialog>
       </div>
-    </>
+    </AppLayout>
   );
 }
