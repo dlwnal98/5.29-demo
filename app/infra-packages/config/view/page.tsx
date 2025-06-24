@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { AppLayout } from "@/components/layout/AppLayout"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { AppLayout } from "@/components/layout/AppLayout";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,7 +10,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+} from "@/components/ui/breadcrumb";
 import {
   ArrowLeft,
   Edit,
@@ -28,34 +28,34 @@ import {
   ImageIcon,
   Archive,
   Menu,
-} from "lucide-react"
-import { useSearchParams } from "next/navigation"
-import { useState } from "react"
-import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal"
+} from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
 
 // 파일 아이콘 함수
 function getFileIcon(extension?: string) {
   switch (extension) {
     case "md":
-      return <FileText className="h-4 w-4 text-indigo-500" />
+      return <FileText className="h-4 w-4 text-indigo-500" />;
     case "json":
     case "js":
     case "ts":
     case "tsx":
     case "jsx":
-      return <Code className="h-4 w-4 text-amber-500" />
+      return <Code className="h-4 w-4 text-amber-500" />;
     case "png":
     case "jpg":
     case "jpeg":
     case "gif":
     case "svg":
-      return <ImageIcon className="h-4 w-4 text-green-500" />
+      return <ImageIcon className="h-4 w-4 text-green-500" />;
     case "zip":
     case "tar":
     case "gz":
-      return <Archive className="h-4 w-4 text-purple-500" />
+      return <Archive className="h-4 w-4 text-purple-500" />;
     default:
-      return <File className="h-4 w-4 text-gray-500" />
+      return <File className="h-4 w-4 text-gray-500" />;
   }
 }
 
@@ -77,7 +77,7 @@ const fileStructure = [
   { name: "package.json", type: "file", level: 0, extension: "json" },
   { name: "README.md", type: "file", level: 0, extension: "md" },
   { name: "next.config.js", type: "file", level: 0, extension: "js" },
-]
+];
 
 // 샘플 파일 데이터
 const fileData = {
@@ -176,58 +176,58 @@ This project is licensed under the MIT License.`,
       time: "1 day ago",
     },
   },
-}
+};
 
 export default function FileViewPage() {
-  const searchParams = useSearchParams()
-  const branch = searchParams.get("branch") || "main"
-  const path = searchParams.get("path") || ""
-  const fileName = searchParams.get("file") || ""
+  const searchParams = useSearchParams();
+  const branch = searchParams.get("branch") || "main";
+  const path = searchParams.get("path") || "";
+  const fileName = searchParams.get("file") || "";
 
-  const [selectedStructureItem, setSelectedStructureItem] = useState(fileName)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [selectedStructureItem, setSelectedStructureItem] = useState(fileName);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const currentFile = fileData[fileName as keyof typeof fileData]
-  const fileExtension = fileName.split(".").pop()
+  const currentFile = fileData[fileName as keyof typeof fileData];
+  const fileExtension = fileName.split(".").pop();
 
   const handleBack = () => {
-    const params = new URLSearchParams()
-    params.set("branch", branch)
-    if (path) params.set("path", path)
-    window.location.href = `/infra-packages/config?${params.toString()}`
-  }
+    const params = new URLSearchParams();
+    params.set("branch", branch);
+    if (path) params.set("path", path);
+    window.location.href = `/infra-packages/config?${params.toString()}`;
+  };
 
   const handleEdit = () => {
-    const params = new URLSearchParams()
-    params.set("branch", branch)
-    if (path) params.set("path", path)
-    params.set("file", fileName)
-    window.location.href = `/infra-packages/config/edit?${params.toString()}`
-  }
+    const params = new URLSearchParams();
+    params.set("branch", branch);
+    if (path) params.set("path", path);
+    params.set("file", fileName);
+    window.location.href = `/infra-packages/config/edit?${params.toString()}`;
+  };
 
   const handleDelete = () => {
-    setShowDeleteModal(true)
-  }
+    setShowDeleteModal(true);
+  };
 
   const handleConfirmDelete = () => {
     // 실제 삭제 로직 구현
-    alert("File deleted successfully!")
-    handleBack()
-  }
+    alert("File deleted successfully!");
+    handleBack();
+  };
 
   const handleCommitClick = () => {
     if (currentFile?.lastCommit) {
-      const params = new URLSearchParams()
-      params.set("branch", branch)
-      params.set("commit", currentFile.lastCommit.hash)
-      if (path) params.set("path", path)
-      window.location.href = `/infra-packages/config/commit?${params.toString()}`
+      const params = new URLSearchParams();
+      params.set("branch", branch);
+      params.set("commit", currentFile.lastCommit.hash);
+      if (path) params.set("path", path);
+      window.location.href = `/infra-packages/config/commit?${params.toString()}`;
     }
-  }
+  };
 
   const renderFileContent = () => {
-    if (!currentFile) return null
+    if (!currentFile) return null;
 
     switch (fileExtension) {
       case "md":
@@ -237,13 +237,13 @@ export default function FileViewPage() {
               {currentFile.content}
             </pre>
           </div>
-        )
+        );
       case "json":
         return (
           <pre className="language-json bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">
             {currentFile.content}
           </pre>
-        )
+        );
       case "js":
       case "ts":
       case "tsx":
@@ -252,7 +252,7 @@ export default function FileViewPage() {
           <pre className="language-javascript bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">
             {currentFile.content}
           </pre>
-        )
+        );
       default:
         return (
           <div className="flex items-center justify-center h-32 text-muted-foreground">
@@ -261,15 +261,14 @@ export default function FileViewPage() {
               <p>Preview not available for this file type</p>
             </div>
           </div>
-        )
+        );
     }
-  }
+  };
 
   const breadcrumbItems = [
-    { name: "/", href: "/" },
     { name: "config", href: `/infra-packages/config` },
     { name: fileName, href: "" },
-  ]
+  ];
 
   return (
     <AppLayout projectSlug="config">
@@ -323,7 +322,11 @@ export default function FileViewPage() {
                     >
                       <Menu className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" onClick={handleBack} className="border-blue-200 hover:bg-blue-50">
+                    <Button
+                      variant="outline"
+                      onClick={handleBack}
+                      className="border-blue-200 hover:bg-blue-50"
+                    >
                       <ArrowLeft className="h-4 w-4 mr-2" />
                       Back
                     </Button>
@@ -335,9 +338,13 @@ export default function FileViewPage() {
                             {index > 0 && <BreadcrumbSeparator />}
                             <BreadcrumbItem>
                               {index === breadcrumbItems.length - 1 ? (
-                                <BreadcrumbPage className="text-blue-600">{item.name}</BreadcrumbPage>
+                                <BreadcrumbPage className="text-blue-600">
+                                  {item.name}
+                                </BreadcrumbPage>
                               ) : item.href ? (
-                                <BreadcrumbLink href={item.href}>{item.name}</BreadcrumbLink>
+                                <BreadcrumbLink href={item.href}>
+                                  {item.name}
+                                </BreadcrumbLink>
                               ) : (
                                 <span>{item.name}</span>
                               )}
@@ -349,7 +356,10 @@ export default function FileViewPage() {
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    <Badge variant="outline" className="border-blue-200 text-blue-700">
+                    <Badge
+                      variant="outline"
+                      className="border-blue-200 text-blue-700"
+                    >
                       <GitBranch className="h-3 w-3 mr-1" />
                       {branch}
                     </Badge>
@@ -366,16 +376,24 @@ export default function FileViewPage() {
                       <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
                         <User className="h-4 w-4 text-blue-600" />
                       </div>
-                      <div className="flex-1">
+                      <div className="flex items-center justify-between flex-1">
                         <div className="flex items-center space-x-2">
-                          <span className="font-medium text-gray-900">{currentFile.lastCommit.author}</span>
-                          <span className="text-gray-600">{currentFile.lastCommit.message}</span>
+                          <span className="font-medium text-gray-900">
+                            {currentFile.lastCommit.author}
+                          </span>
+                          <Badge
+                            variant="secondary"
+                            className="text-[13px] font-lightbold border border-gray-200/50"
+                          >
+                            <GitCommit className="h-3 w-3 mr-1" />
+
+                            {currentFile.lastCommit.hash}
+                          </Badge>
+                          <span className="text-gray-600">
+                            {currentFile.lastCommit.message}
+                          </span>
                         </div>
                         <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
-                          <span className="flex items-center">
-                            <GitCommit className="h-3 w-3 mr-1" />
-                            {currentFile.lastCommit.hash}
-                          </span>
                           <span className="flex items-center">
                             <Calendar className="h-3 w-3 mr-1" />
                             {currentFile.lastCommit.time}
@@ -386,44 +404,53 @@ export default function FileViewPage() {
                   </div>
                 )}
 
-                {/* File Header */}
-                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50 mb-6">
-                  <div className="flex items-center space-x-3">
-                    {getFileIcon(fileExtension)}
-                    <div>
-                      <h1 className="text-xl font-semibold text-blue-900">{fileName}</h1>
-                      <p className="text-sm text-muted-foreground">{currentFile?.size}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => navigator.clipboard.writeText(currentFile?.content || "")}
-                      className="border-blue-200 hover:bg-blue-50"
-                    >
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copy
-                    </Button>
-                    <Button variant="outline" size="sm" className="border-blue-200 hover:bg-blue-50">
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
-                    <Button onClick={handleEdit} className="bg-blue-600 hover:bg-blue-700 text-white">
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit
-                    </Button>
-                    <Button variant="destructive" onClick={handleDelete}>
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete
-                    </Button>
-                  </div>
-                </div>
-
                 {/* File Content */}
                 <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm">
-                  <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
+                  <div className="flex items-center justify-between p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
                     <h2 className="font-medium text-blue-900">File Contents</h2>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          navigator.clipboard.writeText(
+                            currentFile?.content || ""
+                          )
+                        }
+                        title="copy"
+                        className="border-blue-200 hover:bg-blue-50"
+                      >
+                        <Copy className="h-4 w-4" />
+                        {/* Copy */}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-blue-200 hover:bg-blue-50"
+                        title="download"
+                      >
+                        <Download className="h-4 w-4" />
+                        {/* Download */}
+                      </Button>
+                      <Button
+                        onClick={handleEdit}
+                        size="sm"
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        title="edit"
+                      >
+                        <Edit className="h-4 w-4" />
+                        {/* Edit */}
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={handleDelete}
+                        title="delete"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        {/* Delete */}
+                      </Button>
+                    </div>
                   </div>
                   <div className="p-6">{renderFileContent()}</div>
                 </div>
@@ -439,5 +466,5 @@ export default function FileViewPage() {
         fileName={fileName}
       />
     </AppLayout>
-  )
+  );
 }

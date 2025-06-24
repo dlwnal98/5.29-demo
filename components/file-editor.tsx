@@ -231,7 +231,6 @@ export function FileEditor({
 
   // 브레드크럼 생성
   const breadcrumbItems = [
-    { name: "Projects", href: "/" },
     { name: projectSlug, href: `/infra-packages/config` },
     {
       name: branch,

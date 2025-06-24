@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { AppLayout } from "@/components/layout/AppLayout"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Label } from "@/components/ui/label"
+import { AppLayout } from "@/components/layout/AppLayout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,7 +13,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+} from "@/components/ui/breadcrumb";
 import {
   ArrowLeft,
   Save,
@@ -29,33 +29,33 @@ import {
   User,
   Calendar,
   GitCommit,
-} from "lucide-react"
-import { useSearchParams } from "next/navigation"
-import { useState } from "react"
+} from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 // 파일 아이콘 함수
 function getFileIcon(extension?: string) {
   switch (extension) {
     case "md":
-      return <FileText className="h-4 w-4 text-indigo-500" />
+      return <FileText className="h-4 w-4 text-indigo-500" />;
     case "json":
     case "js":
     case "ts":
     case "tsx":
     case "jsx":
-      return <Code className="h-4 w-4 text-amber-500" />
+      return <Code className="h-4 w-4 text-amber-500" />;
     case "png":
     case "jpg":
     case "jpeg":
     case "gif":
     case "svg":
-      return <ImageIcon className="h-4 w-4 text-green-500" />
+      return <ImageIcon className="h-4 w-4 text-green-500" />;
     case "zip":
     case "tar":
     case "gz":
-      return <Archive className="h-4 w-4 text-purple-500" />
+      return <Archive className="h-4 w-4 text-purple-500" />;
     default:
-      return <File className="h-4 w-4 text-gray-500" />
+      return <File className="h-4 w-4 text-gray-500" />;
   }
 }
 
@@ -77,7 +77,7 @@ const fileStructure = [
   { name: "package.json", type: "file", level: 0, extension: "json" },
   { name: "README.md", type: "file", level: 0, extension: "md" },
   { name: "next.config.js", type: "file", level: 0, extension: "js" },
-]
+];
 
 // 샘플 파일 데이터
 const fileData = {
@@ -176,69 +176,72 @@ This project is licensed under the MIT License.`,
       time: "1 day ago",
     },
   },
-}
+};
 
 export default function EditFilePage() {
-  const searchParams = useSearchParams()
-  const branch = searchParams.get("branch") || "main"
-  const path = searchParams.get("path") || ""
-  const originalFileName = searchParams.get("file") || ""
+  const searchParams = useSearchParams();
+  const branch = searchParams.get("branch") || "main";
+  const path = searchParams.get("path") || "";
+  const originalFileName = searchParams.get("file") || "";
 
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [selectedStructureItem, setSelectedStructureItem] = useState(originalFileName)
-  const [fileName, setFileName] = useState(originalFileName)
-  const [fileContent, setFileContent] = useState(fileData[originalFileName as keyof typeof fileData]?.content || "")
-  const [commitMessage, setCommitMessage] = useState("")
-  const [commitDescription, setCommitDescription] = useState("")
-  const [isPreview, setIsPreview] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [selectedStructureItem, setSelectedStructureItem] =
+    useState(originalFileName);
+  const [fileName, setFileName] = useState(originalFileName);
+  const [fileContent, setFileContent] = useState(
+    fileData[originalFileName as keyof typeof fileData]?.content || ""
+  );
+  const [commitMessage, setCommitMessage] = useState("");
+  const [commitDescription, setCommitDescription] = useState("");
+  const [isPreview, setIsPreview] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const currentFile = fileData[originalFileName as keyof typeof fileData]
-  const fileExtension = fileName.split(".").pop()
+  const currentFile = fileData[originalFileName as keyof typeof fileData];
+  const fileExtension = fileName.split(".").pop();
 
   const handleBack = () => {
-    const params = new URLSearchParams()
-    params.set("branch", branch)
-    if (path) params.set("path", path)
-    window.location.href = `/infra-packages/config?${params.toString()}`
-  }
+    const params = new URLSearchParams();
+    params.set("branch", branch);
+    if (path) params.set("path", path);
+    window.location.href = `/infra-packages/config?${params.toString()}`;
+  };
 
   const handlePreview = () => {
-    const params = new URLSearchParams()
-    params.set("branch", branch)
-    if (path) params.set("path", path)
-    params.set("file", fileName)
-    window.location.href = `/infra-packages/config/view?${params.toString()}`
-  }
+    const params = new URLSearchParams();
+    params.set("branch", branch);
+    if (path) params.set("path", path);
+    params.set("file", fileName);
+    window.location.href = `/infra-packages/config/view?${params.toString()}`;
+  };
 
   const handleSave = async () => {
     if (!commitMessage.trim()) {
-      alert("Please enter a commit message")
-      return
+      alert("Please enter a commit message");
+      return;
     }
 
-    setIsSaving(true)
+    setIsSaving(true);
     try {
       // 실제 저장 로직 구현
-      await new Promise((resolve) => setTimeout(resolve, 1000)) // 시뮬레이션
-      alert("File saved successfully!")
-      handleBack()
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // 시뮬레이션
+      alert("File saved successfully!");
+      handleBack();
     } catch (error) {
-      alert("Failed to save file")
+      alert("Failed to save file");
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const handleCommitClick = () => {
     if (currentFile?.lastCommit) {
-      const params = new URLSearchParams()
-      params.set("branch", branch)
-      params.set("commit", currentFile.lastCommit.hash)
-      if (path) params.set("path", path)
-      window.location.href = `/infra-packages/config/commit?${params.toString()}`
+      const params = new URLSearchParams();
+      params.set("branch", branch);
+      params.set("commit", currentFile.lastCommit.hash);
+      if (path) params.set("path", path);
+      window.location.href = `/infra-packages/config/commit?${params.toString()}`;
     }
-  }
+  };
 
   const renderPreview = () => {
     switch (fileExtension) {
@@ -249,21 +252,27 @@ export default function EditFilePage() {
               {fileContent}
             </pre>
           </div>
-        )
+        );
       case "json":
         return (
-          <pre className="language-json bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">{fileContent}</pre>
-        )
+          <pre className="language-json bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">
+            {fileContent}
+          </pre>
+        );
       default:
-        return <pre className="bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">{fileContent}</pre>
+        return (
+          <pre className="bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">
+            {fileContent}
+          </pre>
+        );
     }
-  }
+  };
 
   const breadcrumbItems = [
-    { name: "/", href: "/" },
+    // { name: "/", href: "/" },
     { name: "config", href: `/infra-packages/config` },
     { name: `Edit ${fileName}`, href: "" },
-  ]
+  ];
 
   return (
     <AppLayout projectSlug="config">
@@ -317,7 +326,11 @@ export default function EditFilePage() {
                     >
                       <Menu className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" onClick={handleBack} className="border-blue-200 hover:bg-blue-50">
+                    <Button
+                      variant="outline"
+                      onClick={handleBack}
+                      className="border-blue-200 hover:bg-blue-50"
+                    >
                       <ArrowLeft className="h-4 w-4 mr-2" />
                       Back
                     </Button>
@@ -329,9 +342,13 @@ export default function EditFilePage() {
                             {index > 0 && <BreadcrumbSeparator />}
                             <BreadcrumbItem>
                               {index === breadcrumbItems.length - 1 ? (
-                                <BreadcrumbPage className="text-blue-600">{item.name}</BreadcrumbPage>
+                                <BreadcrumbPage className="text-blue-600">
+                                  {item.name}
+                                </BreadcrumbPage>
                               ) : item.href ? (
-                                <BreadcrumbLink href={item.href}>{item.name}</BreadcrumbLink>
+                                <BreadcrumbLink href={item.href}>
+                                  {item.name}
+                                </BreadcrumbLink>
                               ) : (
                                 <span>{item.name}</span>
                               )}
@@ -343,49 +360,25 @@ export default function EditFilePage() {
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    <Badge variant="outline" className="border-blue-200 text-blue-700">
+                    <Badge
+                      variant="outline"
+                      className="border-blue-200 text-blue-700"
+                    >
                       <GitBranch className="h-3 w-3 mr-1" />
                       {branch}
                     </Badge>
                   </div>
                 </div>
 
-                {/* Latest Commit Info */}
-                {currentFile?.lastCommit && (
-                  <div
-                    className="mb-6 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200/50 cursor-pointer hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
-                    onClick={handleCommitClick}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                        <User className="h-4 w-4 text-blue-600" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2">
-                          <span className="font-medium text-gray-900">{currentFile.lastCommit.author}</span>
-                          <span className="text-gray-600">{currentFile.lastCommit.message}</span>
-                        </div>
-                        <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
-                          <span className="flex items-center">
-                            <GitCommit className="h-3 w-3 mr-1" />
-                            {currentFile.lastCommit.hash}
-                          </span>
-                          <span className="flex items-center">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            {currentFile.lastCommit.time}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 {/* File Name Editor */}
-                <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50">
+                {/* <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50">
                   <div className="flex items-center space-x-3">
                     {getFileIcon(fileExtension)}
                     <div className="flex-1">
-                      <Label htmlFor="fileName" className="text-sm font-medium text-blue-900 mb-2 block">
+                      <Label
+                        htmlFor="fileName"
+                        className="text-sm font-medium text-blue-900 mb-2 block"
+                      >
                         File Name
                       </Label>
                       <Input
@@ -397,39 +390,67 @@ export default function EditFilePage() {
                       />
                     </div>
                   </div>
-                </div>
-
-                {/* Editor/Preview Toggle */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      variant={!isPreview ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setIsPreview(false)}
-                      className={!isPreview ? "bg-blue-600 hover:bg-blue-700" : "border-blue-200 hover:bg-blue-50"}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant={isPreview ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setIsPreview(true)}
-                      className={isPreview ? "bg-blue-600 hover:bg-blue-700" : "border-blue-200 hover:bg-blue-50"}
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Preview
-                    </Button>
-                  </div>
-                  <Button onClick={handlePreview} variant="outline" className="border-blue-200 hover:bg-blue-50">
-                    <Eye className="h-4 w-4 mr-2" />
-                    View File
-                  </Button>
-                </div>
+                </div> */}
 
                 {/* Editor/Preview Content */}
                 <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm mb-6">
-                  <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
-                    <h2 className="font-medium text-blue-900">{isPreview ? "Preview" : "Edit File"}</h2>
+                  <div className="flex items-center justify-between p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
+                    {/* <h2 className="font-medium text-blue-900"> */}
+                    {/* {isPreview ? "Preview" : "Edit File"} */}
+                    <div className="flex align-items flex-1">
+                      <Label
+                        htmlFor="fileName"
+                        className="text-sm font-medium text-blue-900 mb-2 block"
+                      >
+                        {/* File Name */}
+                      </Label>
+                      <Input
+                        id="fileName"
+                        value={fileName}
+                        onChange={(e) => setFileName(e.target.value)}
+                        className="font-mono"
+                        placeholder="Enter file name..."
+                      />
+                    </div>
+                    {/* </h2> */}
+                    {/* Editor/Preview Toggle */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant={!isPreview ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setIsPreview(false)}
+                          className={
+                            !isPreview
+                              ? "bg-blue-600 hover:bg-blue-700"
+                              : "border-blue-200 hover:bg-blue-50"
+                          }
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant={isPreview ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setIsPreview(true)}
+                          className={
+                            isPreview
+                              ? "bg-blue-600 hover:bg-blue-700"
+                              : "border-blue-200 hover:bg-blue-50"
+                          }
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Preview
+                        </Button>
+                      </div>
+                      <Button
+                        onClick={handlePreview}
+                        variant="outline"
+                        className="border-blue-200 hover:bg-blue-50"
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        View File
+                      </Button>
+                    </div>
                   </div>
                   <div className="p-6">
                     {isPreview ? (
@@ -455,7 +476,10 @@ export default function EditFilePage() {
                   </div>
                   <div className="p-6 space-y-4">
                     <div>
-                      <Label htmlFor="commitMessage" className="text-sm font-medium mb-2 block">
+                      <Label
+                        htmlFor="commitMessage"
+                        className="text-sm font-medium mb-2 block"
+                      >
                         Commit Message *
                       </Label>
                       <Input
@@ -467,7 +491,10 @@ export default function EditFilePage() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="commitDescription" className="text-sm font-medium mb-2 block">
+                      <Label
+                        htmlFor="commitDescription"
+                        className="text-sm font-medium mb-2 block"
+                      >
                         Extended Description (optional)
                       </Label>
                       <Textarea
@@ -479,7 +506,11 @@ export default function EditFilePage() {
                       />
                     </div>
                     <div className="flex justify-end space-x-2 pt-4">
-                      <Button variant="outline" onClick={handleBack} disabled={isSaving}>
+                      <Button
+                        variant="outline"
+                        onClick={handleBack}
+                        disabled={isSaving}
+                      >
                         Cancel
                       </Button>
                       <Button
@@ -508,5 +539,5 @@ export default function EditFilePage() {
         </div>
       </div>
     </AppLayout>
-  )
+  );
 }

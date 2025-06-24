@@ -1,5 +1,4 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { eurekaDashboardData } from "@/constants/eurekaData";
 import { Badge } from "@/components/ui/badge";
 import { Server } from "lucide-react";
 
@@ -67,7 +66,7 @@ export default function InstanceTable({ data }: any) {
               </div>
             ))}
 
-            {eurekaDashboardData.recentInstances.length === 0 && (
+            {data?.recent?.length === 0 && (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                 <Server className="h-12 w-12 mx-auto mb-2 text-gray-300 dark:text-gray-600" />
                 <p>최근 등록된 인스턴스가 없습니다.</p>

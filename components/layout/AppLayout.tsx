@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { ReactNode } from "react";
 import { AppHeader } from "./AppHeader";
@@ -16,10 +16,21 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <AppHeader sidebarCollapsed={sidebarCollapsed} setSidebarCollapsed={setSidebarCollapsed} />
+      <AppHeader
+        sidebarCollapsed={sidebarCollapsed}
+        setSidebarCollapsed={setSidebarCollapsed}
+      />
       <div className="flex">
-        <AppSidebar sidebarCollapsed={sidebarCollapsed} setSidebarCollapsed={setSidebarCollapsed} projectSlug={projectSlug} />
-        <main className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? "ml-16" : "ml-[270px]"}`}>
+        <AppSidebar
+          sidebarCollapsed={sidebarCollapsed}
+          setSidebarCollapsed={setSidebarCollapsed}
+          projectSlug={projectSlug}
+        />
+        <main
+          className={`flex-1 transition-all duration-300 ${
+            sidebarCollapsed ? "ml-16" : "ml-[220px]"
+          }`}
+        >
           {children}
         </main>
       </div>

@@ -210,7 +210,7 @@ export function AppSidebar({
   return (
     <aside
       className={`fixed top-14 z-40 h-[calc(100vh-3.5rem)] border-r border-blue-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60 transition-all duration-500 ease-in-out transform ${
-        sidebarCollapsed ? "w-16" : "w-[270px]"
+        sidebarCollapsed ? "w-16" : "w-[220px]"
       }`}
     >
       <div className="flex h-full flex-col">
