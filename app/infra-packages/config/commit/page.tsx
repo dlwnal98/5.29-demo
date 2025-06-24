@@ -11,7 +11,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { ArrowLeft, GitCommit, User, Calendar, GitBranch, Copy, File, Plus, Minus } from "lucide-react"
+import { Avatar } from "@/components/ui/avatar"
+import { ArrowLeft, GitBranch, Copy, File, Plus, Minus } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 
 // 샘플 커밋 변경사항 데이터
@@ -183,41 +184,34 @@ export default function CommitPage() {
             </div>
           </div>
 
-          {/* Commit Info */}
-          <div className="mb-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50">
-            <div className="flex items-start space-x-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-medium text-lg">
-                {commitChanges.author.charAt(0).toUpperCase()}
+          {/* Commit Info - 한 줄로 변경 */}
+          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Avatar className="h-10 w-10 flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-medium">
+                  {commitChanges.author.charAt(0).toUpperCase()}
+                </Avatar>
+                <div className="flex items-center space-x-4">
+                  <span className="font-medium text-gray-900">{commitChanges.author}</span>
+                  <code className="bg-white px-2 py-1 rounded font-mono text-sm">{commitChanges.shortHash}</code>
+                  <span className="text-gray-900">{commitChanges.message}</span>
+                  <span className="text-sm text-gray-500">{commitChanges.time}</span>
+                </div>
               </div>
-              <div className="flex-1">
-                <h1 className="text-xl font-semibold text-gray-900 mb-2">{commitChanges.message}</h1>
-                <div className="flex items-center space-x-6 text-sm text-gray-600">
-                  <span className="flex items-center">
-                    <User className="h-4 w-4 mr-1" />
-                    {commitChanges.author}
-                  </span>
-                  <span className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    {commitChanges.time}
-                  </span>
-                  <span className="flex items-center">
-                    <GitCommit className="h-4 w-4 mr-1" />
-                    <code className="bg-white px-2 py-1 rounded font-mono text-xs">{commitChanges.shortHash}</code>
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigator.clipboard.writeText(commitChanges.hash)}
-                    className="hover:bg-white/50"
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div className="flex items-center space-x-4 text-sm text-gray-500 mt-2">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-4 text-sm text-gray-500">
                   <span>{commitChanges.filesChanged} files changed</span>
-                  <span className="text-green-600">+{commitChanges.additions} additions</span>
-                  <span className="text-red-600">-{commitChanges.deletions} deletions</span>
+                  <span className="text-green-600">+{commitChanges.additions}</span>
+                  <span className="text-red-600">-{commitChanges.deletions}</span>
                 </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigator.clipboard.writeText(commitChanges.hash)}
+                  className="hover:bg-white/50"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           </div>

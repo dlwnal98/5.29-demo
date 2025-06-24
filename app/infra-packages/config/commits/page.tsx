@@ -11,7 +11,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { ArrowLeft, GitCommit, User, Calendar, GitBranch, Copy, ExternalLink } from "lucide-react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Avatar } from "@/components/ui/avatar"
+import { ArrowLeft, GitCommit, GitBranch, Copy, ExternalLink } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 
 // 샘플 커밋 데이터
@@ -152,78 +154,78 @@ export default function CommitsPage() {
             </div>
 
             <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm">
-              <div className="divide-y divide-gray-100">
-                {commitHistory.map((commit, index) => (
-                  <div
-                    key={commit.hash}
-                    className="p-6 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 cursor-pointer"
-                    onClick={() => handleCommitClick(commit)}
-                  >
-                    <div className="flex items-start space-x-4">
-                      {/* Avatar */}
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-medium">
-                        {commit.author.charAt(0).toUpperCase()}
-                      </div>
-
-                      {/* Commit Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h3 className="text-lg font-medium text-gray-900 mb-1">{commit.message}</h3>
-                            <div className="flex items-center space-x-4 text-sm text-gray-500">
-                              <span className="flex items-center">
-                                <User className="h-4 w-4 mr-1" />
-                                {commit.author}
-                              </span>
-                              <span className="flex items-center">
-                                <Calendar className="h-4 w-4 mr-1" />
-                                {commit.time}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2 ml-4">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                navigator.clipboard.writeText(commit.hash)
-                              }}
-                              className="hover:bg-blue-100"
-                            >
-                              <Copy className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleCommitClick(commit)
-                              }}
-                              className="hover:bg-blue-100"
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                            </Button>
-                          </div>
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-b border-blue-100">
+                    <TableHead className="w-[50px] text-blue-700 font-semibold">Author</TableHead>
+                    <TableHead className="w-[120px] text-blue-700 font-semibold">Name</TableHead>
+                    <TableHead className="w-[100px] text-blue-700 font-semibold">Commit</TableHead>
+                    <TableHead className="text-blue-700 font-semibold">Message</TableHead>
+                    <TableHead className="w-[120px] text-blue-700 font-semibold">Date</TableHead>
+                    <TableHead className="w-[100px] text-blue-700 font-semibold">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {commitHistory.map((commit, index) => (
+                    <TableRow
+                      key={commit.hash}
+                      className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
+                    >
+                      <TableCell>
+                        <Avatar className="h-8 w-8 flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs font-bold">
+                          {commit.author.charAt(0).toUpperCase()}
+                        </Avatar>
+                      </TableCell>
+                      <TableCell>
+                        <span className="font-medium text-sm">{commit.author}</span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <GitCommit className="h-3 w-3 text-gray-400" />
+                          <code className="text-xs font-mono bg-gray-100 px-2 py-1 rounded">{commit.shortHash}</code>
                         </div>
-
-                        {/* Commit Details */}
-                        <div className="mt-3 flex items-center space-x-6">
-                          <div className="flex items-center space-x-2">
-                            <GitCommit className="h-4 w-4 text-gray-400" />
-                            <code className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">{commit.shortHash}</code>
-                          </div>
-                          <div className="flex items-center space-x-4 text-sm text-gray-500">
-                            <span>{commit.filesChanged} files changed</span>
-                            <span className="text-green-600">+{commit.additions}</span>
-                            <span className="text-red-600">-{commit.deletions}</span>
-                          </div>
+                      </TableCell>
+                      <TableCell>
+                        <button
+                          onClick={() => handleCommitClick(commit)}
+                          className="text-sm hover:text-blue-600 transition-colors text-left w-full"
+                        >
+                          {commit.message}
+                        </button>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm text-gray-500">{commit.time}</span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              navigator.clipboard.writeText(commit.hash)
+                            }}
+                            className="hover:bg-blue-100 p-1 h-auto"
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleCommitClick(commit)
+                            }}
+                            className="hover:bg-blue-100 p-1 h-auto"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                          </Button>
                         </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </div>
         </div>
