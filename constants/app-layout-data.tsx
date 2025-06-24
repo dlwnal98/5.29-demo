@@ -96,11 +96,6 @@ export const navItems: NavItem[] = [
     label: "Settings",
     href: "/settings",
   },
-  {
-    icon: Settings,
-    label: "Project",
-    href: "/project",
-  },
 ];
 
 export const userMenuItems = [
