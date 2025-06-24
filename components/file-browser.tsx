@@ -1,41 +1,14 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { CreateDirectoryModal } from "@/components/create-directory-modal";
+import type React from "react"
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
 import {
   ChevronDown,
   File,
@@ -51,12 +24,11 @@ import {
   Eye,
   Edit,
   Trash2,
-  Calendar,
   User,
   History,
   GitCommit,
   Settings,
-} from "lucide-react";
+} from "lucide-react"
 
 // 샘플 데이터 (파일 내용 포함)
 const initialFileData = [
@@ -205,7 +177,7 @@ const nextConfig = {
 
 module.exports = nextConfig`,
   },
-];
+]
 
 // 최근 커밋 정보
 const latestCommit = {
@@ -214,37 +186,37 @@ const latestCommit = {
   author: "jane-smith",
   time: "2 hours ago",
   avatar: "/placeholder-user.jpg",
-};
+}
 
 // 브랜치 목록
-const branches = ["main", "develop", "feature/auth", "hotfix/security"];
+const branches = ["main", "develop", "feature/auth", "hotfix/security"]
 
 function getFileIcon(type: string, extension?: string) {
   if (type === "folder") {
-    return <Folder className="h-4 w-4 text-blue-500" />;
+    return <Folder className="h-4 w-4 text-blue-500" />
   }
 
   switch (extension) {
     case "md":
-      return <FileText className="h-4 w-4 text-indigo-500" />;
+      return <FileText className="h-4 w-4 text-indigo-500" />
     case "json":
     case "js":
     case "ts":
     case "tsx":
     case "jsx":
-      return <Code className="h-4 w-4 text-amber-500" />;
+      return <Code className="h-4 w-4 text-amber-500" />
     case "png":
     case "jpg":
     case "jpeg":
     case "gif":
     case "svg":
-      return <ImageIcon className="h-4 w-4 text-green-500" />;
+      return <ImageIcon className="h-4 w-4 text-green-500" />
     case "zip":
     case "tar":
     case "gz":
-      return <Archive className="h-4 w-4 text-purple-500" />;
+      return <Archive className="h-4 w-4 text-purple-500" />
     default:
-      return <File className="h-4 w-4 text-gray-500" />;
+      return <File className="h-4 w-4 text-gray-500" />
   }
 }
 
@@ -256,24 +228,24 @@ function BranchManagementModal({
   onCreateBranch,
   onDeleteBranch,
 }: {
-  isOpen: boolean;
-  onClose: () => void;
-  branches: string[];
-  onCreateBranch: (name: string) => void;
-  onDeleteBranch: (name: string) => void;
+  isOpen: boolean
+  onClose: () => void
+  branches: string[]
+  onCreateBranch: (name: string) => void
+  onDeleteBranch: (name: string) => void
 }) {
-  const [newBranchName, setNewBranchName] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
+  const [newBranchName, setNewBranchName] = useState("")
+  const [isCreating, setIsCreating] = useState(false)
 
   const handleCreateBranch = () => {
     if (newBranchName.trim()) {
-      onCreateBranch(newBranchName.trim());
-      setNewBranchName("");
-      setIsCreating(false);
+      onCreateBranch(newBranchName.trim())
+      setNewBranchName("")
+      setIsCreating(false)
     }
-  };
+  }
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -283,17 +255,13 @@ function BranchManagementModal({
             <GitBranch className="h-5 w-5 mr-2 text-blue-600" />
             Branch Management
           </DialogTitle>
-          <DialogDescription>
-            Create new branches or delete existing ones
-          </DialogDescription>
+          <DialogDescription>Create new branches or delete existing ones</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Create New Branch */}
           <div className="border rounded-lg p-4 bg-blue-50/50">
-            <h4 className="font-medium text-blue-900 mb-3">
-              Create New Branch
-            </h4>
+            <h4 className="font-medium text-blue-900 mb-3">Create New Branch</h4>
             <div className="flex space-x-2">
               <Input
                 placeholder="Enter branch name"
@@ -314,15 +282,10 @@ function BranchManagementModal({
 
           {/* Existing Branches */}
           <div className="border rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-3">
-              Existing Branches
-            </h4>
+            <h4 className="font-medium text-gray-900 mb-3">Existing Branches</h4>
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {branches.map((branch) => (
-                <div
-                  key={branch}
-                  className="flex items-center justify-between p-2 rounded hover:bg-gray-50"
-                >
+                <div key={branch} className="flex items-center justify-between p-2 rounded hover:bg-gray-50">
                   <div className="flex items-center space-x-2">
                     <GitBranch className="h-4 w-4 text-gray-500" />
                     <span className="font-mono text-sm">{branch}</span>
@@ -347,15 +310,9 @@ function BranchManagementModal({
             </div>
           </div>
         </div>
-
-        {/* <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Close
-          </Button>
-        </DialogFooter> */}
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
 // README.md 파일 미리보기 컴포넌트
@@ -368,7 +325,7 @@ function ReadmePreview({ file, onEdit }: { file: any; onEdit: () => void }) {
           <p>Select README.md to preview its contents</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -382,10 +339,7 @@ function ReadmePreview({ file, onEdit }: { file: any; onEdit: () => void }) {
             <p className="text-sm text-muted-foreground">Documentation</p>
           </div>
         </div>
-        <Button
-          onClick={onEdit}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
-        >
+        <Button onClick={onEdit} className="bg-blue-600 hover:bg-blue-700 text-white">
           <Edit className="h-4 w-4 mr-2" />
           Edit
         </Button>
@@ -398,51 +352,63 @@ function ReadmePreview({ file, onEdit }: { file: any; onEdit: () => void }) {
         </div>
         <div className="p-6 max-h-96 overflow-auto">
           <div className="prose prose-sm max-w-none">
-            <pre className="whitespace-pre-wrap font-mono text-sm bg-gray-50 p-4 rounded-lg">
-              {file.content}
-            </pre>
+            <pre className="whitespace-pre-wrap font-mono text-sm bg-gray-50 p-4 rounded-lg">{file.content}</pre>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 interface FileBrowserProps {
-  projectSlug: string;
+  projectSlug: string
 }
 
 export function FileBrowser({ projectSlug }: FileBrowserProps) {
-  const [currentBranch, setCurrentBranch] = useState("main");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFile, setSelectedFile] = useState<any>(null);
-  const [currentPath, setCurrentPath] = useState("");
-  const [fileData, setFileData] = useState(initialFileData);
-  const [isCreateDirectoryModalOpen, setIsCreateDirectoryModalOpen] =
-    useState(false);
-  const [isBranchModalOpen, setIsBranchModalOpen] = useState(false);
-  const [branchList, setBranchList] = useState(branches);
+  const [currentBranch, setCurrentBranch] = useState("main")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedFile, setSelectedFile] = useState<any>(null)
+  const [currentPath, setCurrentPath] = useState("")
+  const [fileData, setFileData] = useState(initialFileData)
+  const [isCreateDirectoryModalOpen, setIsCreateDirectoryModalOpen] = useState(false)
+  const [isBranchModalOpen, setIsBranchModalOpen] = useState(false)
+  const [branchList, setBranchList] = useState(branches)
 
-  const filteredFiles = fileData.filter((file) =>
-    file.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredFiles = fileData.filter((file) => file.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
   const handleFileClick = (file: any) => {
     if (file.type === "file") {
       // 파일 뷰어 페이지로 이동
-      const params = new URLSearchParams();
-      params.set("branch", currentBranch);
-      if (currentPath) params.set("path", currentPath);
-      params.set("file", file.name);
-      window.location.href = `/infra-packages/config/view?${params.toString()}`;
+      const params = new URLSearchParams()
+      params.set("branch", currentBranch)
+      if (currentPath) params.set("path", currentPath)
+      params.set("file", file.name)
+      window.location.href = `/infra-packages/config/view?${params.toString()}`
+    } else if (file.type === "folder") {
+      // 폴더 클릭 시 해당 폴더로 이동
+      const newPath = currentPath ? `${currentPath}/${file.name}` : file.name
+      const params = new URLSearchParams()
+      params.set("branch", currentBranch)
+      params.set("path", newPath)
+      window.location.href = `/infra-packages/config?${params.toString()}`
     } else {
       // 폴더인 경우 README.md 선택
-      const readmeFile = fileData.find((f) => f.name === "README.md");
+      const readmeFile = fileData.find((f) => f.name === "README.md")
       if (readmeFile) {
-        setSelectedFile(readmeFile);
+        setSelectedFile(readmeFile)
       }
     }
-  };
+  }
+
+  const handleCommitClick = (file: any, event: React.MouseEvent) => {
+    event.stopPropagation()
+    // 커밋 상세 페이지로 이동
+    const params = new URLSearchParams()
+    params.set("branch", currentBranch)
+    params.set("commit", "a1b2c3d") // 실제로는 file.commitHash 등을 사용
+    if (currentPath) params.set("path", currentPath)
+    window.location.href = `/infra-packages/config/commit?${params.toString()}`
+  }
 
   const handleDirectoryCreated = (directoryName: string) => {
     const newDirectory = {
@@ -452,40 +418,47 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
       commitTime: "just now",
       author: "current-user",
       content: null,
-    };
-    setFileData((prevData) => [newDirectory, ...prevData]);
-  };
+    }
+    setFileData((prevData) => [newDirectory, ...prevData])
+  }
 
   const handleCreateBranch = (branchName: string) => {
-    setBranchList((prev) => [...prev, branchName]);
-  };
+    setBranchList((prev) => [...prev, branchName])
+  }
 
   const handleDeleteBranch = (branchName: string) => {
-    setBranchList((prev) => prev.filter((b) => b !== branchName));
-  };
+    setBranchList((prev) => prev.filter((b) => b !== branchName))
+  }
 
   const handleEditReadme = () => {
-    const params = new URLSearchParams();
-    params.set("branch", currentBranch);
-    if (currentPath) params.set("path", currentPath);
-    params.set("file", "README.md");
-    window.location.href = `/infra-packages/config/edit?${params.toString()}`;
-  };
+    const params = new URLSearchParams()
+    params.set("branch", currentBranch)
+    if (currentPath) params.set("path", currentPath)
+    params.set("file", "README.md")
+    window.location.href = `/infra-packages/config/edit?${params.toString()}`
+  }
 
   const handleCommitHistory = () => {
-    const params = new URLSearchParams();
-    params.set("branch", currentBranch);
-    if (currentPath) params.set("path", currentPath);
-    window.location.href = `/infra-packages/config/commits?${params.toString()}`;
-  };
+    const params = new URLSearchParams()
+    params.set("branch", currentBranch)
+    if (currentPath) params.set("path", currentPath)
+    window.location.href = `/infra-packages/config/commits?${params.toString()}`
+  }
+
+  const handleUploadFiles = () => {
+    const params = new URLSearchParams()
+    params.set("branch", currentBranch)
+    if (currentPath) params.set("path", currentPath)
+    window.location.href = `/infra-packages/config/upload?${params.toString()}`
+  }
 
   // 자동으로 README.md 선택
   useState(() => {
-    const readmeFile = fileData.find((f) => f.name === "README.md");
+    const readmeFile = fileData.find((f) => f.name === "README.md")
     if (readmeFile) {
-      setSelectedFile(readmeFile);
+      setSelectedFile(readmeFile)
     }
-  });
+  })
 
   return (
     <div className="bg-transparent">
@@ -497,10 +470,7 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
             <div className="flex items-center space-x-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-32 border-blue-200 hover:border-blue-300 hover:bg-blue-50"
-                  >
+                  <Button variant="outline" className="w-32 border-blue-200 hover:border-blue-300 hover:bg-blue-50">
                     <GitBranch className="h-4 w-4 mr-2 text-blue-500" />
                     {currentBranch}
                     <ChevronDown className="h-4 w-4 ml-2" />
@@ -508,10 +478,7 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   {branchList.map((branch) => (
-                    <DropdownMenuItem
-                      key={branch}
-                      onClick={() => setCurrentBranch(branch)}
-                    >
+                    <DropdownMenuItem key={branch} onClick={() => setCurrentBranch(branch)}>
                       {branch}
                     </DropdownMenuItem>
                   ))}
@@ -534,15 +501,12 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
                 className="border-blue-200 hover:bg-blue-50"
               >
                 <History className="h-4 w-4" />
-                {/* Commits */}
               </Button>
             </div>
           </div>
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-2">
-            {/* Commit History Button */}
-
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -563,26 +527,19 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
               <DropdownMenuContent>
                 <DropdownMenuItem
                   onClick={() => {
-                    const params = new URLSearchParams();
-                    params.set("branch", currentBranch);
-                    if (currentPath) params.set("path", currentPath);
-                    window.location.href = `/infra-packages/config/create?${params.toString()}`;
+                    const params = new URLSearchParams()
+                    params.set("branch", currentBranch)
+                    if (currentPath) params.set("path", currentPath)
+                    window.location.href = `/infra-packages/config/create?${params.toString()}`
                   }}
                 >
                   <FileText className="h-4 w-4 mr-2" />
                   Create new file
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleUploadFiles}>
                   <Upload className="h-4 w-4 mr-2" />
                   Upload files
                 </DropdownMenuItem>
-                {/* <DropdownMenuSeparator /> */}
-                {/* <DropdownMenuItem
-                  onClick={() => setIsCreateDirectoryModalOpen(true)}
-                >
-                  <Folder className="h-4 w-4 mr-2" />
-                  Create new directory
-                </DropdownMenuItem> */}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -596,15 +553,9 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
             </div>
             <div className="flex justify-between flex-1">
               <div className="flex items-center space-x-2">
-                <span className="font-medium text-gray-900">
-                  {latestCommit.author}
-                </span>
-                <Badge
-                  variant="secondary"
-                  className="text-[13px] font-lightbold border border-gray-200/50"
-                >
+                <span className="font-medium text-gray-900">{latestCommit.author}</span>
+                <Badge variant="secondary" className="text-[13px] font-lightbold border border-gray-200/50">
                   <GitCommit className="h-3 w-3 mr-1" />
-
                   {latestCommit.hash}
                 </Badge>
                 <span className="text-gray-600">{latestCommit.message}</span>
@@ -621,38 +572,35 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
           <Table>
             <TableHeader>
               <TableRow className="border-b border-blue-100">
-                <TableHead className="w-[40%] text-blue-700 font-semibold">
-                  Name
-                </TableHead>
-                <TableHead className="w-[40%] text-blue-700 font-semibold">
-                  Commit Message
-                </TableHead>
-                <TableHead className="w-[20%] text-blue-700 font-semibold text-right">
-                  Last Modified
-                </TableHead>
+                <TableHead className="w-[40%] text-blue-700 font-semibold">Name</TableHead>
+                <TableHead className="w-[40%] text-blue-700 font-semibold">Commit Message</TableHead>
+                <TableHead className="w-[20%] text-blue-700 font-semibold text-right">Last Modified</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredFiles.map((file, index) => (
                 <TableRow
                   key={index}
-                  className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 cursor-pointer"
-                  onClick={() => handleFileClick(file)}
+                  className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
                 >
                   <TableCell>
-                    <div className="flex items-center space-x-3">
+                    <button
+                      onClick={() => handleFileClick(file)}
+                      className="flex items-center space-x-3 hover:text-blue-600 transition-colors w-full text-left"
+                    >
                       {getFileIcon(file.type, file.extension)}
                       <span className="font-medium">{file.name}</span>
-                    </div>
+                    </button>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm text-gray-600">
+                    <button
+                      onClick={(e) => handleCommitClick(file, e)}
+                      className="text-sm text-gray-600 hover:text-blue-600 transition-colors text-left w-full"
+                    >
                       {file.lastCommit}
-                    </span>
+                    </button>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground text-right">
-                    {file.commitTime}
-                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground text-right">{file.commitTime}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -666,20 +614,12 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
               <Eye className="h-5 w-5 mr-2" />
               README.md
             </h2>
-            <Button
-              onClick={handleEditReadme}
-              size="sm"
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
+            <Button onClick={handleEditReadme} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
               <Edit className="h-4 w-4" />
-              {/* Edit */}
             </Button>
           </div>
 
           <div className="border border-blue-200/50 rounded-lg bg-white/70 backdrop-blur-sm">
-            {/* <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
-              <h4 className="font-medium text-blue-900">README.md</h4>
-            </div> */}
             <div className="p-6">
               <div className="prose prose-sm max-w-none">
                 <pre className="whitespace-pre-wrap font-mono text-sm bg-gray-50  rounded-lg">
@@ -690,23 +630,7 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
           </div>
         </div>
 
-        {/* Footer Info */}
-        {/* <div className="mt-6 text-sm text-muted-foreground">
-          <p>
-            {filteredFiles.length} items • Last updated {latestCommit.time}
-          </p>
-        </div> */}
-
         {/* Modals */}
-        {/* <CreateDirectoryModal
-          isOpen={isCreateDirectoryModalOpen}
-          onClose={() => setIsCreateDirectoryModalOpen(false)}
-          projectSlug={projectSlug}
-          branch={currentBranch}
-          currentPath={currentPath}
-          onDirectoryCreated={handleDirectoryCreated}
-        /> */}
-
         <BranchManagementModal
           isOpen={isBranchModalOpen}
           onClose={() => setIsBranchModalOpen(false)}
@@ -716,5 +640,5 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
         />
       </div>
     </div>
-  );
+  )
 }
