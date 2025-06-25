@@ -179,10 +179,13 @@ export function FileCreator({
   // 브레드크럼 생성
   const breadcrumbItems = [
     { name: "Projects", href: "/" },
-    { name: projectSlug, href: `/infra-packages/config/${projectSlug}` },
+    {
+      name: projectSlug,
+      href: `/infra-packages/config/projects/${projectSlug}`,
+    },
     {
       name: branch,
-      href: `/infra-packages/config/${projectSlug}?branch=${branch}`,
+      href: `/infra-packages/config/projects/${projectSlug}?branch=${branch}`,
     },
   ];
 
@@ -192,7 +195,7 @@ export function FileCreator({
       const path = pathParts.slice(0, index + 1).join("/");
       breadcrumbItems.push({
         name: part,
-        href: `/infra-packages/config/${projectSlug}?branch=${branch}&path=${path}`,
+        href: `/infra-packages/config/projects/${projectSlug}?branch=${branch}&path=${path}`,
       });
     });
   }
@@ -238,7 +241,7 @@ export function FileCreator({
       setSuccess(true);
       setTimeout(() => {
         // 파일 브라우저로 리다이렉트
-        window.location.href = `/infra-packages/config/${projectSlug}?branch=${branch}&path=${currentPath}`;
+        window.location.href = `/infra-packages/config/projects/${projectSlug}?branch=${branch}&path=${currentPath}`;
       }, 1500);
     } catch (err) {
       setError("Failed to create file. Please try again.");
@@ -248,7 +251,7 @@ export function FileCreator({
   };
 
   const handleCancel = () => {
-    window.location.href = `/infra-packages/config/${projectSlug}?branch=${branch}&path=${currentPath}`;
+    window.location.href = `/infra-packages/config/projects/${projectSlug}?branch=${branch}&path=${currentPath}`;
   };
 
   const getFileIcon = (filename: string) => {

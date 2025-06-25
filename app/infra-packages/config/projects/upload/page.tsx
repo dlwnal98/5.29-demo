@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { AppLayout } from "@/components/layout/AppLayout"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Label } from "@/components/ui/label"
+import { AppLayout } from "@/components/layout/AppLayout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,7 +15,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+} from "@/components/ui/breadcrumb";
 import {
   ArrowLeft,
   Upload,
@@ -29,33 +29,34 @@ import {
   Archive,
   Menu,
   GitCommit,
-} from "lucide-react"
-import { useSearchParams } from "next/navigation"
-import { useState, useRef } from "react"
+} from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useState, useRef } from "react";
+import { useCreateUploadFile } from "@/hooks/use-config-data";
 
 // 파일 아이콘 함수
 function getFileIcon(extension?: string) {
   switch (extension) {
     case "md":
-      return <FileText className="h-4 w-4 text-indigo-500" />
+      return <FileText className="h-4 w-4 text-indigo-500" />;
     case "json":
     case "js":
     case "ts":
     case "tsx":
     case "jsx":
-      return <Code className="h-4 w-4 text-amber-500" />
+      return <Code className="h-4 w-4 text-amber-500" />;
     case "png":
     case "jpg":
     case "jpeg":
     case "gif":
     case "svg":
-      return <ImageIcon className="h-4 w-4 text-green-500" />
+      return <ImageIcon className="h-4 w-4 text-green-500" />;
     case "zip":
     case "tar":
     case "gz":
-      return <Archive className="h-4 w-4 text-purple-500" />
+      return <Archive className="h-4 w-4 text-purple-500" />;
     default:
-      return <File className="h-4 w-4 text-gray-500" />
+      return <File className="h-4 w-4 text-gray-500" />;
   }
 }
 
@@ -77,90 +78,113 @@ const fileStructure = [
   { name: "package.json", type: "file", level: 0, extension: "json" },
   { name: "README.md", type: "file", level: 0, extension: "md" },
   { name: "next.config.js", type: "file", level: 0, extension: "js" },
-]
+];
 
 export default function UploadFilePage() {
-  const searchParams = useSearchParams()
-  const branch = searchParams.get("branch") || "main"
-  const path = searchParams.get("path") || ""
+  const searchParams = useSearchParams();
+  const branch = searchParams.get("branch") || "main";
+  const path = searchParams.get("path") || "";
 
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [selectedStructureItem, setSelectedStructureItem] = useState("")
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
-  const [commitMessage, setCommitMessage] = useState("")
-  const [commitDescription, setCommitDescription] = useState("")
-  const [isUploading, setIsUploading] = useState(false)
-  const [isDragOver, setIsDragOver] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [selectedStructureItem, setSelectedStructureItem] = useState("");
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [commitMessage, setCommitMessage] = useState("");
+  const [commitDescription, setCommitDescription] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState("");
+
+  console.log(uploadedFiles);
+
+  const { mutate: createUploadFileMutate } = useCreateUploadFile(
+    "admin",
+    "configs_repo",
+    "main",
+    fileName,
+    commitMessage
+  );
+
+  const uploadFile = () => {
+    if (uploadedFiles.length > 0) {
+      const formData = new FormData();
+      formData.append("file", uploadedFiles[0]);
+      formData.append("content", ""); // 필요 시 텍스트 추가
+
+      createUploadFileMutate({ formData });
+    }
+  };
 
   const handleBack = () => {
-    const params = new URLSearchParams()
-    params.set("branch", branch)
-    if (path) params.set("path", path)
-    window.location.href = `/infra-packages/config?${params.toString()}`
-  }
+    const params = new URLSearchParams();
+    params.set("branch", branch);
+    if (path) params.set("path", path);
+    window.location.href = `/infra-packages/config/projects?${params.toString()}`;
+  };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || [])
-    setUploadedFiles((prev) => [...prev, ...files])
-  }
+    const files = Array.from(event.target.files || []);
+    setUploadedFiles((prev) => [...prev, ...files]);
+  };
 
   const handleDrop = (event: React.DragEvent) => {
-    event.preventDefault()
-    setIsDragOver(false)
-    const files = Array.from(event.dataTransfer.files)
-    setUploadedFiles((prev) => [...prev, ...files])
-  }
+    event.preventDefault();
+    setIsDragOver(false);
+    const files = Array.from(event.dataTransfer.files);
+    setUploadedFiles((prev) => [...prev, ...files]);
+  };
 
   const handleDragOver = (event: React.DragEvent) => {
-    event.preventDefault()
-    setIsDragOver(true)
-  }
+    event.preventDefault();
+    setIsDragOver(true);
+  };
 
   const handleDragLeave = (event: React.DragEvent) => {
-    event.preventDefault()
-    setIsDragOver(false)
-  }
+    event.preventDefault();
+    setIsDragOver(false);
+  };
 
   const removeFile = (index: number) => {
-    setUploadedFiles((prev) => prev.filter((_, i) => i !== index))
-  }
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleUpload = async () => {
     if (uploadedFiles.length === 0) {
-      alert("Please select files to upload")
-      return
+      alert("Please select files to upload");
+      return;
     }
     if (!commitMessage.trim()) {
-      alert("Please enter a commit message")
-      return
+      alert("Please enter a commit message");
+      return;
     }
 
-    setIsUploading(true)
+    setIsUploading(true);
     try {
       // 실제 업로드 로직 구현
-      await new Promise((resolve) => setTimeout(resolve, 2000)) // 시뮬레이션
-      alert("Files uploaded successfully!")
-      handleBack()
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // 시뮬레이션
+      alert("Files uploaded successfully!");
+      handleBack();
     } catch (error) {
-      alert("Failed to upload files")
+      alert("Failed to upload files");
     } finally {
-      setIsUploading(false)
+      setIsUploading(false);
     }
-  }
+  };
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes"
-    const k = 1024
-    const sizes = ["Bytes", "KB", "MB", "GB"]
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
-  }
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return (
+      Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+    );
+  };
 
   const breadcrumbItems = [
-    { name: "config", href: `/infra-packages/config` },
+    { name: "config", href: `/infra-packages/config/projects` },
     { name: "Upload files", href: "" },
-  ]
+  ];
 
   return (
     <AppLayout projectSlug="config">
@@ -214,7 +238,11 @@ export default function UploadFilePage() {
                     >
                       <Menu className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" onClick={handleBack} className="border-blue-200 hover:bg-blue-50">
+                    <Button
+                      variant="outline"
+                      onClick={handleBack}
+                      className="border-blue-200 hover:bg-blue-50"
+                    >
                       <ArrowLeft className="h-4 w-4 mr-2" />
                       Back
                     </Button>
@@ -226,9 +254,13 @@ export default function UploadFilePage() {
                             {index > 0 && <BreadcrumbSeparator />}
                             <BreadcrumbItem>
                               {index === breadcrumbItems.length - 1 ? (
-                                <BreadcrumbPage className="text-blue-600">{item.name}</BreadcrumbPage>
+                                <BreadcrumbPage className="text-blue-600">
+                                  {item.name}
+                                </BreadcrumbPage>
                               ) : item.href ? (
-                                <BreadcrumbLink href={item.href}>{item.name}</BreadcrumbLink>
+                                <BreadcrumbLink href={item.href}>
+                                  {item.name}
+                                </BreadcrumbLink>
                               ) : (
                                 <span>{item.name}</span>
                               )}
@@ -240,7 +272,10 @@ export default function UploadFilePage() {
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    <Badge variant="outline" className="border-blue-200 text-blue-700">
+                    <Badge
+                      variant="outline"
+                      className="border-blue-200 text-blue-700"
+                    >
                       <GitBranch className="h-3 w-3 mr-1" />
                       {branch}
                     </Badge>
@@ -249,50 +284,75 @@ export default function UploadFilePage() {
 
                 {/* Upload Area */}
                 <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm mb-6">
-                  <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
-                    <h2 className="font-medium text-blue-900 flex items-center">
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload Files
-                    </h2>
+                  <div className="flex align-items flex-1">
+                    <Label
+                      htmlFor="fileName"
+                      className="text-sm font-medium text-blue-900 mb-2 block"
+                    ></Label>
+                    <Input
+                      id="fileName"
+                      value={fileName}
+                      onChange={(e) => setFileName(e.target.value)}
+                      className="font-mono"
+                      placeholder="Enter file name..."
+                    />
                   </div>
-                  <div className="p-6">
+                  <div className="p-5">
                     {/* Drag & Drop Area */}
-                    <div
-                      className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                        isDragOver
-                          ? "border-blue-400 bg-blue-50"
-                          : "border-gray-300 hover:border-blue-400 hover:bg-blue-50"
-                      }`}
-                      onDrop={handleDrop}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                    >
-                      <Upload className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                      <p className="text-lg font-medium text-gray-700 mb-2">Drag and drop files here</p>
-                      <p className="text-sm text-gray-500 mb-4">or click to select files</p>
-                      <Button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                    {uploadedFiles.length == 0 && (
+                      <div
+                        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                          isDragOver
+                            ? "border-blue-400 bg-blue-50"
+                            : "border-gray-300 hover:border-blue-400 hover:bg-blue-50"
+                        }`}
+                        onDrop={handleDrop}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
                       >
-                        Choose Files
-                      </Button>
-                      <input ref={fileInputRef} type="file" multiple onChange={handleFileSelect} className="hidden" />
-                    </div>
+                        <Upload className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                        <p className="text-lg font-medium text-gray-700 mb-2">
+                          Drag and drop files here
+                        </p>
+                        <p className="text-sm text-gray-500 mb-4">
+                          or click to select files
+                        </p>
+                        <Button
+                          onClick={() => fileInputRef.current?.click()}
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                          Choose Files
+                        </Button>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          multiple
+                          onChange={handleFileSelect}
+                          className="hidden"
+                        />
+                      </div>
+                    )}
 
                     {/* Uploaded Files List */}
                     {uploadedFiles.length > 0 && (
-                      <div className="mt-6">
-                        <h3 className="font-medium text-gray-900 mb-3">Selected Files ({uploadedFiles.length})</h3>
+                      <div>
                         <div className="space-y-2">
                           {uploadedFiles.map((file, index) => {
-                            const extension = file.name.split(".").pop()
+                            const extension = file.name.split(".").pop();
                             return (
-                              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                              <div
+                                key={index}
+                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                              >
                                 <div className="flex items-center space-x-3">
                                   {getFileIcon(extension)}
                                   <div>
-                                    <p className="font-medium text-sm">{file.name}</p>
-                                    <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                                    <p className="font-medium text-sm">
+                                      {file.name}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      {formatFileSize(file.size)}
+                                    </p>
                                   </div>
                                 </div>
                                 <Button
@@ -304,7 +364,7 @@ export default function UploadFilePage() {
                                   <X className="h-4 w-4" />
                                 </Button>
                               </div>
-                            )
+                            );
                           })}
                         </div>
                       </div>
@@ -322,7 +382,10 @@ export default function UploadFilePage() {
                   </div>
                   <div className="p-6 space-y-4">
                     <div>
-                      <Label htmlFor="commitMessage" className="text-sm font-medium mb-2 block">
+                      <Label
+                        htmlFor="commitMessage"
+                        className="text-sm font-medium mb-2 block"
+                      >
                         Commit Message *
                       </Label>
                       <Input
@@ -334,7 +397,10 @@ export default function UploadFilePage() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="commitDescription" className="text-sm font-medium mb-2 block">
+                      <Label
+                        htmlFor="commitDescription"
+                        className="text-sm font-medium mb-2 block"
+                      >
                         Extended Description (optional)
                       </Label>
                       <Textarea
@@ -346,12 +412,20 @@ export default function UploadFilePage() {
                       />
                     </div>
                     <div className="flex justify-end space-x-2 pt-4">
-                      <Button variant="outline" onClick={handleBack} disabled={isUploading}>
+                      <Button
+                        variant="outline"
+                        onClick={handleBack}
+                        disabled={isUploading}
+                      >
                         Cancel
                       </Button>
                       <Button
-                        onClick={handleUpload}
-                        disabled={uploadedFiles.length === 0 || !commitMessage.trim() || isUploading}
+                        onClick={uploadFile}
+                        disabled={
+                          uploadedFiles.length === 0 ||
+                          !commitMessage.trim() ||
+                          isUploading
+                        }
                         className="bg-green-600 hover:bg-green-700 text-white"
                       >
                         {isUploading ? (
@@ -375,5 +449,5 @@ export default function UploadFilePage() {
         </div>
       </div>
     </AppLayout>
-  )
+  );
 }

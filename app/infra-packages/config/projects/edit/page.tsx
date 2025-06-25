@@ -2,7 +2,10 @@
 
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,13 +16,8 @@ import {
 } from "@/components/ui/breadcrumb";
 import {
   ArrowLeft,
-  Edit,
-  Trash2,
-  Download,
-  Copy,
-  GitCommit,
-  User,
-  Calendar,
+  Save,
+  Eye,
   GitBranch,
   Folder,
   File,
@@ -28,10 +26,16 @@ import {
   ImageIcon,
   Archive,
   Menu,
+  User,
+  Calendar,
+  GitCommit,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
+import {
+  useModifyFile,
+  useFetchOriginFileDetail,
+} from "@/hooks/use-config-data";
 
 // 파일 아이콘 함수
 function getFileIcon(extension?: string) {
@@ -59,7 +63,7 @@ function getFileIcon(extension?: string) {
   }
 }
 
-// 샘플 파일 구조
+// 샘플 파일 구조 (동일)
 const fileStructure = [
   { name: ".github", type: "folder", level: 0 },
   { name: "workflows", type: "folder", level: 1 },
@@ -178,42 +182,78 @@ This project is licensed under the MIT License.`,
   },
 };
 
-export default function FileViewPage() {
+export default function EditFilePage() {
   const searchParams = useSearchParams();
   const branch = searchParams.get("branch") || "main";
   const path = searchParams.get("path") || "";
-  const fileName = searchParams.get("file") || "";
+  const originalFileName = searchParams.get("file") || "";
 
-  const [selectedStructureItem, setSelectedStructureItem] = useState(fileName);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedStructureItem, setSelectedStructureItem] =
+    useState(originalFileName);
+  const [fileName, setFileName] = useState(originalFileName);
 
-  const currentFile = fileData[fileName as keyof typeof fileData];
+  const [commitMessage, setCommitMessage] = useState("");
+  const [commitDescription, setCommitDescription] = useState("");
+  const [isPreview, setIsPreview] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const currentFile = fileData[originalFileName as keyof typeof fileData];
   const fileExtension = fileName.split(".").pop();
+
+  const { mutate: modifyFileMutate } = useModifyFile(
+    "admin",
+    "configs_repo",
+    branch,
+    originalFileName, // 수정할 때는 파일 이름 변경 안됨
+    "d57a83e6a05e1a582bbf8f1b4ea38bbb0b3204da", // 커밋하면 목록조회에서 sha 정보 바뀌는데 그거 불러와서 넣어야함
+    "commits", // 커밋메세지,
+    "# Clalink Config Server\n\n[![Java](https://img.shields.io/badge/Java-21-blue.svg)](https://adoptopenjdk.net/) [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.0-brightgreen.svg)](https://spring.io/projects/spring-boot) [![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2025.0.0-blue.svg)](https://spring.io/projects/spring-cloud) [![License: Nexfron](https://img.shields.io/badge/license-Nexfron-blue.svg)](LICENSE)\n\n## 프로젝트 개요\n\nClalink Config Server는 Spring Cloud Confi"
+  );
+
+  const modifyFile = () => {
+    modifyFileMutate();
+  };
+
+  const { data: fileDetailData } = useFetchOriginFileDetail(
+    "admin",
+    "configs_repo",
+    branch,
+    originalFileName
+  );
 
   const handleBack = () => {
     const params = new URLSearchParams();
     params.set("branch", branch);
     if (path) params.set("path", path);
-    window.location.href = `/infra-packages/config?${params.toString()}`;
+    window.location.href = `/infra-packages/config/projects?${params.toString()}`;
   };
 
-  const handleEdit = () => {
+  const handlePreview = () => {
     const params = new URLSearchParams();
     params.set("branch", branch);
     if (path) params.set("path", path);
     params.set("file", fileName);
-    window.location.href = `/infra-packages/config/edit?${params.toString()}`;
+    window.location.href = `/infra-packages/config/projects/view?${params.toString()}`;
   };
 
-  const handleDelete = () => {
-    setShowDeleteModal(true);
-  };
+  const handleSave = async () => {
+    if (!commitMessage.trim()) {
+      alert("Please enter a commit message");
+      return;
+    }
 
-  const handleConfirmDelete = () => {
-    // 실제 삭제 로직 구현
-    alert("File deleted successfully!");
-    handleBack();
+    setIsSaving(true);
+    try {
+      // 실제 저장 로직 구현
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // 시뮬레이션
+      alert("File saved successfully!");
+      handleBack();
+    } catch (error) {
+      alert("Failed to save file");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCommitClick = () => {
@@ -222,52 +262,39 @@ export default function FileViewPage() {
       params.set("branch", branch);
       params.set("commit", currentFile.lastCommit.hash);
       if (path) params.set("path", path);
-      window.location.href = `/infra-packages/config/commit?${params.toString()}`;
+      window.location.href = `/infra-packages/config/projects/commit?${params.toString()}`;
     }
   };
 
-  const renderFileContent = () => {
-    if (!currentFile) return null;
-
+  const renderPreview = () => {
     switch (fileExtension) {
       case "md":
         return (
           <div className="prose prose-sm max-w-none">
             <pre className="whitespace-pre-wrap font-mono text-sm bg-gray-50 p-4 rounded-lg overflow-auto">
-              {currentFile.content}
+              {fileContent}
             </pre>
           </div>
         );
       case "json":
         return (
           <pre className="language-json bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">
-            {currentFile.content}
-          </pre>
-        );
-      case "js":
-      case "ts":
-      case "tsx":
-      case "jsx":
-        return (
-          <pre className="language-javascript bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">
-            {currentFile.content}
+            {fileContent}
           </pre>
         );
       default:
         return (
-          <div className="flex items-center justify-center h-32 text-muted-foreground">
-            <div className="text-center">
-              <File className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p>Preview not available for this file type</p>
-            </div>
-          </div>
+          <pre className="bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">
+            {fileContent}
+          </pre>
         );
     }
   };
 
   const breadcrumbItems = [
-    { name: "config", href: `/infra-packages/config` },
-    { name: fileName, href: "" },
+    // { name: "/", href: "/" },
+    { name: "config", href: `/infra-packages/config/projects` },
+    { name: `Edit ${fileName}`, href: "" },
   ];
 
   return (
@@ -366,105 +393,175 @@ export default function FileViewPage() {
                   </div>
                 </div>
 
-                {/* Latest Commit Info */}
-                {currentFile?.lastCommit && (
-                  <div
-                    className="mb-6 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200/50 cursor-pointer hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
-                    onClick={handleCommitClick}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                        <User className="h-4 w-4 text-blue-600" />
-                      </div>
-                      <div className="flex items-center justify-between flex-1">
-                        <div className="flex items-center space-x-2">
-                          <span className="font-medium text-gray-900">
-                            {currentFile.lastCommit.author}
-                          </span>
-                          <Badge
-                            variant="secondary"
-                            className="text-[13px] font-lightbold border border-gray-200/50"
-                          >
-                            <GitCommit className="h-3 w-3 mr-1" />
-
-                            {currentFile.lastCommit.hash}
-                          </Badge>
-                          <span className="text-gray-600">
-                            {currentFile.lastCommit.message}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
-                          <span className="flex items-center">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            {currentFile.lastCommit.time}
-                          </span>
-                        </div>
-                      </div>
+                {/* File Name Editor */}
+                {/* <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50">
+                  <div className="flex items-center space-x-3">
+                    {getFileIcon(fileExtension)}
+                    <div className="flex-1">
+                      <Label
+                        htmlFor="fileName"
+                        className="text-sm font-medium text-blue-900 mb-2 block"
+                      >
+                        File Name
+                      </Label>
+                      <Input
+                        id="fileName"
+                        value={fileName}
+                        onChange={(e) => setFileName(e.target.value)}
+                        className="font-mono"
+                        placeholder="Enter file name..."
+                      />
                     </div>
                   </div>
-                )}
+                </div> */}
 
-                {/* File Content */}
-                <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm">
+                {/* Editor/Preview Content */}
+                <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm mb-6">
                   <div className="flex items-center justify-between p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
-                    <h2 className="font-medium text-blue-900">File Contents</h2>
-                    <div className="flex items-center space-x-2">
+                    {/* <h2 className="font-medium text-blue-900"> */}
+                    {/* {isPreview ? "Preview" : "Edit File"} */}
+                    <div className="flex align-items flex-1">
+                      <Label
+                        htmlFor="fileName"
+                        className="text-sm font-medium text-blue-900 mb-2 block"
+                      >
+                        {/* File Name */}
+                      </Label>
+                      <Input
+                        id="fileName"
+                        value={fileName}
+                        disabled
+                        onChange={(e) => setFileName(e.target.value)}
+                        className="font-mono"
+                        placeholder="Enter file name..."
+                      />
+                    </div>
+                    {/* </h2> */}
+                    {/* Editor/Preview Toggle */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant={!isPreview ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setIsPreview(false)}
+                          className={
+                            !isPreview
+                              ? "bg-blue-600 hover:bg-blue-700"
+                              : "border-blue-200 hover:bg-blue-50"
+                          }
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant={isPreview ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setIsPreview(true)}
+                          className={
+                            isPreview
+                              ? "bg-blue-600 hover:bg-blue-700"
+                              : "border-blue-200 hover:bg-blue-50"
+                          }
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Preview
+                        </Button>
+                      </div>
                       <Button
+                        onClick={handlePreview}
                         variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          navigator.clipboard.writeText(
-                            currentFile?.content || ""
-                          )
-                        }
-                        title="copy"
                         className="border-blue-200 hover:bg-blue-50"
                       >
-                        <Copy className="h-4 w-4" />
-                        {/* Copy */}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-blue-200 hover:bg-blue-50"
-                        title="download"
-                      >
-                        <Download className="h-4 w-4" />
-                        {/* Download */}
-                      </Button>
-                      <Button
-                        onClick={handleEdit}
-                        size="sm"
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
-                        title="edit"
-                      >
-                        <Edit className="h-4 w-4" />
-                        {/* Edit */}
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={handleDelete}
-                        title="delete"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        {/* Delete */}
+                        <Eye className="h-4 w-4 mr-2" />
+                        View File
                       </Button>
                     </div>
                   </div>
-                  <div className="p-6">{renderFileContent()}</div>
+                  <div className="p-6">
+                    {isPreview ? (
+                      renderPreview()
+                    ) : (
+                      <Textarea
+                        value={fileDetailData?.textContent}
+                        onChange={(e) => setFileContent(e.target.value)}
+                        className="min-h-[400px] font-mono text-sm resize-none border-0 focus-visible:ring-0 p-0"
+                        placeholder="Enter file content..."
+                      />
+                    )}
+                  </div>
+                </div>
+
+                {/* Commit Section */}
+                <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm">
+                  <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
+                    <h2 className="font-medium text-blue-900 flex items-center">
+                      <GitCommit className="h-4 w-4 mr-2" />
+                      Commit Changes
+                    </h2>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div>
+                      <Label
+                        htmlFor="commitMessage"
+                        className="text-sm font-medium mb-2 block"
+                      >
+                        Commit Message *
+                      </Label>
+                      <Input
+                        id="commitMessage"
+                        value={commitMessage}
+                        onChange={(e) => setCommitMessage(e.target.value)}
+                        placeholder="Update file content"
+                        className="font-mono"
+                      />
+                    </div>
+                    <div>
+                      <Label
+                        htmlFor="commitDescription"
+                        className="text-sm font-medium mb-2 block"
+                      >
+                        Extended Description (optional)
+                      </Label>
+                      <Textarea
+                        id="commitDescription"
+                        value={commitDescription}
+                        onChange={(e) => setCommitDescription(e.target.value)}
+                        placeholder="Add more details about your changes..."
+                        className="min-h-[100px] font-mono text-sm"
+                      />
+                    </div>
+                    <div className="flex justify-end space-x-2 pt-4">
+                      <Button
+                        variant="outline"
+                        onClick={handleBack}
+                        disabled={isSaving}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={modifyFile}
+                        disabled={!commitMessage.trim() || isSaving}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        {isSaving ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                            Committing...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="h-4 w-4 mr-2" />
+                            Commit Changes
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <DeleteConfirmationModal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={handleConfirmDelete}
-        fileName={fileName}
-      />
     </AppLayout>
   );
 }

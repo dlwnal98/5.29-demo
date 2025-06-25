@@ -1,12 +1,18 @@
-"use client"
+"use client";
 
-import { AppLayout } from "@/components/layout/AppLayout"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { AppLayout } from "@/components/layout/AppLayout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,7 +20,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+} from "@/components/ui/breadcrumb";
 import {
   ArrowLeft,
   Save,
@@ -28,33 +34,34 @@ import {
   Archive,
   Menu,
   GitCommit,
-} from "lucide-react"
-import { useSearchParams } from "next/navigation"
-import { useState } from "react"
+} from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useCreateUploadFile } from "@/hooks/use-config-data";
 
 // 파일 아이콘 함수
 function getFileIcon(extension?: string) {
   switch (extension) {
     case "md":
-      return <FileText className="h-4 w-4 text-indigo-500" />
+      return <FileText className="h-4 w-4 text-indigo-500" />;
     case "json":
     case "js":
     case "ts":
     case "tsx":
     case "jsx":
-      return <Code className="h-4 w-4 text-amber-500" />
+      return <Code className="h-4 w-4 text-amber-500" />;
     case "png":
     case "jpg":
     case "jpeg":
     case "gif":
     case "svg":
-      return <ImageIcon className="h-4 w-4 text-green-500" />
+      return <ImageIcon className="h-4 w-4 text-green-500" />;
     case "zip":
     case "tar":
     case "gz":
-      return <Archive className="h-4 w-4 text-purple-500" />
+      return <Archive className="h-4 w-4 text-purple-500" />;
     default:
-      return <File className="h-4 w-4 text-gray-500" />
+      return <File className="h-4 w-4 text-gray-500" />;
   }
 }
 
@@ -76,72 +83,106 @@ const fileStructure = [
   { name: "package.json", type: "file", level: 0, extension: "json" },
   { name: "README.md", type: "file", level: 0, extension: "md" },
   { name: "next.config.js", type: "file", level: 0, extension: "js" },
-]
+];
 
 // 파일 템플릿
 const fileTemplates = [
   { name: "Empty file", extension: "", content: "" },
-  { name: "README.md", extension: "md", content: "# Project Title\n\nDescription of your project." },
-  { name: "package.json", extension: "json", content: '{\n  "name": "my-project",\n  "version": "1.0.0"\n}' },
-  { name: "index.js", extension: "js", content: "console.log('Hello, World!');" },
-  { name: "style.css", extension: "css", content: "/* Add your styles here */" },
-]
+  {
+    name: "README.md",
+    extension: "md",
+    content: "# Project Title\n\nDescription of your project.",
+  },
+  {
+    name: "package.json",
+    extension: "json",
+    content: '{\n  "name": "my-project",\n  "version": "1.0.0"\n}',
+  },
+  {
+    name: "index.js",
+    extension: "js",
+    content: "console.log('Hello, World!');",
+  },
+  {
+    name: "style.css",
+    extension: "css",
+    content: "/* Add your styles here */",
+  },
+];
 
 export default function CreateFilePage() {
-  const searchParams = useSearchParams()
-  const branch = searchParams.get("branch") || "main"
-  const path = searchParams.get("path") || ""
+  const searchParams = useSearchParams();
+  const branch = searchParams.get("branch") || "main";
+  const path = searchParams.get("path") || "";
 
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [selectedStructureItem, setSelectedStructureItem] = useState("")
-  const [fileName, setFileName] = useState("")
-  const [fileContent, setFileContent] = useState("")
-  const [selectedTemplate, setSelectedTemplate] = useState("")
-  const [commitMessage, setCommitMessage] = useState("")
-  const [commitDescription, setCommitDescription] = useState("")
-  const [isPreview, setIsPreview] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [selectedStructureItem, setSelectedStructureItem] = useState("");
+  const [fileName, setFileName] = useState("");
+  const [fileContent, setFileContent] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [commitMessage, setCommitMessage] = useState("");
+  const [commitDescription, setCommitDescription] = useState("");
+  const [isPreview, setIsPreview] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const fileExtension = fileName.split(".").pop()
+  const fileExtension = fileName.split(".").pop();
+
+  const { mutate: createUploadFileMutate } = useCreateUploadFile(
+    "admin",
+    "configs_repo",
+    "main",
+    fileName,
+    commitMessage
+  );
+
+  const createFile = () => {
+    if (fileContent.length > 0) {
+      const formData = new FormData();
+      formData.append("file", "");
+      formData.append("content", fileContent); // 필요 시 텍스트 추가
+
+      createUploadFileMutate({ formData });
+    }
+  };
 
   const handleBack = () => {
-    const params = new URLSearchParams()
-    params.set("branch", branch)
-    if (path) params.set("path", path)
-    window.location.href = `/infra-packages/config?${params.toString()}`
-  }
+    const params = new URLSearchParams();
+    params.set("branch", branch);
+    if (path) params.set("path", path);
+    window.location.href = `/infra-packages/config/projects?${params.toString()}`;
+  };
 
   const handleTemplateChange = (templateName: string) => {
-    const template = fileTemplates.find((t) => t.name === templateName)
+    const template = fileTemplates.find((t) => t.name === templateName);
     if (template) {
-      setSelectedTemplate(templateName)
-      setFileName(template.name)
-      setFileContent(template.content)
+      setSelectedTemplate(templateName);
+      setFileName(template.name);
+      setFileContent(template.content);
     }
-  }
+  };
 
   const handleSave = async () => {
     if (!fileName.trim()) {
-      alert("Please enter a file name")
-      return
+      alert("Please enter a file name");
+      return;
     }
     if (!commitMessage.trim()) {
-      alert("Please enter a commit message")
-      return
+      alert("Please enter a commit message");
+      return;
     }
 
-    setIsSaving(true)
+    setIsSaving(true);
     try {
       // 실제 저장 로직 구현
-      await new Promise((resolve) => setTimeout(resolve, 1000)) // 시뮬레이션
-      alert("File created successfully!")
-      handleBack()
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // 시뮬레이션
+      alert("File created successfully!");
+      handleBack();
     } catch (error) {
-      alert("Failed to create file")
+      alert("Failed to create file");
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const renderPreview = () => {
     switch (fileExtension) {
@@ -152,20 +193,26 @@ export default function CreateFilePage() {
               {fileContent}
             </pre>
           </div>
-        )
+        );
       case "json":
         return (
-          <pre className="language-json bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">{fileContent}</pre>
-        )
+          <pre className="language-json bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">
+            {fileContent}
+          </pre>
+        );
       default:
-        return <pre className="bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">{fileContent}</pre>
+        return (
+          <pre className="bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">
+            {fileContent}
+          </pre>
+        );
     }
-  }
+  };
 
   const breadcrumbItems = [
-    { name: "config", href: `/infra-packages/config` },
+    { name: "config", href: `/infra-packages/config/projects` },
     { name: "Create new file", href: "" },
-  ]
+  ];
 
   return (
     <AppLayout projectSlug="config">
@@ -219,7 +266,11 @@ export default function CreateFilePage() {
                     >
                       <Menu className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" onClick={handleBack} className="border-blue-200 hover:bg-blue-50">
+                    <Button
+                      variant="outline"
+                      onClick={handleBack}
+                      className="border-blue-200 hover:bg-blue-50"
+                    >
                       <ArrowLeft className="h-4 w-4 mr-2" />
                       Back
                     </Button>
@@ -231,9 +282,13 @@ export default function CreateFilePage() {
                             {index > 0 && <BreadcrumbSeparator />}
                             <BreadcrumbItem>
                               {index === breadcrumbItems.length - 1 ? (
-                                <BreadcrumbPage className="text-blue-600">{item.name}</BreadcrumbPage>
+                                <BreadcrumbPage className="text-blue-600">
+                                  {item.name}
+                                </BreadcrumbPage>
                               ) : item.href ? (
-                                <BreadcrumbLink href={item.href}>{item.name}</BreadcrumbLink>
+                                <BreadcrumbLink href={item.href}>
+                                  {item.name}
+                                </BreadcrumbLink>
                               ) : (
                                 <span>{item.name}</span>
                               )}
@@ -245,7 +300,10 @@ export default function CreateFilePage() {
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    <Badge variant="outline" className="border-blue-200 text-blue-700">
+                    <Badge
+                      variant="outline"
+                      className="border-blue-200 text-blue-700"
+                    >
                       <GitBranch className="h-3 w-3 mr-1" />
                       {branch}
                     </Badge>
@@ -253,11 +311,17 @@ export default function CreateFilePage() {
                 </div>
 
                 {/* Template Selection */}
-                <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50">
-                  <Label htmlFor="template" className="text-sm font-medium text-blue-900 mb-2 block">
+                {/* <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50">
+                  <Label
+                    htmlFor="template"
+                    className="text-sm font-medium text-blue-900 mb-2 block"
+                  >
                     Choose a file template
                   </Label>
-                  <Select value={selectedTemplate} onValueChange={handleTemplateChange}>
+                  <Select
+                    value={selectedTemplate}
+                    onValueChange={handleTemplateChange}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select a template" />
                     </SelectTrigger>
@@ -269,13 +333,16 @@ export default function CreateFilePage() {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </div> */}
 
                 {/* Editor/Preview Content */}
                 <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm mb-6">
                   <div className="flex items-center justify-between p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
                     <div className="flex align-items flex-1">
-                      <Label htmlFor="fileName" className="text-sm font-medium text-blue-900 mb-2 block"></Label>
+                      <Label
+                        htmlFor="fileName"
+                        className="text-sm font-medium text-blue-900 mb-2 block"
+                      ></Label>
                       <Input
                         id="fileName"
                         value={fileName}
@@ -290,7 +357,11 @@ export default function CreateFilePage() {
                           variant={!isPreview ? "default" : "outline"}
                           size="sm"
                           onClick={() => setIsPreview(false)}
-                          className={!isPreview ? "bg-blue-600 hover:bg-blue-700" : "border-blue-200 hover:bg-blue-50"}
+                          className={
+                            !isPreview
+                              ? "bg-blue-600 hover:bg-blue-700"
+                              : "border-blue-200 hover:bg-blue-50"
+                          }
                         >
                           Edit
                         </Button>
@@ -298,7 +369,11 @@ export default function CreateFilePage() {
                           variant={isPreview ? "default" : "outline"}
                           size="sm"
                           onClick={() => setIsPreview(true)}
-                          className={isPreview ? "bg-blue-600 hover:bg-blue-700" : "border-blue-200 hover:bg-blue-50"}
+                          className={
+                            isPreview
+                              ? "bg-blue-600 hover:bg-blue-700"
+                              : "border-blue-200 hover:bg-blue-50"
+                          }
                         >
                           <Eye className="h-4 w-4 mr-2" />
                           Preview
@@ -313,7 +388,7 @@ export default function CreateFilePage() {
                       <Textarea
                         value={fileContent}
                         onChange={(e) => setFileContent(e.target.value)}
-                        className="min-h-[400px] font-mono text-sm resize-none border-0 focus-visible:ring-0 p-0"
+                        className="py-2 px-3 min-h-[400px] font-mono text-sm resize-none border-0 focus-visible:ring-0 p-0"
                         placeholder="Enter file content..."
                       />
                     )}
@@ -330,7 +405,10 @@ export default function CreateFilePage() {
                   </div>
                   <div className="p-6 space-y-4">
                     <div>
-                      <Label htmlFor="commitMessage" className="text-sm font-medium mb-2 block">
+                      <Label
+                        htmlFor="commitMessage"
+                        className="text-sm font-medium mb-2 block"
+                      >
                         Commit Message *
                       </Label>
                       <Input
@@ -342,7 +420,10 @@ export default function CreateFilePage() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="commitDescription" className="text-sm font-medium mb-2 block">
+                      <Label
+                        htmlFor="commitDescription"
+                        className="text-sm font-medium mb-2 block"
+                      >
                         Extended Description (optional)
                       </Label>
                       <Textarea
@@ -354,12 +435,18 @@ export default function CreateFilePage() {
                       />
                     </div>
                     <div className="flex justify-end space-x-2 pt-4">
-                      <Button variant="outline" onClick={handleBack} disabled={isSaving}>
+                      <Button
+                        variant="outline"
+                        onClick={handleBack}
+                        disabled={isSaving}
+                      >
                         Cancel
                       </Button>
                       <Button
-                        onClick={handleSave}
-                        disabled={!fileName.trim() || !commitMessage.trim() || isSaving}
+                        onClick={createFile}
+                        disabled={
+                          !fileName.trim() || !commitMessage.trim() || isSaving
+                        }
                         className="bg-green-600 hover:bg-green-700 text-white"
                       >
                         {isSaving ? (
@@ -383,5 +470,5 @@ export default function CreateFilePage() {
         </div>
       </div>
     </AppLayout>
-  )
+  );
 }

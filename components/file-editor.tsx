@@ -231,10 +231,10 @@ export function FileEditor({
 
   // 브레드크럼 생성
   const breadcrumbItems = [
-    { name: projectSlug, href: `/infra-packages/config` },
+    { name: projectSlug, href: `/infra-packages/config/projects` },
     {
       name: branch,
-      href: `/infra-packages/config?branch=${branch}`,
+      href: `/infra-packages/config/projects?branch=${branch}`,
     },
   ];
 
@@ -244,7 +244,7 @@ export function FileEditor({
       const path = pathParts.slice(0, index + 1).join("/");
       breadcrumbItems.push({
         name: part,
-        href: `/infra-packages/config?branch=${branch}&path=${path}`,
+        href: `/infra-packages/config/projects?branch=${branch}&path=${path}`,
       });
     });
   }
@@ -312,7 +312,7 @@ export function FileEditor({
 
       setTimeout(() => {
         // 파일 브라우저로 리다이렉트
-        window.location.href = `/infra-packages/config?branch=${branch}&path=${currentPath}`;
+        window.location.href = `/infra-packages/config/projects?branch=${branch}&path=${currentPath}`;
       }, 1500);
     } catch (err) {
       setError("Failed to save file. Please try again.");
@@ -328,7 +328,7 @@ export function FileEditor({
       );
       if (!confirmed) return;
     }
-    window.location.href = `/infra-packages/config?branch=${branch}&path=${currentPath}`;
+    window.location.href = `/infra-packages/config/projects?branch=${branch}&path=${currentPath}`;
   };
 
   const getFileIcon = (filename: string) => {

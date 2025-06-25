@@ -28,93 +28,37 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-
-// 샘플 커밋 데이터
-const commitHistory = [
-  {
-    hash: "a1b2c3d4e5f",
-    shortHash: "a1b2c3d",
-    message: "Update documentation and fix styling issues",
-    author: "jane-smith",
-    email: "jane@example.com",
-    time: "2 hours ago",
-    date: "2024-01-15 14:30:00",
-    filesChanged: 3,
-    additions: 25,
-    deletions: 8,
-  },
-  {
-    hash: "f6g7h8i9j0k",
-    shortHash: "f6g7h8i",
-    message: "Add new authentication middleware",
-    author: "john-doe",
-    email: "john@example.com",
-    time: "1 day ago",
-    date: "2024-01-14 09:15:00",
-    filesChanged: 5,
-    additions: 120,
-    deletions: 15,
-  },
-  {
-    hash: "l1m2n3o4p5q",
-    shortHash: "l1m2n3o",
-    message: "Fix responsive design issues on mobile",
-    author: "mike-wilson",
-    email: "mike@example.com",
-    time: "2 days ago",
-    date: "2024-01-13 16:45:00",
-    filesChanged: 8,
-    additions: 45,
-    deletions: 32,
-  },
-  {
-    hash: "r6s7t8u9v0w",
-    shortHash: "r6s7t8u",
-    message: "Implement user profile management",
-    author: "sarah-jones",
-    email: "sarah@example.com",
-    time: "3 days ago",
-    date: "2024-01-12 11:20:00",
-    filesChanged: 12,
-    additions: 200,
-    deletions: 50,
-  },
-  {
-    hash: "x1y2z3a4b5c",
-    shortHash: "x1y2z3a",
-    message: "Initial project setup and configuration",
-    author: "john-doe",
-    email: "john@example.com",
-    time: "1 week ago",
-    date: "2024-01-08 10:00:00",
-    filesChanged: 20,
-    additions: 500,
-    deletions: 0,
-  },
-];
+import { useFetchFileCommitList } from "@/hooks/use-config-data";
 
 export default function CommitsPage() {
   const searchParams = useSearchParams();
   const branch = searchParams.get("branch") || "main";
   const path = searchParams.get("path") || "";
 
+  const { data: commitListData } = useFetchFileCommitList(
+    "admin",
+    "configs_repo",
+    "main",
+    "README.md" // 파일 이름
+  );
+
   const handleCommitClick = (commit: any) => {
     const params = new URLSearchParams();
     params.set("branch", branch);
     params.set("commit", commit.hash);
     if (path) params.set("path", path);
-    window.location.href = `/infra-packages/config/commit?${params.toString()}`;
+    window.location.href = `/infra-packages/config/projects/commit?sha=${commit?.sha}`;
   };
 
   const handleBack = () => {
     const params = new URLSearchParams();
     params.set("branch", branch);
     if (path) params.set("path", path);
-    window.location.href = `/infra-packages/config?${params.toString()}`;
+    window.location.href = `/infra-packages/config/projects?${params.toString()}`;
   };
 
   const breadcrumbItems = [
-    { name: "config", href: `/infra-packages/config` },
+    { name: "config", href: `/infra-packages/config/projects` },
     { name: "Commits", href: "" },
   ];
 
@@ -176,7 +120,7 @@ export default function CommitsPage() {
                 Commit History
               </h1>
               <p className="text-sm text-gray-500">
-                {commitHistory.length} commits
+                {commitListData?.length} commits
               </p>
             </div>
 
@@ -202,24 +146,24 @@ export default function CommitsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {commitHistory.map((commit, index) => (
+                  {commitListData?.map((commit, index) => (
                     <TableRow
-                      key={commit.hash}
+                      key={commit.sha}
                       className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
                     >
                       <TableCell className=" flex items-center">
                         <Avatar className="h-7 w-7 flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs font-bold">
-                          {commit.author.charAt(0).toUpperCase()}
+                          {commit.authorName.charAt(0).toUpperCase()}
                         </Avatar>
                         <span className="font-medium text-sm ml-[8px]">
-                          {commit.author}
+                          {commit.authorName}
                         </span>
                       </TableCell>
                       <TableCell>
                         {/* <div className="flex items-center space-x-2"> */}
                         <code className="flex items-center space-x-2 text-xs font-mono bg-gray-100 px-2 py-1 rounded">
                           <GitCommit className="h-3 w-3 text-gray-400" />
-                          {commit.shortHash}
+                          {commit.sha}
                         </code>
                         {/* </div> */}
                       </TableCell>
@@ -233,7 +177,7 @@ export default function CommitsPage() {
                       </TableCell>
                       <TableCell>
                         <span className="text-sm text-gray-500">
-                          {commit.time}
+                          {commit.commitTime}
                         </span>
                       </TableCell>
                       <TableCell>
@@ -243,7 +187,7 @@ export default function CommitsPage() {
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              navigator.clipboard.writeText(commit.hash);
+                              navigator.clipboard.writeText(commit.sha);
                             }}
                             className="hover:bg-blue-100 p-1 h-auto"
                           >

@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,13 +10,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -41,176 +33,27 @@ import {
   Archive,
   Eye,
   Edit,
-  Trash2,
   User,
   History,
   GitCommit,
   Settings,
 } from "lucide-react";
+import { initialFileData, branches } from "@/constants/config-data";
+import {
+  useFetchBranchList,
+  useFetchConfigFileList,
+  useFetchVaultKey,
+  useFetchOriginFileDetail,
+} from "@/hooks/use-config-data";
+import BranchManagementModal from "./BranchManagementModal";
+import ReactMarkdown from "react-markdown";
 
-// 샘플 데이터 (파일 내용 포함)
-const initialFileData = [
-  {
-    name: ".github",
-    type: "folder",
-    lastCommit: "Add GitHub workflows",
-    commitTime: "2 days ago",
-    author: "john-doe",
-    content: null,
-  },
-  {
-    name: "src",
-    type: "folder",
-    lastCommit: "Refactor components structure",
-    commitTime: "3 days ago",
-    author: "jane-smith",
-    content: null,
-  },
-  {
-    name: "public",
-    type: "folder",
-    lastCommit: "Add new assets",
-    commitTime: "1 week ago",
-    author: "mike-wilson",
-    content: null,
-  },
-  {
-    name: "package.json",
-    type: "file",
-    extension: "json",
-    lastCommit: "Update dependencies",
-    commitTime: "1 day ago",
-    author: "john-doe",
-    content: `{
-  "name": "my-project",
-  "version": "1.0.0",
-  "description": "A modern web application",
-  "main": "index.js",
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "next": "^14.0.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "tailwindcss": "^3.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@types/react": "^18.0.0",
-    "typescript": "^5.0.0"
-  }
-}`,
-  },
-  {
-    name: "README.md",
-    type: "file",
-    extension: "md",
-    lastCommit: "Update documentation",
-    commitTime: "2 days ago",
-    author: "jane-smith",
-    content: `# My Project
-
-A modern web application built with Next.js and React.
-
-## Features
-
-- 🚀 Fast and responsive
-- 🎨 Beautiful UI with Tailwind CSS
-- 📱 Mobile-first design
-- 🔒 Secure authentication
-- 📊 Real-time analytics
-
-## Getting Started
-
-First, install the dependencies:
-
-\`\`\`bash
-npm install
-# or
-yarn install
-\`\`\`
-
-Then, run the development server:
-
-\`\`\`bash
-npm run dev
-# or
-yarn dev
-\`\`\`
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-## Project Structure
-
-\`\`\`
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── styles/
-├── public/
-└── package.json
-\`\`\`
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License.`,
-  },
-  {
-    name: "next.config.js",
-    type: "file",
-    extension: "js",
-    lastCommit: "Configure build settings",
-    commitTime: "5 days ago",
-    author: "mike-wilson",
-    content: `/** @type {import('next').NextConfig} */
-const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
-  images: {
-    domains: ['example.com'],
-  },
-  async redirects() {
-    return [
-      {
-        source: '/old-page',
-        destination: '/new-page',
-        permanent: true,
-      },
-    ]
-  },
+interface MarkdownViewerProps {
+  content: string;
 }
 
-module.exports = nextConfig`,
-  },
-];
-
-// 최근 커밋 정보
-const latestCommit = {
-  hash: "a1b2c3d",
-  message: "Update documentation and fix styling issues",
-  author: "jane-smith",
-  time: "2 hours ago",
-  avatar: "/placeholder-user.jpg",
-};
-
-// 브랜치 목록
-const branches = ["main", "develop", "feature/auth", "hotfix/security"];
-
 function getFileIcon(type: string, extension?: string) {
-  if (type === "folder") {
+  if (type === "dir") {
     return <Folder className="h-4 w-4 text-blue-500" />;
   }
 
@@ -239,108 +82,6 @@ function getFileIcon(type: string, extension?: string) {
 }
 
 // 브랜치 관리 모달 컴포넌트
-function BranchManagementModal({
-  isOpen,
-  onClose,
-  branches,
-  onCreateBranch,
-  onDeleteBranch,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  branches: string[];
-  onCreateBranch: (name: string) => void;
-  onDeleteBranch: (name: string) => void;
-}) {
-  const [newBranchName, setNewBranchName] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
-
-  const handleCreateBranch = () => {
-    if (newBranchName.trim()) {
-      onCreateBranch(newBranchName.trim());
-      setNewBranchName("");
-      setIsCreating(false);
-    }
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center">
-            <GitBranch className="h-5 w-5 mr-2 text-blue-600" />
-            Branch Management
-          </DialogTitle>
-          <DialogDescription>
-            Create new branches or delete existing ones
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-4">
-          {/* Create New Branch */}
-          <div className="border rounded-lg p-4 bg-blue-50/50">
-            <h4 className="font-medium text-blue-900 mb-3">
-              Create New Branch
-            </h4>
-            <div className="flex space-x-2">
-              <Input
-                placeholder="Enter branch name"
-                value={newBranchName}
-                onChange={(e) => setNewBranchName(e.target.value)}
-                className="flex-1"
-              />
-              <Button
-                onClick={handleCreateBranch}
-                disabled={!newBranchName.trim()}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Create
-              </Button>
-            </div>
-          </div>
-
-          {/* Existing Branches */}
-          <div className="border rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-3">
-              Existing Branches
-            </h4>
-            <div className="space-y-2 max-h-60 overflow-y-auto">
-              {branches.map((branch) => (
-                <div
-                  key={branch}
-                  className="flex items-center justify-between p-2 rounded hover:bg-gray-50"
-                >
-                  <div className="flex items-center space-x-2">
-                    <GitBranch className="h-4 w-4 text-gray-500" />
-                    <span className="font-mono text-sm">{branch}</span>
-                    {branch === "main" && (
-                      <Badge variant="secondary" className="text-xs">
-                        Default
-                      </Badge>
-                    )}
-                  </div>
-                  {branch !== "main" && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onDeleteBranch(branch)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 // README.md 파일 미리보기 컴포넌트
 function ReadmePreview({ file, onEdit }: { file: any; onEdit: () => void }) {
@@ -396,20 +137,50 @@ interface FileBrowserProps {
   projectSlug: string;
 }
 
+export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content }) => {
+  return (
+    <div className="prose max-w-none prose-indigo dark:prose-invert">
+      <ReactMarkdown>{content}</ReactMarkdown>
+    </div>
+  );
+};
+
 export function FileBrowser({ projectSlug }: FileBrowserProps) {
+  const { data: configFileListData } = useFetchConfigFileList(
+    "admin",
+    "configs_repo",
+    "main",
+    ""
+  );
+  const { data: branchListData } = useFetchBranchList("admin", "configs_repo");
+
+  console.log(configFileListData, branchListData);
+  const mdFiles = configFileListData?.filter((item) =>
+    item.name.endsWith(".md")
+  );
+
+  const { data: originFileDetailData } = useFetchOriginFileDetail(
+    "admin",
+    "configs_repo",
+    "main",
+    mdFiles?.[0]?.name ?? "string"
+  );
+
   const [currentBranch, setCurrentBranch] = useState("main");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [currentPath, setCurrentPath] = useState("");
   const [fileData, setFileData] = useState(initialFileData);
-  const [isCreateDirectoryModalOpen, setIsCreateDirectoryModalOpen] =
-    useState(false);
   const [isBranchModalOpen, setIsBranchModalOpen] = useState(false);
-  const [branchList, setBranchList] = useState(branches);
+  const [selectMdFile, setSelectMdFile] = useState("");
 
-  const filteredFiles = fileData.filter((file) =>
-    file.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // 자동으로 README.md 선택
+  // useState(() => {
+  //   const readmeFile = fileData.find((f) => f.name === "README.md");
+  //   if (readmeFile) {
+  //     setSelectedFile(readmeFile);
+  //   }
+  // });
 
   const handleFileClick = (file: any) => {
     if (file.type === "file") {
@@ -418,14 +189,14 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
       params.set("branch", currentBranch);
       if (currentPath) params.set("path", currentPath);
       params.set("file", file.name);
-      window.location.href = `/infra-packages/config/view?${params.toString()}`;
-    } else if (file.type === "folder") {
+      window.location.href = `/infra-packages/config/projects/view?${params.toString()}`;
+    } else if (file.type === "dir") {
       // 폴더 클릭 시 해당 폴더로 이동
       const newPath = currentPath ? `${currentPath}/${file.name}` : file.name;
       const params = new URLSearchParams();
       params.set("branch", currentBranch);
       params.set("path", newPath);
-      window.location.href = `/infra-packages/config?${params.toString()}`;
+      window.location.href = `/infra-packages/config/projects?${params.toString()}`;
     } else {
       // 폴더인 경우 README.md 선택
       const readmeFile = fileData.find((f) => f.name === "README.md");
@@ -442,27 +213,14 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
     params.set("branch", currentBranch);
     params.set("commit", "a1b2c3d"); // 실제로는 file.commitHash 등을 사용
     if (currentPath) params.set("path", currentPath);
-    window.location.href = `/infra-packages/config/commit?${params.toString()}`;
+    window.location.href = `/infra-packages/config/projects/commit?${params.toString()}`;
   };
 
-  const handleDirectoryCreated = (directoryName: string) => {
-    const newDirectory = {
-      name: directoryName,
-      type: "folder",
-      lastCommit: "Create directory",
-      commitTime: "just now",
-      author: "current-user",
-      content: null,
-    };
-    setFileData((prevData) => [newDirectory, ...prevData]);
-  };
-
-  const handleCreateBranch = (branchName: string) => {
-    setBranchList((prev) => [...prev, branchName]);
-  };
-
-  const handleDeleteBranch = (branchName: string) => {
-    setBranchList((prev) => prev.filter((b) => b !== branchName));
+  const handleCommitHistory = () => {
+    const params = new URLSearchParams();
+    params.set("branch", currentBranch);
+    if (currentPath) params.set("path", currentPath);
+    window.location.href = `/infra-packages/config/projects/commits?${params.toString()}`;
   };
 
   const handleEditReadme = () => {
@@ -470,30 +228,15 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
     params.set("branch", currentBranch);
     if (currentPath) params.set("path", currentPath);
     params.set("file", "README.md");
-    window.location.href = `/infra-packages/config/edit?${params.toString()}`;
-  };
-
-  const handleCommitHistory = () => {
-    const params = new URLSearchParams();
-    params.set("branch", currentBranch);
-    if (currentPath) params.set("path", currentPath);
-    window.location.href = `/infra-packages/config/commits?${params.toString()}`;
+    window.location.href = `/infra-packages/config/projects/edit?${params.toString()}`;
   };
 
   const handleUploadFiles = () => {
     const params = new URLSearchParams();
     params.set("branch", currentBranch);
     if (currentPath) params.set("path", currentPath);
-    window.location.href = `/infra-packages/config/upload?${params.toString()}`;
+    window.location.href = `/infra-packages/config/projects/upload?${params.toString()}`;
   };
-
-  // 자동으로 README.md 선택
-  useState(() => {
-    const readmeFile = fileData.find((f) => f.name === "README.md");
-    if (readmeFile) {
-      setSelectedFile(readmeFile);
-    }
-  });
 
   return (
     <div className="bg-transparent">
@@ -507,7 +250,7 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="w-32 border-blue-200 hover:border-blue-300 hover:bg-blue-50"
+                    className="w-[auto] border-blue-200 hover:border-blue-300 hover:bg-blue-50"
                   >
                     <GitBranch className="h-4 w-4 mr-2 text-blue-500" />
                     {currentBranch}
@@ -515,12 +258,12 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  {branchList.map((branch) => (
+                  {branchListData?.map((branch, index) => (
                     <DropdownMenuItem
-                      key={branch}
-                      onClick={() => setCurrentBranch(branch)}
+                      key={index}
+                      onClick={() => setCurrentBranch(branch.name)}
                     >
-                      {branch}
+                      {branch.name}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
@@ -571,7 +314,7 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
                     const params = new URLSearchParams();
                     params.set("branch", currentBranch);
                     if (currentPath) params.set("path", currentPath);
-                    window.location.href = `/infra-packages/config/create?${params.toString()}`;
+                    window.location.href = `/infra-packages/config/projects/create?${params.toString()}`;
                   }}
                 >
                   <FileText className="h-4 w-4 mr-2" />
@@ -595,19 +338,25 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
             <div className="flex justify-between flex-1">
               <div className="flex items-center space-x-2">
                 <span className="font-medium text-gray-900">
-                  {latestCommit.author}
+                  {(configFileListData && configFileListData[0]?.author) ||
+                    "jumi_lee"}
                 </span>
                 <Badge
                   variant="secondary"
                   className="text-[13px] font-lightbold border border-gray-200/50"
                 >
                   <GitCommit className="h-3 w-3 mr-1" />
-                  {latestCommit.hash}
+                  {configFileListData && configFileListData[0]?.sha}
                 </Badge>
-                <span className="text-gray-600">{latestCommit.message}</span>
+                <span className="text-gray-600">
+                  {configFileListData && configFileListData[0]?.textContent}
+                </span>
               </div>
               <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
-                <span className="flex items-center">{latestCommit.time}</span>
+                <span className="flex items-center">
+                  {configFileListData &&
+                    configFileListData[0]?.lastCommitterDate}
+                </span>
               </div>
             </div>
           </div>
@@ -630,7 +379,7 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredFiles.map((file, index) => (
+              {configFileListData?.map((file: any, index: number) => (
                 <TableRow
                   key={index}
                   className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
@@ -640,7 +389,7 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
                       onClick={() => handleFileClick(file)}
                       className="flex items-center space-x-3 hover:text-blue-600 transition-colors w-full text-left"
                     >
-                      {getFileIcon(file.type, file.extension)}
+                      {getFileIcon(file.type, file.name.split(".")[1])}
                       <span className="font-medium">{file.name}</span>
                     </button>
                   </TableCell>
@@ -649,11 +398,11 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
                       onClick={(e) => handleCommitClick(file, e)}
                       className="text-sm text-gray-600 hover:text-blue-600 transition-colors text-left w-full"
                     >
-                      {file.lastCommit}
+                      {file.textContent}
                     </button>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground text-right">
-                    {file.commitTime}
+                    {file.lastCommitterDate}
                   </TableCell>
                 </TableRow>
               ))}
@@ -662,39 +411,43 @@ export function FileBrowser({ projectSlug }: FileBrowserProps) {
         </div>
 
         {/* README.md Preview Section */}
-        <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm">
-          <div className=" flex justify-between align-items p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
-            <h2 className="text-lg font-semibold text-blue-900 flex items-center">
-              <Eye className="h-5 w-5 mr-2" />
-              README.md
-            </h2>
-            <Button
-              onClick={handleEditReadme}
-              size="sm"
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
-          </div>
+        {mdFiles && (
+          <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm">
+            <div className=" flex justify-between align-items p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
+              <h2 className="text-lg font-semibold text-blue-900 flex items-center">
+                <Eye className="h-5 w-5 mr-2" />
+                {mdFiles?.[0]?.name}
+              </h2>
+              <Button
+                onClick={handleEditReadme}
+                size="sm"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+            </div>
 
-          <div className="border border-blue-200/50 rounded-lg bg-white/70 backdrop-blur-sm">
-            <div className="p-6">
-              <div className="prose prose-sm max-w-none">
-                <pre className="whitespace-pre-wrap font-mono text-sm bg-gray-50  rounded-lg">
-                  {selectedFile?.content}
-                </pre>
+            <div className="border border-blue-200/50 rounded-lg bg-white/70 backdrop-blur-sm">
+              <div className="p-6">
+                <div className="prose prose-sm max-w-none">
+                  <pre className="whitespace-pre-wrap font-mono text-sm bg-gray-50  rounded-lg">
+                    {originFileDetailData && (
+                      <MarkdownViewer
+                        content={originFileDetailData?.textContent}
+                      />
+                    )}
+                  </pre>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Modals */}
         <BranchManagementModal
           isOpen={isBranchModalOpen}
           onClose={() => setIsBranchModalOpen(false)}
-          branches={branchList}
-          onCreateBranch={handleCreateBranch}
-          onDeleteBranch={handleDeleteBranch}
+          branches={branchListData ?? []}
         />
       </div>
     </div>
