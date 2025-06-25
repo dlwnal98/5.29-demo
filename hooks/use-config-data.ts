@@ -390,3 +390,69 @@ export function useFetchFileCommitDetail(
     refetchOnReconnect: false,
   });
 }
+
+//커밋 롤백
+const rollbackCommit = async (
+  owner: string,
+  repo: string,
+  branch: string,
+  path: string,
+  commitSha: string,
+  message: string
+) => {
+  const { data } = await axios.post(
+    `/v1/api/git/rollback?owner=${owner}&repo=${repo}&branch=${branch}&path=${path}&commitSha=${commitSha}&message=${message}`
+  );
+
+  return data;
+};
+
+export function useRollbackCommit(
+  owner: string,
+  repo: string,
+  branch: string,
+  path: string,
+  commitSha: string,
+  message: string
+) {
+  return useMutation({
+    mutationFn: () =>
+      rollbackCommit(owner, repo, branch, path, commitSha, message),
+    onSuccess: () => {
+      // 브랜치 생성 성공 시 목록 invalidate
+      // window.history.back();
+    },
+  });
+}
+
+// 롤백 시 두 커밋 간 파일 diff
+const fetchFileDiff = async (
+  owner: string,
+  repo: string,
+  path: string,
+  oldSha: string,
+  newSha: string
+) => {
+  const { data } = await axios.get(
+    `/v1/api/git/diff?owner=${owner}&repo=${repo}&path=${path}&oldSha=${oldSha}&newSha=${newSha}`
+  );
+  return data;
+};
+
+export function useFetchFileDiff(
+  owner: string,
+  repo: string,
+  path: string,
+  oldSha: string,
+  newSha: string
+) {
+  return useQuery<any>({
+    queryKey: ["fetchFileDiff", owner, repo, path, oldSha, newSha],
+    queryFn: () => fetchFileDiff(owner, repo, path, oldSha, newSha),
+    // enabled: !!instanceId, // instanceId가 있을 때만 실행
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+}

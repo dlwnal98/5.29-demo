@@ -26,15 +26,20 @@ import {
   GitBranch,
   Copy,
   ExternalLink,
+  RotateCcw,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useFetchFileCommitList } from "@/hooks/use-config-data";
+import { RollbackConfirmationModal } from "@/components/rollback-confirmation-modal";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export default function CommitsPage() {
   const searchParams = useSearchParams();
   const branch = searchParams.get("branch") || "main";
   const path = searchParams.get("path") || "";
 
+  // 파일 별 커밋 이력 조회
   const { data: commitListData } = useFetchFileCommitList(
     "admin",
     "configs_repo",
@@ -42,12 +47,29 @@ export default function CommitsPage() {
     "README.md" // 파일 이름
   );
 
+  const { toast } = useToast();
+
+  const [rollbackModal, setRollbackModal] = useState<{
+    isOpen: boolean;
+    commit?: any;
+  }>({ isOpen: false });
+
+  const handleRollbackClick = (commit: any) => {
+    setRollbackModal({ isOpen: true, commit });
+  };
+
+  const latestCommitArr = commitListData?.[0];
+  const latestCommit = latestCommitArr?.sha?.slice(0, 6);
+
   const handleCommitClick = (commit: any) => {
     const params = new URLSearchParams();
     params.set("branch", branch);
     params.set("commit", commit.hash);
     if (path) params.set("path", path);
-    window.location.href = `/infra-packages/config/projects/commit?sha=${commit?.sha}`;
+    window.location.href = `/infra-packages/config/projects/commit?sha=${commit?.sha?.slice(
+      0,
+      6
+    )}&latest=${latestCommit}`;
   };
 
   const handleBack = () => {
@@ -204,6 +226,17 @@ export default function CommitsPage() {
                           >
                             <ExternalLink className="h-3 w-3" />
                           </Button>
+                          {/* <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRollbackClick(commit);
+                            }}
+                            className="hover:bg-red-100 p-1 h-auto text-red-600 hover:text-red-700"
+                          >
+                            <RotateCcw className="h-3 w-3" />
+                          </Button> */}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -214,6 +247,14 @@ export default function CommitsPage() {
           </div>
         </div>
       </div>
+      {/* Rollback Modal */}
+      {/* <RollbackConfirmationModal
+        isOpen={rollbackModal.isOpen}
+        onClose={() => setRollbackModal({ isOpen: false })}
+        commitHash={rollbackModal.commit?.sha || ""}
+        commitMessage={rollbackModal.commit?.message || ""}
+        // onConfirm={handleRollbackConfirm}
+      /> */}
     </AppLayout>
   );
 }

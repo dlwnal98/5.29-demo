@@ -192,7 +192,9 @@ export default function EditFilePage() {
   const [selectedStructureItem, setSelectedStructureItem] =
     useState(originalFileName);
   const [fileName, setFileName] = useState(originalFileName);
-
+  const [fileContent, setFileContent] = useState(
+    fileData[originalFileName as keyof typeof fileData]?.content || ""
+  );
   const [commitMessage, setCommitMessage] = useState("");
   const [commitDescription, setCommitDescription] = useState("");
   const [isPreview, setIsPreview] = useState(false);
@@ -537,7 +539,7 @@ export default function EditFilePage() {
                       >
                         Cancel
                       </Button>
-                      <Button
+                      {/* <Button
                         onClick={modifyFile}
                         disabled={!commitMessage.trim() || isSaving}
                         className="bg-green-600 hover:bg-green-700 text-white"
@@ -553,7 +555,7 @@ export default function EditFilePage() {
                             Commit Changes
                           </>
                         )}
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 </div>

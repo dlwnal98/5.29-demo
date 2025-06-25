@@ -37,6 +37,7 @@ import {
   History,
   GitCommit,
   Settings,
+  RotateCcw,
 } from "lucide-react";
 import { initialFileData, branches } from "@/constants/config-data";
 import {

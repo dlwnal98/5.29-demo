@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,9 +13,59 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Avatar } from "@/components/ui/avatar";
-import { ArrowLeft, GitBranch, Copy, File, Plus, Minus } from "lucide-react";
+import {
+  ArrowLeft,
+  GitBranch,
+  Copy,
+  File,
+  Plus,
+  Minus,
+  RotateCcw,
+} from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useFetchFileCommitDetail } from "@/hooks/use-config-data";
+import {
+  useFetchFileCommitDetail,
+  useFetchFileCommitList,
+  useFetchFileDiff,
+} from "@/hooks/use-config-data";
+import { RollbackConfirmationModal } from "@/components/rollback-confirmation-modal";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+
+function parseDiffLines(diffLines: string[]) {
+  const result: {
+    left?: string;
+    right?: string;
+    type: "add" | "del" | "context";
+  }[] = [];
+  let i = 0;
+  while (i < diffLines.length) {
+    const line = diffLines[i];
+    if (line.startsWith("-") && !line.startsWith("---")) {
+      // 삭제 라인
+      if (
+        diffLines[i + 1]?.startsWith("+") &&
+        !diffLines[i + 1]?.startsWith("+++")
+      ) {
+        // 바로 다음이 추가 라인인 경우
+        result.push({ left: line, right: diffLines[i + 1], type: "change" });
+        i += 2;
+      } else {
+        result.push({ left: line, type: "del" });
+        i += 1;
+      }
+    } else if (line.startsWith("+") && !line.startsWith("+++")) {
+      // 추가 라인 (이미 위에서 처리된 경우는 제외)
+      result.push({ right: line, type: "add" });
+      i += 1;
+    } else {
+      // context 라인
+      result.push({ left: line, right: line, type: "context" });
+      i += 1;
+    }
+  }
+  return result;
+}
 
 export default function CommitPage() {
   const searchParams = useSearchParams();
@@ -22,14 +73,54 @@ export default function CommitPage() {
   const commitHash = searchParams.get("commit") || "";
   const path = searchParams.get("path") || "";
 
-  const params = new URLSearchParams();
+  console.log(searchParams.get("sha"));
+
   console.log(searchParams.getAll);
+
+  const { data: commitListData } = useFetchFileCommitList(
+    "admin",
+    "configs_repo",
+    "main",
+    "README.md" // 파일 이름
+  );
 
   const { data: commitDetailData } = useFetchFileCommitDetail(
     "admin",
     "configs_repo",
     "153e9312c631b0af39f1c103a115d22f32283113" // sha
   );
+
+  const { toast } = useToast();
+
+  const selectShaArr =
+    commitListData?.filter(
+      (list) => list.sha.slice(0, 6) === searchParams.get("sha")
+    ) ?? [];
+  const selectSha = selectShaArr[0]?.sha;
+
+  const latestShaArr =
+    commitListData?.filter(
+      (list) => list.sha.slice(0, 6) === searchParams.get("latest")
+    ) ?? [];
+  const latestSha = latestShaArr[0]?.sha;
+
+  console.log(selectSha);
+
+  const { data: fileDiffData } = useFetchFileDiff(
+    "admin",
+    "configs_repo",
+    "README.md", // path : 파일 이름
+    selectSha,
+    latestSha
+  );
+
+  const [rollbackModal, setRollbackModal] = useState<{
+    isOpen: boolean;
+  }>({ isOpen: false });
+
+  const handleRollbackClick = () => {
+    setRollbackModal({ isOpen: true });
+  };
 
   const handleBack = () => {
     const params = new URLSearchParams();
@@ -69,6 +160,8 @@ export default function CommitPage() {
     { name: "Commits", href: `/infra-packages/config/projects/commits` },
     // { name: commitDetailData?.sha, href: "" },
   ];
+
+  const parsedDiff = fileDiffData ? parseDiffLines(fileDiffData) : [];
 
   return (
     <AppLayout projectSlug="config">
@@ -156,9 +249,10 @@ export default function CommitPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() =>
-                    navigator.clipboard.writeText(commitDetailData?.sha)
-                  }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRollbackClick();
+                  }}
                   className="hover:bg-white/50"
                 >
                   <Copy className="h-4 w-4" />
@@ -184,18 +278,29 @@ export default function CommitPage() {
                   <div className="flex items-center space-x-3">
                     <File className="h-5 w-5 text-gray-500" />
                     <span className="font-medium text-gray-900">
-                      {commitDetailData?.files?.filename}
+                      {commitDetailData?.files[0]?.filename}
                     </span>
                     <Badge
                       className={`text-xs ${getStatusColor(
-                        commitDetailData?.files?.status
+                        commitDetailData?.files[0]?.status
                       )}`}
                     >
-                      {getStatusIcon(commitDetailData?.files?.status)}
+                      {/* {getStatusIcon(commitDetailData?.files?.status)} */}
                       <span className="ml-1">
-                        {commitDetailData?.files?.status}
+                        {commitDetailData?.files[0]?.status}
                       </span>
                     </Badge>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRollbackClick();
+                      }}
+                      className="hover:bg-red-100 p-1 h-auto text-red-600 hover:text-red-700"
+                    >
+                      <RotateCcw className="h-3 w-3" />
+                    </Button>
                   </div>
                   <div className="flex items-center space-x-4 text-sm text-gray-500">
                     <span className="text-green-600">
@@ -209,30 +314,46 @@ export default function CommitPage() {
               </div>
 
               {/* Diff Content */}
-              {/* <div className="p-0">
-                  <pre className="text-sm font-mono overflow-x-auto">
-                    <code className="block">
-                      {change.diff.split("\n").map((line, lineIndex) => (
-                        <div
-                          key={lineIndex}
-                          className={`px-4 py-1 ${
-                            line.startsWith("+") && !line.startsWith("+++")
-                              ? "bg-green-50 text-green-800"
-                              : line.startsWith("-") && !line.startsWith("---")
-                              ? "bg-red-50 text-red-800"
-                              : line.startsWith("@@")
-                              ? "bg-blue-50 text-blue-800 font-medium"
-                              : "bg-gray-50 text-gray-700"
-                          }`}
-                        >
-                          {line || " "}
-                        </div>
+              <div className="p-0">
+                <div className="grid grid-cols-2 text-sm font-mono overflow-x-auto">
+                  {parsedDiff?.length === 0 ? (
+                    <>변경 이력이 없습니다</>
+                  ) : (
+                    <>
+                      <div className="font-bold border-b px-2 py-1">이전</div>
+                      <div className="font-bold border-b px-2 py-1">변경</div>
+                      {parsedDiff.map((row, idx) => (
+                        <React.Fragment key={idx}>
+                          <div
+                            className={`px-2 py-1 whitespace-pre ${
+                              row.type === "del" || row.type === "change"
+                                ? "bg-red-50 text-red-800"
+                                : row.type === "context"
+                                ? "bg-gray-50 text-gray-700"
+                                : ""
+                            }`}
+                          >
+                            {row.left || ""}
+                          </div>
+                          <div
+                            className={`px-2 py-1 whitespace-pre ${
+                              row.type === "add" || row.type === "change"
+                                ? "bg-green-50 text-green-800"
+                                : row.type === "context"
+                                ? "bg-gray-50 text-gray-700"
+                                : ""
+                            }`}
+                          >
+                            {row.right || ""}
+                          </div>
+                        </React.Fragment>
                       ))}
-                    </code>
-                  </pre>
+                    </>
+                  )}
                 </div>
-              </div> */}
-              {/* ))} */}
+              </div>
+            </div>
+            {/* ))}
             </div>
 
             {/* Summary */}
@@ -254,6 +375,14 @@ export default function CommitPage() {
           </div>
         </div>
       </div>
+      {/* Rollback Modal */}
+      <RollbackConfirmationModal
+        isOpen={rollbackModal.isOpen}
+        onClose={() => setRollbackModal({ isOpen: false })}
+        commitHash={commitDetailData?.sha || ""}
+        commitMessage={commitDetailData?.commit?.message || ""}
+        // onConfirm={handleRollbackConfirm}
+      />
     </AppLayout>
   );
 }

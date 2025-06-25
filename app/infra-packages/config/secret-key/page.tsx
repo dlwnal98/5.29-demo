@@ -287,7 +287,7 @@ export default function SecretKey() {
                   {index + 1}
                 </div>
                 <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-1">
+                  {/* <div className="space-y-1">
                     <Label
                       htmlFor={`key-${pair.id}`}
                       className="text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -303,7 +303,7 @@ export default function SecretKey() {
                       }
                       className="border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500"
                     />
-                  </div>
+                  </div> */}
                   <div className="space-y-1">
                     <Label
                       htmlFor={`value-${pair.id}`}
@@ -322,7 +322,7 @@ export default function SecretKey() {
                     />
                   </div>
                 </div>
-                <div className="flex gap-1">
+                {/* <div className="flex gap-1">
                   <Button
                     type="button"
                     variant="outline"
@@ -343,7 +343,7 @@ export default function SecretKey() {
                       <Minus className="h-4 w-4" />
                     </Button>
                   )}
-                </div>
+                </div> */}
               </div>
             ))}
 
