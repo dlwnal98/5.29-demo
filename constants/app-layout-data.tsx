@@ -66,7 +66,7 @@ export const navItems: NavItem[] = [
           {
             icon: FolderOpen,
             label: "Projects",
-            href: "/infra-packages/config/projects",
+            href: "/infra-packages/config/projects?branch=main",
           },
           {
             icon: Key,

@@ -36,32 +36,7 @@ import {
   useModifyFile,
   useFetchOriginFileDetail,
 } from "@/hooks/use-config-data";
-
-// 파일 아이콘 함수
-function getFileIcon(extension?: string) {
-  switch (extension) {
-    case "md":
-      return <FileText className="h-4 w-4 text-indigo-500" />;
-    case "json":
-    case "js":
-    case "ts":
-    case "tsx":
-    case "jsx":
-      return <Code className="h-4 w-4 text-amber-500" />;
-    case "png":
-    case "jpg":
-    case "jpeg":
-    case "gif":
-    case "svg":
-      return <ImageIcon className="h-4 w-4 text-green-500" />;
-    case "zip":
-    case "tar":
-    case "gz":
-      return <Archive className="h-4 w-4 text-purple-500" />;
-    default:
-      return <File className="h-4 w-4 text-gray-500" />;
-  }
-}
+import { getFileIcon } from "@/lib/etc";
 
 // 샘플 파일 구조 (동일)
 const fileStructure = [
@@ -83,105 +58,6 @@ const fileStructure = [
   { name: "next.config.js", type: "file", level: 0, extension: "js" },
 ];
 
-// 샘플 파일 데이터
-const fileData = {
-  "README.md": {
-    content: `# My Project
-
-A modern web application built with Next.js and React.
-
-## Features
-
-- 🚀 Fast and responsive
-- 🎨 Beautiful UI with Tailwind CSS
-- 📱 Mobile-first design
-- 🔒 Secure authentication
-- 📊 Real-time analytics
-
-## Getting Started
-
-First, install the dependencies:
-
-\`\`\`bash
-npm install
-# or
-yarn install
-\`\`\`
-
-Then, run the development server:
-
-\`\`\`bash
-npm run dev
-# or
-yarn dev
-\`\`\`
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-## Project Structure
-
-\`\`\`
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── styles/
-├── public/
-└── package.json
-\`\`\`
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License.`,
-    size: "4.2 KB",
-    lastCommit: {
-      hash: "a1b2c3d",
-      message: "Update documentation",
-      author: "jane-smith",
-      time: "2 hours ago",
-    },
-  },
-  "package.json": {
-    content: `{
-  "name": "my-project",
-  "version": "1.0.0",
-  "description": "A modern web application",
-  "main": "index.js",
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "next": "^14.0.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "tailwindcss": "^3.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@types/react": "^18.0.0",
-    "typescript": "^5.0.0"
-  }
-}`,
-    size: "2.1 KB",
-    lastCommit: {
-      hash: "f6g7h8i",
-      message: "Update dependencies",
-      author: "john-doe",
-      time: "1 day ago",
-    },
-  },
-};
-
 export default function EditFilePage() {
   const searchParams = useSearchParams();
   const branch = searchParams.get("branch") || "main";
@@ -192,30 +68,7 @@ export default function EditFilePage() {
   const [selectedStructureItem, setSelectedStructureItem] =
     useState(originalFileName);
   const [fileName, setFileName] = useState(originalFileName);
-  const [fileContent, setFileContent] = useState(
-    fileData[originalFileName as keyof typeof fileData]?.content || ""
-  );
-  const [commitMessage, setCommitMessage] = useState("");
-  const [commitDescription, setCommitDescription] = useState("");
-  const [isPreview, setIsPreview] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const currentFile = fileData[originalFileName as keyof typeof fileData];
-  const fileExtension = fileName.split(".").pop();
-
-  const { mutate: modifyFileMutate } = useModifyFile(
-    "admin",
-    "configs_repo",
-    branch,
-    originalFileName, // 수정할 때는 파일 이름 변경 안됨
-    "d57a83e6a05e1a582bbf8f1b4ea38bbb0b3204da", // 커밋하면 목록조회에서 sha 정보 바뀌는데 그거 불러와서 넣어야함
-    "commits", // 커밋메세지,
-    "# Clalink Config Server\n\n[![Java](https://img.shields.io/badge/Java-21-blue.svg)](https://adoptopenjdk.net/) [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.0-brightgreen.svg)](https://spring.io/projects/spring-boot) [![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2025.0.0-blue.svg)](https://spring.io/projects/spring-cloud) [![License: Nexfron](https://img.shields.io/badge/license-Nexfron-blue.svg)](LICENSE)\n\n## 프로젝트 개요\n\nClalink Config Server는 Spring Cloud Confi"
-  );
-
-  const modifyFile = () => {
-    modifyFileMutate();
-  };
+  const [commitMessage, setCommitMessage] = useState("커밋 메세지 입니당");
 
   const { data: fileDetailData } = useFetchOriginFileDetail(
     "admin",
@@ -223,78 +76,29 @@ export default function EditFilePage() {
     branch,
     originalFileName
   );
+  const [fileContent, setFileContent] = useState(fileDetailData?.textContent);
 
+  const { mutate: modifyFileMutate } = useModifyFile(
+    "admin",
+    "configs_repo",
+    branch,
+    originalFileName, // 수정할 때는 파일 이름 변경 안됨
+    "356113e807defceda3a9deb26c8558b3fdab72fd", // 커밋하면 목록조회에서 sha 정보 바뀌는데 그거 불러와서 넣어야함
+    commitMessage, // 커밋메세지,
+    fileContent ?? ""
+  );
+  const modifyFile = () => {
+    modifyFileMutate();
+  };
   const handleBack = () => {
     const params = new URLSearchParams();
     params.set("branch", branch);
     if (path) params.set("path", path);
     window.location.href = `/infra-packages/config/projects?${params.toString()}`;
   };
-
-  const handlePreview = () => {
-    const params = new URLSearchParams();
-    params.set("branch", branch);
-    if (path) params.set("path", path);
-    params.set("file", fileName);
-    window.location.href = `/infra-packages/config/projects/view?${params.toString()}`;
-  };
-
-  const handleSave = async () => {
-    if (!commitMessage.trim()) {
-      alert("Please enter a commit message");
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      // 실제 저장 로직 구현
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // 시뮬레이션
-      alert("File saved successfully!");
-      handleBack();
-    } catch (error) {
-      alert("Failed to save file");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleCommitClick = () => {
-    if (currentFile?.lastCommit) {
-      const params = new URLSearchParams();
-      params.set("branch", branch);
-      params.set("commit", currentFile.lastCommit.hash);
-      if (path) params.set("path", path);
-      window.location.href = `/infra-packages/config/projects/commit?${params.toString()}`;
-    }
-  };
-
-  const renderPreview = () => {
-    switch (fileExtension) {
-      case "md":
-        return (
-          <div className="prose prose-sm max-w-none">
-            <pre className="whitespace-pre-wrap font-mono text-sm bg-gray-50 p-4 rounded-lg overflow-auto">
-              {fileContent}
-            </pre>
-          </div>
-        );
-      case "json":
-        return (
-          <pre className="language-json bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">
-            {fileContent}
-          </pre>
-        );
-      default:
-        return (
-          <pre className="bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">
-            {fileContent}
-          </pre>
-        );
-    }
-  };
+  console.log(fileContent);
 
   const breadcrumbItems = [
-    // { name: "/", href: "/" },
     { name: "config", href: `/infra-packages/config/projects` },
     { name: `Edit ${fileName}`, href: "" },
   ];
@@ -326,7 +130,7 @@ export default function EditFilePage() {
                       {item.type === "folder" ? (
                         <Folder className="h-4 w-4 text-blue-500" />
                       ) : (
-                        getFileIcon(item.extension)
+                        getFileIcon(item?.extension)
                       )}
                       <span className="text-sm">{item.name}</span>
                     </div>
@@ -395,33 +199,8 @@ export default function EditFilePage() {
                   </div>
                 </div>
 
-                {/* File Name Editor */}
-                {/* <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50">
-                  <div className="flex items-center space-x-3">
-                    {getFileIcon(fileExtension)}
-                    <div className="flex-1">
-                      <Label
-                        htmlFor="fileName"
-                        className="text-sm font-medium text-blue-900 mb-2 block"
-                      >
-                        File Name
-                      </Label>
-                      <Input
-                        id="fileName"
-                        value={fileName}
-                        onChange={(e) => setFileName(e.target.value)}
-                        className="font-mono"
-                        placeholder="Enter file name..."
-                      />
-                    </div>
-                  </div>
-                </div> */}
-
-                {/* Editor/Preview Content */}
                 <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm mb-6">
                   <div className="flex items-center justify-between p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
-                    {/* <h2 className="font-medium text-blue-900"> */}
-                    {/* {isPreview ? "Preview" : "Edit File"} */}
                     <div className="flex align-items flex-1">
                       <Label
                         htmlFor="fileName"
@@ -438,52 +217,15 @@ export default function EditFilePage() {
                         placeholder="Enter file name..."
                       />
                     </div>
-                    {/* </h2> */}
-                    {/* Editor/Preview Toggle */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant={!isPreview ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setIsPreview(false)}
-                          className={
-                            !isPreview
-                              ? "bg-blue-600 hover:bg-blue-700"
-                              : "border-blue-200 hover:bg-blue-50"
-                          }
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant={isPreview ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setIsPreview(true)}
-                          className={
-                            isPreview
-                              ? "bg-blue-600 hover:bg-blue-700"
-                              : "border-blue-200 hover:bg-blue-50"
-                          }
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          Preview
-                        </Button>
-                      </div>
-                      <Button
-                        onClick={handlePreview}
-                        variant="outline"
-                        className="border-blue-200 hover:bg-blue-50"
-                      >
-                        <Eye className="h-4 w-4 mr-2" />
-                        View File
-                      </Button>
-                    </div>
                   </div>
                   <div className="p-6">
-                    {isPreview ? (
-                      renderPreview()
-                    ) : (
+                    {(fileContent || fileDetailData?.textContent) && (
                       <Textarea
-                        value={fileDetailData?.textContent}
+                        value={
+                          fileContent
+                            ? fileContent
+                            : fileDetailData?.textContent
+                        }
                         onChange={(e) => setFileContent(e.target.value)}
                         className="min-h-[400px] font-mono text-sm resize-none border-0 focus-visible:ring-0 p-0"
                         placeholder="Enter file content..."
@@ -516,46 +258,18 @@ export default function EditFilePage() {
                         className="font-mono"
                       />
                     </div>
-                    <div>
-                      <Label
-                        htmlFor="commitDescription"
-                        className="text-sm font-medium mb-2 block"
-                      >
-                        Extended Description (optional)
-                      </Label>
-                      <Textarea
-                        id="commitDescription"
-                        value={commitDescription}
-                        onChange={(e) => setCommitDescription(e.target.value)}
-                        placeholder="Add more details about your changes..."
-                        className="min-h-[100px] font-mono text-sm"
-                      />
-                    </div>
                     <div className="flex justify-end space-x-2 pt-4">
-                      <Button
-                        variant="outline"
-                        onClick={handleBack}
-                        disabled={isSaving}
-                      >
+                      <Button variant="outline" onClick={handleBack}>
                         Cancel
                       </Button>
-                      {/* <Button
+                      <Button
+                        variant={"default"}
+                        size="sm"
                         onClick={modifyFile}
-                        disabled={!commitMessage.trim() || isSaving}
-                        className="bg-green-600 hover:bg-green-700 text-white"
+                        className={"bg-blue-600 hover:bg-blue-700"}
                       >
-                        {isSaving ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                            Committing...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="h-4 w-4 mr-2" />
-                            Commit Changes
-                          </>
-                        )}
-                      </Button> */}
+                        Edit
+                      </Button>
                     </div>
                   </div>
                 </div>

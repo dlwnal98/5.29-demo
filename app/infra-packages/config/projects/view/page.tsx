@@ -15,55 +15,23 @@ import {
   ArrowLeft,
   Edit,
   Trash2,
-  Download,
-  Copy,
-  GitCommit,
-  User,
-  Calendar,
   GitBranch,
   Folder,
   File,
-  FileText,
-  Code,
-  ImageIcon,
-  Archive,
   Menu,
   History,
+  Eye,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
 import {
-  useDeleteFile,
   useFetchOriginFileDetail,
   useFetchConfigFileInfo,
 } from "@/hooks/use-config-data";
-
-// 파일 아이콘 함수
-function getFileIcon(extension?: string) {
-  switch (extension) {
-    case "md":
-      return <FileText className="h-4 w-4 text-indigo-500" />;
-    case "json":
-    case "js":
-    case "ts":
-    case "tsx":
-    case "jsx":
-      return <Code className="h-4 w-4 text-amber-500" />;
-    case "png":
-    case "jpg":
-    case "jpeg":
-    case "gif":
-    case "svg":
-      return <ImageIcon className="h-4 w-4 text-green-500" />;
-    case "zip":
-    case "tar":
-    case "gz":
-      return <Archive className="h-4 w-4 text-purple-500" />;
-    default:
-      return <File className="h-4 w-4 text-gray-500" />;
-  }
-}
+import { getFileIcon } from "@/lib/etc";
+import MarkdownViewer from "@/app/infra-packages/config/projects/components/markdown-viewer";
+import { goToBaseProjectUrl } from "@/lib/etc";
 
 // 샘플 파일 구조
 const fileStructure = [
@@ -86,104 +54,73 @@ const fileStructure = [
 ];
 
 export default function FileViewPage() {
-  const searchParams = useSearchParams();
-  const branch = searchParams.get("branch") || "main";
-  const path = searchParams.get("path") || "";
-  const fileName = searchParams.get("file") || "";
+  const currentParams = useSearchParams();
+  const branch = currentParams.get("branch") || "main";
+  const dir = currentParams.get("dir") || "";
+  const fileName = currentParams.get("file") || "";
 
   const [selectedStructureItem, setSelectedStructureItem] = useState(fileName);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [commitComment, setCommitComment] = useState("테스트 커밋입니다.");
 
-  // const fileDetailData = fileData[fileName as keyof typeof fileData];
+  const detailFilePath = dir ? `${dir}/${fileName}` : fileName;
 
   const { data: fileDetailData } = useFetchOriginFileDetail(
     "admin",
     "configs_repo",
     branch,
-    fileName
+    detailFilePath
   );
 
   const { data: fileInfoData } = useFetchConfigFileInfo(
     "admin",
     "configs_repo",
     branch,
-    fileName
+    detailFilePath
   );
 
-  console.log(fileDetailData, fileInfoData);
-
-  const { mutate: deleteFileMutate } = useDeleteFile(
-    "admin",
-    "configs_repo",
-    branch,
-    fileName,
-    "b0344c4afa3c6184f9a87ff30c05b3ef53f8c123", // 최신 버전 sha
-    "commit" // 커밋메세지1
-  );
-
-  const deleteFile = () => {
-    deleteFileMutate();
+  // 파일 삭제할 때
+  const fileData = {
+    owner: "admin",
+    repo: "configs_repo",
+    branch: branch,
+    path: detailFilePath,
+    sha: fileDetailData?.sha ?? "",
+    message: commitComment,
   };
 
-  const fileExtension = fileDetailData?.path.split(".").pop();
-
   const handleBack = () => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(currentParams.toString());
     params.set("branch", branch);
-    if (path) params.set("path", path);
+    if (dir) params.set("dir", dir);
     window.location.href = `/infra-packages/config/projects?${params.toString()}`;
   };
 
   const handleEdit = () => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(currentParams.toString());
     params.set("branch", branch);
-    if (path) params.set("path", path);
+    if (dir) params.set("dir", dir);
     params.set("file", fileName);
     window.location.href = `/infra-packages/config/projects/edit?${params.toString()}`;
   };
 
-  const handleDelete = () => {
-    setShowDeleteModal(true);
-  };
-
-  const handleConfirmDelete = () => {
-    // 실제 삭제 로직 구현
-    alert("File deleted successfully!");
-    handleBack();
-  };
-
-  const handleCommitClick = () => {
-    if (fileInfoData?.last_commit_sha) {
-      const params = new URLSearchParams();
-      params.set("branch", branch);
-      params.set("commit", fileInfoData.last_commit_sha);
-      if (path) params.set("path", path);
-      window.location.href = `/infra-packages/config/projects/commit?${params.toString()}`;
-    }
-  };
-
   const handleCommitHistory = () => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(currentParams.toString());
+
     params.set("branch", branch);
-    if (path) params.set("path", path);
+    if (dir) params.set("dir", dir);
     window.location.href = `/infra-packages/config/projects/commits?${params.toString()}`;
   };
 
-  console.log(fileExtension);
+  const fileExtension = fileDetailData?.path.split(".").pop();
 
   const renderFileContent = () => {
     if (!fileDetailData) return null;
 
     switch (fileExtension) {
       case "md":
-        return (
-          <div className="prose prose-sm max-w-none">
-            <pre className="whitespace-pre-wrap font-mono text-sm bg-gray-50 p-4 rounded-lg overflow-auto">
-              {fileDetailData.textContent}
-            </pre>
-          </div>
-        );
+        return <MarkdownViewer content={fileDetailData.textContent} />;
       case "json":
         return (
           <pre className="language-json bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">
@@ -194,6 +131,9 @@ export default function FileViewPage() {
       case "ts":
       case "tsx":
       case "jsx":
+      case "yaml":
+      case "yml":
+      case "properties":
         return (
           <pre className="language-javascript bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">
             {fileDetailData.textContent}
@@ -211,8 +151,26 @@ export default function FileViewPage() {
     }
   };
 
+  const currentUrl = new URL(window.location.href);
+  const pathname = currentUrl.pathname;
+
+  // 1. 경로에서 "/view" 제거
+  const newPath = pathname.replace(/\/view$/, "");
+
+  // 2. 쿼리스트링에서 "file" 제거
+  const params = currentUrl.searchParams;
+  params.delete("file");
+
+  // 3. 최종 URL 생성
+  const newUrl = `${newPath}${
+    params.toString() ? `?${params.toString()}` : ""
+  }`;
+
   const breadcrumbItems = [
-    { name: "config", href: `/infra-packages/config/projects` },
+    {
+      name: "config",
+      href: newUrl,
+    },
     { name: fileName, href: "" },
   ];
 
@@ -243,7 +201,7 @@ export default function FileViewPage() {
                       {item.type === "folder" ? (
                         <Folder className="h-4 w-4 text-blue-500" />
                       ) : (
-                        getFileIcon(item.extension)
+                        getFileIcon(item?.extension ?? "")
                       )}
                       <span className="text-sm">{item.name}</span>
                     </div>
@@ -312,48 +270,13 @@ export default function FileViewPage() {
                   </div>
                 </div>
 
-                {/* Latest Commit Info */}
-                {fileInfoData?.last_commit_sha && (
-                  <div
-                    className="mb-6 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200/50 cursor-pointer hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
-                    onClick={handleCommitClick}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                        <User className="h-4 w-4 text-blue-600" />
-                      </div>
-                      <div className="flex items-center justify-between flex-1">
-                        <div className="flex items-center space-x-2">
-                          <span className="font-medium text-gray-900">
-                            {fileInfoData.name}
-                          </span>
-                          <Badge
-                            variant="secondary"
-                            className="text-[13px] font-lightbold border border-gray-200/50"
-                          >
-                            <GitCommit className="h-3 w-3 mr-1" />
-
-                            {fileInfoData.last_commit_sha}
-                          </Badge>
-                          <span className="text-gray-600">
-                            {fileInfoData.name}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
-                          <span className="flex items-center">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            {fileInfoData.lastCommitterDate}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 {/* File Content */}
                 <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm">
                   <div className="flex items-center justify-between p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
-                    <h2 className="font-medium text-blue-900">File Contents</h2>
+                    <h2 className="text-lg font-semibold text-blue-900 flex items-center">
+                      <Eye className="h-5 w-5 mr-2" />
+                      {fileName}
+                    </h2>
                     <div className="flex items-center space-x-2">
                       <Button
                         variant="outline"
@@ -363,29 +286,7 @@ export default function FileViewPage() {
                       >
                         <History className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          navigator.clipboard.writeText(
-                            fileDetailData?.textContent || ""
-                          )
-                        }
-                        title="copy"
-                        className="border-blue-200 hover:bg-blue-50"
-                      >
-                        <Copy className="h-4 w-4" />
-                        {/* Copy */}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-blue-200 hover:bg-blue-50"
-                        title="download"
-                      >
-                        <Download className="h-4 w-4" />
-                        {/* Download */}
-                      </Button>
+
                       <Button
                         onClick={handleEdit}
                         size="sm"
@@ -398,7 +299,7 @@ export default function FileViewPage() {
                       <Button
                         variant="destructive"
                         size="sm"
-                        onClick={deleteFile}
+                        onClick={() => setShowDeleteModal(true)}
                         title="delete"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -416,8 +317,8 @@ export default function FileViewPage() {
       <DeleteConfirmationModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        onConfirm={handleConfirmDelete}
         fileName={fileName}
+        fileData={fileData}
       />
     </AppLayout>
   );

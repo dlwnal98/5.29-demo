@@ -153,9 +153,10 @@ export function useDeleteBranch(owner: string, repo: string) {
       deleteBranch(owner, repo, branchName),
     onSuccess: () => {
       // 브랜치 생성 성공 시 목록 invalidate
-      queryClient.invalidateQueries({
-        queryKey: ["fetchBranchList", owner, repo],
-      });
+      // queryClient.invalidateQueries({
+      //   queryKey: ["fetchBranchList", owner, repo],
+      // });
+      window.location.href = "/infra-packages/config/projects?branch=main";
     },
   });
 }
@@ -458,22 +459,23 @@ export function useFetchVaultKey() {
   });
 }
 
-//secret key 삭제
-const deleteVaultKey = async () => {
-  const { data } = await axios.delete(`/api/vault/key`);
+// //secret key 삭제
+// // secret key는 삭제하면 config 서버 다 에러나서 관리자 만들 떄 사용할 거라서 쓰지 X
+// const deleteVaultKey = async () => {
+//   const { data } = await axios.delete(`/api/vault/key`);
 
-  return data;
-};
+//   return data;
+// };
 
-export function useDeleteVaultKey() {
-  return useMutation({
-    mutationFn: () => deleteVaultKey(),
-    onSuccess: () => {
-      // 브랜치 생성 성공 시 목록 invalidate
-      // window.history.back();
-    },
-  });
-}
+// export function useDeleteVaultKey() {
+//   return useMutation({
+//     mutationFn: () => deleteVaultKey(),
+//     onSuccess: () => {
+//       // 브랜치 생성 성공 시 목록 invalidate
+//       // window.history.back();
+//     },
+//   });
+// }
 
 //secret key 저장 or 갱신
 const saveVaultKey = async (secretKey: string) => {

@@ -22,43 +22,13 @@ import {
   X,
   GitBranch,
   Folder,
-  File,
-  FileText,
-  Code,
-  ImageIcon,
-  Archive,
   Menu,
   GitCommit,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useState, useRef } from "react";
 import { useCreateUploadFile } from "@/hooks/use-config-data";
-
-// 파일 아이콘 함수
-function getFileIcon(extension?: string) {
-  switch (extension) {
-    case "md":
-      return <FileText className="h-4 w-4 text-indigo-500" />;
-    case "json":
-    case "js":
-    case "ts":
-    case "tsx":
-    case "jsx":
-      return <Code className="h-4 w-4 text-amber-500" />;
-    case "png":
-    case "jpg":
-    case "jpeg":
-    case "gif":
-    case "svg":
-      return <ImageIcon className="h-4 w-4 text-green-500" />;
-    case "zip":
-    case "tar":
-    case "gz":
-      return <Archive className="h-4 w-4 text-purple-500" />;
-    default:
-      return <File className="h-4 w-4 text-gray-500" />;
-  }
-}
+import { getFileIcon } from "@/lib/etc";
 
 // 샘플 파일 구조
 const fileStructure = [
@@ -83,8 +53,7 @@ const fileStructure = [
 export default function UploadFilePage() {
   const searchParams = useSearchParams();
   const branch = searchParams.get("branch") || "main";
-  const path = searchParams.get("path") || "";
-
+  const dir = searchParams.get("dir") || "";
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedStructureItem, setSelectedStructureItem] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
@@ -93,15 +62,16 @@ export default function UploadFilePage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [fileName, setFileName] = useState("");
 
-  console.log(uploadedFiles);
+  const detailFilePath = dir
+    ? `${dir}/${uploadedFiles[0]?.name}`
+    : uploadedFiles[0]?.name;
 
   const { mutate: createUploadFileMutate } = useCreateUploadFile(
     "admin",
     "configs_repo",
-    "main",
-    fileName,
+    branch,
+    detailFilePath, //새로운 파일 이름
     commitMessage
   );
 
@@ -118,7 +88,7 @@ export default function UploadFilePage() {
   const handleBack = () => {
     const params = new URLSearchParams();
     params.set("branch", branch);
-    if (path) params.set("path", path);
+    if (dir) params.set("path", dir);
     window.location.href = `/infra-packages/config/projects?${params.toString()}`;
   };
 
@@ -181,8 +151,23 @@ export default function UploadFilePage() {
     );
   };
 
+  const currentUrl = new URL(window.location.href);
+  const pathname = currentUrl.pathname;
+
+  // 1. 경로에서 "/view" 제거
+  const newPath = pathname.replace(/\/upload$/, "");
+
+  // 2. 쿼리스트링에서 "file" 제거
+  const params = currentUrl.searchParams;
+  params.delete("file");
+
+  // 3. 최종 URL 생성
+  const newUrl = `${newPath}${
+    params.toString() ? `?${params.toString()}` : ""
+  }`;
+
   const breadcrumbItems = [
-    { name: "config", href: `/infra-packages/config/projects` },
+    { name: "config", href: newUrl },
     { name: "Upload files", href: "" },
   ];
 
@@ -213,7 +198,7 @@ export default function UploadFilePage() {
                       {item.type === "folder" ? (
                         <Folder className="h-4 w-4 text-blue-500" />
                       ) : (
-                        getFileIcon(item.extension)
+                        getFileIcon(item?.extension)
                       )}
                       <span className="text-sm">{item.name}</span>
                     </div>
@@ -284,19 +269,6 @@ export default function UploadFilePage() {
 
                 {/* Upload Area */}
                 <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm mb-6">
-                  <div className="flex align-items flex-1">
-                    <Label
-                      htmlFor="fileName"
-                      className="text-sm font-medium text-blue-900 mb-2 block"
-                    ></Label>
-                    <Input
-                      id="fileName"
-                      value={fileName}
-                      onChange={(e) => setFileName(e.target.value)}
-                      className="font-mono"
-                      placeholder="Enter file name..."
-                    />
-                  </div>
                   <div className="p-5">
                     {/* Drag & Drop Area */}
                     {uploadedFiles.length == 0 && (

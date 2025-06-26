@@ -33,6 +33,7 @@ import { useFetchFileCommitList } from "@/hooks/use-config-data";
 import { RollbackConfirmationModal } from "@/components/rollback-confirmation-modal";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { formatTimeAgo } from "@/lib/etc";
 
 export default function CommitsPage() {
   const searchParams = useSearchParams();
@@ -46,17 +47,6 @@ export default function CommitsPage() {
     "main",
     "README.md" // 파일 이름
   );
-
-  const { toast } = useToast();
-
-  const [rollbackModal, setRollbackModal] = useState<{
-    isOpen: boolean;
-    commit?: any;
-  }>({ isOpen: false });
-
-  const handleRollbackClick = (commit: any) => {
-    setRollbackModal({ isOpen: true, commit });
-  };
 
   const latestCommitArr = commitListData?.[0];
   const latestCommit = latestCommitArr?.sha?.slice(0, 6);
@@ -162,9 +152,9 @@ export default function CommitsPage() {
                     <TableHead className="w-[120px] text-blue-700 font-semibold">
                       Date
                     </TableHead>
-                    <TableHead className="w-[100px] text-blue-700 font-semibold">
+                    {/* <TableHead className="w-[100px] text-blue-700 font-semibold">
                       Actions
-                    </TableHead>
+                    </TableHead> */}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -185,7 +175,7 @@ export default function CommitsPage() {
                         {/* <div className="flex items-center space-x-2"> */}
                         <code className="flex items-center space-x-2 text-xs font-mono bg-gray-100 px-2 py-1 rounded">
                           <GitCommit className="h-3 w-3 text-gray-400" />
-                          {commit.sha}
+                          {commit.sha.slice(0, 6)}
                         </code>
                         {/* </div> */}
                       </TableCell>
@@ -198,11 +188,11 @@ export default function CommitsPage() {
                         </button>
                       </TableCell>
                       <TableCell>
-                        <span className="text-sm text-gray-500">
-                          {commit.commitTime}
+                        <span className="text-sm text-gray-500 text-right">
+                          {formatTimeAgo(commit.commitTime)}
                         </span>
                       </TableCell>
-                      <TableCell>
+                      {/* <TableCell>
                         <div className="flex items-center space-x-1">
                           <Button
                             variant="ghost"
@@ -226,19 +216,9 @@ export default function CommitsPage() {
                           >
                             <ExternalLink className="h-3 w-3" />
                           </Button>
-                          {/* <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRollbackClick(commit);
-                            }}
-                            className="hover:bg-red-100 p-1 h-auto text-red-600 hover:text-red-700"
-                          >
-                            <RotateCcw className="h-3 w-3" />
-                          </Button> */}
+                      
                         </div>
-                      </TableCell>
+                      </TableCell> */}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -247,14 +227,6 @@ export default function CommitsPage() {
           </div>
         </div>
       </div>
-      {/* Rollback Modal */}
-      {/* <RollbackConfirmationModal
-        isOpen={rollbackModal.isOpen}
-        onClose={() => setRollbackModal({ isOpen: false })}
-        commitHash={rollbackModal.commit?.sha || ""}
-        commitMessage={rollbackModal.commit?.message || ""}
-        // onConfirm={handleRollbackConfirm}
-      /> */}
     </AppLayout>
   );
 }

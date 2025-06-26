@@ -21,6 +21,7 @@ import {
   Plus,
   Minus,
   RotateCcw,
+  GitCommit,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import {
@@ -31,6 +32,7 @@ import {
 import { RollbackConfirmationModal } from "@/components/rollback-confirmation-modal";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { formatTimeAgo } from "@/lib/etc";
 
 function parseDiffLines(diffLines: string[]) {
   const result: {
@@ -225,28 +227,31 @@ export default function CommitPage() {
                   <span className="font-medium text-gray-900">
                     {commitDetailData?.author?.username}
                   </span>
-                  <code className="bg-white px-2 py-1 rounded font-mono text-sm">
-                    {commitDetailData?.sha}
+                  <code className="flex items-center bg-white px-2 py-1 rounded font-mono text-sm">
+                    <GitCommit className="h-3 w-3 text-gray-400" />
+                    {commitDetailData?.sha?.slice(0, 6)}
                   </code>
                   <span className="text-gray-900">
                     {commitDetailData?.commit?.message}
                   </span>
                   <span className="text-sm text-gray-500">
-                    {commitDetailData?.created}
+                    {formatTimeAgo(commitDetailData?.created)}
                   </span>
                 </div>
               </div>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <span>{commitDetailData?.filesChanged} files changed</span>
+                  <span>
+                    {commitDetailData?.stats?.filesChanged} files changed
+                  </span>
                   <span className="text-green-600">
-                    +{commitDetailData?.additions}
+                    +{commitDetailData?.stats?.additions}
                   </span>
                   <span className="text-red-600">
-                    -{commitDetailData?.deletions}
+                    -{commitDetailData?.stats?.deletions}
                   </span>
                 </div>
-                <Button
+                {/* <Button
                   variant="ghost"
                   size="sm"
                   onClick={(e) => {
@@ -256,7 +261,7 @@ export default function CommitPage() {
                   className="hover:bg-white/50"
                 >
                   <Copy className="h-4 w-4" />
-                </Button>
+                </Button> */}
               </div>
             </div>
           </div>
@@ -290,6 +295,25 @@ export default function CommitPage() {
                         {commitDetailData?.files[0]?.status}
                       </span>
                     </Badge>
+                    {/* <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRollbackClick();
+                      }}
+                      className="hover:bg-red-100 p-1 h-auto text-red-600 hover:text-red-700"
+                    >
+                      <RotateCcw className="h-3 w-3" />
+                    </Button> */}
+                  </div>
+                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                    {/* <span className="text-green-600">
+                      +{commitDetailData?.stats?.additions}
+                    </span>
+                    <span className="text-red-600">
+                      -{commitDetailData?.stats?.deletions}
+                    </span> */}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -302,19 +326,11 @@ export default function CommitPage() {
                       <RotateCcw className="h-3 w-3" />
                     </Button>
                   </div>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <span className="text-green-600">
-                      +{commitDetailData?.stats?.additions}
-                    </span>
-                    <span className="text-red-600">
-                      -{commitDetailData?.stats?.deletions}
-                    </span>
-                  </div>
                 </div>
               </div>
 
               {/* Diff Content */}
-              <div className="p-0">
+              <div className="p-6">
                 <div className="grid grid-cols-2 text-sm font-mono overflow-x-auto">
                   {parsedDiff?.length === 0 ? (
                     <>변경 이력이 없습니다</>
@@ -326,7 +342,7 @@ export default function CommitPage() {
                         <React.Fragment key={idx}>
                           <div
                             className={`px-2 py-1 whitespace-pre ${
-                              row.type === "del" || row.type === "change"
+                              row.type === "del" || row?.type === "change"
                                 ? "bg-red-50 text-red-800"
                                 : row.type === "context"
                                 ? "bg-gray-50 text-gray-700"
@@ -337,7 +353,7 @@ export default function CommitPage() {
                           </div>
                           <div
                             className={`px-2 py-1 whitespace-pre ${
-                              row.type === "add" || row.type === "change"
+                              row.type === "add" || row?.type === "change"
                                 ? "bg-green-50 text-green-800"
                                 : row.type === "context"
                                 ? "bg-gray-50 text-gray-700"
@@ -357,7 +373,7 @@ export default function CommitPage() {
             </div>
 
             {/* Summary */}
-            <div className="mt-8 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200/50">
+            {/* <div className="mt-8 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200/50">
               <div className="flex items-center justify-between text-sm text-gray-600">
                 <span>
                   Showing {commitDetailData?.stats?.total} changed files with{" "}
@@ -371,7 +387,7 @@ export default function CommitPage() {
                 </span>
                 <span>{commitDetailData?.created}</span>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
