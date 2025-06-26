@@ -70,7 +70,7 @@ export default function EditFilePage() {
   const [fileName, setFileName] = useState(originalFileName);
   const [commitMessage, setCommitMessage] = useState("커밋 메세지 입니당");
 
-  const { data: fileDetailData } = useFetchOriginFileDetail(
+  const { data: fileDetailData, refetch } = useFetchOriginFileDetail(
     "admin",
     "configs_repo",
     branch,
@@ -83,10 +83,19 @@ export default function EditFilePage() {
     "configs_repo",
     branch,
     originalFileName, // 수정할 때는 파일 이름 변경 안됨
-    "356113e807defceda3a9deb26c8558b3fdab72fd", // 커밋하면 목록조회에서 sha 정보 바뀌는데 그거 불러와서 넣어야함
-    commitMessage, // 커밋메세지,
-    fileContent ?? ""
+    fileDetailData?.sha ?? "", // 커밋하면 목록조회에서 sha 정보 바뀌는데 그거 불러와서 넣어야함
+    commitMessage,
+    fileContent ?? "",
+    {
+      onSuccess: () => {
+        // 🔁 수정 성공 시 최신 sha 다시 요청
+        refetch();
+      },
+    }
   );
+
+  console.log(fileDetailData?.sha);
+
   const modifyFile = () => {
     modifyFileMutate();
   };

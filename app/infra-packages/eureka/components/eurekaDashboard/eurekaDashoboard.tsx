@@ -9,21 +9,21 @@ import { useEffect, useState } from "react";
 
 export default function EurekaDashboard() {
   // 3초 지연 로직 추가
-  const [delayed, setDelayed] = useState(true);
-  useEffect(() => {
-    const timer = setTimeout(() => setDelayed(false), 2000);
-    return () => clearTimeout(timer);
-  }, []);
+  // const [delayed, setDelayed] = useState(true);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => setDelayed(false), 2000);
+  //   return () => clearTimeout(timer);
+  // }, []);
   const { data, isLoading, isError, isFetching } = useEurekaSummary();
 
-  const loading = isLoading || isFetching || delayed || !data;
+  const loading = isLoading || isFetching || !data;
 
   if (isError) return <div>데이터를 불러올 수 없습니다</div>;
   else
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
-          {loading ? (
+          {isLoading ? (
             <>
               <StatusCardSkeleton colSpan={2} />
               <StatusCardSkeleton colSpan={2} />

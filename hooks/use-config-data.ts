@@ -303,13 +303,19 @@ export function useModifyFile(
   path: string,
   sha: string,
   message: string,
-  content: string
+  content: string,
+  options?: {
+    onSuccess?: () => void;
+  }
 ) {
   return useMutation({
     mutationFn: () =>
       modifyFile(owner, repo, branch, path, sha, message, content),
     onSuccess: () => {
-      // 브랜치 생성 성공 시 목록 invalidate
+      // ✅ 외부 콜백 실행
+      options?.onSuccess?.();
+
+      // ✅ 기본 동작: 이전 페이지로 이동
       window.history.back();
     },
   });

@@ -28,6 +28,7 @@ import {
   Eye,
   Edit,
   Settings,
+  ArrowLeft,
 } from "lucide-react";
 import {
   useFetchBranchList,
@@ -39,6 +40,7 @@ import MarkdownViewer from "./markdown-viewer";
 import { formatTimeAgo } from "@/lib/etc";
 import { useSearchParams } from "next/navigation";
 import { getFileIcon } from "@/lib/etc";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // 브랜치 관리 모달 컴포넌트
 
@@ -51,23 +53,26 @@ export function FileBrowser() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isBranchModalOpen, setIsBranchModalOpen] = useState(false);
 
-  const { data: configFileListData } = useFetchConfigFileList(
-    "admin",
-    "configs_repo",
-    currentBranch,
-    currentParams.get("dir") ?? ""
-  );
-  const { data: branchListData } = useFetchBranchList("admin", "configs_repo");
+  const { data: configFileListData, isLoading: isFileListLoading } =
+    useFetchConfigFileList(
+      "admin",
+      "configs_repo",
+      currentBranch,
+      currentParams.get("dir") ?? ""
+    );
+  const { data: branchListData, isLoading: isBranchListLoading } =
+    useFetchBranchList("admin", "configs_repo");
 
   const mdFile = configFileListData?.find((item) => item.name.endsWith(".md"));
 
   // 여기서는 무조건 md 파일만 상세조회하는 거라 mdFile로 고정
-  const { data: originFileDetailData } = useFetchOriginFileDetail(
-    "admin",
-    "configs_repo",
-    currentBranch,
-    mdFile?.name ?? "README.md" // md 파일 미리보기를 위해서
-  );
+  const { data: originFileDetailData, isLoading: isMdLoading } =
+    useFetchOriginFileDetail(
+      "admin",
+      "configs_repo",
+      currentBranch,
+      mdFile?.name ?? "README.md" // md 파일 미리보기를 위해서
+    );
 
   const handleFileClick = (file: any) => {
     // 파일 뷰어 페이지로 이동
@@ -100,13 +105,41 @@ export function FileBrowser() {
     window.location.href = `/infra-packages/config/projects/create?${params.toString()}`;
   };
 
+  function sortByTypeAndName(data: any) {
+    if (!Array.isArray(data)) return [];
+    return [...data].sort((a, b) => {
+      // 1. 타입이 다르면 dir을 우선
+      if (a.type !== b.type) {
+        return a.type === "dir" ? -1 : 1;
+      }
+      // 2. 타입이 같으면 알파벳 순 정렬
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  const handleBack = () => {
+    window.history.back();
+  };
+
+  const sortData = sortByTypeAndName(configFileListData ?? []);
+
   return (
     <div className="bg-transparent">
       <div className="mx-auto px-4 py-6">
         {/* 네비바 */}
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
             {/* 브랜치 선택 */}
+
+            {currentParams.get("dir") && (
+              <Button
+                variant="outline"
+                onClick={handleBack}
+                className="border-blue-200 hover:bg-blue-50"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            )}
             <div className="flex items-center space-x-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -144,6 +177,25 @@ export function FileBrowser() {
                 className="border-blue-200 hover:bg-blue-50"
               >
                 <Settings className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  window.open(
+                    "http://1.224.162.188:51435",
+                    "_blank",
+                    "noopener,noreferrer"
+                  )
+                }
+                title="GitTea로 이동"
+                className="border-blue-200 hover:bg-blue-50"
+              >
+                <img
+                  src="/gittea_logo.svg"
+                  alt="GitTea Logo"
+                  className="w-[25px]"
+                />
               </Button>
             </div>
           </div>
@@ -183,41 +235,49 @@ export function FileBrowser() {
 
         {/* File Table */}
         <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm mb-6">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-b border-blue-100">
-                <TableHead className="w-[40%] text-blue-700 font-semibold">
-                  Name
-                </TableHead>
-
-                <TableHead className="w-[20%] text-blue-700 font-semibold text-right">
-                  Last Modified
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {configFileListData?.map((file: any, index: number) => (
-                <TableRow
-                  key={index}
-                  className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
-                >
-                  <TableCell>
-                    <button
-                      onClick={() => handleFileClick(file)}
-                      className="flex items-center space-x-3 hover:text-blue-600 transition-colors w-full text-left"
-                    >
-                      {getFileIcon(file.type, file.name.split(".")[1])}
-                      <span className="font-medium">{file.name}</span>
-                    </button>
-                  </TableCell>
-
-                  <TableCell className="text-sm text-muted-foreground text-right">
-                    {formatTimeAgo(file.lastCommitterDate)}
-                  </TableCell>
+          {isFileListLoading ? (
+            <div className="p-6">
+              <Skeleton className="h-8 w-full mb-2" />
+              <Skeleton className="h-8 w-full mb-2" />
+              <Skeleton className="h-8 w-full mb-2" />
+              <Skeleton className="h-8 w-full mb-2" />
+              <Skeleton className="h-8 w-full mb-2" />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="border-b border-blue-100">
+                  <TableHead className="w-[40%] text-blue-700 font-semibold">
+                    Name
+                  </TableHead>
+                  <TableHead className="w-[20%] text-blue-700 font-semibold text-right">
+                    Last Modified
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {sortData?.map((file: any, index: number) => (
+                  <TableRow
+                    key={index}
+                    className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
+                  >
+                    <TableCell>
+                      <button
+                        onClick={() => handleFileClick(file)}
+                        className="flex items-center space-x-3 hover:text-blue-600 transition-colors w-full text-left"
+                      >
+                        {getFileIcon(file.type, file.name.split(".")[1])}
+                        <span className="font-medium">{file.name}</span>
+                      </button>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground text-right">
+                      {formatTimeAgo(file.lastCommitterDate)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </div>
 
         {/* README.md 및 md파일 미리보기 */}
@@ -236,14 +296,22 @@ export function FileBrowser() {
                 <Edit className="h-4 w-4" />
               </Button>
             </div>
-
             <div className="border border-blue-200/50 rounded-lg bg-white/70 backdrop-blur-sm">
               <div className="p-6">
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  {originFileDetailData?.textContent && (
-                    <MarkdownViewer
-                      content={originFileDetailData?.textContent}
-                    />
+                  {isMdLoading ? (
+                    <>
+                      <Skeleton className="h-6 w-1/2 mb-2" />
+                      <Skeleton className="h-4 w-full mb-2" />
+                      <Skeleton className="h-4 w-3/4 mb-2" />
+                      <Skeleton className="h-4 w-2/3 mb-2" />
+                    </>
+                  ) : (
+                    originFileDetailData?.textContent && (
+                      <MarkdownViewer
+                        content={originFileDetailData?.textContent}
+                      />
+                    )
                   )}
                 </div>
               </div>
