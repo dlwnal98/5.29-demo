@@ -325,21 +325,33 @@ export function FileBrowser() {
         {mdFile && (
           <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm">
             <div className=" flex justify-between align-items p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
-              <h2 className="text-lg font-semibold text-blue-900 flex items-center">
-                <Eye className="h-5 w-5 mr-2" />
-                {mdFile?.name}
-              </h2>
-              <Button
-                onClick={() => handleEditReadme(mdFile.name)}
-                size="sm"
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
+              {isFileListLoading ? (
+                <>
+                  <div className="flex items-center">
+                    <Skeleton className="h-5 w-5 mr-2" />
+                    <Skeleton className="h-6 w-32" />
+                  </div>
+                  <Skeleton className="h-8 w-8" />
+                </>
+              ) : (
+                <>
+                  <h2 className="text-lg font-semibold text-blue-900 flex items-center">
+                    <Eye className="h-5 w-5 mr-2" />
+                    {mdFile?.name}
+                  </h2>
+                  <Button
+                    onClick={() => handleEditReadme(mdFile.name)}
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
             </div>
             <div className="border border-blue-200/50 rounded-lg bg-white/70 backdrop-blur-sm">
               <div className="p-6">
-                <div className="bg-gray-50 p-4 rounded-lg">
+                <div className=" p-4 rounded-lg">
                   {isMdLoading ? (
                     <>
                       <Skeleton className="h-6 w-1/2 mb-2" />

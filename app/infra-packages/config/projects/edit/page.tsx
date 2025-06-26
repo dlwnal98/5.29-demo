@@ -37,6 +37,7 @@ import {
   useFetchOriginFileDetail,
 } from "@/hooks/use-config-data";
 import { getFileIcon } from "@/lib/etc";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // 샘플 파일 구조 (동일)
 const fileStructure = [
@@ -68,9 +69,9 @@ export default function EditFilePage() {
   const [selectedStructureItem, setSelectedStructureItem] =
     useState(originalFileName);
   const [fileName, setFileName] = useState(originalFileName);
-  const [commitMessage, setCommitMessage] = useState("커밋 메세지 입니당");
+  const [commitMessage, setCommitMessage] = useState("");
 
-  const { data: fileDetailData, refetch } = useFetchOriginFileDetail(
+  const { data: fileDetailData, refetch, isLoading: isFileDetailLoading } = useFetchOriginFileDetail(
     "admin",
     "configs_repo",
     branch,
@@ -93,6 +94,8 @@ export default function EditFilePage() {
       },
     }
   );
+
+  
 
   console.log(fileDetailData?.sha);
 
@@ -121,7 +124,7 @@ export default function EditFilePage() {
   const newUrl = `${newPath}${
     params.toString() ? `?${params.toString()}` : ""
   }`;
-  
+
 const generateBreadcrumbItems = () => {
   const items = [
     {
@@ -249,35 +252,55 @@ const breadcrumbItems = generateBreadcrumbItems();
 
                 <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm mb-6">
                   <div className="flex items-center justify-between p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
-                    <div className="flex align-items flex-1">
-                      <Label
-                        htmlFor="fileName"
-                        className="text-sm font-medium text-blue-900 mb-2 block"
-                      >
-                        {/* File Name */}
-                      </Label>
-                      <Input
-                        id="fileName"
-                        value={fileName}
-                        disabled
-                        onChange={(e) => setFileName(e.target.value)}
-                        className="font-mono"
-                        placeholder="Enter file name..."
-                      />
-                    </div>
+                    {isFileDetailLoading ? (
+                      <div className="flex align-items flex-1">
+                        <Skeleton className="h-4 w-20 mb-2" />
+                        <Skeleton className="h-10 w-full" />
+                      </div>
+                    ) : (
+                      <div className="flex align-items flex-1">
+                        <Label
+                          htmlFor="fileName"
+                          className="text-sm font-medium text-blue-900 mb-2 block"
+                        >
+                          {/* File Name */}
+                        </Label>
+                        <Input
+                          id="fileName"
+                          value={fileName}
+                          disabled
+                          onChange={(e) => setFileName(e.target.value)}
+                          className="font-mono"
+                          placeholder="Enter file name..."
+                        />
+                      </div>
+                    )}
                   </div>
                   <div className="p-6">
-                    {(fileContent || fileDetailData?.textContent) && (
-                      <Textarea
-                        value={
-                          fileContent
-                            ? fileContent
-                            : fileDetailData?.textContent
-                        }
-                        onChange={(e) => setFileContent(e.target.value)}
-                        className="min-h-[400px] font-mono text-sm resize-none border-0 p-4"
-                        placeholder="Enter file content..."
-                      />
+                    {isFileDetailLoading ? (
+                      // 파일 내용 스켈레톤 UI
+                      <div className="space-y-3">
+                        {/* 여러 줄의 코드 스켈레톤 */}
+                        {Array.from({ length: 20 }).map((_, index) => (
+                          <div key={index} className="flex items-center space-x-2">
+                            <Skeleton className="h-4 w-8" /> {/* 라인 번호 */}
+                            <Skeleton className="h-4 flex-1" /> {/* 코드 내용 */}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      (fileContent || fileDetailData?.textContent) && (
+                        <Textarea
+                          value={
+                            fileContent
+                              ? fileContent
+                              : fileDetailData?.textContent
+                          }
+                          onChange={(e) => setFileContent(e.target.value)}
+                          className="min-h-[400px] font-mono text-sm resize-none border-0 p-4"
+                          placeholder="Enter file content..."
+                        />
+                      )
                     )}
                   </div>
                 </div>

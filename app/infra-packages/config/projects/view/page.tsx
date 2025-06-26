@@ -32,6 +32,7 @@ import {
 import { getFileIcon } from "@/lib/etc";
 import MarkdownViewer from "@/app/infra-packages/config/projects/components/markdown-viewer";
 import { goToBaseProjectUrl } from "@/lib/etc";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // 샘플 파일 구조
 const fileStructure = [
@@ -66,19 +67,19 @@ export default function FileViewPage() {
 
   const detailFilePath = dir ? `${dir}/${fileName}` : fileName;
 
-  const { data: fileDetailData } = useFetchOriginFileDetail(
+  const { data: fileDetailData, isLoading: isFileDetailLoading } = useFetchOriginFileDetail(
     "admin",
     "configs_repo",
     branch,
     detailFilePath
   );
 
-  const { data: fileInfoData } = useFetchConfigFileInfo(
-    "admin",
-    "configs_repo",
-    branch,
-    detailFilePath
-  );
+  // const { data: fileInfoData } = useFetchConfigFileInfo(
+  //   "admin",
+  //   "configs_repo",
+  //   branch,
+  //   detailFilePath
+  // );
 
   // 파일 삭제할 때
   const fileData = {
@@ -125,7 +126,7 @@ export default function FileViewPage() {
         return <MarkdownViewer content={fileDetailData.textContent} />;
       case "json":
         return (
-          <pre className="language-json bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">
+          <pre className="language-json p-4 rounded-lg overflow-auto text-sm font-mono">
             {fileDetailData.textContent}
           </pre>
         );
@@ -137,7 +138,7 @@ export default function FileViewPage() {
       case "yml":
       case "properties":
         return (
-          <pre className="language-javascript bg-gray-50 p-4 rounded-lg overflow-auto text-sm font-mono">
+          <pre className="language-javascript p-4 rounded-lg overflow-auto text-sm font-mono">
             {fileDetailData.textContent}
           </pre>
         );
@@ -297,42 +298,72 @@ export default function FileViewPage() {
 
                 {/* File Content */}
                 <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm">
+                 
                   <div className="flex items-center justify-between p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
-                    <h2 className="text-lg font-semibold text-blue-900 flex items-center">
-                      <Eye className="h-5 w-5 mr-2" />
-                      {fileName}
-                    </h2>
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleCommitHistory}
-                        className="border-blue-200 hover:bg-blue-50"
-                      >
-                        <History className="h-4 w-4" />
-                      </Button>
+                    {isFileDetailLoading ? (
+                      <>
+                        <div className="flex items-center">
+                          <Skeleton className="h-5 w-5 mr-2" />
+                          <Skeleton className="h-6 w-32" />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Skeleton className="h-8 w-8" />
+                          <Skeleton className="h-8 w-8" />
+                          <Skeleton className="h-8 w-8" />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <h2 className="text-lg font-semibold text-blue-900 flex items-center">
+                          <Eye className="h-5 w-5 mr-2" />
+                          {fileName}
+                        </h2>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleCommitHistory}
+                            className="border-blue-200 hover:bg-blue-50"
+                          >
+                            <History className="h-4 w-4" />
+                          </Button>
 
-                      <Button
-                        onClick={handleEdit}
-                        size="sm"
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
-                        title="edit"
-                      >
-                        <Edit className="h-4 w-4" />
-                        {/* Edit */}
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => setShowDeleteModal(true)}
-                        title="delete"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        {/* Delete */}
-                      </Button>
-                    </div>
+                          <Button
+                            onClick={handleEdit}
+                            size="sm"
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            title="edit"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => setShowDeleteModal(true)}
+                            title="delete"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </>
+                    )}
                   </div>
-                  <div className="p-6">{renderFileContent()}</div>
+                  <div className="p-6">
+                    {isFileDetailLoading ? (
+                      // 파일 내용 스켈레톤 UI
+                      <div className="space-y-3">
+                        {/* 여러 줄의 코드 스켈레톤 */}
+                        {Array.from({ length: 15 }).map((_, index) => (
+                          <div key={index} className="flex items-center space-x-2">
+                            <Skeleton className="h-4 w-8" /> {/* 라인 번호 */}
+                            <Skeleton className="h-4 flex-1" /> {/* 코드 내용 */}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      renderFileContent()
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

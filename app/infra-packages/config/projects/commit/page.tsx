@@ -33,12 +33,13 @@ import { RollbackConfirmationModal } from "@/components/rollback-confirmation-mo
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { formatTimeAgo } from "@/lib/etc";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function parseDiffLines(diffLines: string[]) {
   const result: {
     left?: string;
     right?: string;
-    type: "add" | "del" | "context";
+    type: "add" | "del" | "context" | "change";
   }[] = [];
   let i = 0;
   while (i < diffLines.length) {
@@ -88,9 +89,6 @@ export default function CommitPage() {
     fileName // 파일 이름
   );
 
-
-  const { toast } = useToast();
-
   const selectShaArr =
     commitListData?.filter(
       (list) => list.sha.slice(0, 6) === searchParams.get("commit")
@@ -105,17 +103,16 @@ export default function CommitPage() {
 
   console.log(selectSha,latestSha);
 
-  const { data: commitDetailData } = useFetchFileCommitDetail(
+  const { data: commitDetailData, isLoading: isCommitDetailLoading } = useFetchFileCommitDetail(
     "admin",
     "configs_repo",
     selectSha // sha
   );
 
-
-  const { data: fileDiffData } = useFetchFileDiff(
+  const { data: fileDiffData, isLoading: isFileDiffLoading } = useFetchFileDiff(
     "admin",
     "configs_repo",
-    "README.md", // path : 파일 이름
+    fileName, // path : 파일 이름
     selectSha,
     latestSha
   );
@@ -161,8 +158,6 @@ export default function CommitPage() {
         return <File className="h-3 w-3" />;
     }
   };
-
-
 
   const currentUrl = new URL(window.location.href);
   const pathname = currentUrl.pathname;
@@ -216,8 +211,6 @@ export default function CommitPage() {
     };
   
   const breadcrumbItems = generateBreadcrumbItems();
-
-
 
   const parsedDiff = fileDiffData ? parseDiffLines(fileDiffData) : [];
 
@@ -276,48 +269,60 @@ export default function CommitPage() {
           <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <Avatar className="h-10 w-10 flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-medium">
-                  {commitDetailData?.author?.username.charAt(0).toUpperCase()}
-                </Avatar>
+                {isCommitDetailLoading ? (
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                ) : (
+                  <Avatar className="h-10 w-10 flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-medium">
+                    {commitDetailData?.author?.username.charAt(0).toUpperCase()}
+                  </Avatar>
+                )}
                 <div className="flex items-center space-x-4">
-                  <span className="font-medium text-gray-900">
-                    {commitDetailData?.author?.username}
-                  </span>
-                  <code className="flex items-center bg-white px-2 py-1 rounded font-mono text-sm">
-                    <GitCommit className="h-3 w-3 text-gray-400" />
-                    {commitDetailData?.sha?.slice(0, 6)}
-                  </code>
-                  <span className="text-gray-900">
-                    {commitDetailData?.commit?.message}
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    {formatTimeAgo(commitDetailData?.created)}
-                  </span>
+                  {isCommitDetailLoading ? (
+                    <>
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-6 w-16" />
+                      <Skeleton className="h-4 w-64" />
+                      <Skeleton className="h-4 w-20" />
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-medium text-gray-900">
+                        {commitDetailData?.author?.username}
+                      </span>
+                      <code className="flex items-center bg-white px-2 py-1 rounded font-mono text-sm">
+                        <GitCommit className="h-3 w-3 text-gray-400" />
+                        {commitDetailData?.sha?.slice(0, 6)}
+                      </code>
+                      <span className="text-gray-900">
+                        {commitDetailData?.commit?.message}
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        {formatTimeAgo(commitDetailData?.created)}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <span>
-                    {commitDetailData?.stats?.filesChanged} files changed
-                  </span>
-                  <span className="text-green-600">
-                    +{commitDetailData?.stats?.additions}
-                  </span>
-                  <span className="text-red-600">
-                    -{commitDetailData?.stats?.deletions}
-                  </span>
-                </div>
-                {/* <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRollbackClick();
-                  }}
-                  className="hover:bg-white/50"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button> */}
+                {isCommitDetailLoading ? (
+                  <>
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-4 w-16" />
+                  </>
+                ) : (
+                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                    <span>
+                      {commitDetailData?.stats?.filesChanged} files changed
+                    </span>
+                    <span className="text-green-600">
+                      +{commitDetailData?.stats?.additions}
+                    </span>
+                    <span className="text-red-600">
+                      -{commitDetailData?.stats?.deletions}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -328,59 +333,48 @@ export default function CommitPage() {
               Changed Files
             </h2>
 
-            {/* {commitDetailData.commit.map((change, index) => ( */}
-            <div
-              // key={index}
-              className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm"
-            >
+            <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm">
               {/* File Header */}
               <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <File className="h-5 w-5 text-gray-500" />
-                    <span className="font-medium text-gray-900">
-                      {commitDetailData?.files[0]?.filename}
-                    </span>
-                    <Badge
-                      className={`text-xs ${getStatusColor(
-                        commitDetailData?.files[0]?.status
-                      )}`}
-                    >
-                      {/* {getStatusIcon(commitDetailData?.files?.status)} */}
-                      <span className="ml-1">
-                        {commitDetailData?.files[0]?.status}
-                      </span>
-                    </Badge>
-                    {/* <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRollbackClick();
-                      }}
-                      className="hover:bg-red-100 p-1 h-auto text-red-600 hover:text-red-700"
-                    >
-                      <RotateCcw className="h-3 w-3" />
-                    </Button> */}
+                    {isCommitDetailLoading ? (
+                      <>
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-5 w-16" />
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-medium text-gray-900">
+                          {commitDetailData?.files[0]?.filename}
+                        </span>
+                        <Badge
+                          className={`text-xs ${getStatusColor(
+                            commitDetailData?.files[0]?.status
+                          )}`}
+                        >
+                          <span className="ml-1">
+                            {commitDetailData?.files[0]?.status}
+                          </span>
+                        </Badge>
+                      </>
+                    )}
                   </div>
                   <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    {/* <span className="text-green-600">
-                      +{commitDetailData?.stats?.additions}
-                    </span>
-                    <span className="text-red-600">
-                      -{commitDetailData?.stats?.deletions}
-                    </span> */}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRollbackClick();
-                      }}
-                      className="hover:bg-red-100 p-1 h-auto text-red-600 hover:text-red-700"
-                    >
-                      <RotateCcw className="h-3 w-3" />
-                    </Button>
+                    {!isCommitDetailLoading && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRollbackClick();
+                        }}
+                        className="hover:bg-red-100 p-1 h-auto text-red-600 hover:text-red-700"
+                      >
+                        <RotateCcw className="h-3 w-3" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -388,7 +382,24 @@ export default function CommitPage() {
               {/* Diff Content */}
               <div className="p-6">
                 <div className="grid grid-cols-2 text-sm font-mono overflow-x-auto">
-                  {parsedDiff?.length === 0 ? (
+                  {isFileDiffLoading ? (
+                    // 스켈레톤 UI - diff 레이아웃과 동일하게 구성
+                    <>
+                      <div className="font-bold border-b px-2 py-1">이전</div>
+                      <div className="font-bold border-b px-2 py-1">변경</div>
+                      {/* 10개의 스켈레톤 행 표시 */}
+                      {Array.from({ length: 10 }).map((_, index) => (
+                        <React.Fragment key={index}>
+                          <div className="px-2 py-1">
+                            <Skeleton className="h-4 w-full" />
+                          </div>
+                          <div className="px-2 py-1">
+                            <Skeleton className="h-4 w-full" />
+                          </div>
+                        </React.Fragment>
+                      ))}
+                    </>
+                  ) : parsedDiff?.length === 0 ? (
                     <>변경 이력이 없습니다</>
                   ) : (
                     <>
@@ -425,25 +436,6 @@ export default function CommitPage() {
                 </div>
               </div>
             </div>
-            {/* ))}
-            </div>
-
-            {/* Summary */}
-            {/* <div className="mt-8 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200/50">
-              <div className="flex items-center justify-between text-sm text-gray-600">
-                <span>
-                  Showing {commitDetailData?.stats?.total} changed files with{" "}
-                  <span className="text-green-600 font-medium">
-                    {commitDetailData?.stats?.additions} additions
-                  </span>{" "}
-                  and{" "}
-                  <span className="text-red-600 font-medium">
-                    {commitDetailData?.stats?.deletions} deletions
-                  </span>
-                </span>
-                <span>{commitDetailData?.created}</span>
-              </div>
-            </div> */}
           </div>
         </div>
       </div>

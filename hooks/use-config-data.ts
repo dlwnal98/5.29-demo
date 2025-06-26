@@ -316,7 +316,7 @@ export function useModifyFile(
       options?.onSuccess?.();
 
       // ✅ 기본 동작: 이전 페이지로 이동
-      window.history.back();
+       window.history.back();
     },
   });
 }

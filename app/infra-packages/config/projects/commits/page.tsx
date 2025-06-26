@@ -34,6 +34,7 @@ import { RollbackConfirmationModal } from "@/components/rollback-confirmation-mo
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { formatTimeAgo } from "@/lib/etc";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CommitsPage() {
   const searchParams = useSearchParams();
@@ -42,22 +43,26 @@ export default function CommitsPage() {
   const fileName = searchParams.get("file") || "";
 
   // 파일 별 커밋 이력 조회
-  const { data: commitListData } = useFetchFileCommitList(
+  const { data: commitListData, isLoading } = useFetchFileCommitList(
     "admin",
     "configs_repo",
     branch,
     fileName// 파일 이름
   );
 
+console.log(fileName)
+
   const latestCommitArr = commitListData?.[0];
   const latestCommit = latestCommitArr?.sha?.slice(0, 6);
 
   const handleCommitClick = (commitHash: any) => {
+    console.log(commitHash)
     const params = new URLSearchParams();
     params.set("branch", branch);
     params.set("file", fileName);
     params.set("commit", commitHash);
     params.set("latest", latestCommit || "");
+
 
     if (dir) params.set("dir", dir);
     window.location.href = `/infra-packages/config/projects/commit?${params.toString()}`;
@@ -178,7 +183,11 @@ export default function CommitsPage() {
                 Commit History
               </h1>
               <p className="text-sm text-gray-500">
-                {commitListData?.length} commits
+                {isLoading ? (
+                  <Skeleton className="h-4 w-16" />
+                ) : (
+                  `${commitListData?.length || 0} commits`
+                )}
               </p>
             </div>
 
@@ -195,7 +204,7 @@ export default function CommitsPage() {
                     <TableHead className="text-blue-700 font-semibold">
                       Message
                     </TableHead>
-                    <TableHead className="w-[120px] text-blue-700 font-semibold">
+                    <TableHead className="w-[120px] text-blue-700 font-semibold text-right">
                       Date
                     </TableHead>
                     {/* <TableHead className="w-[100px] text-blue-700 font-semibold">
@@ -204,7 +213,28 @@ export default function CommitsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {commitListData && commitListData.length > 0 ? (
+                  {isLoading ? (
+                    // 스켈레톤 UI - 5개의 로딩 행 표시
+                    Array.from({ length: 5 }).map((_, index) => (
+                      <TableRow key={index} className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200">
+                        <TableCell>
+                          <div className="flex items-center">
+                            <Skeleton className="h-7 w-7 rounded-full" />
+                            <Skeleton className="h-4 w-20 ml-2" />
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-6 w-16" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-full max-w-md" />
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Skeleton className="h-4 w-20 ml-auto" />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : commitListData && commitListData.length > 0 ? (
                     <>
                       {commitListData.map((commit, index) => (
                         <TableRow
@@ -220,12 +250,10 @@ export default function CommitsPage() {
                             </span>
                           </TableCell>
                           <TableCell>
-                            {/* <div className="flex items-center space-x-2"> */}
                             <code className="flex items-center space-x-2 text-xs font-mono bg-gray-100 px-2 py-1 rounded">
                               <GitCommit className="h-3 w-3 text-gray-400" />
                               {commit.sha.slice(0, 6)}
                             </code>
-                            {/* </div> */}
                           </TableCell>
                           <TableCell>
                             <button
