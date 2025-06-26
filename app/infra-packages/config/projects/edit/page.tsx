@@ -61,7 +61,7 @@ const fileStructure = [
 export default function EditFilePage() {
   const searchParams = useSearchParams();
   const branch = searchParams.get("branch") || "main";
-  const path = searchParams.get("path") || "";
+  const dir = searchParams.get("dir") || "";
   const originalFileName = searchParams.get("file") || "";
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -102,31 +102,70 @@ export default function EditFilePage() {
   const handleBack = () => {
     const params = new URLSearchParams();
     params.set("branch", branch);
-    if (path) params.set("path", path);
-    window.location.href = `/infra-packages/config/projects?${params.toString()}`;
+    params.set("file", fileName);
+    if (dir) params.set("dir", dir);
+    window.location.href = `/infra-packages/config/projects/view?${params.toString()}`;
   };
   console.log(fileContent);
+  const currentUrl = new URL(window.location.href);
+  const pathname = currentUrl.pathname;
 
-  const breadcrumbItems = [
-    { name: "config", href: `/infra-packages/config/projects` },
-    { name: `Edit ${fileName}`, href: "" },
+  // 1. 경로에서 "/view" 제거
+  const newPath = pathname.replace(/\/edit$/, "");
+
+  // 2. 쿼리스트링에서 "file" 제거  
+  const params = currentUrl.searchParams;
+  params.delete("file");
+
+  // 3. 최종 URL 생성
+  const newUrl = `${newPath}${
+    params.toString() ? `?${params.toString()}` : ""
+  }`;
+  
+const generateBreadcrumbItems = () => {
+  const items = [
+    {
+      name: "config",
+      href: `/infra-packages/config/projects?branch=${branch}`,
+    }
   ];
+
+  const lastItem = {
+    name: `Edit ${fileName}`,
+    href: "",
+  };
+
+  // 디렉토리가 있는 경우
+  if (dir) {
+    items.push({
+      name: dir,
+      href: `/infra-packages/config/projects?branch=${branch}&dir=${dir}`,
+    });
+  }
+
+
+  return [...items, lastItem];
+};
+
+const breadcrumbItems = generateBreadcrumbItems();
+
 
   return (
     <AppLayout projectSlug="config">
-      <div className="bg-transparent">
-        <div className="flex h-[calc(100vh-4rem)]">
+ <div className="bg-transparent h-[calc(100vh-4rem)]">
+ <div className="flex h-full">
           {/* Left Sidebar - File Structure */}
           {sidebarOpen && (
-            <div className="w-80 border-r border-blue-200/50 bg-white/70 backdrop-blur-sm">
-              <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
+              <div className="w-60 border-r border-blue-200/50 bg-white/70 backdrop-blur-sm flex flex-col">
+              <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 flex-shrink-0">
                 <h3 className="font-semibold text-blue-900 flex items-center">
                   <Folder className="h-4 w-4 mr-2" />
                   File Structure
                 </h3>
+           
               </div>
-              <div className="p-4 overflow-y-auto h-full">
-                <div className="space-y-1">
+              <div className="flex-1 overflow-y-auto">
+              <div className="p-4 space-y-1">
                   {fileStructure.map((item, index) => (
                     <div
                       key={index}
@@ -139,7 +178,7 @@ export default function EditFilePage() {
                       {item.type === "folder" ? (
                         <Folder className="h-4 w-4 text-blue-500" />
                       ) : (
-                        getFileIcon(item?.extension)
+                        getFileIcon(item?.extension || "")
                       )}
                       <span className="text-sm">{item.name}</span>
                     </div>
@@ -150,13 +189,13 @@ export default function EditFilePage() {
           )}
 
           {/* Main Content */}
-          <div className="flex-1 overflow-hidden">
-            <div className="h-full overflow-y-auto">
-              <div className="container mx-auto px-4 py-6">
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 overflow-y-auto">
+               <div className="container mx-auto px-4 py-6">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-4">
-                    <Button
+                  <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -236,7 +275,7 @@ export default function EditFilePage() {
                             : fileDetailData?.textContent
                         }
                         onChange={(e) => setFileContent(e.target.value)}
-                        className="min-h-[400px] font-mono text-sm resize-none border-0 focus-visible:ring-0 p-0"
+                        className="min-h-[400px] font-mono text-sm resize-none border-0 p-4"
                         placeholder="Enter file content..."
                       />
                     )}

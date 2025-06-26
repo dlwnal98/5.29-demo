@@ -408,7 +408,7 @@ export function useRollbackCommit(
       rollbackCommit(owner, repo, branch, path, commitSha, message),
     onSuccess: () => {
       // 브랜치 생성 성공 시 목록 invalidate
-      // window.history.back();
+      window.history.back();
     },
   });
 }

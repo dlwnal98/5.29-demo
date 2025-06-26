@@ -93,6 +93,8 @@ export default function FileViewPage() {
   const handleBack = () => {
     const params = new URLSearchParams(currentParams.toString());
     params.set("branch", branch);
+    params.delete("file");
+
     if (dir) params.set("dir", dir);
     window.location.href = `/infra-packages/config/projects?${params.toString()}`;
   };
@@ -160,35 +162,58 @@ export default function FileViewPage() {
   // 2. 쿼리스트링에서 "file" 제거
   const params = currentUrl.searchParams;
   params.delete("file");
+  params.delete("dir");
 
   // 3. 최종 URL 생성
   const newUrl = `${newPath}${
     params.toString() ? `?${params.toString()}` : ""
   }`;
 
-  const breadcrumbItems = [
-    {
-      name: "config",
-      href: newUrl,
-    },
-    { name: fileName, href: "" },
-  ];
+  // 동적으로 breadcrumb 생성
+  const generateBreadcrumbItems = () => {
+    const items = [
+      {
+        name: "config",
+        href: newUrl,
+      }
+    ];
+
+    // 디렉토리가 있는 경우
+    if (dir) {
+      items.push({
+        name: dir,
+        href: `/infra-packages/config/projects?branch=${branch}&dir=${dir}`,
+      });
+    }
+
+    // 파일명이 있는 경우
+    if (fileName) {
+      items.push({
+        name: fileName,
+        href: "",
+      });
+    }
+
+    return items;
+  };
+
+  const breadcrumbItems = generateBreadcrumbItems();
 
   return (
     <AppLayout projectSlug="config">
-      <div className="bg-transparent">
-        <div className="flex h-[calc(100vh-4rem)]">
+      <div className="bg-transparent h-[calc(100vh-4rem)]">
+      <div className="flex h-full">
           {/* Left Sidebar - File Structure */}
           {sidebarOpen && (
-            <div className="w-80 border-r border-blue-200/50 bg-white/70 backdrop-blur-sm">
+            <div className="w-60 border-r border-blue-200/50 bg-white/70 backdrop-blur-sm">
               <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
                 <h3 className="font-semibold text-blue-900 flex items-center">
                   <Folder className="h-4 w-4 mr-2" />
                   File Structure
                 </h3>
               </div>
-              <div className="p-4 overflow-y-auto h-full">
-                <div className="space-y-1">
+              <div className="flex-1 overflow-y-auto">
+              <div className="p-4 space-y-1">
                   {fileStructure.map((item, index) => (
                     <div
                       key={index}
@@ -201,7 +226,7 @@ export default function FileViewPage() {
                       {item.type === "folder" ? (
                         <Folder className="h-4 w-4 text-blue-500" />
                       ) : (
-                        getFileIcon(item?.extension ?? "")
+                        getFileIcon(item?.extension || "")
                       )}
                       <span className="text-sm">{item.name}</span>
                     </div>
@@ -212,8 +237,8 @@ export default function FileViewPage() {
           )}
 
           {/* Main Content */}
-          <div className="flex-1 overflow-hidden">
-            <div className="h-full overflow-y-auto">
+          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 overflow-y-auto">
               <div className="container mx-auto px-4 py-6">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">

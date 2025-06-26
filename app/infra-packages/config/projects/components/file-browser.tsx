@@ -19,6 +19,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import {
   ChevronDown,
   GitBranch,
   Plus,
@@ -118,10 +126,18 @@ export function FileBrowser() {
   }
 
   const handleBack = () => {
-    window.history.back();
+    window.location.href = `/infra-packages/config/projects?branch=${currentBranch}`;
+
   };
 
   const sortData = sortByTypeAndName(configFileListData ?? []);
+
+
+
+  const breadcrumbItems = [
+    { name: "config", href: `/infra-packages/config/projects?branch=${currentParams.get('branch')}` },
+    { name: currentParams.get("dir"), href: "" },
+  ];
 
   return (
     <div className="bg-transparent">
@@ -197,7 +213,32 @@ export function FileBrowser() {
                   className="w-[25px]"
                 />
               </Button>
+            {currentParams.get("dir") && (
+
+              <Breadcrumb>
+                      <BreadcrumbList>
+                        {breadcrumbItems.map((item, index) => (
+                          <div key={item.name} className="flex items-center">
+                            {index > 0 && <BreadcrumbSeparator className="mr-1 sm:mr-2"/>}
+                            <BreadcrumbItem>
+                              {index === breadcrumbItems.length - 1 ? (
+                                <BreadcrumbPage className="text-blue-600">
+                                  {item.name}
+                                </BreadcrumbPage>
+                              ) : item.href ? (
+                                <BreadcrumbLink href={item.href}>
+                                  {item.name}
+                                </BreadcrumbLink>
+                              ) : (
+                                <span>{item.name}</span>
+                              )}
+                            </BreadcrumbItem>
+                          </div>
+                        ))}
+                      </BreadcrumbList>
+                    </Breadcrumb>)}
             </div>
+        
           </div>
 
           {/* 서치, 파일추가 버튼 */}

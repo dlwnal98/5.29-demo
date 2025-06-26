@@ -166,18 +166,42 @@ export default function UploadFilePage() {
     params.toString() ? `?${params.toString()}` : ""
   }`;
 
-  const breadcrumbItems = [
-    { name: "config", href: newUrl },
-    { name: "Upload files", href: "" },
-  ];
 
+
+  // 동적으로 breadcrumb 생성
+  const generateBreadcrumbItems = () => {
+    const items = [
+      {
+        name: "config",
+        href: `/infra-packages/config/projects?branch=${branch}`,
+      }
+    ];
+
+    const lastItem = {
+      name: "Upload files",
+      href: "",
+    };
+
+    // 디렉토리가 있는 경우
+    if (dir) {
+      items.push({
+        name: dir,
+        href: `/infra-packages/config/projects?branch=${branch}&dir=${dir}`,
+      });
+    }
+
+
+    return [...items, lastItem];
+  };
+
+  const breadcrumbItems = generateBreadcrumbItems();
   return (
     <AppLayout projectSlug="config">
       <div className="bg-transparent">
         <div className="flex h-[calc(100vh-4rem)]">
           {/* Left Sidebar - File Structure */}
           {sidebarOpen && (
-            <div className="w-80 border-r border-blue-200/50 bg-white/70 backdrop-blur-sm">
+            <div className="w-60 border-r border-blue-200/50 bg-white/70 backdrop-blur-sm">
               <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
                 <h3 className="font-semibold text-blue-900 flex items-center">
                   <Folder className="h-4 w-4 mr-2" />
@@ -368,21 +392,7 @@ export default function UploadFilePage() {
                         className="font-mono"
                       />
                     </div>
-                    <div>
-                      <Label
-                        htmlFor="commitDescription"
-                        className="text-sm font-medium mb-2 block"
-                      >
-                        Extended Description (optional)
-                      </Label>
-                      <Textarea
-                        id="commitDescription"
-                        value={commitDescription}
-                        onChange={(e) => setCommitDescription(e.target.value)}
-                        placeholder="Add more details about your uploaded files..."
-                        className="min-h-[100px] font-mono text-sm"
-                      />
-                    </div>
+                  
                     <div className="flex justify-end space-x-2 pt-4">
                       <Button
                         variant="outline"

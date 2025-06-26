@@ -72,8 +72,10 @@ function parseDiffLines(diffLines: string[]) {
 export default function CommitPage() {
   const searchParams = useSearchParams();
   const branch = searchParams.get("branch") || "main";
-  const commitHash = searchParams.get("commit") || "";
-  const path = searchParams.get("path") || "";
+  const commitOldHash = searchParams.get("commit") || "";
+  const commitNewHash = searchParams.get("latest") || "";
+  const dir = searchParams.get("dir") || "";
+  const fileName = searchParams.get("file") || "";
 
   console.log(searchParams.get("sha"));
 
@@ -82,21 +84,16 @@ export default function CommitPage() {
   const { data: commitListData } = useFetchFileCommitList(
     "admin",
     "configs_repo",
-    "main",
-    "README.md" // 파일 이름
+    branch,
+    fileName // 파일 이름
   );
 
-  const { data: commitDetailData } = useFetchFileCommitDetail(
-    "admin",
-    "configs_repo",
-    "153e9312c631b0af39f1c103a115d22f32283113" // sha
-  );
 
   const { toast } = useToast();
 
   const selectShaArr =
     commitListData?.filter(
-      (list) => list.sha.slice(0, 6) === searchParams.get("sha")
+      (list) => list.sha.slice(0, 6) === searchParams.get("commit")
     ) ?? [];
   const selectSha = selectShaArr[0]?.sha;
 
@@ -106,7 +103,14 @@ export default function CommitPage() {
     ) ?? [];
   const latestSha = latestShaArr[0]?.sha;
 
-  console.log(selectSha);
+  console.log(selectSha,latestSha);
+
+  const { data: commitDetailData } = useFetchFileCommitDetail(
+    "admin",
+    "configs_repo",
+    selectSha // sha
+  );
+
 
   const { data: fileDiffData } = useFetchFileDiff(
     "admin",
@@ -127,7 +131,8 @@ export default function CommitPage() {
   const handleBack = () => {
     const params = new URLSearchParams();
     params.set("branch", branch);
-    if (path) params.set("path", path);
+    params.set("file", fileName);
+    if (dir) params.set("dir", dir);
     window.location.href = `/infra-packages/config/projects/commits?${params.toString()}`;
   };
 
@@ -157,11 +162,62 @@ export default function CommitPage() {
     }
   };
 
-  const breadcrumbItems = [
-    { name: "config", href: `/infra-packages/config/projects` },
-    { name: "Commits", href: `/infra-packages/config/projects/commits` },
-    // { name: commitDetailData?.sha, href: "" },
-  ];
+
+
+  const currentUrl = new URL(window.location.href);
+  const pathname = currentUrl.pathname;
+
+  // 1. 경로에서 "/view" 제거
+  const newPath = pathname.replace(/\/commits$/, "");
+
+  // 2. 쿼리스트링에서 "file" 제거
+  const params = currentUrl.searchParams;
+  params.delete("file");
+  params.delete("dir");
+
+  // 3. 최종 URL 생성
+  const newUrl = `${newPath}${
+    params.toString() ? `?${params.toString()}` : ""
+  }`;
+    // 동적으로 breadcrumb 생성
+    const generateBreadcrumbItems = () => {
+      const items = [
+        {
+          name: "config",
+          href: newUrl,
+        }
+      ];
+      const commitUrl = [{
+        name: "commits",
+        href: `/infra-packages/config/projects/commits?branch=${branch}&dir=${dir}&file=${fileName}`,
+
+      },{
+        name: "commit",
+        href: "",
+      }];
+  
+      // 디렉토리가 있는 경우
+      if (dir) {
+        items.push({
+          name: dir,
+          href: `/infra-packages/config/projects?branch=${branch}&dir=${dir}`,
+        });
+      }
+  
+      // 파일명이 있는 경우
+      if (fileName) {
+        items.push({
+          name: fileName,
+          href: `/infra-packages/config/projects/view?branch=${branch}&dir=${dir}&file=${fileName}`,
+        });
+      }
+  
+      return [...items, ...commitUrl];
+    };
+  
+  const breadcrumbItems = generateBreadcrumbItems();
+
+
 
   const parsedDiff = fileDiffData ? parseDiffLines(fileDiffData) : [];
 
@@ -395,7 +451,9 @@ export default function CommitPage() {
       <RollbackConfirmationModal
         isOpen={rollbackModal.isOpen}
         onClose={() => setRollbackModal({ isOpen: false })}
-        commitHash={commitDetailData?.sha || ""}
+        branch={branch}
+        fileName={fileName}
+        commitHash={selectSha || ""}
         commitMessage={commitDetailData?.commit?.message || ""}
         // onConfirm={handleRollbackConfirm}
       />

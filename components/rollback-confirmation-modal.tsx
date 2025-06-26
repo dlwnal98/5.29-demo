@@ -20,27 +20,29 @@ import { useRollbackCommit } from "@/hooks/use-config-data";
 interface RollbackConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
+  branch: string;
+  fileName: string;
   commitHash: string;
   commitMessage: string;
-  onConfirm?: (rollbackMessage: string) => void;
 }
 
 export function RollbackConfirmationModal({
   isOpen,
   onClose,
+  branch,
+  fileName,
   commitHash,
   commitMessage,
-  onConfirm,
 }: RollbackConfirmationModalProps) {
   const [rollbackMessage, setRollbackMessage] = useState("");
   const [isConfirming, setIsConfirming] = useState(false);
   const { mutate: rollbackCommitMutate } = useRollbackCommit(
     "admin",
     "configs_repo",
-    "main",
-    "README.md",
+    branch,
+    fileName,
     commitHash,
-    commitMessage
+    rollbackMessage
   );
 
   const handleConfirm = async () => {

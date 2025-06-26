@@ -53,6 +53,7 @@ export const navItems: NavItem[] = [
   {
     icon: Zap,
     label: "Infra Packages",
+    href: "/infra-packages",
     subItems: [
       {
         icon: Gateway,
@@ -62,6 +63,7 @@ export const navItems: NavItem[] = [
       {
         icon: Cog,
         label: "Config",
+        href: "/infra-packages/config",
         subItems: [
           {
             icon: FolderOpen,
@@ -83,6 +85,7 @@ export const navItems: NavItem[] = [
       {
         icon: Lock,
         label: "Auth",
+        href: "/infra-packages/auth",
         subItems: [
           {
             icon: FolderOpen,

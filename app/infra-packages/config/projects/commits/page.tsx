@@ -38,41 +38,87 @@ import { formatTimeAgo } from "@/lib/etc";
 export default function CommitsPage() {
   const searchParams = useSearchParams();
   const branch = searchParams.get("branch") || "main";
-  const path = searchParams.get("path") || "";
+  const dir = searchParams.get("dir") || "";
+  const fileName = searchParams.get("file") || "";
 
   // 파일 별 커밋 이력 조회
   const { data: commitListData } = useFetchFileCommitList(
     "admin",
     "configs_repo",
-    "main",
-    "README.md" // 파일 이름
+    branch,
+    fileName// 파일 이름
   );
 
   const latestCommitArr = commitListData?.[0];
   const latestCommit = latestCommitArr?.sha?.slice(0, 6);
 
-  const handleCommitClick = (commit: any) => {
+  const handleCommitClick = (commitHash: any) => {
     const params = new URLSearchParams();
     params.set("branch", branch);
-    params.set("commit", commit.hash);
-    if (path) params.set("path", path);
-    window.location.href = `/infra-packages/config/projects/commit?sha=${commit?.sha?.slice(
-      0,
-      6
-    )}&latest=${latestCommit}`;
+    params.set("file", fileName);
+    params.set("commit", commitHash);
+    params.set("latest", latestCommit || "");
+
+    if (dir) params.set("dir", dir);
+    window.location.href = `/infra-packages/config/projects/commit?${params.toString()}`;
   };
 
   const handleBack = () => {
     const params = new URLSearchParams();
     params.set("branch", branch);
-    if (path) params.set("path", path);
-    window.location.href = `/infra-packages/config/projects?${params.toString()}`;
+    params.set("file", fileName);
+    if (dir) params.set("dir", dir);
+    window.location.href = `/infra-packages/config/projects/view?${params.toString()}`;
   };
 
-  const breadcrumbItems = [
-    { name: "config", href: `/infra-packages/config/projects` },
-    { name: "Commits", href: "" },
-  ];
+  const currentUrl = new URL(window.location.href);
+  const pathname = currentUrl.pathname;
+
+  // 1. 경로에서 "/view" 제거
+  const newPath = pathname.replace(/\/commits$/, "");
+
+  // 2. 쿼리스트링에서 "file" 제거
+  const params = currentUrl.searchParams;
+  params.delete("file");
+  params.delete("dir");
+
+  // 3. 최종 URL 생성
+  const newUrl = `${newPath}${
+    params.toString() ? `?${params.toString()}` : ""
+  }`;
+    // 동적으로 breadcrumb 생성
+    const generateBreadcrumbItems = () => {
+      const items = [
+        {
+          name: "config",
+          href: newUrl,
+        }
+      ];
+      const commitsUrl = {
+        name: "commits",
+        href: "",
+      };
+  
+      // 디렉토리가 있는 경우
+      if (dir) {
+        items.push({
+          name: dir,
+          href: `/infra-packages/config/projects?branch=${branch}&dir=${dir}`,
+        });
+      }
+  
+      // 파일명이 있는 경우
+      if (fileName) {
+        items.push({
+          name: fileName,
+          href: `/infra-packages/config/projects/view?branch=${branch}&dir=${dir}&file=${fileName}`,
+        });
+      }
+  
+      return [...items, commitsUrl];
+    };
+  
+    const breadcrumbItems = generateBreadcrumbItems();
 
   return (
     <AppLayout projectSlug="config">
@@ -158,69 +204,81 @@ export default function CommitsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {commitListData?.map((commit, index) => (
+                  {commitListData && commitListData.length > 0 ? (
+                    <>
+                      {commitListData.map((commit, index) => (
+                        <TableRow
+                          key={commit.sha}
+                          className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
+                        >
+                          <TableCell className=" flex items-center">
+                            <Avatar className="h-7 w-7 flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs font-bold">
+                              {commit.authorName.charAt(0).toUpperCase()}
+                            </Avatar>
+                            <span className="font-medium text-sm ml-[8px]">
+                              {commit.authorName}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            {/* <div className="flex items-center space-x-2"> */}
+                            <code className="flex items-center space-x-2 text-xs font-mono bg-gray-100 px-2 py-1 rounded">
+                              <GitCommit className="h-3 w-3 text-gray-400" />
+                              {commit.sha.slice(0, 6)}
+                            </code>
+                            {/* </div> */}
+                          </TableCell>
+                          <TableCell>
+                            <button
+                              onClick={() => handleCommitClick(commit.sha.slice(0, 6))}
+                              className="text-sm hover:text-blue-600 transition-colors text-left w-full"
+                            >
+                              {commit.message}
+                            </button>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <span className="text-sm text-gray-500 text-right">
+                              {formatTimeAgo(commit.commitTime)}
+                            </span>
+                          </TableCell>
+                          {/* <TableCell>
+                            <div className="flex items-center space-x-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigator.clipboard.writeText(commit.sha);
+                                }}
+                                className="hover:bg-blue-100 p-1 h-auto"
+                              >
+                                <Copy className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCommitClick(commit);
+                                }}
+                                className="hover:bg-blue-100 p-1 h-auto"
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                              </Button>
+                          
+                            </div>
+                          </TableCell> */}
+                        </TableRow>
+                      ))}
+                    </>
+                  ) : (
                     <TableRow
-                      key={commit.sha}
                       className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
                     >
-                      <TableCell className=" flex items-center">
-                        <Avatar className="h-7 w-7 flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs font-bold">
-                          {commit.authorName.charAt(0).toUpperCase()}
-                        </Avatar>
-                        <span className="font-medium text-sm ml-[8px]">
-                          {commit.authorName}
-                        </span>
+                      <TableCell colSpan={4} className="text-center py-8 text-gray-500">
+                        커밋 이력이 없습니다.
                       </TableCell>
-                      <TableCell>
-                        {/* <div className="flex items-center space-x-2"> */}
-                        <code className="flex items-center space-x-2 text-xs font-mono bg-gray-100 px-2 py-1 rounded">
-                          <GitCommit className="h-3 w-3 text-gray-400" />
-                          {commit.sha.slice(0, 6)}
-                        </code>
-                        {/* </div> */}
-                      </TableCell>
-                      <TableCell>
-                        <button
-                          onClick={() => handleCommitClick(commit)}
-                          className="text-sm hover:text-blue-600 transition-colors text-left w-full"
-                        >
-                          {commit.message}
-                        </button>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm text-gray-500 text-right">
-                          {formatTimeAgo(commit.commitTime)}
-                        </span>
-                      </TableCell>
-                      {/* <TableCell>
-                        <div className="flex items-center space-x-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigator.clipboard.writeText(commit.sha);
-                            }}
-                            className="hover:bg-blue-100 p-1 h-auto"
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCommitClick(commit);
-                            }}
-                            className="hover:bg-blue-100 p-1 h-auto"
-                          >
-                            <ExternalLink className="h-3 w-3" />
-                          </Button>
-                      
-                        </div>
-                      </TableCell> */}
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </div>
