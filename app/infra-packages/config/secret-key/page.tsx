@@ -28,192 +28,24 @@ import {
   Zap,
   Minus,
   Save,
+  Key,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface ConfigItem {
-  id: string;
-  key: string;
-  value: string;
-  description?: string;
-  environment: "development" | "staging" | "production";
-  category: "database" | "api" | "security" | "feature" | "general";
-  lastModified: string;
-}
-
-interface InputPair {
-  id: string;
-  key: string;
-  value: string;
-}
-
-const initialConfigs: ConfigItem[] = [
-  {
-    id: "1",
-    key: "DATABASE_URL",
-    value: "postgresql://localhost:5432/myapp",
-    description: "메인 데이터베이스 연결 URL",
-    environment: "development",
-    category: "database",
-    lastModified: "2024-01-15",
-  },
-  {
-    id: "2",
-    key: "API_BASE_URL",
-    value: "https://api.example.com/v1",
-    description: "API 서버 기본 URL",
-    environment: "production",
-    category: "api",
-    lastModified: "2024-01-14",
-  },
-  {
-    id: "3",
-    key: "JWT_SECRET",
-    value: "***hidden***",
-    description: "JWT 토큰 암호화 키",
-    environment: "production",
-    category: "security",
-    lastModified: "2024-01-13",
-  },
-  {
-    id: "4",
-    key: "FEATURE_NEW_UI",
-    value: "true",
-    description: "새로운 UI 기능 활성화",
-    environment: "staging",
-    category: "feature",
-    lastModified: "2024-01-12",
-  },
-  {
-    id: "5",
-    key: "MAX_FILE_SIZE",
-    value: "10485760",
-    description: "최대 파일 업로드 크기 (bytes)",
-    environment: "production",
-    category: "general",
-    lastModified: "2024-01-11",
-  },
-];
-
-const categoryIcons = {
-  database: Database,
-  api: Globe,
-  security: Shield,
-  feature: Zap,
-  general: Settings,
-};
-
-const environmentColors = {
-  development:
-    "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-  staging:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-  production: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-};
+import { useFetchVaultKey, useSaveVaultKey } from "@/hooks/use-config-data";
 
 export default function SecretKey() {
-  const [configs, setConfigs] = useState<ConfigItem[]>(initialConfigs);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEnvironment, setSelectedEnvironment] = useState<string>("all");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [editingConfig, setEditingConfig] = useState<ConfigItem | null>(null);
 
-  // 동적 입력 필드 관리
-  const [inputPairs, setInputPairs] = useState<InputPair[]>([
-    { id: "1", key: "", value: "" },
-  ]);
-  const [defaultEnvironment, setDefaultEnvironment] = useState<
-    "development" | "staging" | "production"
-  >("development");
-  const [defaultCategory, setDefaultCategory] = useState<
-    "database" | "api" | "security" | "feature" | "general"
-  >("general");
+  const { data: vaultKeyData } = useFetchVaultKey();
+  console.log(vaultKeyData);
+  const [value, setValue] = useState<string>(vaultKeyData ?? "");
 
-  const filteredConfigs = configs.filter((config) => {
-    const matchesSearch =
-      config.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      config.value.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (config.description?.toLowerCase().includes(searchTerm.toLowerCase()) ??
-        false);
-    const matchesEnvironment =
-      selectedEnvironment === "all" ||
-      config.environment === selectedEnvironment;
-    const matchesCategory =
-      selectedCategory === "all" || config.category === selectedCategory;
-
-    return matchesSearch && matchesEnvironment && matchesCategory;
-  });
-
-  const addInputPair = () => {
-    const newId = (
-      Math.max(...inputPairs.map((p) => Number.parseInt(p.id))) + 1
-    ).toString();
-    setInputPairs([...inputPairs, { id: newId, key: "", value: "" }]);
-  };
-
-  const removeInputPair = (id: string) => {
-    if (inputPairs.length > 1) {
-      setInputPairs(inputPairs.filter((pair) => pair.id !== id));
-    }
-  };
-
-  const updateInputPair = (
-    id: string,
-    field: "key" | "value",
-    value: string
-  ) => {
-    setInputPairs(
-      inputPairs.map((pair) =>
-        pair.id === id ? { ...pair, [field]: value } : pair
-      )
-    );
-  };
+  const { mutate: saveVaultKey } = useSaveVaultKey(value);
 
   const saveConfigs = () => {
-    const validPairs = inputPairs.filter(
-      (pair) => pair.key.trim() && pair.value.trim()
-    );
-
-    if (validPairs.length === 0) {
-      return;
-    }
-
-    const newConfigs = validPairs.map((pair) => ({
-      id: Date.now().toString() + pair.id,
-      key: pair.key.trim(),
-      value: pair.value.trim(),
-      description: "",
-      environment: defaultEnvironment,
-      category: defaultCategory,
-      lastModified: new Date().toISOString().split("T")[0],
-    }));
-
-    setConfigs([...configs, ...newConfigs]);
-    setInputPairs([{ id: "1", key: "", value: "" }]);
-  };
-
-  const handleEditConfig = (config: ConfigItem) => {
-    setEditingConfig(config);
-  };
-
-  const handleUpdateConfig = () => {
-    if (editingConfig) {
-      setConfigs(
-        configs.map((config) =>
-          config.id === editingConfig.id
-            ? {
-                ...editingConfig,
-                lastModified: new Date().toISOString().split("T")[0],
-              }
-            : config
-        )
-      );
-      setEditingConfig(null);
-    }
-  };
-
-  const handleDeleteConfig = (id: string) => {
-    setConfigs(configs.filter((config) => config.id !== id));
+    saveVaultKey();
   };
 
   return (
@@ -278,16 +110,14 @@ export default function SecretKey() {
             </div> */}
           </CardHeader>
           <CardContent className="space-y-4">
-            {inputPairs.map((pair, index) => (
-              <div
-                key={pair.id}
-                className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm"
-              >
-                <div className="flex items-center justify-center w-8 h-8 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-full text-sm font-medium">
-                  {index + 1}
-                </div>
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {/* <div className="space-y-1">
+            {/* {inputPairs.map((pair, index) => ( */}
+            <div className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div className="flex items-center justify-center w-8 h-8 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-full text-sm font-medium">
+                <Key className="h-5 w-5 text-blue-600" />
+              </div>
+
+              <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
+                {/* <div className="space-y-1">
                     <Label
                       htmlFor={`key-${pair.id}`}
                       className="text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -304,25 +134,24 @@ export default function SecretKey() {
                       className="border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div> */}
-                  <div className="space-y-1">
-                    <Label
-                      htmlFor={`value-${pair.id}`}
-                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                      Value
-                    </Label>
-                    <Input
-                      id={`value-${pair.id}`}
-                      placeholder="설정 값을 입력하세요"
-                      value={pair.value}
-                      onChange={(e) =>
-                        updateInputPair(pair.id, "value", e.target.value)
-                      }
-                      className="border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500"
-                    />
-                  </div>
+
+                <div className="space-y-1">
+                  <Label
+                    htmlFor={`vault`}
+                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    Value
+                  </Label>
+                  <Input
+                    id={`vault`}
+                    placeholder="설정 값을 입력하세요"
+                    value={value}
+                    onChange={(e) => setValue(e.target.value)}
+                    className="border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500"
+                  />
                 </div>
-                {/* <div className="flex gap-1">
+              </div>
+              {/* <div className="flex gap-1">
                   <Button
                     type="button"
                     variant="outline"
@@ -344,18 +173,13 @@ export default function SecretKey() {
                     </Button>
                   )}
                 </div> */}
-              </div>
-            ))}
+            </div>
+            {/* ))} */}
 
             <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
               <Button
                 onClick={saveConfigs}
                 className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6"
-                disabled={
-                  !inputPairs.some(
-                    (pair) => pair.key.trim() && pair.value.trim()
-                  )
-                }
               >
                 <Save className="h-4 w-4 mr-2" />
                 저장
@@ -568,7 +392,7 @@ export default function SecretKey() {
         </div> */}
 
         {/* Edit Dialog */}
-        <Dialog
+        {/* <Dialog
           open={!!editingConfig}
           onOpenChange={() => setEditingConfig(null)}
         >
@@ -668,7 +492,7 @@ export default function SecretKey() {
               <Button onClick={handleUpdateConfig}>저장</Button>
             </DialogFooter>
           </DialogContent>
-        </Dialog>
+        </Dialog> */}
       </div>
     </AppLayout>
   );

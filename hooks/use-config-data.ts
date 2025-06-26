@@ -69,25 +69,6 @@ export function useFetchConfigFileInfo(
   });
 }
 
-// config 시크릿 키 값 조회
-const fetchVaultKey = async () => {
-  const { data } = await axios.get("/api/vault/key");
-
-  return data;
-};
-
-export function useFetchVaultKey() {
-  return useQuery<string>({
-    queryKey: ["fetchVaultKey"],
-    queryFn: () => fetchVaultKey(),
-    // enabled: !!instanceId, // instanceId가 있을 때만 실행
-    staleTime: Infinity,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-  });
-}
-
 // config 레포 브랜치 목록 조회
 const fetchBranchList = async (owner: string, repo: string) => {
   const { data } = await axios.get(
@@ -454,5 +435,59 @@ export function useFetchFileDiff(
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
+  });
+}
+
+//Vault Key
+// config 시크릿 키 값 조회
+const fetchVaultKey = async () => {
+  const { data } = await axios.get("/api/vault/key");
+
+  return data;
+};
+
+export function useFetchVaultKey() {
+  return useQuery<string>({
+    queryKey: ["fetchVaultKey"],
+    queryFn: () => fetchVaultKey(),
+    // enabled: !!instanceId, // instanceId가 있을 때만 실행
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+}
+
+//secret key 삭제
+const deleteVaultKey = async () => {
+  const { data } = await axios.delete(`/api/vault/key`);
+
+  return data;
+};
+
+export function useDeleteVaultKey() {
+  return useMutation({
+    mutationFn: () => deleteVaultKey(),
+    onSuccess: () => {
+      // 브랜치 생성 성공 시 목록 invalidate
+      // window.history.back();
+    },
+  });
+}
+
+//secret key 저장 or 갱신
+const saveVaultKey = async (secretKey: string) => {
+  const { data } = await axios.post(`/api/vault/key`, secretKey);
+
+  return data;
+};
+
+export function useSaveVaultKey(secretKey: string) {
+  return useMutation({
+    mutationFn: () => saveVaultKey(secretKey),
+    onSuccess: () => {
+      // 브랜치 생성 성공 시 목록 invalidate
+      // window.history.back();
+    },
   });
 }
