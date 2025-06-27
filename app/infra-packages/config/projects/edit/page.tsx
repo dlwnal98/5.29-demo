@@ -71,12 +71,13 @@ export default function EditFilePage() {
   const [fileName, setFileName] = useState(originalFileName);
   const [commitMessage, setCommitMessage] = useState("");
 
-  const { data: fileDetailData, refetch, isLoading: isFileDetailLoading } = useFetchOriginFileDetail(
-    "admin",
-    "configs_repo",
-    branch,
-    originalFileName
-  );
+  const detailFilePath = dir ? `${dir}/${originalFileName}` : originalFileName;
+
+  const {
+    data: fileDetailData,
+    refetch,
+    isLoading: isFileDetailLoading,
+  } = useFetchOriginFileDetail("admin", "configs_repo", branch, detailFilePath);
   const [fileContent, setFileContent] = useState(fileDetailData?.textContent);
 
   const { mutate: modifyFileMutate } = useModifyFile(
@@ -94,8 +95,6 @@ export default function EditFilePage() {
       },
     }
   );
-
-  
 
   console.log(fileDetailData?.sha);
 
@@ -116,7 +115,7 @@ export default function EditFilePage() {
   // 1. 경로에서 "/view" 제거
   const newPath = pathname.replace(/\/edit$/, "");
 
-  // 2. 쿼리스트링에서 "file" 제거  
+  // 2. 쿼리스트링에서 "file" 제거
   const params = currentUrl.searchParams;
   params.delete("file");
 
@@ -125,50 +124,47 @@ export default function EditFilePage() {
     params.toString() ? `?${params.toString()}` : ""
   }`;
 
-const generateBreadcrumbItems = () => {
-  const items = [
-    {
-      name: "config",
-      href: `/infra-packages/config/projects?branch=${branch}`,
-    }
-  ];
+  const generateBreadcrumbItems = () => {
+    const items = [
+      {
+        name: "config",
+        href: `/infra-packages/config/projects?branch=${branch}`,
+      },
+    ];
 
-  const lastItem = {
-    name: `Edit ${fileName}`,
-    href: "",
+    const lastItem = {
+      name: `Edit ${fileName}`,
+      href: "",
+    };
+
+    // 디렉토리가 있는 경우
+    if (dir) {
+      items.push({
+        name: dir,
+        href: `/infra-packages/config/projects?branch=${branch}&dir=${dir}`,
+      });
+    }
+
+    return [...items, lastItem];
   };
 
-  // 디렉토리가 있는 경우
-  if (dir) {
-    items.push({
-      name: dir,
-      href: `/infra-packages/config/projects?branch=${branch}&dir=${dir}`,
-    });
-  }
-
-
-  return [...items, lastItem];
-};
-
-const breadcrumbItems = generateBreadcrumbItems();
-
+  const breadcrumbItems = generateBreadcrumbItems();
 
   return (
     <AppLayout projectSlug="config">
- <div className="bg-transparent h-[calc(100vh-4rem)]">
- <div className="flex h-full">
+      <div className="bg-transparent h-[calc(100vh-4rem)]">
+        <div className="flex h-full">
           {/* Left Sidebar - File Structure */}
           {sidebarOpen && (
-              <div className="w-60 border-r border-blue-200/50 bg-white/70 backdrop-blur-sm flex flex-col">
+            <div className="w-60 border-r border-blue-200/50 bg-white/70 backdrop-blur-sm flex flex-col">
               <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 flex-shrink-0">
                 <h3 className="font-semibold text-blue-900 flex items-center">
                   <Folder className="h-4 w-4 mr-2" />
                   File Structure
                 </h3>
-           
               </div>
               <div className="flex-1 overflow-y-auto">
-              <div className="p-4 space-y-1">
+                <div className="p-4 space-y-1">
                   {fileStructure.map((item, index) => (
                     <div
                       key={index}
@@ -194,11 +190,11 @@ const breadcrumbItems = generateBreadcrumbItems();
           {/* Main Content */}
           <div className="flex-1 flex flex-col overflow-hidden">
             <div className="flex-1 overflow-y-auto">
-               <div className="container mx-auto px-4 py-6">
+              <div className="container mx-auto px-4 py-6">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-4">
-                  <Button
+                    <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -282,9 +278,13 @@ const breadcrumbItems = generateBreadcrumbItems();
                       <div className="space-y-3">
                         {/* 여러 줄의 코드 스켈레톤 */}
                         {Array.from({ length: 20 }).map((_, index) => (
-                          <div key={index} className="flex items-center space-x-2">
+                          <div
+                            key={index}
+                            className="flex items-center space-x-2"
+                          >
                             <Skeleton className="h-4 w-8" /> {/* 라인 번호 */}
-                            <Skeleton className="h-4 flex-1" /> {/* 코드 내용 */}
+                            <Skeleton className="h-4 flex-1" />{" "}
+                            {/* 코드 내용 */}
                           </div>
                         ))}
                       </div>

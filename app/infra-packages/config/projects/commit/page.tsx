@@ -90,24 +90,23 @@ export default function CommitPage() {
   );
 
   const selectShaArr =
-    commitListData?.filter(
-      (list) => list.sha.slice(0, 6) === searchParams.get("commit")
-    ) ?? [];
+    commitListData?.filter((list) => list.sha.slice(0, 6) === commitOldHash) ??
+    [];
   const selectSha = selectShaArr[0]?.sha;
 
   const latestShaArr =
-    commitListData?.filter(
-      (list) => list.sha.slice(0, 6) === searchParams.get("latest")
-    ) ?? [];
+    commitListData?.filter((list) => list.sha.slice(0, 6) === commitNewHash) ??
+    [];
   const latestSha = latestShaArr[0]?.sha;
 
-  console.log(selectSha,latestSha);
+  console.log(selectSha, latestSha);
 
-  const { data: commitDetailData, isLoading: isCommitDetailLoading } = useFetchFileCommitDetail(
-    "admin",
-    "configs_repo",
-    selectSha // sha
-  );
+  const { data: commitDetailData, isLoading: isCommitDetailLoading } =
+    useFetchFileCommitDetail(
+      "admin",
+      "configs_repo",
+      selectSha // sha
+    );
 
   const { data: fileDiffData, isLoading: isFileDiffLoading } = useFetchFileDiff(
     "admin",
@@ -174,42 +173,44 @@ export default function CommitPage() {
   const newUrl = `${newPath}${
     params.toString() ? `?${params.toString()}` : ""
   }`;
-    // 동적으로 breadcrumb 생성
-    const generateBreadcrumbItems = () => {
-      const items = [
-        {
-          name: "config",
-          href: newUrl,
-        }
-      ];
-      const commitUrl = [{
+  // 동적으로 breadcrumb 생성
+  const generateBreadcrumbItems = () => {
+    const items = [
+      {
+        name: "config",
+        href: newUrl,
+      },
+    ];
+    const commitUrl = [
+      {
         name: "commits",
         href: `/infra-packages/config/projects/commits?branch=${branch}&dir=${dir}&file=${fileName}`,
-
-      },{
+      },
+      {
         name: "commit",
         href: "",
-      }];
-  
-      // 디렉토리가 있는 경우
-      if (dir) {
-        items.push({
-          name: dir,
-          href: `/infra-packages/config/projects?branch=${branch}&dir=${dir}`,
-        });
-      }
-  
-      // 파일명이 있는 경우
-      if (fileName) {
-        items.push({
-          name: fileName,
-          href: `/infra-packages/config/projects/view?branch=${branch}&dir=${dir}&file=${fileName}`,
-        });
-      }
-  
-      return [...items, ...commitUrl];
-    };
-  
+      },
+    ];
+
+    // 디렉토리가 있는 경우
+    if (dir) {
+      items.push({
+        name: dir,
+        href: `/infra-packages/config/projects?branch=${branch}&dir=${dir}`,
+      });
+    }
+
+    // 파일명이 있는 경우
+    if (fileName) {
+      items.push({
+        name: fileName,
+        href: `/infra-packages/config/projects/view?branch=${branch}&dir=${dir}&file=${fileName}`,
+      });
+    }
+
+    return [...items, ...commitUrl];
+  };
+
   const breadcrumbItems = generateBreadcrumbItems();
 
   const parsedDiff = fileDiffData ? parseDiffLines(fileDiffData) : [];

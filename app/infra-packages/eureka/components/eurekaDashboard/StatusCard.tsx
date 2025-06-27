@@ -10,6 +10,7 @@ interface StatusCardProps {
   chart?: ReactNode;
   legend?: ReactNode;
   colSpan: number;
+  onTabChange?: (any: string) => void;
 }
 
 export default function StatusCard({
@@ -21,10 +22,12 @@ export default function StatusCard({
   chart,
   legend,
   colSpan,
+  onTabChange,
 }: StatusCardProps) {
   return (
     <Card
-      className={`col-span-${colSpan} bg-gradient-to-br from-${themeColor}-50 to-${themeColor}-100 dark:from-${themeColor}-900/20 dark:to-${themeColor}-800/20 border-${themeColor}-200 dark:border-${themeColor}-800`}
+      className={`col-span-${colSpan} bg-gradient-to-br from-${themeColor}-50 to-${themeColor}-100 dark:from-${themeColor}-900/20 dark:to-${themeColor}-800/20 border-${themeColor}-200 dark:border-${themeColor}-800 hover:cursor-pointer`}
+      onClick={() => onTabChange?.("services")}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>

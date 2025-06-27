@@ -7,7 +7,11 @@ import StatusCardSkeleton from "./StatusCardSkeleton";
 import InstanceTableSkeleton from "./InstanceTableSkeleton";
 import { useEffect, useState } from "react";
 
-export default function EurekaDashboard() {
+interface EurekaDashboardType {
+  onTabChange: (any: string) => void;
+}
+
+export default function EurekaDashboard({ onTabChange }: EurekaDashboardType) {
   // 3초 지연 로직 추가
   // const [delayed, setDelayed] = useState(true);
   // useEffect(() => {
@@ -53,6 +57,7 @@ export default function EurekaDashboard() {
                 count={data?.totalServices}
                 themeColor="blue"
                 colSpan={2}
+                onTabChange={onTabChange}
               />
 
               <StatusCard

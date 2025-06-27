@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { act, useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import TabMenu from "./components/common/TabMenu";
 import EurekaDashboard from "./components/eurekaDashboard/eurekaDashoboard";
@@ -38,6 +38,8 @@ export default function EurekaPage() {
   //   // 서버 응답은 성공했지만 실제 데이터는 없음 (빈 배열 등)
   // }
 
+  console.log(activeTab);
+
   return (
     <AppLayout>
       <div className="container mx-auto px-4 py-6 space-y-6">
@@ -45,7 +47,9 @@ export default function EurekaPage() {
         <TabMenu activeTab={activeTab} onTabChange={setActiveTab} />
 
         {/* 전역 대쉬보드 */}
-        {activeTab === "overview" && <EurekaDashboard />}
+        {activeTab === "overview" && (
+          <EurekaDashboard onTabChange={setActiveTab} />
+        )}
 
         {/* 서비스 목록 */}
         {activeTab === "services" && <ServiceList />}
