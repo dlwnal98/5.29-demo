@@ -99,17 +99,17 @@ export const navItems: NavItem[] = [
           },
         ],
       },
+      {
+        icon: Package,
+        label: "Instance Module",
+        href: "/infra-packages/instance-module",
+      },
     ],
   },
   {
     icon: Shield,
     label: "Services",
     href: "/services",
-  },
-  {
-    icon: Package,
-    label: "Monitoring",
-    href: "/monitoring",
   },
   {
     icon: Users,

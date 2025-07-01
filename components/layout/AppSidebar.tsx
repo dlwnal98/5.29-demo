@@ -51,7 +51,7 @@ const SubNavButton = ({
   pathname: string;
 }) => {
   const SubIcon = subItem.icon;
-  const [isSubOpen, setIsSubOpen] = useState(true);
+  const [isSubOpen, setIsSubOpen] = useState(false);
   const router = useRouter();
 
   const isSubActive =
@@ -109,11 +109,11 @@ const SubNavButton = ({
           <div className="ml-4 space-y-1 py-1">
             {subItem.subItems.map((subSubItem) => {
               const SubSubIcon = subSubItem.icon;
-               const normalizePath = (path: string) =>
-    path.replace(/\/$/, "").split("?")[0];
+              const normalizePath = (path: string) =>
+                path.replace(/\/$/, "").split("?")[0];
 
-  const isSubSubActive =
-    normalizePath(pathname) === normalizePath(subSubItem.href);
+              const isSubSubActive =
+                normalizePath(pathname) === normalizePath(subSubItem.href);
               return (
                 <Button
                   key={subSubItem.href}
