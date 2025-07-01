@@ -1,13 +1,19 @@
-"use client"
+"use client";
 
-import { AppLayout } from "@/components/layout/AppLayout"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
+import { AppLayout } from "@/components/layout/AppLayout";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,7 +21,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+} from "@/components/ui/breadcrumb";
 import {
   Activity,
   Code,
@@ -35,22 +41,22 @@ import {
   Download,
   Upload,
   RefreshCw,
-} from "lucide-react"
-import { useState, useEffect } from "react"
-import { useSearchParams } from "next/navigation"
-import { toast } from "sonner"
+} from "lucide-react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 export default function ApiManagementPage() {
-  const searchParams = useSearchParams()
-  const productId = searchParams.get("productId")
-  const [activeTab, setActiveTab] = useState("overview")
-  const [isLoading, setIsLoading] = useState(true)
+  const searchParams = useSearchParams();
+  const productId = searchParams.get("productId");
+  const [activeTab, setActiveTab] = useState("overview");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Simulate loading
-    const timer = setTimeout(() => setIsLoading(false), 1000)
-    return () => clearTimeout(timer)
-  }, [])
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const stats = [
     {
@@ -85,7 +91,7 @@ export default function ApiManagementPage() {
       color: "text-orange-600",
       bgColor: "bg-orange-50 dark:bg-orange-900/20",
     },
-  ]
+  ];
 
   const apis = [
     {
@@ -132,7 +138,7 @@ export default function ApiManagementPage() {
       latency: "250ms",
       uptime: "97.2%",
     },
-  ]
+  ];
 
   if (isLoading) {
     return (
@@ -142,13 +148,16 @@ export default function ApiManagementPage() {
             <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                <div
+                  key={i}
+                  className="h-32 bg-gray-200 dark:bg-gray-700 rounded-lg"
+                ></div>
               ))}
             </div>
           </div>
         </div>
       </AppLayout>
-    )
+    );
   }
 
   return (
@@ -167,61 +176,14 @@ export default function ApiManagementPage() {
           </BreadcrumbList>
         </Breadcrumb>
 
-        {/* Header */}
-        <div className="mb-8">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-4xl font-bold mb-2">API Management</h1>
-                <p className="text-blue-100 text-lg">
-                  Product ID: <span className="font-semibold">{productId}</span>
-                </p>
-                <p className="text-blue-100">API 서비스를 효율적으로 관리하고 모니터링하세요</p>
-              </div>
-              <div className="hidden md:block">
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
-                  <Activity className="h-12 w-12 text-white" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => (
-            <Card
-              key={index}
-              className={`${stat.bgColor} border-0 hover:scale-105 transition-all duration-300 cursor-pointer group`}
-            >
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{stat.title}</p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
-                    <p
-                      className={`text-sm ${stat.change.startsWith("+") ? "text-green-600" : "text-red-600"} font-medium`}
-                    >
-                      {stat.change} from last month
-                    </p>
-                  </div>
-                  <div className={`${stat.color} group-hover:scale-110 transition-transform duration-300`}>
-                    <stat.icon className="h-8 w-8" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
         {/* Quick Actions */}
-        <Card className="mb-8 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border-0">
+        <Card className="mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Zap className="h-5 w-5 text-yellow-500" />
-              빠른 작업
+              API PLAN
             </CardTitle>
-            <CardDescription>자주 사용하는 기능들에 빠르게 접근하세요</CardDescription>
+            <CardDescription>API 플랜을 관리하고 확장합니다.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-3">
@@ -231,15 +193,24 @@ export default function ApiManagementPage() {
               >
                 <Plus className="h-4 w-4 mr-2" />새 API 생성
               </Button>
-              <Button variant="outline" onClick={() => toast.info("API 문서를 가져옵니다.")}>
+              <Button
+                variant="outline"
+                onClick={() => toast.info("API 문서를 가져옵니다.")}
+              >
                 <Upload className="h-4 w-4 mr-2" />
                 API 가져오기
               </Button>
-              <Button variant="outline" onClick={() => toast.info("API 문서를 내보냅니다.")}>
+              <Button
+                variant="outline"
+                onClick={() => toast.info("API 문서를 내보냅니다.")}
+              >
                 <Download className="h-4 w-4 mr-2" />
                 문서 내보내기
               </Button>
-              <Button variant="outline" onClick={() => toast.success("데이터가 새로고침되었습니다.")}>
+              <Button
+                variant="outline"
+                onClick={() => toast.success("데이터가 새로고침되었습니다.")}
+              >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 새로고침
               </Button>
@@ -248,7 +219,11 @@ export default function ApiManagementPage() {
         </Card>
 
         {/* Main Content Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-5 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
             <TabsTrigger
               value="overview"
@@ -299,15 +274,23 @@ export default function ApiManagementPage() {
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">현재 활성 연결</span>
-                      <span className="font-semibold text-green-600">1,247</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        현재 활성 연결
+                      </span>
+                      <span className="font-semibold text-green-600">
+                        1,247
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">평균 응답 시간</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        평균 응답 시간
+                      </span>
                       <span className="font-semibold text-blue-600">145ms</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">오류율</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        오류율
+                      </span>
                       <span className="font-semibold text-red-600">0.02%</span>
                     </div>
                   </div>
@@ -348,7 +331,9 @@ export default function ApiManagementPage() {
                   <Code className="h-5 w-5 text-blue-500" />
                   API 목록
                 </CardTitle>
-                <CardDescription>등록된 모든 API를 관리하고 모니터링하세요</CardDescription>
+                <CardDescription>
+                  등록된 모든 API를 관리하고 모니터링하세요
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -360,13 +345,15 @@ export default function ApiManagementPage() {
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <Badge
-                            variant={api.method === "GET" ? "secondary" : "default"}
+                            variant={
+                              api.method === "GET" ? "secondary" : "default"
+                            }
                             className={`${
                               api.method === "GET"
                                 ? "bg-green-100 text-green-800"
                                 : api.method === "POST"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : "bg-orange-100 text-orange-800"
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-orange-100 text-orange-800"
                             }`}
                           >
                             {api.method}
@@ -379,49 +366,71 @@ export default function ApiManagementPage() {
                             api.status === "active"
                               ? "default"
                               : api.status === "maintenance"
-                                ? "secondary"
-                                : "destructive"
+                              ? "secondary"
+                              : "destructive"
                           }
                           className={`${
                             api.status === "active"
                               ? "bg-green-100 text-green-800"
                               : api.status === "maintenance"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-red-100 text-red-800"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
                           }`}
                         >
-                          {api.status === "active" ? "활성" : api.status === "maintenance" ? "유지보수" : "비활성"}
+                          {api.status === "active"
+                            ? "활성"
+                            : api.status === "maintenance"
+                            ? "유지보수"
+                            : "비활성"}
                         </Badge>
                       </div>
 
                       <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                        <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{api.endpoint}</code>
+                        <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                          {api.endpoint}
+                        </code>
                       </div>
 
                       <div className="grid grid-cols-3 gap-4 text-sm">
                         <div>
                           <span className="text-gray-500">요청 수:</span>
-                          <span className="font-semibold ml-2">{api.requests}</span>
+                          <span className="font-semibold ml-2">
+                            {api.requests}
+                          </span>
                         </div>
                         <div>
                           <span className="text-gray-500">지연 시간:</span>
-                          <span className="font-semibold ml-2">{api.latency}</span>
+                          <span className="font-semibold ml-2">
+                            {api.latency}
+                          </span>
                         </div>
                         <div>
                           <span className="text-gray-500">가동률:</span>
-                          <span className="font-semibold ml-2 text-green-600">{api.uptime}</span>
+                          <span className="font-semibold ml-2 text-green-600">
+                            {api.uptime}
+                          </span>
                         </div>
                       </div>
 
                       <div className="flex gap-2 mt-4">
-                        <Button variant="outline" size="sm" onClick={() => toast.info(`${api.name} API를 편집합니다.`)}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            toast.info(`${api.name} API를 편집합니다.`)
+                          }
+                        >
                           <Edit className="h-4 w-4 mr-1" />
                           편집
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => toast.info(`${api.name} API 상세 정보를 확인합니다.`)}
+                          onClick={() =>
+                            toast.info(
+                              `${api.name} API 상세 정보를 확인합니다.`
+                            )
+                          }
                         >
                           <Eye className="h-4 w-4 mr-1" />
                           상세보기
@@ -429,7 +438,9 @@ export default function ApiManagementPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => toast.success(`${api.name} API가 복제되었습니다.`)}
+                          onClick={() =>
+                            toast.success(`${api.name} API가 복제되었습니다.`)
+                          }
                         >
                           <Copy className="h-4 w-4 mr-1" />
                           복제
@@ -437,7 +448,9 @@ export default function ApiManagementPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => toast.error(`${api.name} API가 삭제되었습니다.`)}
+                          onClick={() =>
+                            toast.error(`${api.name} API가 삭제되었습니다.`)
+                          }
                         >
                           <Trash2 className="h-4 w-4 mr-1" />
                           삭제
@@ -461,8 +474,12 @@ export default function ApiManagementPage() {
               <CardContent>
                 <div className="text-center py-12">
                   <BarChart3 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">분석 데이터 준비 중</h3>
-                  <p className="text-gray-600 dark:text-gray-400">API 사용량 및 성능 분석 차트가 곧 제공됩니다.</p>
+                  <h3 className="text-lg font-semibold mb-2">
+                    분석 데이터 준비 중
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    API 사용량 및 성능 분석 차트가 곧 제공됩니다.
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -500,7 +517,9 @@ export default function ApiManagementPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <Label htmlFor="cors">CORS 설정</Label>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">크로스 오리진 요청을 허용합니다.</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      크로스 오리진 요청을 허용합니다.
+                    </p>
                   </div>
                   <Switch id="cors" />
                 </div>
@@ -532,7 +551,10 @@ export default function ApiManagementPage() {
                   <Input id="timeout" type="number" defaultValue="30" />
                 </div>
 
-                <Button className="w-full" onClick={() => toast.success("설정이 저장되었습니다.")}>
+                <Button
+                  className="w-full"
+                  onClick={() => toast.success("설정이 저장되었습니다.")}
+                >
                   설정 저장
                 </Button>
               </CardContent>
@@ -541,5 +563,5 @@ export default function ApiManagementPage() {
         </Tabs>
       </div>
     </AppLayout>
-  )
+  );
 }
