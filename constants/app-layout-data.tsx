@@ -1,27 +1,112 @@
+import type { Project, NavItem } from "@/types";
 import {
-  LayoutDashboard,
-  Users,
-  Settings,
-  User,
   LogOut,
-  Shield,
-  Server,
-  Network,
-  Cloud,
-  Key,
-  Activity,
-  FileText,
-  Layers,
-  Route,
+  Users,
+  BarChart3,
+  Package,
   Zap,
-} from "lucide-react"
-import type { NavItem, UserMenuItem, Project } from "@/types"
+  Shield,
+  Settings,
+  UserCog,
+  WaypointsIcon as Gateway,
+  Cog,
+  Server,
+  Lock,
+  FolderOpen,
+  Key,
+  Route,
+  Layers,
+} from "lucide-react";
+
+// 사이드 바
+
+export const projectsData: Project[] = [
+  {
+    slug: "my-project",
+    name: "my-project",
+    avatar: "MP",
+    visibility: "Public",
+    stars: 24,
+    forks: 8,
+    status: "Active",
+    lastCommit: "2 hours ago",
+    contributors: 5,
+  },
+  {
+    slug: "another-project",
+    name: "another-project",
+    avatar: "AP",
+    visibility: "Private",
+    stars: 12,
+    forks: 4,
+    status: "Active",
+    lastCommit: "1 day ago",
+    contributors: 3,
+  },
+];
 
 export const navItems: NavItem[] = [
   {
+    icon: BarChart3,
     label: "Dashboard",
     href: "/dashboard",
-    icon: LayoutDashboard,
+    isActive: true,
+  },
+  {
+    icon: Zap,
+    label: "Infra Packages",
+    href: "/infra-packages",
+    subItems: [
+      {
+        icon: Gateway,
+        label: "Gateway",
+        href: "/infra-packages/gateway",
+      },
+      {
+        icon: Cog,
+        label: "Config",
+        href: "/infra-packages/config",
+        subItems: [
+          {
+            icon: FolderOpen,
+            label: "Projects",
+            href: "/infra-packages/config/projects?branch=main",
+          },
+          {
+            icon: Key,
+            label: "Secret Key",
+            href: "/infra-packages/config/secret-key",
+          },
+        ],
+      },
+      {
+        icon: Server,
+        label: "Eureka",
+        href: "/infra-packages/eureka",
+      },
+      {
+        icon: Lock,
+        label: "Auth",
+        href: "/infra-packages/auth",
+        subItems: [
+          {
+            icon: FolderOpen,
+            label: "OAuth",
+            href: "/infra-packages/auth/ouath",
+          },
+          {
+            icon: Key,
+            label: "Key",
+            href: "/infra-packages/auth/key",
+          },
+        ],
+      },
+      {
+        icon: Package,
+        label: "Instance Module",
+        href: "/infra-packages/instance-module",
+      },
+    ],
   },
   {
     label: "Services",
@@ -30,133 +115,63 @@ export const navItems: NavItem[] = [
       {
         label: "API Management",
         href: "/services/api-management",
-        icon: Route,
+        icon: Shield,
         subItems: [
           {
-            label: "리소스",
-            href: "/services/api-management/resources",
-            icon: Layers,
+            label: "Plans",
+            href: "/services/api-management",
+            icon: Route,
           },
           {
-            label: "스테이지",
+            label: "Stages",
             href: "/services/api-management/stages",
             icon: Zap,
           },
-        ],
-      },
-      {
-        label: "API Keys",
-        href: "/services/apikeys",
-        icon: Key,
-      },
-    ],
-  },
-  {
-    label: "Infra Packages",
-    icon: Cloud,
-    subItems: [
-      {
-        label: "Eureka",
-        href: "/infra-packages/eureka",
-        icon: Network,
-      },
-      {
-        label: "Gateway",
-        href: "/infra-packages/gateway",
-        icon: Shield,
-      },
-      {
-        label: "Config",
-        icon: Settings,
-        subItems: [
           {
-            label: "Projects",
-            href: "/infra-packages/config/projects",
-            icon: FileText,
+            label: "Models",
+            href: "/services/api-management/models",
+            icon: Key,
           },
           {
-            label: "Secret Key",
-            href: "/infra-packages/config/secret-key",
+            label: "Target Endpoints",
+            href: "/services/api-management/target-endpoints",
+            icon: Key,
+          },
+          {
+            label: "Keys",
+            href: "/services/api-management/keys",
             icon: Key,
           },
         ],
       },
-      {
-        label: "Auth",
-        href: "/infra-packages/auth",
-        icon: Shield,
-      },
     ],
   },
   {
+    icon: Users,
     label: "Members",
     href: "/members",
-    icon: Users,
   },
   {
-    label: "Monitoring",
-    href: "/monitoring",
-    icon: Activity,
-  },
-  {
+    icon: Settings,
     label: "Settings",
     href: "/settings",
-    icon: Settings,
   },
-]
+];
 
-export const userMenuItems: UserMenuItem[] = [
+export const userMenuItems = [
+  // {
+  //   icon: User,
+  //   label: "프로필",
+  //   action: "profile",
+  // },
   {
-    label: "Profile",
-    action: "profile",
-    icon: User,
-  },
-  {
-    label: "Account",
+    icon: UserCog,
+    label: "계정 설정",
     action: "account",
-    icon: Settings,
   },
   {
-    label: "Settings",
-    action: "settings",
-    icon: Settings,
-  },
-  {
-    label: "Logout",
-    action: "logout",
     icon: LogOut,
+    label: "로그아웃",
+    action: "logout",
   },
-]
-
-export const projectsData: Project[] = [
-  {
-    id: "1",
-    name: "E-commerce Platform",
-    slug: "ecommerce-platform",
-    description: "Full-stack e-commerce solution with React and Node.js",
-    visibility: "Private",
-    lastUpdated: "2 hours ago",
-    status: "Active",
-    tech: ["React", "Node.js", "PostgreSQL"],
-  },
-  {
-    id: "2",
-    name: "Mobile Banking App",
-    slug: "mobile-banking",
-    description: "Secure mobile banking application with biometric authentication",
-    visibility: "Private",
-    lastUpdated: "1 day ago",
-    status: "In Development",
-    tech: ["React Native", "Express", "MongoDB"],
-  },
-  {
-    id: "3",
-    name: "Analytics Dashboard",
-    slug: "analytics-dashboard",
-    description: "Real-time analytics dashboard for business intelligence",
-    visibility: "Public",
-    lastUpdated: "3 days ago",
-    status: "Active",
-    tech: ["Vue.js", "Python", "Redis"],
-  },
-]
+];

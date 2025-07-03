@@ -162,7 +162,9 @@ const NavButton = ({
   pathname,
 }: NavButtonProps) => {
   const Icon = item.icon;
-  const [isOpen, setIsOpen] = useState(item.label === "Infra Packages"); // Services 1은 기본적으로 열려있음
+  const [isOpen, setIsOpen] = useState(
+    item.label === "Infra Packages" || item.label === "Services"
+  ); // Services 1은 기본적으로 열려있음
   const router = useRouter();
 
   const isActive =
