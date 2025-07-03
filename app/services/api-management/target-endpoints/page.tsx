@@ -1,25 +1,20 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { AppLayout } from "@/components/layout/AppLayout"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { useState } from "react";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Checkbox } from "@/components/ui/checkbox"
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -27,170 +22,227 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Plus, Search, Edit, Trash2, AlertTriangle, Calendar } from "lucide-react"
-import { toast } from "sonner"
+} from "@/components/ui/breadcrumb";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Plus, Search, Edit, Trash2, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
 
 interface TargetEndpoint {
-  id: string
-  targetId: string
-  url: string
-  description: string
-  createdAt: string
+  id: string;
+  targetId: string;
+  url: string;
+  createdAt: string;
+  description: string;
 }
 
+const mockEndpoints: TargetEndpoint[] = [
+  {
+    id: "1",
+    targetId: "endpoint-001",
+    url: "https://api.example.com/v1",
+    createdAt: "2024-01-15",
+    description: "메인 API 서버 엔드포인트",
+  },
+  {
+    id: "2",
+    targetId: "endpoint-002",
+    url: "https://staging-api.example.com/v1",
+    createdAt: "2024-01-20",
+    description: "스테이징 환경 API 엔드포인트",
+  },
+  {
+    id: "3",
+    targetId: "endpoint-003",
+    url: "https://dev-api.example.com/v1",
+    createdAt: "2024-01-25",
+    description: "개발 환경 API 엔드포인트",
+  },
+];
+
 export default function TargetEndpointsPage() {
-  const [endpoints, setEndpoints] = useState<TargetEndpoint[]>([
-    {
-      id: "1",
-      targetId: "target-001",
-      url: "https://api.example.com/v1",
-      description: "메인 API 엔드포인트",
-      createdAt: "2024-01-15",
-    },
-    {
-      id: "2",
-      targetId: "target-002",
-      url: "https://staging-api.example.com/v1",
-      description: "스테이징 환경 API 엔드포인트",
-      createdAt: "2024-01-20",
-    },
-    {
-      id: "3",
-      targetId: "target-003",
-      url: "https://dev-api.example.com/v1",
-      description: "개발 환경 API 엔드포인트",
-      createdAt: "2024-01-25",
-    },
-  ])
-
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedEndpoints, setSelectedEndpoints] = useState<string[]>([])
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [editingEndpoint, setEditingEndpoint] = useState<TargetEndpoint | null>(null)
-  const [deleteType, setDeleteType] = useState<"selected" | "all">("selected")
-
-  const [newEndpoint, setNewEndpoint] = useState({
+  const [endpoints, setEndpoints] = useState<TargetEndpoint[]>(mockEndpoints);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedEndpoint, setSelectedEndpoint] =
+    useState<TargetEndpoint | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isSelectAll, setIsSelectAll] = useState(false);
+  const [deleteType, setDeleteType] = useState<"selected" | "all">("selected");
+  const [formData, setFormData] = useState({
     targetId: "",
     url: "",
     description: "",
-  })
+  });
 
   const filteredEndpoints = endpoints.filter(
     (endpoint) =>
       endpoint.targetId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       endpoint.url.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      endpoint.description.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+      endpoint.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleSelectAll = (checked: boolean) => {
+    setIsSelectAll(checked);
     if (checked) {
-      setSelectedEndpoints(filteredEndpoints.map((endpoint) => endpoint.id))
+      setSelectedIds(filteredEndpoints.map((endpoint) => endpoint.id));
     } else {
-      setSelectedEndpoints([])
+      setSelectedIds([]);
     }
-  }
+  };
 
-  const handleSelectEndpoint = (endpointId: string, checked: boolean) => {
+  const handleSelectItem = (id: string, checked: boolean) => {
     if (checked) {
-      setSelectedEndpoints([...selectedEndpoints, endpointId])
+      setSelectedIds((prev) => [...prev, id]);
     } else {
-      setSelectedEndpoints(selectedEndpoints.filter((id) => id !== endpointId))
+      setSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
+      setIsSelectAll(false);
     }
-  }
+  };
 
-  const handleCreateEndpoint = () => {
-    if (!newEndpoint.targetId || !newEndpoint.url) {
-      toast.error("Target ID와 URL은 필수 입력값입니다.")
-      return
-    }
+  const handleCreate = () => {
+    setFormData({ targetId: "", url: "", description: "" });
+    setIsCreateModalOpen(true);
+  };
 
-    const endpoint: TargetEndpoint = {
-      id: Date.now().toString(),
-      targetId: newEndpoint.targetId,
-      url: newEndpoint.url,
-      description: newEndpoint.description,
-      createdAt: new Date().toISOString().split("T")[0],
-    }
-
-    setEndpoints([...endpoints, endpoint])
-    setNewEndpoint({ targetId: "", url: "", description: "" })
-    setIsCreateModalOpen(false)
-    toast.success("Target Endpoint가 성공적으로 생성되었습니다.")
-  }
-
-  const handleEditEndpoint = (endpoint: TargetEndpoint) => {
-    setEditingEndpoint(endpoint)
-    setNewEndpoint({
+  const handleEdit = (endpoint: TargetEndpoint) => {
+    setSelectedEndpoint(endpoint);
+    setFormData({
       targetId: endpoint.targetId,
       url: endpoint.url,
       description: endpoint.description,
-    })
-    setIsEditModalOpen(true)
-  }
+    });
+    setIsEditModalOpen(true);
+  };
 
-  const handleUpdateEndpoint = () => {
-    if (!newEndpoint.targetId || !newEndpoint.url || !editingEndpoint) {
-      toast.error("Target ID와 URL은 필수 입력값입니다.")
-      return
-    }
-
-    setEndpoints(
-      endpoints.map((endpoint) =>
-        endpoint.id === editingEndpoint.id
-          ? {
-              ...endpoint,
-              targetId: newEndpoint.targetId,
-              url: newEndpoint.url,
-              description: newEndpoint.description,
-            }
-          : endpoint,
-      ),
-    )
-
-    setNewEndpoint({ targetId: "", url: "", description: "" })
-    setEditingEndpoint(null)
-    setIsEditModalOpen(false)
-    toast.success("Target Endpoint가 성공적으로 수정되었습니다.")
-  }
-
-  const handleDeleteClick = () => {
-    if (selectedEndpoints.length > 0) {
-      setDeleteType("selected")
+  const handleDelete = () => {
+    if (selectedIds.length > 0) {
+      setDeleteType("selected");
     } else {
-      setDeleteType("all")
+      setDeleteType("all");
     }
-    setIsDeleteDialogOpen(true)
-  }
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCreateSubmit = () => {
+    if (!formData.url) {
+      toast.error("필수 필드를 모두 입력해주세요.");
+      return;
+    }
+
+    const newEndpoint: TargetEndpoint = {
+      id: Date.now().toString(),
+      targetId: `endpoint-${Date.now()}`,
+      url: formData.url,
+      description: formData.description,
+      createdAt: new Date().toISOString().split("T")[0],
+    };
+
+    setEndpoints([...endpoints, newEndpoint]);
+    setIsCreateModalOpen(false);
+    setFormData({ targetId: "", url: "", description: "" });
+    toast.success("Target Endpoint가 성공적으로 생성되었습니다.");
+  };
+
+  const handleEditSubmit = () => {
+    if (!formData.url || !selectedEndpoint) {
+      toast.error("필수 필드를 모두 입력해주세요.");
+      return;
+    }
+
+    const updatedEndpoints = endpoints.map((endpoint) =>
+      endpoint.id === selectedEndpoint.id
+        ? {
+            ...endpoint,
+            url: formData.url,
+            description: formData.description,
+          }
+        : endpoint
+    );
+
+    setEndpoints(updatedEndpoints);
+    setIsEditModalOpen(false);
+    setSelectedEndpoint(null);
+    setFormData({ targetId: "", url: "", description: "" });
+    toast.success("Target Endpoint가 성공적으로 수정되었습니다.");
+  };
 
   const handleDeleteConfirm = () => {
-    if (deleteType === "selected") {
-      setEndpoints(endpoints.filter((endpoint) => !selectedEndpoints.includes(endpoint.id)))
-      toast.success(`${selectedEndpoints.length}개의 Target Endpoint가 삭제되었습니다.`)
-      setSelectedEndpoints([])
-    } else {
-      setEndpoints([])
-      toast.success("모든 Target Endpoint가 삭제되었습니다.")
+    if (deleteType === "selected" && selectedIds.length > 0) {
+      const updatedEndpoints = endpoints.filter(
+        (endpoint) => !selectedIds.includes(endpoint.id)
+      );
+      setEndpoints(updatedEndpoints);
+      setSelectedIds([]);
+      setIsSelectAll(false);
+      toast.success(
+        `${selectedIds.length}개의 Target Endpoint가 성공적으로 삭제되었습니다.`
+      );
+    } else if (deleteType === "all") {
+      setEndpoints([]);
+      setSelectedIds([]);
+      setIsSelectAll(false);
+      toast.success("모든 Target Endpoint가 성공적으로 삭제되었습니다.");
     }
-    setIsDeleteDialogOpen(false)
-  }
 
-  const selectedEndpointDetails = endpoints.filter((endpoint) => selectedEndpoints.includes(endpoint.id))
+    setIsDeleteModalOpen(false);
+    setSelectedEndpoint(null);
+  };
+
+  const handleModalClose = () => {
+    setIsCreateModalOpen(false);
+    setIsEditModalOpen(false);
+    setIsDeleteModalOpen(false);
+    setSelectedEndpoint(null);
+    setFormData({ targetId: "", url: "", description: "" });
+  };
+
+  const getDeleteModalContent = () => {
+    if (deleteType === "selected") {
+      return {
+        title: "선택된 Target Endpoint 삭제",
+        description: `선택된 ${selectedIds.length}개의 Target Endpoint가 영구적으로 삭제됩니다.`,
+        details: selectedIds
+          .map((id) => {
+            const endpoint = endpoints.find((e) => e.id === id);
+            return endpoint ? `• ${endpoint.targetId} (${endpoint.url})` : "";
+          })
+          .filter(Boolean)
+          .join("\n"),
+      };
+    } else {
+      return {
+        title: "모든 Target Endpoint 삭제",
+        description: `총 ${endpoints.length}개의 모든 Target Endpoint가 영구적으로 삭제됩니다.`,
+        details: "이 작업은 모든 데이터를 완전히 제거하며, 복구할 수 없습니다.",
+      };
+    }
+  };
+
+  const modalContent = getDeleteModalContent();
 
   return (
     <AppLayout>
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-6 space-y-6">
         {/* Breadcrumb */}
-        <Breadcrumb className="mb-6">
+        <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink href="/services">Services</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/services/api-management">API Management</BreadcrumbLink>
+              <BreadcrumbLink href="/services/api-management">
+                API Management
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -200,99 +252,101 @@ export default function TargetEndpointsPage() {
         </Breadcrumb>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold text-gray-900">
               Target Endpoints
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">API 대상 엔드포인트를 관리합니다</p>
+            <p className="text-gray-600 mt-1">
+              API 대상 엔드포인트를 관리하세요.
+            </p>
           </div>
-          <div className="flex gap-2">
-            <Button onClick={() => setIsCreateModalOpen(true)} className="bg-blue-500 hover:bg-blue-600 text-white">
-              <Plus className="h-4 w-4 mr-2" />
-              생성
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDeleteClick}
-              className="bg-red-500 hover:bg-red-600 text-white"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              {selectedEndpoints.length > 0 ? `선택 삭제 (${selectedEndpoints.length}개)` : "전체 삭제"}
-            </Button>
-          </div>
-        </div>
 
-        {/* Search */}
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <div className="relative">
+          <div className="flex gap-2">
+            <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Target ID, URL, 설명으로 검색..."
+                placeholder="엔드포인트 검색..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
-          </CardContent>
-        </Card>
+            <Button variant="destructive" onClick={handleDelete}>
+              <Trash2 className="h-4 w-4 mr-2" />
+              {selectedIds.length > 0
+                ? `선택 삭제 (${selectedIds.length})`
+                : "전체 삭제"}
+            </Button>
+            <Button onClick={handleCreate}>
+              <Plus className="h-4 w-4 mr-2" />
+              생성
+            </Button>
+          </div>
+        </div>
 
-        {/* Table */}
+        {/* Target Endpoints List */}
         <Card>
-          <CardHeader>
-            <CardTitle>Target Endpoints 목록</CardTitle>
-          </CardHeader>
+          <div className="pt-6"></div>
           <CardContent>
             <Table>
-              <TableHeader>
-                <TableRow>
+              <TableHeader className="hover:bg-white">
+                <TableRow className="hover:bg-white">
                   <TableHead className="w-12">
                     <Checkbox
-                      checked={filteredEndpoints.length > 0 && selectedEndpoints.length === filteredEndpoints.length}
+                      checked={isSelectAll}
                       onCheckedChange={handleSelectAll}
                       aria-label="전체 선택"
                     />
                   </TableHead>
                   <TableHead>Target ID</TableHead>
                   <TableHead>URL</TableHead>
-                  <TableHead className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    생성일자
-                  </TableHead>
+                  <TableHead>생성일자</TableHead>
                   <TableHead>설명</TableHead>
-                  <TableHead className="text-right">작업</TableHead>
+                  <TableHead className="text-right">수정</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredEndpoints.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                      {searchTerm ? "검색 결과가 없습니다." : "등록된 Target Endpoint가 없습니다."}
-                    </TableCell>
-                  </TableRow>
-                ) : (
+                {filteredEndpoints.length > 0 ? (
                   filteredEndpoints.map((endpoint) => (
                     <TableRow key={endpoint.id}>
                       <TableCell>
                         <Checkbox
-                          checked={selectedEndpoints.includes(endpoint.id)}
-                          onCheckedChange={(checked) => handleSelectEndpoint(endpoint.id, !!checked)}
+                          checked={selectedIds.includes(endpoint.id)}
+                          onCheckedChange={(checked) =>
+                            handleSelectItem(endpoint.id, checked as boolean)
+                          }
                           aria-label={`${endpoint.targetId} 선택`}
                         />
                       </TableCell>
-                      <TableCell className="font-mono text-sm">{endpoint.targetId}</TableCell>
-                      <TableCell className="font-mono text-sm text-blue-600">{endpoint.url}</TableCell>
-                      <TableCell className="text-gray-600">{endpoint.createdAt}</TableCell>
+                      <TableCell className="font-medium">
+                        {endpoint.targetId}
+                      </TableCell>
+                      <TableCell className="font-mono text-sm">
+                        {endpoint.url}
+                      </TableCell>
+                      <TableCell>{endpoint.createdAt}</TableCell>
                       <TableCell>{endpoint.description}</TableCell>
                       <TableCell className="text-right">
-                        <Button variant="outline" size="sm" onClick={() => handleEditEndpoint(endpoint)}>
-                          <Edit className="h-4 w-4 mr-1" />
-                          수정
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(endpoint)}
+                        >
+                          <Edit className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
                   ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="text-center py-8 text-gray-500"
+                    >
+                      검색 결과가 없습니다.
+                    </TableCell>
+                  </TableRow>
                 )}
               </TableBody>
             </Table>
@@ -300,203 +354,177 @@ export default function TargetEndpointsPage() {
         </Card>
 
         {/* Create Modal */}
-        <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-          <DialogContent className="sm:max-w-[500px]">
+        <Dialog open={isCreateModalOpen} onOpenChange={handleModalClose}>
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
-                Target Endpoint 생성
-              </DialogTitle>
+              <DialogTitle className="mb-2">Target Endpoint 생성</DialogTitle>
             </DialogHeader>
-
-            <div className="space-y-4 py-4">
+            <div className="space-y-4">
               <div>
-                <Label htmlFor="targetId" className="text-sm font-medium">
-                  Target ID *
+                <Label htmlFor="create-url" className="text-sm font-medium">
+                  Endpoint URL *
                 </Label>
                 <Input
-                  id="targetId"
-                  value={newEndpoint.targetId}
-                  onChange={(e) => setNewEndpoint({ ...newEndpoint, targetId: e.target.value })}
-                  placeholder="target-001"
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="url" className="text-sm font-medium">
-                  URL *
-                </Label>
-                <Input
-                  id="url"
-                  value={newEndpoint.url}
-                  onChange={(e) => setNewEndpoint({ ...newEndpoint, url: e.target.value })}
+                  id="create-url"
+                  value={formData.url}
+                  onChange={(e) =>
+                    setFormData({ ...formData, url: e.target.value })
+                  }
                   placeholder="https://api.example.com/v1"
-                  className="mt-1"
+                  className="mt-2"
                 />
               </div>
-
               <div>
-                <Label htmlFor="description" className="text-sm font-medium">
+                <Label
+                  htmlFor="create-description"
+                  className="text-sm font-medium"
+                >
                   설명
                 </Label>
                 <Textarea
-                  id="description"
-                  value={newEndpoint.description}
-                  onChange={(e) => setNewEndpoint({ ...newEndpoint, description: e.target.value })}
-                  placeholder="엔드포인트에 대한 설명을 입력하세요"
-                  className="mt-1"
-                  rows={3}
+                  id="create-description"
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  placeholder="엔드포인트 설명을 입력하세요"
+                  className="mt-2"
                 />
               </div>
             </div>
-
-            <DialogFooter className="gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsCreateModalOpen(false)
-                  setNewEndpoint({ targetId: "", url: "", description: "" })
-                }}
-              >
+            <DialogFooter className="flex space-x-2">
+              <Button variant="outline" onClick={handleModalClose}>
                 취소
               </Button>
-              <Button onClick={handleCreateEndpoint} className="bg-blue-500 hover:bg-blue-600 text-white">
-                생성
-              </Button>
+              <Button onClick={handleCreateSubmit}>생성</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
         {/* Edit Modal */}
-        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-          <DialogContent className="sm:max-w-[500px]">
+        <Dialog open={isEditModalOpen} onOpenChange={handleModalClose}>
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
-                Target Endpoint 수정
-              </DialogTitle>
+              <DialogTitle className="mb-2">Target Endpoint 수정</DialogTitle>
             </DialogHeader>
-
-            <div className="space-y-4 py-4">
+            <div className="space-y-4">
               <div>
-                <Label htmlFor="editTargetId" className="text-sm font-medium">
-                  Target ID *
+                <Label htmlFor="edit-url" className="text-sm font-medium">
+                  Endpoint URL *
                 </Label>
                 <Input
-                  id="editTargetId"
-                  value={newEndpoint.targetId}
-                  onChange={(e) => setNewEndpoint({ ...newEndpoint, targetId: e.target.value })}
-                  placeholder="target-001"
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="editUrl" className="text-sm font-medium">
-                  URL *
-                </Label>
-                <Input
-                  id="editUrl"
-                  value={newEndpoint.url}
-                  onChange={(e) => setNewEndpoint({ ...newEndpoint, url: e.target.value })}
+                  id="edit-url"
+                  value={formData.url}
+                  onChange={(e) =>
+                    setFormData({ ...formData, url: e.target.value })
+                  }
                   placeholder="https://api.example.com/v1"
-                  className="mt-1"
+                  className="mt-2"
                 />
               </div>
-
               <div>
-                <Label htmlFor="editDescription" className="text-sm font-medium">
+                <Label
+                  htmlFor="edit-description"
+                  className="text-sm font-medium"
+                >
                   설명
                 </Label>
                 <Textarea
-                  id="editDescription"
-                  value={newEndpoint.description}
-                  onChange={(e) => setNewEndpoint({ ...newEndpoint, description: e.target.value })}
-                  placeholder="엔드포인트에 대한 설명을 입력하세요"
-                  className="mt-1"
-                  rows={3}
+                  id="edit-description"
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  placeholder="엔드포인트 설명을 입력하세요"
+                  className="mt-2"
                 />
               </div>
             </div>
-
-            <DialogFooter className="gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsEditModalOpen(false)
-                  setEditingEndpoint(null)
-                  setNewEndpoint({ targetId: "", url: "", description: "" })
-                }}
-              >
+            <DialogFooter className="flex space-x-2">
+              <Button variant="outline" onClick={handleModalClose}>
                 취소
               </Button>
-              <Button onClick={handleUpdateEndpoint} className="bg-blue-500 hover:bg-blue-600 text-white">
-                수정
-              </Button>
+              <Button onClick={handleEditSubmit}>수정</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
-        {/* Delete Confirmation Dialog */}
-        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <AlertDialogContent className="sm:max-w-[500px]">
-            <AlertDialogHeader>
-              <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 w-10 h-10 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
-                  <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
-                </div>
-                <div>
-                  <AlertDialogTitle className="text-lg font-semibold text-red-900 dark:text-red-100">
-                    {deleteType === "selected" ? "선택된 항목 삭제" : "전체 삭제"}
-                  </AlertDialogTitle>
-                </div>
-              </div>
-            </AlertDialogHeader>
-
-            <AlertDialogDescription asChild>
-              <div className="space-y-4">
-                {deleteType === "selected" ? (
-                  <>
-                    <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800">
-                      <p className="text-red-800 dark:text-red-200 font-medium mb-2">
-                        ⚠️ 다음 {selectedEndpoints.length}개의 Target Endpoint가 영구적으로 삭제됩니다:
-                      </p>
-                      <div className="max-h-32 overflow-y-auto space-y-1">
-                        {selectedEndpointDetails.map((endpoint) => (
-                          <div key={endpoint.id} className="text-sm text-red-700 dark:text-red-300">
-                            • {endpoint.targetId} ({endpoint.url})
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">
-                      이 작업은 되돌릴 수 없습니다. 정말로 선택된 Target Endpoint들을 삭제하시겠습니까?
+        {/* Delete Modal */}
+        <Dialog open={isDeleteModalOpen} onOpenChange={handleModalClose}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader className="space-y-4">
+              <DialogTitle className="flex items-center text-red-600">
+                <AlertTriangle className="h-5 w-5 mr-2" />
+                {modalContent.title}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p className="font-semibold text-red-800 mb-2">
+                  ⚠️ 이 작업은 실행 취소할 수 없습니다.
+                </p>
+                <p className="text-red-700 text-sm mb-3">
+                  {modalContent.description}
+                  <br />
+                  연결된 모든 API와 설정이 영향을 받을 수 있습니다.
+                </p>
+                {deleteType === "all" && (
+                  <div className="bg-red-100 border border-red-300 rounded p-3 mt-3">
+                    <p className="text-red-800 font-semibold text-sm">
+                      🚨 전체 삭제 경고
                     </p>
-                  </>
-                ) : (
-                  <>
-                    <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800">
-                      <p className="text-red-800 dark:text-red-200 font-medium">
-                        🚨 모든 Target Endpoint ({endpoints.length}개)가 영구적으로 삭제됩니다!
-                      </p>
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">
-                      <strong>경고:</strong> 이 작업은 되돌릴 수 없으며, 모든 데이터가 완전히 삭제됩니다. 정말로 모든
-                      Target Endpoint를 삭제하시겠습니까?
+                    <p className="text-red-700 text-xs mt-1">
+                      모든 Target Endpoint 데이터가 완전히 제거되며, 이는 시스템
+                      전체에 영향을 줄 수 있습니다.
                     </p>
-                  </>
+                  </div>
                 )}
               </div>
-            </AlertDialogDescription>
 
-            <AlertDialogFooter className="gap-2">
-              <AlertDialogCancel>취소</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700 text-white">
-                {deleteType === "selected" ? `${selectedEndpoints.length}개 삭제` : "전체 삭제"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+              {deleteType === "selected" && selectedIds.length > 0 && (
+                <div className="bg-gray-50 p-3 rounded max-h-32 overflow-y-auto">
+                  <p className="text-sm font-medium mb-2">삭제될 항목:</p>
+                  {selectedIds.map((id) => {
+                    const endpoint = endpoints.find((e) => e.id === id);
+                    return endpoint ? (
+                      <div key={id} className="text-xs text-gray-600 mb-1">
+                        • <strong>{endpoint.targetId}</strong> - {endpoint.url}
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+              )}
+
+              {deleteType === "all" && (
+                <div className="bg-gray-50 p-3 rounded">
+                  <p className="text-sm font-medium text-gray-800">
+                    총{" "}
+                    <strong className="text-red-600">
+                      {endpoints.length}개
+                    </strong>
+                    의 Target Endpoint가 삭제됩니다.
+                  </p>
+                </div>
+              )}
+            </div>
+            <DialogFooter className="flex space-x-2">
+              <Button variant="outline" onClick={handleModalClose}>
+                취소
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteConfirm}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                {deleteType === "selected"
+                  ? `선택 삭제 (${selectedIds.length}개)`
+                  : "전체 삭제"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </AppLayout>
-  )
+  );
 }

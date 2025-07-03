@@ -2,9 +2,10 @@
 
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -12,14 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +20,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -37,399 +48,255 @@ import {
 } from "@/components/ui/breadcrumb";
 import {
   ArrowLeft,
-  ChevronDown,
-  ChevronRight,
-  Globe,
-  Box,
-  Plus,
   Trash2,
-  AlertCircle,
+  ChevronRight,
+  ChevronDown,
+  Folder,
+  FolderOpen,
+  CheckCircle,
+  XCircle,
+  Shield,
+  AlertTriangle,
+  X,
+  ExternalLink,
+  Rocket,
 } from "lucide-react";
 import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-interface QueryParameter {
+interface Resource {
   id: string;
+  path: string;
   name: string;
-  description: string;
+  corsEnabled: boolean;
+  children?: Resource[];
+  methods: Method[];
+}
+
+interface Method {
+  id: string;
   type: string;
-  isArray: boolean;
-  required: boolean;
-  cacheKey: boolean;
+  permissions: string;
+  apiKey: string;
 }
 
-interface Header {
+interface Stage {
   id: string;
   name: string;
   description: string;
-  type: string;
-  required: boolean;
 }
 
-interface FormData {
-  id: string;
-  name: string;
-  description: string;
-  type: string;
-  isArray: boolean;
-  required: boolean;
-}
-
-interface BodyModel {
-  id: string;
-  name: string;
-  description: string;
-  model: string;
-}
-
-interface MockHeader {
-  id: string;
-  name: string;
-  value: string;
-}
-
-interface ApiKey {
-  id: string;
-  name: string;
-  description: string;
-  value: string;
-}
-
-export default function CreateMethodPage() {
+export default function ApiResourcesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const resourceId = searchParams.get("resourceId");
-  const resourcePath = searchParams.get("resourcePath");
+  const apiId = searchParams.get("apiId");
+  const apiName = searchParams.get("apiName");
 
-  const [methodForm, setMethodForm] = useState({
-    methodType: "",
-    integrationType: "http",
-    // HTTP Integration
-    httpProxyIntegration: true,
-    httpMethod: "",
-    endpointUrl: "",
-    contentHandling: "패스스루",
-    timeout: "29000",
-    // Mock Integration
-    statusCode: "200",
-    mockResponse: "",
-    // Common
-    authorization: "없음",
-    requestValidator: "없음",
-    apiKeyRequired: false,
-    selectedApiKey: "",
-    operationName: "GetPets",
+  const [resources, setResources] = useState<Resource[]>([
+    {
+      id: "root",
+      path: "/",
+      name: "Root",
+      corsEnabled: true,
+      methods: [],
+      children: [
+        {
+          id: "rmd",
+          path: "/rmd",
+          name: "RMD Resource",
+          corsEnabled: false,
+          methods: [
+            {
+              id: "get-rmd",
+              type: "GET",
+              permissions: "읽기",
+              apiKey: "required",
+            },
+          ],
+        },
+      ],
+    },
+  ]);
+
+  const [stages] = useState<Stage[]>([
+    { id: "hello", name: "hello", description: "Hello stage for testing" },
+    { id: "nexfron", name: "nexfron", description: "Nexfron production stage" },
+    { id: "new", name: "*새 스테이지*", description: "Create a new stage" },
+    { id: "none", name: "스테이지 없음", description: "Deploy without stage" },
+  ]);
+
+  const [selectedResource, setSelectedResource] = useState<Resource>(
+    resources[0]
+  );
+  const [expandedPaths, setExpandedPaths] = useState<Set<string>>(
+    new Set(["/", "/rmd"])
+  );
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
+  const [createResourceForm, setCreateResourceForm] = useState({
+    path: "",
+    name: "",
+    corsEnabled: false,
   });
-
-  const [mockHeaders, setMockHeaders] = useState<MockHeader[]>([
-    { id: "1", name: "", value: "" },
-  ]);
-
-  const [apiKeys] = useState<ApiKey[]>([
-    {
-      id: "1",
-      name: "Production API Key",
-      description: "프로덕션 환경용 API 키",
-      value: "prod-api-key-123",
-    },
-    {
-      id: "2",
-      name: "Development API Key",
-      description: "개발 환경용 API 키",
-      value: "dev-api-key-456",
-    },
-    {
-      id: "3",
-      name: "Test API Key",
-      description: "테스트 환경용 API 키",
-      value: "test-api-key-789",
-    },
-  ]);
-
-  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
-
-  // 기본값을 모두 false로 설정 (닫힌 상태)
-  const [openSections, setOpenSections] = useState({
-    methodRequest: false,
-    urlQuery: false,
-    httpHeaders: false,
-    requestBody: false,
+  const [deployForm, setDeployForm] = useState({
+    stage: "",
+    description: "",
   });
-
-  const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([
-    {
-      id: "1",
-      name: "",
-      description: "",
-      type: "string",
-      isArray: false,
-      required: false,
-      cacheKey: false,
-    },
-  ]);
-
-  const [headers, setHeaders] = useState<Header[]>([
-    {
-      id: "1",
-      name: "",
-      description: "",
-      type: "string",
-      required: false,
-    },
-  ]);
-
-  const [formData, setFormData] = useState<FormData[]>([
-    {
-      id: "1",
-      name: "",
-      description: "",
-      type: "string",
-      isArray: false,
-      required: false,
-    },
-  ]);
-
-  const [bodyModels, setBodyModels] = useState<BodyModel[]>([
-    {
-      id: "1",
-      name: "",
-      description: "",
-      model: "",
-    },
-  ]);
-
-  const [contentTypes, setContentTypes] = useState<string[]>([]);
-  const [newContentType, setNewContentType] = useState("");
-  const [contentTypeError, setContentTypeError] = useState("");
-
-  // HTTP Method options
-  const httpMethods = [
-    "GET",
-    "POST",
-    "PUT",
-    "DELETE",
-    "PATCH",
-    "HEAD",
-    "OPTIONS",
-  ];
-
-  // Predefined endpoint URLs
-  const endpointUrls = [
-    "https://api.endpoint.com/",
-    "https://jsonplaceholder.typicode.com/",
-    "https://httpbin.org/",
-    "https://reqres.in/api/",
-    "https://api.github.com/",
-  ];
 
   const handleBack = () => {
-    router.push(`/services/api-management/resources?resourceId=${resourceId}`);
+    router.push("/services/api-management");
+  };
+
+  const toggleExpanded = (path: string) => {
+    const newExpanded = new Set(expandedPaths);
+    if (newExpanded.has(path)) {
+      newExpanded.delete(path);
+    } else {
+      newExpanded.add(path);
+    }
+    setExpandedPaths(newExpanded);
+  };
+
+  const handleCreateResource = () => {
+    if (!createResourceForm.path.trim() || !createResourceForm.name.trim()) {
+      toast.error("리소스 경로와 이름을 입력해주세요.");
+      return;
+    }
+
+    const newResource: Resource = {
+      id: Date.now().toString(),
+      path: createResourceForm.path,
+      name: createResourceForm.name,
+      corsEnabled: createResourceForm.corsEnabled,
+      methods: [],
+    };
+
+    // Add to resources (simplified - in real app would handle tree structure)
+    setResources([...resources, newResource]);
+    setIsCreateModalOpen(false);
+    setCreateResourceForm({ path: "", name: "", corsEnabled: false });
+    toast.success(`리소스 '${newResource.name}'이(가) 생성되었습니다.`);
+  };
+
+  const handleDeleteResource = () => {
+    if (selectedResource.id === "root") {
+      toast.error("루트 리소스는 삭제할 수 없습니다.");
+      return;
+    }
+
+    // Remove resource (simplified)
+    setIsDeleteDialogOpen(false);
+    toast.success(`리소스 '${selectedResource.name}'이(가) 삭제되었습니다.`);
   };
 
   const handleCreateMethod = () => {
-    if (!methodForm.methodType) {
-      toast.error("메서드 유형을 선택해주세요.");
+    router.push(
+      `/services/api-management/resources/methods?resourceId=${selectedResource.id}&resourcePath=${selectedResource.path}`
+    );
+  };
+
+  const handleMethodClick = (method: Method, resource: Resource) => {
+    router.push(`/services/api-management/resources/methods/${method.id}`);
+  };
+
+  const handleDeploy = () => {
+    if (!deployForm.stage) {
+      toast.error("스테이지를 선택해주세요.");
       return;
     }
 
-    if (methodForm.integrationType === "http" && !methodForm.httpMethod) {
-      toast.error("HTTP 메서드를 선택해주세요.");
-      return;
-    }
+    const selectedStage = stages.find((s) => s.id === deployForm.stage);
 
-    if (methodForm.integrationType === "http" && !methodForm.endpointUrl) {
-      toast.error("엔드포인트 URL을 입력해주세요.");
-      return;
-    }
-
-    toast.success("메서드가 성공적으로 생성되었습니다.");
-    handleBack();
+    // Simulate deployment process
+    toast.success(
+      `API가 '${selectedStage?.name}' 스테이지에 성공적으로 배포되었습니다.`
+    );
+    setIsDeployModalOpen(false);
+    setDeployForm({ stage: "", description: "" });
   };
 
-  const toggleSection = (section: keyof typeof openSections) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  };
+  const renderResourceTree = (resource: Resource, level = 0) => {
+    const isExpanded = expandedPaths.has(resource.path);
+    const hasChildren = resource.children && resource.children.length > 0;
 
-  const handleApiKeyToggle = (checked: boolean) => {
-    if (checked) {
-      setIsApiKeyModalOpen(true);
-    } else {
-      setMethodForm({
-        ...methodForm,
-        apiKeyRequired: false,
-        selectedApiKey: "",
-      });
-    }
-  };
+    return (
+      <div key={resource.id}>
+        <div
+          className={`flex items-center gap-2 py-2 px-3 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md ${
+            selectedResource.id === resource.id
+              ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+              : ""
+          }`}
+          style={{ paddingLeft: `${level * 20 + 12}px` }}
+          onClick={() => setSelectedResource(resource)}
+        >
+          {hasChildren && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleExpanded(resource.path);
+              }}
+            >
+              {isExpanded ? (
+                <ChevronDown className="h-4 w-4 text-gray-500" />
+              ) : (
+                <ChevronRight className="h-4 w-4 text-gray-500" />
+              )}
+            </button>
+          )}
+          {!hasChildren && <div className="w-4" />}
 
-  const handleApiKeySelect = (apiKeyId: string) => {
-    setMethodForm({
-      ...methodForm,
-      apiKeyRequired: true,
-      selectedApiKey: apiKeyId,
-    });
-    setIsApiKeyModalOpen(false);
-    toast.success("API 키가 선택되었습니다.");
-  };
+          {hasChildren ? (
+            isExpanded ? (
+              <FolderOpen className="h-4 w-4 text-blue-500" />
+            ) : (
+              <Folder className="h-4 w-4 text-blue-500" />
+            )
+          ) : (
+            <div className="w-4 h-4 bg-blue-100 rounded border border-blue-300 flex items-center justify-center">
+              <div className="w-2 h-2 bg-blue-500 rounded-full" />
+            </div>
+          )}
 
-  const handleApiKeyModalCancel = () => {
-    setMethodForm({ ...methodForm, apiKeyRequired: false, selectedApiKey: "" });
-    setIsApiKeyModalOpen(false);
-  };
+          <span className="font-medium">{resource.path}</span>
+        </div>
 
-  const addMockHeader = () => {
-    const newHeader: MockHeader = {
-      id: Date.now().toString(),
-      name: "",
-      value: "",
-    };
-    setMockHeaders([...mockHeaders, newHeader]);
-  };
-
-  const updateMockHeader = (
-    id: string,
-    field: keyof MockHeader,
-    value: string
-  ) => {
-    setMockHeaders(
-      mockHeaders.map((header) =>
-        header.id === id ? { ...header, [field]: value } : header
-      )
+        {hasChildren &&
+          isExpanded &&
+          resource.children?.map((child) => (
+            <div key={child.id}>
+              {renderResourceTree(child, level + 1)}
+              {child.methods.map((method) => (
+                <div
+                  key={method.id}
+                  className="flex items-center gap-2 py-1 px-3 text-sm text-gray-600 dark:text-gray-400 cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 rounded-md"
+                  style={{ paddingLeft: `${(level + 2) * 20 + 12}px` }}
+                  onClick={() => handleMethodClick(method, child)}
+                >
+                  <div className="w-4" />
+                  <div className="w-4 h-4 bg-green-100 rounded border border-green-300 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  </div>
+                  <span className="font-mono text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                    {method.type}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ))}
+      </div>
     );
   };
 
-  const removeMockHeader = (id: string) => {
-    if (mockHeaders.length > 1) {
-      setMockHeaders(mockHeaders.filter((header) => header.id !== id));
-    }
-  };
-
-  const addQueryParameter = () => {
-    const newParam: QueryParameter = {
-      id: Date.now().toString(),
-      name: "",
-      description: "",
-      type: "string",
-      isArray: false,
-      required: false,
-      cacheKey: false,
-    };
-    setQueryParameters([...queryParameters, newParam]);
-  };
-
-  const updateQueryParameter = (
-    id: string,
-    field: keyof QueryParameter,
-    value: any
-  ) => {
-    setQueryParameters(
-      queryParameters.map((param) =>
-        param.id === id ? { ...param, [field]: value } : param
-      )
-    );
-  };
-
-  const removeQueryParameter = (id: string) => {
-    setQueryParameters(queryParameters.filter((param) => param.id !== id));
-  };
-
-  const addHeader = () => {
-    const newHeader: Header = {
-      id: Date.now().toString(),
-      name: "",
-      description: "",
-      type: "string",
-      required: false,
-    };
-    setHeaders([...headers, newHeader]);
-  };
-
-  const updateHeader = (id: string, field: keyof Header, value: any) => {
-    setHeaders(
-      headers.map((header) =>
-        header.id === id ? { ...header, [field]: value } : header
-      )
-    );
-  };
-
-  const removeHeader = (id: string) => {
-    setHeaders(headers.filter((header) => header.id !== id));
-  };
-
-  const addFormData = () => {
-    const newFormData: FormData = {
-      id: Date.now().toString(),
-      name: "",
-      description: "",
-      type: "string",
-      isArray: false,
-      required: false,
-    };
-    setFormData([...formData, newFormData]);
-  };
-
-  const updateFormData = (id: string, field: keyof FormData, value: any) => {
-    setFormData(
-      formData.map((data) =>
-        data.id === id ? { ...data, [field]: value } : data
-      )
-    );
-  };
-
-  const removeFormData = (id: string) => {
-    setFormData(formData.filter((data) => data.id !== id));
-  };
-
-  const addBodyModel = () => {
-    const newModel: BodyModel = {
-      id: Date.now().toString(),
-      name: "",
-      description: "",
-      model: "",
-    };
-    setBodyModels([...bodyModels, newModel]);
-  };
-
-  const updateBodyModel = (id: string, field: keyof BodyModel, value: any) => {
-    setBodyModels(
-      bodyModels.map((model) =>
-        model.id === id ? { ...model, [field]: value } : model
-      )
-    );
-  };
-
-  const removeBodyModel = (id: string) => {
-    setBodyModels(bodyModels.filter((model) => model.id !== id));
-  };
-
-  const addContentType = () => {
-    if (!newContentType.trim()) {
-      setContentTypeError("필수 입력값입니다.");
-      return;
-    }
-    setContentTypes([...contentTypes, newContentType]);
-    setNewContentType("");
-    setContentTypeError("");
-  };
-
-  const removeContentType = (index: number) => {
-    setContentTypes(contentTypes.filter((_, i) => i !== index));
-  };
-
-  const IntegrationIcon = ({ type }: { type: string }) => {
-    switch (type) {
-      case "http":
-        return <Globe className="h-8 w-8 text-blue-500" />;
-      case "mock":
-        return <Box className="h-8 w-8 text-purple-500" />;
-      default:
-        return <Box className="h-8 w-8 text-gray-500" />;
-    }
-  };
+  const availableResourcePaths = [
+    "/",
+    "/api",
+    "/users",
+    "/products",
+    "/orders",
+  ];
 
   return (
     <AppLayout>
@@ -448,1025 +315,430 @@ export default function CreateMethodPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/services/api-management/resources">
-                리소스
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>메서드 생성</BreadcrumbPage>
+              <BreadcrumbPage>리소스</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <Button variant="outline" size="sm" onClick={handleBack}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               뒤로가기
             </Button>
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                메서드 생성
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                리소스:{" "}
-                <span className="font-mono text-blue-600">{resourcePath}</span>
-              </p>
-            </div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              리소스
+            </h1>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={handleBack}>
-              취소
-            </Button>
-            <Button
-              onClick={handleCreateMethod}
-              className="bg-orange-500 hover:bg-orange-600 text-white"
-            >
-              저장
-            </Button>
-          </div>
+          <Button
+            className="bg-orange-500 hover:bg-orange-600 text-white"
+            onClick={() => setIsDeployModalOpen(true)}
+          >
+            <Rocket className="h-4 w-4 mr-2" />
+            API 배포
+          </Button>
         </div>
 
-        <div className="grid grid-cols-1 gap-8">
-          {/* Left Panel - Method Creation Form */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl font-bold">메서드 생성</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Method Details */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">
-                    메서드 세부 정보
-                  </h3>
-                  <div className="space-y-4">
-                    <div>
-                      <Label
-                        htmlFor="method-type"
-                        className="text-sm font-medium"
-                      >
-                        메서드 유형
-                      </Label>
-                      <Select
-                        value={methodForm.methodType}
-                        onValueChange={(value) =>
-                          setMethodForm({ ...methodForm, methodType: value })
-                        }
-                      >
-                        <SelectTrigger className="mt-2">
-                          <SelectValue placeholder="메서드 유형 선택" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="GET">GET</SelectItem>
-                          <SelectItem value="POST">POST</SelectItem>
-                          <SelectItem value="PUT">PUT</SelectItem>
-                          <SelectItem value="DELETE">DELETE</SelectItem>
-                          <SelectItem value="PATCH">PATCH</SelectItem>
-                          <SelectItem value="OPTIONS">OPTIONS</SelectItem>
-                          <SelectItem value="HEAD">HEAD</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Integration Type */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">통합 유형</h3>
-                  <RadioGroup
-                    value={methodForm.integrationType}
-                    onValueChange={(value) =>
-                      setMethodForm({ ...methodForm, integrationType: value })
-                    }
-                    className="space-y-4"
-                  >
-                    {/* HTTP */}
-                    <div
-                      className={`border rounded-lg p-4 transition-all ${
-                        methodForm.integrationType === "http"
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <RadioGroupItem value="http" id="http" />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3">
-                            <IntegrationIcon type="http" />
-                            <div>
-                              <Label
-                                htmlFor="http"
-                                className="text-base font-medium cursor-pointer"
-                              >
-                                HTTP
-                              </Label>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                기존 HTTP 엔드포인트와 통합합니다.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Mock */}
-                    <div
-                      className={`border rounded-lg p-4 transition-all ${
-                        methodForm.integrationType === "mock"
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <RadioGroupItem value="mock" id="mock" />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3">
-                            <IntegrationIcon type="mock" />
-                            <div>
-                              <Label
-                                htmlFor="mock"
-                                className="text-base font-medium cursor-pointer"
-                              >
-                                Mock
-                              </Label>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                API Gateway 내에서 모의 응답을 생성하여 응답을
-                                생성합니다.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                {/* HTTP Configuration */}
-                {methodForm.integrationType === "http" && (
-                  <div className="space-y-6">
-                    {/* API Key Toggle */}
-                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <div>
-                        <Label className="text-sm font-medium">
-                          API 키가 필요함
-                        </Label>
-                        <p className="text-xs text-gray-500 mt-1">
-                          API 키 인증을 활성화합니다
-                        </p>
-                        {methodForm.selectedApiKey && (
-                          <p className="text-xs text-blue-600 mt-1">
-                            선택된 키:{" "}
-                            {
-                              apiKeys.find(
-                                (key) => key.id === methodForm.selectedApiKey
-                              )?.name
-                            }
-                          </p>
-                        )}
-                      </div>
-                      <Switch
-                        checked={methodForm.apiKeyRequired}
-                        onCheckedChange={handleApiKeyToggle}
-                      />
-                    </div>
-                    {/* Endpoint URL */}
-                    <div>
-                      <Label className="text-base font-medium">
-                        엔드포인트 URL
-                      </Label>
-                      <Select
-                        value={methodForm.endpointUrl}
-                        onValueChange={(value) =>
-                          setMethodForm({ ...methodForm, endpointUrl: value })
-                        }
-                      >
-                        <SelectTrigger className="mt-2">
-                          <SelectValue placeholder="https://api.endpoint.com/" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {endpointUrls.map((url) => (
-                            <SelectItem key={url} value={url}>
-                              {url}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* 요청 검사기 */}
-                    <div>
-                      <Label className="text-sm font-medium">요청 검사기</Label>
-                      <Select
-                        value={methodForm.requestValidator}
-                        onValueChange={(value) =>
-                          setMethodForm({
-                            ...methodForm,
-                            requestValidator: value,
-                          })
-                        }
-                      >
-                        <SelectTrigger className="mt-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="없음">없음</SelectItem>
-                          <SelectItem value="본문 검증">본문 검증</SelectItem>
-                          <SelectItem value="파라미터 검증">
-                            파라미터 검증
-                          </SelectItem>
-                          <SelectItem value="본문 및 파라미터 검증">
-                            본문 및 파라미터 검증
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                )}
-
-                {/* Mock Configuration */}
-                {methodForm.integrationType === "mock" && (
-                  <div className="space-y-6">
-                    {/* Status Code */}
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <Label className="text-base font-medium">
-                          Status Code
-                        </Label>
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      </div>
-                      <Input
-                        value={methodForm.statusCode}
-                        onChange={(e) =>
-                          setMethodForm({
-                            ...methodForm,
-                            statusCode: e.target.value,
-                          })
-                        }
-                        className="w-full"
-                        placeholder="200"
-                      />
-                    </div>
-
-                    {/* Header */}
-                    <div>
-                      <Label className="text-base font-medium mb-3 block">
-                        Header
-                      </Label>
-                      <div className="space-y-3">
-                        {mockHeaders.map((header, index) => (
-                          <div
-                            key={header.id}
-                            className="flex gap-3 items-center"
-                          >
-                            <div className="flex-1">
-                              <Input
-                                value={header.name}
-                                onChange={(e) =>
-                                  updateMockHeader(
-                                    header.id,
-                                    "name",
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="이름"
-                              />
-                            </div>
-                            <div className="flex-1">
-                              <Input
-                                value={header.value}
-                                onChange={(e) =>
-                                  updateMockHeader(
-                                    header.id,
-                                    "value",
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="값"
-                              />
-                            </div>
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2"
-                                onClick={addMockHeader}
-                              >
-                                <Plus className="h-4 w-4" />
-                              </Button>
-                              {mockHeaders.length > 1 && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => removeMockHeader(header.id)}
-                                  className="px-2 py-2"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Response */}
-                    <div>
-                      <Label className="text-base font-medium mb-3 block">
-                        Response
-                      </Label>
-                      <div className="relative">
-                        <Textarea
-                          value={methodForm.mockResponse}
-                          onChange={(e) =>
-                            setMethodForm({
-                              ...methodForm,
-                              mockResponse: e.target.value,
-                            })
-                          }
-                          placeholder="응답 데이터를 입력하세요"
-                          className="min-h-[120px] resize-none"
-                          maxLength={1500}
-                        />
-                        <div className="absolute bottom-2 right-2 text-xs text-gray-500">
-                          {methodForm.mockResponse.length}/1500 자
-                        </div>
-                      </div>
-                    </div>
-                    {/* API Key Toggle */}
-                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <div>
-                        <Label className="text-sm font-medium">
-                          API 키가 필요함
-                        </Label>
-                        <p className="text-xs text-gray-500 mt-1">
-                          API 키 인증을 활성화합니다
-                        </p>
-                        {methodForm.selectedApiKey && (
-                          <p className="text-xs text-blue-600 mt-1">
-                            선택된 키:{" "}
-                            {
-                              apiKeys.find(
-                                (key) => key.id === methodForm.selectedApiKey
-                              )?.name
-                            }
-                          </p>
-                        )}
-                      </div>
-                      <Switch
-                        checked={methodForm.apiKeyRequired}
-                        onCheckedChange={handleApiKeyToggle}
-                      />
-                    </div>
-                    {/* Endpoint URL */}
-                    <div>
-                      <Label className="text-base font-medium">
-                        엔드포인트 URL
-                      </Label>
-                      <Select
-                        value={methodForm.endpointUrl}
-                        onValueChange={(value) =>
-                          setMethodForm({ ...methodForm, endpointUrl: value })
-                        }
-                      >
-                        <SelectTrigger className="mt-2">
-                          <SelectValue placeholder="https://api.endpoint.com/" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {endpointUrls.map((url) => (
-                            <SelectItem key={url} value={url}>
-                              {url}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* 요청 검사기 */}
-                    <div>
-                      <Label className="text-sm font-medium">요청 검사기</Label>
-                      <Select
-                        value={methodForm.requestValidator}
-                        onValueChange={(value) =>
-                          setMethodForm({
-                            ...methodForm,
-                            requestValidator: value,
-                          })
-                        }
-                      >
-                        <SelectTrigger className="mt-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="없음">없음</SelectItem>
-                          <SelectItem value="본문 검증">본문 검증</SelectItem>
-                          <SelectItem value="파라미터 검증">
-                            파라미터 검증
-                          </SelectItem>
-                          <SelectItem value="본문 및 파라미터 검증">
-                            본문 및 파라미터 검증
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+        <div className="grid grid-cols-12 gap-6">
+          {/* Left Sidebar - Resource Tree */}
+          <div className="col-span-3">
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-gray-900 dark:text-white">
+                  리소스 목록
+                </h3>
+                <Button
+                  size="sm"
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 h-7"
+                >
+                  리소스 생성
+                </Button>
+              </div>
+              <div className="space-y-1">
+                {resources.map((resource) => renderResourceTree(resource))}
+              </div>
+            </div>
           </div>
 
-          {/* Right Panel - Collapsible Sections */}
-          <div className="space-y-4">
-            {/* URL Query String Parameters */}
-            <div className="border border-gray-200 rounded-lg overflow-hidden">
-              <Collapsible
-                open={openSections.urlQuery}
-                onOpenChange={() => toggleSection("urlQuery")}
-              >
-                <CollapsibleTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-between p-4 h-auto bg-green-50 hover:bg-green-100 dark:bg-green-950/20 dark:hover:bg-green-950/30 border-0 rounded-none"
-                  >
-                    <span className="text-lg font-semibold text-green-900 dark:text-green-100">
-                      URL 쿼리 문자열 파라미터
-                    </span>
-                    {openSections.urlQuery ? (
-                      <ChevronDown className="h-5 w-5 text-green-700" />
-                    ) : (
-                      <ChevronRight className="h-5 w-5 text-green-700" />
-                    )}
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="p-6 bg-white dark:bg-gray-900">
-                    <div className="space-y-4">
-                      <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
-                        <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-3">
-                          쿼리 스트링
-                        </h4>
-
-                        {queryParameters.map((param, index) => (
-                          <div
-                            key={param.id}
-                            className="grid grid-cols-12 gap-3 items-center mb-3"
-                          >
-                            <div className="col-span-2">
-                              <Input
-                                placeholder="이름"
-                                value={param.name}
-                                onChange={(e) =>
-                                  updateQueryParameter(
-                                    param.id,
-                                    "name",
-                                    e.target.value
-                                  )
-                                }
-                                className={
-                                  param.name === "" ? "border-red-300" : ""
-                                }
-                              />
-                            </div>
-                            <div className="col-span-3">
-                              <Input
-                                placeholder="설명"
-                                value={param.description}
-                                onChange={(e) =>
-                                  updateQueryParameter(
-                                    param.id,
-                                    "description",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
-                            <div className="col-span-2">
-                              <Select
-                                value={param.type}
-                                onValueChange={(value) =>
-                                  updateQueryParameter(param.id, "type", value)
-                                }
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="string">string</SelectItem>
-                                  <SelectItem value="number">number</SelectItem>
-                                  <SelectItem value="boolean">
-                                    boolean
-                                  </SelectItem>
-                                  <SelectItem value="array">array</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="col-span-1 flex justify-center">
-                              <div className="flex items-center space-x-2">
-                                <Label className="text-xs">Array</Label>
-                                <Switch
-                                  checked={param.isArray}
-                                  onCheckedChange={(checked) =>
-                                    updateQueryParameter(
-                                      param.id,
-                                      "isArray",
-                                      checked
-                                    )
-                                  }
-                                  size="sm"
-                                />
-                              </div>
-                            </div>
-                            <div className="col-span-1 flex justify-center">
-                              <div className="flex items-center space-x-2">
-                                <Label className="text-xs">Required</Label>
-                                <Switch
-                                  checked={param.required}
-                                  onCheckedChange={(checked) =>
-                                    updateQueryParameter(
-                                      param.id,
-                                      "required",
-                                      checked
-                                    )
-                                  }
-                                  size="sm"
-                                />
-                              </div>
-                            </div>
-                            <div className="col-span-3 flex gap-2 justify-end">
-                              <Button
-                                size="sm"
-                                className="bg-blue-500 hover:bg-blue-600 text-white"
-                                onClick={addQueryParameter}
-                              >
-                                <Plus className="h-4 w-4 mr-1" />
-                                추가
-                              </Button>
-                              {queryParameters.length > 1 && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => removeQueryParameter(param.id)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-
-                        {queryParameters.some((param) => param.name === "") && (
-                          <div className="flex items-center gap-2 text-red-600 text-sm mt-2">
-                            <AlertCircle className="h-4 w-4" />
-                            <span>이름은 비워둘 수 없습니다.</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <Button
-                        variant="outline"
-                        className="text-blue-600 border-blue-300 hover:bg-blue-50 bg-transparent"
-                        onClick={addQueryParameter}
-                      >
-                        쿼리 문자열 추가
-                      </Button>
-                    </div>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
-
-            {/* HTTP Request Headers */}
-            <div className="border border-gray-200 rounded-lg overflow-hidden">
-              <Collapsible
-                open={openSections.httpHeaders}
-                onOpenChange={() => toggleSection("httpHeaders")}
-              >
-                <CollapsibleTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-between p-4 h-auto bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/20 dark:hover:bg-purple-950/30 border-0 rounded-none"
-                  >
-                    <span className="text-lg font-semibold text-purple-900 dark:text-purple-100">
-                      HTTP 요청 헤더
-                    </span>
-                    {openSections.httpHeaders ? (
-                      <ChevronDown className="h-5 w-5 text-purple-700" />
-                    ) : (
-                      <ChevronRight className="h-5 w-5 text-purple-700" />
-                    )}
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="p-6 bg-white dark:bg-gray-900">
-                    <div className="space-y-4">
-                      <div className="bg-green-50 dark:bg-green-950/20 p-4 rounded-lg">
-                        <h4 className="font-semibold text-green-900 dark:text-green-100 mb-3">
-                          헤더
-                        </h4>
-
-                        {headers.map((header, index) => (
-                          <div
-                            key={header.id}
-                            className="grid grid-cols-12 gap-3 items-center mb-3"
-                          >
-                            <div className="col-span-3">
-                              <Input
-                                placeholder="이름"
-                                value={header.name}
-                                onChange={(e) =>
-                                  updateHeader(
-                                    header.id,
-                                    "name",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
-                            <div className="col-span-4">
-                              <Input
-                                placeholder="설명"
-                                value={header.description}
-                                onChange={(e) =>
-                                  updateHeader(
-                                    header.id,
-                                    "description",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
-                            <div className="col-span-2">
-                              <Select
-                                value={header.type}
-                                onValueChange={(value) =>
-                                  updateHeader(header.id, "type", value)
-                                }
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="string">string</SelectItem>
-                                  <SelectItem value="number">number</SelectItem>
-                                  <SelectItem value="boolean">
-                                    boolean
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="col-span-1 flex justify-center">
-                              <div className="flex items-center space-x-2">
-                                <Label className="text-xs">Required</Label>
-                                <Switch
-                                  checked={header.required}
-                                  onCheckedChange={(checked) =>
-                                    updateHeader(header.id, "required", checked)
-                                  }
-                                  size="sm"
-                                />
-                              </div>
-                            </div>
-                            <div className="col-span-2 flex gap-2 justify-end">
-                              <Button
-                                size="sm"
-                                className="bg-blue-500 hover:bg-blue-600 text-white"
-                                onClick={addHeader}
-                              >
-                                <Plus className="h-4 w-4 mr-1" />
-                                추가
-                              </Button>
-                              {headers.length > 1 && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => removeHeader(header.id)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
-
-            {/* Request Body */}
-            <div className="border border-gray-200 rounded-lg overflow-hidden">
-              <Collapsible
-                open={openSections.requestBody}
-                onOpenChange={() => toggleSection("requestBody")}
-              >
-                <CollapsibleTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-between p-4 h-auto bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/20 dark:hover:bg-orange-950/30 border-0 rounded-none"
-                  >
-                    <span className="text-lg font-semibold text-orange-900 dark:text-orange-100">
-                      요청 본문
-                    </span>
-                    {openSections.requestBody ? (
-                      <ChevronDown className="h-5 w-5 text-orange-700" />
-                    ) : (
-                      <ChevronRight className="h-5 w-5 text-orange-700" />
-                    )}
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="p-6 bg-white dark:bg-gray-900 space-y-6">
-                    {/* Form Data Section */}
-                    <div className="bg-purple-50 dark:bg-purple-950/20 p-4 rounded-lg">
-                      <h4 className="font-semibold text-purple-900 dark:text-purple-100 mb-3">
-                        폼 데이터
-                      </h4>
-
-                      {formData.map((data, index) => (
-                        <div
-                          key={data.id}
-                          className="grid grid-cols-12 gap-3 items-center mb-3"
-                        >
-                          <div className="col-span-2">
-                            <Input
-                              placeholder="이름"
-                              value={data.name}
-                              onChange={(e) =>
-                                updateFormData(data.id, "name", e.target.value)
-                              }
-                            />
-                          </div>
-                          <div className="col-span-3">
-                            <Input
-                              placeholder="설명"
-                              value={data.description}
-                              onChange={(e) =>
-                                updateFormData(
-                                  data.id,
-                                  "description",
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </div>
-                          <div className="col-span-2">
-                            <Select
-                              value={data.type}
-                              onValueChange={(value) =>
-                                updateFormData(data.id, "type", value)
-                              }
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="string">string</SelectItem>
-                                <SelectItem value="number">number</SelectItem>
-                                <SelectItem value="boolean">boolean</SelectItem>
-                                <SelectItem value="file">file</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="col-span-1 flex justify-center">
-                            <div className="flex items-center space-x-2">
-                              <Label className="text-xs">Array</Label>
-                              <Switch
-                                checked={data.isArray}
-                                onCheckedChange={(checked) =>
-                                  updateFormData(data.id, "isArray", checked)
-                                }
-                                size="sm"
-                              />
-                            </div>
-                          </div>
-                          <div className="col-span-1 flex justify-center">
-                            <div className="flex items-center space-x-2">
-                              <Label className="text-xs">Required</Label>
-                              <Switch
-                                checked={data.required}
-                                onCheckedChange={(checked) =>
-                                  updateFormData(data.id, "required", checked)
-                                }
-                                size="sm"
-                              />
-                            </div>
-                          </div>
-                          <div className="col-span-3 flex gap-2 justify-end">
-                            <Button
-                              size="sm"
-                              className="bg-blue-500 hover:bg-blue-600 text-white"
-                              onClick={addFormData}
-                            >
-                              <Plus className="h-4 w-4 mr-1" />
-                              추가
-                            </Button>
-                            {formData.length > 1 && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => removeFormData(data.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Body Models Section */}
-                    <div className="bg-orange-50 dark:bg-orange-950/20 p-4 rounded-lg">
-                      <h4 className="font-semibold text-orange-900 dark:text-orange-100 mb-3">
-                        바디
-                      </h4>
-
-                      {bodyModels.map((model, index) => (
-                        <div
-                          key={model.id}
-                          className="grid grid-cols-12 gap-3 items-center mb-3"
-                        >
-                          <div className="col-span-3">
-                            <Input
-                              placeholder="이름"
-                              value={model.name}
-                              onChange={(e) =>
-                                updateBodyModel(
-                                  model.id,
-                                  "name",
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </div>
-                          <div className="col-span-4">
-                            <Input
-                              placeholder="설명"
-                              value={model.description}
-                              onChange={(e) =>
-                                updateBodyModel(
-                                  model.id,
-                                  "description",
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </div>
-                          <div className="col-span-3">
-                            <Select
-                              value={model.model}
-                              onValueChange={(value) =>
-                                updateBodyModel(model.id, "model", value)
-                              }
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="모델" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="User">User</SelectItem>
-                                <SelectItem value="Product">Product</SelectItem>
-                                <SelectItem value="Order">Order</SelectItem>
-                                <SelectItem value="Custom">Custom</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="col-span-2 flex gap-2 justify-end">
-                            <Button
-                              size="sm"
-                              className="bg-blue-500 hover:bg-blue-600 text-white"
-                              onClick={addBodyModel}
-                            >
-                              <Plus className="h-4 w-4 mr-1" />
-                              추가
-                            </Button>
-                            {bodyModels.length > 1 && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => removeBodyModel(model.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Content Type Section */}
-                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
-                        컨텐츠 타입
-                      </h4>
-
-                      <div className="flex gap-2 mb-3">
-                        <Input
-                          placeholder="컨텐츠 타입"
-                          value={newContentType}
-                          onChange={(e) => {
-                            setNewContentType(e.target.value);
-                            if (contentTypeError) setContentTypeError("");
-                          }}
-                          className={contentTypeError ? "border-red-300" : ""}
-                        />
-                        <Button
-                          className="bg-blue-500 hover:bg-blue-600 text-white"
-                          onClick={addContentType}
-                        >
-                          <Plus className="h-4 w-4 mr-1" />
-                          추가
-                        </Button>
-                      </div>
-
-                      {contentTypeError && (
-                        <div className="flex items-center gap-2 text-red-600 text-sm mb-3">
-                          <AlertCircle className="h-4 w-4" />
-                          <span>{contentTypeError}</span>
-                        </div>
-                      )}
-
-                      {contentTypes.length > 0 && (
-                        <div className="space-y-2">
-                          {contentTypes.map((type, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center justify-between bg-white dark:bg-gray-700 p-2 rounded border"
-                            >
-                              <span className="text-sm">{type}</span>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => removeContentType(index)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
+          {/* Main Content */}
+          <div className="col-span-9">
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+              {/* Resource Details Header */}
+              <div className="border-b border-gray-200 dark:border-gray-700 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                    리소스 세부 정보
+                  </h2>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      {selectedResource.corsEnabled ? (
+                        <>
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                          <span className="text-sm text-green-600 font-medium">
+                            CORS 활성화
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <XCircle className="h-5 w-5 text-red-500" />
+                          <span className="text-sm text-red-600 font-medium">
+                            CORS 비활성화
+                          </span>
+                        </>
                       )}
                     </div>
-
                     <Button
                       variant="outline"
-                      className="text-blue-600 border-blue-300 hover:bg-blue-50 bg-transparent"
+                      size="sm"
+                      onClick={() => setIsDeleteDialogOpen(true)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                     >
-                      모델 추가
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      리소스 삭제
                     </Button>
                   </div>
-                </CollapsibleContent>
-              </Collapsible>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      경로
+                    </Label>
+                    <div className="mt-1 text-lg font-mono text-gray-900 dark:text-white">
+                      {selectedResource.path}
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      리소스 ID
+                    </Label>
+                    <div className="mt-1 text-sm font-mono text-gray-600 dark:text-gray-400">
+                      jtgiezhqj1
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Methods Section */}
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    메서드 ({selectedResource.methods.length})
+                  </h3>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">
+                      삭제
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleCreateMethod}
+                      className="bg-blue-500 hover:bg-blue-600 text-white"
+                    >
+                      메서드 생성
+                    </Button>
+                  </div>
+                </div>
+
+                {selectedResource.methods.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>메서드 유형</TableHead>
+                        <TableHead>권한 부여</TableHead>
+                        <TableHead>API 키</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {selectedResource.methods.map((method) => (
+                        <TableRow
+                          key={method.id}
+                          className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
+                          onClick={() =>
+                            handleMethodClick(method, selectedResource)
+                          }
+                        >
+                          <TableCell>
+                            <span className="font-mono text-sm bg-green-100 text-green-800 px-2 py-1 rounded">
+                              {method.type}
+                            </span>
+                          </TableCell>
+                          <TableCell>{method.permissions}</TableCell>
+                          <TableCell>{method.apiKey}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="text-center py-12">
+                    <Shield className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 dark:text-gray-400 mb-2">
+                      메서드 없음
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      정의된 메서드가 없습니다.
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* API Key Selection Modal */}
-        <Dialog open={isApiKeyModalOpen} onOpenChange={setIsApiKeyModalOpen}>
+        {/* Create Resource Modal */}
+        <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
           <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
-                API 키 선택
+              <DialogTitle className="text-xl font-bold text-blue-600">
+                Resource 생성
               </DialogTitle>
             </DialogHeader>
 
-            <div className="py-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                이 메서드에 사용할 API 키를 선택하세요.
-              </p>
-
-              <div className="space-y-3">
-                {apiKeys.map((apiKey) => (
-                  <div
-                    key={apiKey.id}
-                    className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
-                    onClick={() => handleApiKeySelect(apiKey.id)}
+            <div className="space-y-6 py-4">
+              {/* Resource Path and Name - Side by Side */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label
+                    htmlFor="resource-path"
+                    className="text-sm font-medium text-gray-700 mb-2 block"
                   >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white">
-                          {apiKey.name}
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          {apiKey.description}
-                        </p>
-                        <p className="text-xs font-mono text-gray-500 mt-2">
-                          {apiKey.value}
-                        </p>
-                      </div>
-                      <ChevronRight className="h-5 w-5 text-gray-400" />
-                    </div>
-                  </div>
-                ))}
+                    리소스 경로
+                  </Label>
+                  <Select
+                    value={createResourceForm.path}
+                    onValueChange={(value) =>
+                      setCreateResourceForm({
+                        ...createResourceForm,
+                        path: value,
+                      })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="경로를 선택하세요" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableResourcePaths.map((path) => (
+                        <SelectItem key={path} value={path}>
+                          {path}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label
+                    htmlFor="resource-name"
+                    className="text-sm font-medium text-gray-700 mb-2 block"
+                  >
+                    리소스 이름
+                  </Label>
+                  <Input
+                    id="resource-name"
+                    placeholder="my-resource"
+                    value={createResourceForm.name}
+                    onChange={(e) =>
+                      setCreateResourceForm({
+                        ...createResourceForm,
+                        name: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* CORS Toggle */}
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div>
+                  <Label
+                    htmlFor="cors-toggle"
+                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    원본에서 CORS
+                  </Label>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Cross-Origin Resource Sharing을 활성화합니다
+                  </p>
+                </div>
+                <Switch
+                  id="cors-toggle"
+                  checked={createResourceForm.corsEnabled}
+                  onCheckedChange={(checked) =>
+                    setCreateResourceForm({
+                      ...createResourceForm,
+                      corsEnabled: checked,
+                    })
+                  }
+                />
               </div>
             </div>
 
             <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={handleApiKeyModalCancel}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsCreateModalOpen(false);
+                  setCreateResourceForm({
+                    path: "",
+                    name: "",
+                    corsEnabled: false,
+                  });
+                }}
+              >
                 취소
+              </Button>
+              <Button
+                onClick={handleCreateResource}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                생성
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Deploy API Modal */}
+        <Dialog open={isDeployModalOpen} onOpenChange={setIsDeployModalOpen}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-white">
+                Deploy API
+              </DialogTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsDeployModalOpen(false)}
+                className="h-6 w-6 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              {/* Description */}
+              <div className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                API를 배포할 스테이지를 생성하거나 선택합니다. 배포 기록을
+                사용하여 스테이지의 활성 배포를 되돌리거나 변경할 수 있습니다.{" "}
+                <button className="text-blue-600 hover:text-blue-700 inline-flex items-center gap-1">
+                  Learn more
+                  <ExternalLink className="h-3 w-3" />
+                </button>
+              </div>
+
+              {/* Stage Selection */}
+              <div>
+                <Label
+                  htmlFor="stage-select"
+                  className="text-base font-semibold text-gray-900 dark:text-white mb-3 block"
+                >
+                  스테이지
+                </Label>
+                <Select
+                  value={deployForm.stage}
+                  onValueChange={(value) =>
+                    setDeployForm({ ...deployForm, stage: value })
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="옵션을 선택하세요" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {stages.map((stage) => (
+                      <SelectItem key={stage.id} value={stage.id}>
+                        {stage.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Deploy Description */}
+              <div>
+                <Label
+                  htmlFor="deploy-description"
+                  className="text-base font-semibold text-gray-900 dark:text-white mb-3 block"
+                >
+                  배포 설명
+                </Label>
+                <Textarea
+                  id="deploy-description"
+                  placeholder="배포에 대한 설명을 입력하세요..."
+                  value={deployForm.description}
+                  onChange={(e) =>
+                    setDeployForm({
+                      ...deployForm,
+                      description: e.target.value,
+                    })
+                  }
+                  className="min-h-[120px] resize-none"
+                />
+              </div>
+            </div>
+
+            <DialogFooter className="gap-3 pt-6">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsDeployModalOpen(false);
+                  setDeployForm({ stage: "", description: "" });
+                }}
+                className="px-6"
+              >
+                취소
+              </Button>
+              <Button
+                onClick={handleDeploy}
+                className="bg-orange-500 hover:bg-orange-600 text-white px-8"
+              >
+                배포
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+                <AlertTriangle className="h-5 w-5" />
+                리소스 삭제 확인
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-gray-600">
+                <div className="space-y-2">
+                  <p className="font-semibold">
+                    ⚠️ 경고: 이 작업은 되돌릴 수 없습니다!
+                  </p>
+                  <p>
+                    리소스{" "}
+                    <span className="font-mono bg-gray-100 px-2 py-1 rounded">
+                      {selectedResource.path}
+                    </span>
+                    을(를) 삭제하시겠습니까?
+                  </p>
+                  <p className="text-sm text-red-600">
+                    • 이 리소스와 연결된 모든 메서드가 삭제됩니다
+                    <br />• API 호출이 실패할 수 있습니다
+                    <br />• 이 작업은 즉시 적용되며 복구할 수 없습니다
+                  </p>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>취소</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteResource}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                삭제하기
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </AppLayout>
   );
