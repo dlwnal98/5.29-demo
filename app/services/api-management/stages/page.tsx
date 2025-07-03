@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+
 import {
   Select,
   SelectContent,
@@ -48,6 +50,8 @@ import {
   Edit,
   Copy,
   Search,
+  Activity,
+  Settings,
   ChevronLeft,
   ChevronRightIcon,
 } from "lucide-react";
@@ -75,8 +79,47 @@ interface Stage {
   deploymentId: string;
 }
 
+interface DeploymentRecord {
+  id: string;
+  date: string;
+  status: "active" | "inactive" | "failed";
+  description: string;
+  deploymentId: string;
+}
+
 export default function StagesPage() {
   const router = useRouter();
+
+  const mockDeployments: DeploymentRecord[] = [
+    {
+      id: "1",
+      date: "July 03, 2025, 08:26 (UTC+09:00)",
+      status: "inactive",
+      description: "-",
+      deploymentId: "eemowu",
+    },
+    {
+      id: "2",
+      date: "July 03, 2025, 08:26 (UTC+09:00)",
+      status: "inactive",
+      description: "-",
+      deploymentId: "jje6x",
+    },
+    {
+      id: "3",
+      date: "July 02, 2025, 17:44 (UTC+09:00)",
+      status: "active",
+      description: "활성",
+      deploymentId: "xf40pg",
+    },
+    {
+      id: "4",
+      date: "July 02, 2025, 17:42 (UTC+09:00)",
+      status: "inactive",
+      description: "-",
+      deploymentId: "ussiri",
+    },
+  ];
 
   const [apiResources] = useState<ApiResource[]>([
     {
@@ -182,6 +225,30 @@ export default function StagesPage() {
     setIsCreateStageModalOpen(false);
     setCreateStageForm({ name: "", description: "" });
   };
+
+  const getDeploymentStatusColor = (status: string) => {
+    switch (status) {
+      case "active":
+        return "bg-green-100 text-green-700";
+      case "inactive":
+        return "bg-gray-100 text-gray-700";
+      case "failed":
+        return "bg-red-100 text-red-700";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
+  const [deploymentSearchTerm, setDeploymentSearchTerm] = useState("");
+
+  const filteredDeployments = mockDeployments.filter(
+    (deployment) =>
+      deployment.deploymentId
+        .toLowerCase()
+        .includes(deploymentSearchTerm.toLowerCase()) ||
+      deployment.description
+        .toLowerCase()
+        .includes(deploymentSearchTerm.toLowerCase())
+  );
 
   const renderResourceTree = (resource: ApiResource, level = 0) => {
     const isExpanded = expandedPaths.has(resource.id);
@@ -374,7 +441,7 @@ export default function StagesPage() {
                         </button>
                       </div>
                     </div>
-                    <div>
+                    {/* <div>
                       <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         최근에 배포
                       </Label>
@@ -382,32 +449,81 @@ export default function StagesPage() {
                         {selectedStage.lastDeployed}에{" "}
                         {selectedStage.deploymentId}
                       </div>
+                    </div> */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            배포 ({mockDeployments.length})
+                          </Label>
+                        </div>
+                      </div>
+
+                      <div className="border rounded-lg overflow-hidden">
+                        <div className="bg-gray-50 px-4 py-2 border-b">
+                          <div className="grid grid-cols-12 gap-4 text-xs font-medium text-gray-600">
+                            <div className="col-span-3">배포 날짜</div>
+                            <div className="col-span-2">상태</div>
+                            <div className="col-span-3">설명</div>
+                            <div className="col-span-3">배포 ID</div>
+                          </div>
+                        </div>
+
+                        <div className="divide-y">
+                          {filteredDeployments.map((deployment) => (
+                            <div
+                              key={deployment.id}
+                              className="px-4 py-3 hover:bg-gray-50"
+                            >
+                              <div className="grid grid-cols-12 gap-4 items-center">
+                                <div className="col-span-3 text-sm text-gray-900">
+                                  {deployment.date}
+                                </div>
+                                <div className="col-span-2">
+                                  {deployment.status === "active" ? (
+                                    <Badge
+                                      className={`text-xs ${getDeploymentStatusColor(
+                                        deployment.status
+                                      )}`}
+                                    >
+                                      활성
+                                    </Badge>
+                                  ) : (
+                                    <span className="text-sm text-gray-500">
+                                      -
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="col-span-3 text-sm text-gray-900">
+                                  {deployment.description}
+                                </div>
+                                <div className="col-span-3 text-sm text-gray-900">
+                                  {deployment.deploymentId}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center space-x-2">
+                          <button className="p-1 hover:bg-gray-100 rounded">
+                            <ChevronRight className="h-4 w-4 rotate-180" />
+                          </button>
+                          <span className="font-medium text-gray-900">1</span>
+                          <button className="p-1 hover:bg-gray-100 rounded">
+                            <ChevronRight className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Tabs Section */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <div className="border-b border-gray-200 dark:border-gray-700">
-                    <TabsList className="h-auto p-0 bg-transparent">
-                      <TabsTrigger
-                        value="deployment"
-                        className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 rounded-none px-4 py-3"
-                      >
-                        배포 기록
-                      </TabsTrigger>
-                    </TabsList>
-                  </div>
-
-                  <TabsContent value="deployment" className="p-4">
-                    <div className="text-center py-12">
-                      <p className="text-gray-500">배포 기록이 없습니다.</p>
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"></div>
             </div>
           </div>
         </div>
