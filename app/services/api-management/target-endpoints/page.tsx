@@ -202,7 +202,17 @@ export default function TargetEndpointsPage() {
               API 대상 엔드포인트를 관리하세요.
             </p>
           </div>
+
           <div className="flex gap-2">
+            <div className="relative w-64">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="엔드포인트 검색..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
             <Button
               variant="destructive"
               onClick={() => setIsDeleteModalOpen(true)}
@@ -219,24 +229,11 @@ export default function TargetEndpointsPage() {
 
         {/* Target Endpoints List */}
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Target Endpoints 목록</CardTitle>
-              <div className="relative w-64">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="엔드포인트 검색..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-          </CardHeader>
+          <div className="pt-6"></div>
           <CardContent>
             <Table>
-              <TableHeader>
-                <TableRow>
+              <TableHeader className="hover:bg-white">
+                <TableRow className="hover:bg-white">
                   <TableHead>Target ID</TableHead>
                   <TableHead>URL</TableHead>
                   <TableHead>생성일자</TableHead>
@@ -286,29 +283,12 @@ export default function TargetEndpointsPage() {
         <Dialog open={isCreateModalOpen} onOpenChange={handleModalClose}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Target Endpoint 생성</DialogTitle>
+              <DialogTitle className="mb-2">Target Endpoint 생성</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label
-                  htmlFor="create-targetId"
-                  className="text-sm font-medium"
-                >
-                  Target ID *
-                </Label>
-                <Input
-                  id="create-targetId"
-                  value={formData.targetId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, targetId: e.target.value })
-                  }
-                  placeholder="endpoint-001"
-                  className="mt-1"
-                />
-              </div>
-              <div>
                 <Label htmlFor="create-url" className="text-sm font-medium">
-                  URL *
+                  Endpoint URL *
                 </Label>
                 <Input
                   id="create-url"
@@ -317,7 +297,7 @@ export default function TargetEndpointsPage() {
                     setFormData({ ...formData, url: e.target.value })
                   }
                   placeholder="https://api.example.com/v1"
-                  className="mt-1"
+                  className="mt-2"
                 />
               </div>
               <div>
@@ -334,7 +314,7 @@ export default function TargetEndpointsPage() {
                     setFormData({ ...formData, description: e.target.value })
                   }
                   placeholder="엔드포인트 설명을 입력하세요"
-                  className="mt-1"
+                  className="mt-2"
                 />
               </div>
             </div>
@@ -351,26 +331,12 @@ export default function TargetEndpointsPage() {
         <Dialog open={isEditModalOpen} onOpenChange={handleModalClose}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Target Endpoint 수정</DialogTitle>
+              <DialogTitle className="mb-2">Target Endpoint 수정</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="edit-targetId" className="text-sm font-medium">
-                  Target ID *
-                </Label>
-                <Input
-                  id="edit-targetId"
-                  value={formData.targetId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, targetId: e.target.value })
-                  }
-                  placeholder="endpoint-001"
-                  className="mt-1"
-                />
-              </div>
-              <div>
                 <Label htmlFor="edit-url" className="text-sm font-medium">
-                  URL *
+                  Endpoint URL *
                 </Label>
                 <Input
                   id="edit-url"
@@ -379,7 +345,7 @@ export default function TargetEndpointsPage() {
                     setFormData({ ...formData, url: e.target.value })
                   }
                   placeholder="https://api.example.com/v1"
-                  className="mt-1"
+                  className="mt-2"
                 />
               </div>
               <div>
@@ -396,7 +362,7 @@ export default function TargetEndpointsPage() {
                     setFormData({ ...formData, description: e.target.value })
                   }
                   placeholder="엔드포인트 설명을 입력하세요"
-                  className="mt-1"
+                  className="mt-2"
                 />
               </div>
             </div>
