@@ -381,23 +381,18 @@ export default function StagesPage() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <Button variant="outline" size="sm" onClick={handleBack}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              뒤로가기
+              <ArrowLeft className="h-4 w-4" />
             </Button>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               스테이지
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm">
-              <span className="text-blue-600">스테이지 작업</span>
-              <ChevronDown className="h-4 w-4 ml-1" />
-            </Button>
             <Button
               className="bg-orange-500 hover:bg-orange-600 text-white"
               onClick={() => setIsCreateStageModalOpen(true)}
             >
-              Create stage
+              스테이지 생성
             </Button>
           </div>
         </div>
@@ -405,7 +400,7 @@ export default function StagesPage() {
         <div className="grid grid-cols-12 gap-6">
           {/* Left Sidebar - Resource Tree */}
           <div className="col-span-3">
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3 h-full">
               <div className="space-y-1">
                 {apiResources.map((resource) => renderResourceTree(resource))}
               </div>
@@ -461,8 +456,8 @@ export default function StagesPage() {
                           onClick={handleCopyUrl}
                           className="text-blue-600 hover:text-blue-700 text-sm font-mono flex items-center gap-1"
                         >
-                          <Copy className="h-3 w-3" />
                           {selectedStage.url}
+                          <Copy className="h-3 w-3" />
                         </button>
                       </div>
                     </div>
@@ -478,8 +473,8 @@ export default function StagesPage() {
                             onClick={handleCopyMethodUrl}
                             className="text-green-600 hover:text-green-700 text-sm font-mono flex items-center gap-1 bg-green-50 px-2 py-1 rounded border border-green-200"
                           >
-                            <Copy className="h-3 w-3" />
                             {selectedMethod.url}
+                            <Copy className="h-3 w-3" />
                           </button>
                         </div>
                         <div className="mt-1 text-xs text-gray-500">
@@ -559,9 +554,6 @@ export default function StagesPage() {
                   </div>
                 </div>
               </div>
-
-              {/* Tabs Section */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"></div>
             </div>
           </div>
         </div>

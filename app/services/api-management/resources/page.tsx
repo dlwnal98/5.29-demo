@@ -324,8 +324,7 @@ export default function ApiResourcesPage() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <Button variant="outline" size="sm" onClick={handleBack}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              뒤로가기
+              <ArrowLeft className="h-4 w-4" />
             </Button>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               리소스
