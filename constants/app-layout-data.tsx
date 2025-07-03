@@ -1,4 +1,4 @@
-import type { Project, NavItem } from "@/types"
+import type { Project, NavItem } from "@/types";
 import {
   LogOut,
   Users,
@@ -15,7 +15,8 @@ import {
   FolderOpen,
   Key,
   Route,
-} from "lucide-react"
+  Layers,
+} from "lucide-react";
 
 // 사이드 바
 
@@ -42,7 +43,7 @@ export const projectsData: Project[] = [
     lastCommit: "1 day ago",
     contributors: 3,
   },
-]
+];
 
 export const navItems: NavItem[] = [
   {
@@ -155,7 +156,7 @@ export const navItems: NavItem[] = [
     label: "Settings",
     href: "/settings",
   },
-]
+];
 
 export const userMenuItems = [
   // {
@@ -173,4 +174,4 @@ export const userMenuItems = [
     label: "로그아웃",
     action: "logout",
   },
-]
+];
