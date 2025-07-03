@@ -171,52 +171,29 @@ export default function ApiManagementPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>API Management</BreadcrumbPage>
+              <BreadcrumbPage>API Plan</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
 
         {/* Quick Actions */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-yellow-500" />
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               API PLAN
-            </CardTitle>
-            <CardDescription>API 플랜을 관리하고 확장합니다.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-3">
-              <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={() => toast.success("새 API가 생성되었습니다.")}
-              >
-                <Plus className="h-4 w-4 mr-2" />새 API 생성
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => toast.info("API 문서를 가져옵니다.")}
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                API 가져오기
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => toast.info("API 문서를 내보냅니다.")}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                문서 내보내기
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => toast.success("데이터가 새로고침되었습니다.")}
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                새로고침
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </h1>
+          </div>
+          <div className="space-x-2">
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              API Key 생성
+            </Button>
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              새로 고침
+            </Button>
+          </div>
+        </div>
 
         {/* Main Content Tabs */}
         <Tabs
@@ -226,18 +203,18 @@ export default function ApiManagementPage() {
         >
           <TabsList className="grid w-full grid-cols-5 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
             <TabsTrigger
-              value="overview"
-              className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700"
-            >
-              <BarChart3 className="h-4 w-4" />
-              개요
-            </TabsTrigger>
-            <TabsTrigger
               value="apis"
               className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700"
             >
               <Code className="h-4 w-4" />
               API 목록
+            </TabsTrigger>
+            <TabsTrigger
+              value="overview"
+              className="flex items-center gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700"
+            >
+              <BarChart3 className="h-4 w-4" />
+              개요
             </TabsTrigger>
             <TabsTrigger
               value="analytics"
@@ -262,68 +239,6 @@ export default function ApiManagementPage() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="hover:shadow-lg transition-shadow duration-300">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="h-5 w-5 text-green-500" />
-                    실시간 모니터링
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        현재 활성 연결
-                      </span>
-                      <span className="font-semibold text-green-600">
-                        1,247
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        평균 응답 시간
-                      </span>
-                      <span className="font-semibold text-blue-600">145ms</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        오류율
-                      </span>
-                      <span className="font-semibold text-red-600">0.02%</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:shadow-lg transition-shadow duration-300">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                    최근 알림
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-                      <span className="text-sm">API 응답 시간 증가 감지</span>
-                    </div>
-                    <div className="flex items-center gap-3 p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-sm">새로운 API 버전 배포 완료</span>
-                    </div>
-                    <div className="flex items-center gap-3 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <span className="text-sm">보안 업데이트 적용됨</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
           <TabsContent value="apis" className="space-y-6">
             <Card>
               <CardHeader>
@@ -344,72 +259,14 @@ export default function ApiManagementPage() {
                     >
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <Badge
-                            variant={
-                              api.method === "GET" ? "secondary" : "default"
-                            }
-                            className={`${
-                              api.method === "GET"
-                                ? "bg-green-100 text-green-800"
-                                : api.method === "POST"
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-orange-100 text-orange-800"
-                            }`}
-                          >
-                            {api.method}
-                          </Badge>
                           <h3 className="font-semibold text-lg">{api.name}</h3>
-                          <Badge variant="outline">{api.version}</Badge>
                         </div>
-                        <Badge
-                          variant={
-                            api.status === "active"
-                              ? "default"
-                              : api.status === "maintenance"
-                              ? "secondary"
-                              : "destructive"
-                          }
-                          className={`${
-                            api.status === "active"
-                              ? "bg-green-100 text-green-800"
-                              : api.status === "maintenance"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {api.status === "active"
-                            ? "활성"
-                            : api.status === "maintenance"
-                            ? "유지보수"
-                            : "비활성"}
-                        </Badge>
                       </div>
 
                       <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                         <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                           {api.endpoint}
                         </code>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-500">요청 수:</span>
-                          <span className="font-semibold ml-2">
-                            {api.requests}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">지연 시간:</span>
-                          <span className="font-semibold ml-2">
-                            {api.latency}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">가동률:</span>
-                          <span className="font-semibold ml-2 text-green-600">
-                            {api.uptime}
-                          </span>
-                        </div>
                       </div>
 
                       <div className="flex gap-2 mt-4">

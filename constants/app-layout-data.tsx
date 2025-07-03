@@ -110,6 +110,18 @@ export const navItems: NavItem[] = [
     icon: Shield,
     label: "Services",
     href: "/services",
+    subItems: [
+      {
+        icon: Key,
+        label: "API Plan",
+        href: "/services/api-management",
+      },
+      {
+        icon: FolderOpen,
+        label: "API Keys",
+        href: "/services/apikeys",
+      },
+    ],
   },
   {
     icon: Users,
