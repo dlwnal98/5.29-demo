@@ -1,26 +1,11 @@
-"use client";
+"use client"
 
-import { AppLayout } from "@/components/layout/AppLayout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { Checkbox } from "@/components/ui/checkbox";
+import { useState } from "react"
+import { AppLayout } from "@/components/layout/AppLayout"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -28,1319 +13,317 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import {
-  ArrowLeft,
-  ChevronDown,
-  ChevronRight,
-  Globe,
-  Box,
-  Plus,
-  Trash2,
-  AlertCircle,
-  ExternalLink,
-} from "lucide-react";
-import { useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { toast } from "sonner";
+} from "@/components/ui/breadcrumb"
+import { Plus, Search, Folder, FolderOpen, ChevronRight, ChevronDown, MoreHorizontal, Edit, Trash2 } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useRouter } from "next/navigation"
 
-interface QueryParameter {
-  id: string;
-  name: string;
-  description: string;
-  type: string;
-  isArray: boolean;
-  required: boolean;
-  cacheKey: boolean;
+interface ResourceItem {
+  id: string
+  name: string
+  type: "folder" | "resource"
+  path: string
+  methods?: string[]
+  children?: ResourceItem[]
+  isExpanded?: boolean
 }
 
-interface Header {
-  id: string;
-  name: string;
-  description: string;
-  type: string;
-  required: boolean;
+const mockResources: ResourceItem[] = [
+  {
+    id: "1",
+    name: "users",
+    type: "folder",
+    path: "/users",
+    isExpanded: true,
+    children: [
+      {
+        id: "2",
+        name: "{id}",
+        type: "resource",
+        path: "/users/{id}",
+        methods: ["GET", "PUT", "DELETE"],
+      },
+      {
+        id: "3",
+        name: "profile",
+        type: "resource",
+        path: "/users/profile",
+        methods: ["GET", "POST"],
+      },
+    ],
+  },
+  {
+    id: "4",
+    name: "products",
+    type: "folder",
+    path: "/products",
+    isExpanded: false,
+    children: [
+      {
+        id: "5",
+        name: "{productId}",
+        type: "resource",
+        path: "/products/{productId}",
+        methods: ["GET", "PUT", "DELETE"],
+      },
+      {
+        id: "6",
+        name: "categories",
+        type: "folder",
+        path: "/products/categories",
+        children: [
+          {
+            id: "7",
+            name: "{categoryId}",
+            type: "resource",
+            path: "/products/categories/{categoryId}",
+            methods: ["GET"],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "8",
+    name: "orders",
+    type: "resource",
+    path: "/orders",
+    methods: ["GET", "POST"],
+  },
+]
+
+const getMethodColor = (method: string) => {
+  switch (method) {
+    case "GET":
+      return "bg-green-100 text-green-700 border-green-200"
+    case "POST":
+      return "bg-blue-100 text-blue-700 border-blue-200"
+    case "PUT":
+      return "bg-yellow-100 text-yellow-700 border-yellow-200"
+    case "DELETE":
+      return "bg-red-100 text-red-700 border-red-200"
+    case "PATCH":
+      return "bg-purple-100 text-purple-700 border-purple-200"
+    default:
+      return "bg-gray-100 text-gray-700 border-gray-200"
+  }
 }
 
-interface FormData {
-  id: string;
-  name: string;
-  description: string;
-  type: string;
-  isArray: boolean;
-  required: boolean;
+function ResourceTreeItem({
+  item,
+  level = 0,
+  onToggle,
+  onEdit,
+  onDelete,
+  onMethodClick,
+}: {
+  item: ResourceItem
+  level?: number
+  onToggle: (id: string) => void
+  onEdit: (item: ResourceItem) => void
+  onDelete: (item: ResourceItem) => void
+  onMethodClick: (item: ResourceItem, method: string) => void
+}) {
+  const paddingLeft = level * 24
+
+  return (
+    <div>
+      <div
+        className="flex items-center justify-between p-3 hover:bg-gray-50 border-b border-gray-100 group"
+        style={{ paddingLeft: `${paddingLeft + 12}px` }}
+      >
+        <div className="flex items-center space-x-3 flex-1">
+          <div className="flex items-center space-x-2">
+            {item.type === "folder" && (
+              <button onClick={() => onToggle(item.id)} className="p-1 hover:bg-gray-200 rounded">
+                {item.isExpanded ? (
+                  <ChevronDown className="h-4 w-4 text-gray-500" />
+                ) : (
+                  <ChevronRight className="h-4 w-4 text-gray-500" />
+                )}
+              </button>
+            )}
+            {item.type === "folder" ? (
+              item.isExpanded ? (
+                <FolderOpen className="h-5 w-5 text-blue-500" />
+              ) : (
+                <Folder className="h-5 w-5 text-blue-500" />
+              )
+            ) : (
+              <div className="w-5 h-5 bg-green-100 rounded border border-green-200 flex items-center justify-center">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              </div>
+            )}
+          </div>
+          <div className="flex-1">
+            <div className="font-medium text-gray-900">{item.name}</div>
+            <div className="text-sm text-gray-500">{item.path}</div>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          {item.methods && (
+            <div className="flex space-x-1">
+              {item.methods.map((method) => (
+                <Badge
+                  key={method}
+                  variant="outline"
+                  className={`text-xs px-2 py-1 cursor-pointer hover:opacity-80 ${getMethodColor(method)}`}
+                  onClick={() => onMethodClick(item, method)}
+                >
+                  {method}
+                </Badge>
+              ))}
+            </div>
+          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEdit(item)}>
+                <Edit className="h-4 w-4 mr-2" />
+                편집
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onDelete(item)} className="text-red-600">
+                <Trash2 className="h-4 w-4 mr-2" />
+                삭제
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      {item.isExpanded &&
+        item.children &&
+        item.children.map((child) => (
+          <ResourceTreeItem
+            key={child.id}
+            item={child}
+            level={level + 1}
+            onToggle={onToggle}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onMethodClick={onMethodClick}
+          />
+        ))}
+    </div>
+  )
 }
 
-interface BodyModel {
-  id: string;
-  name: string;
-  description: string;
-  model: string;
-}
+export default function MethodsPage() {
+  const router = useRouter()
+  const [resources, setResources] = useState<ResourceItem[]>(mockResources)
+  const [searchTerm, setSearchTerm] = useState("")
 
-interface MockHeader {
-  id: string;
-  name: string;
-  value: string;
-}
-
-export default function CreateMethodPage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const resourceId = searchParams.get("resourceId");
-  const resourcePath = searchParams.get("resourcePath");
-
-  const [methodForm, setMethodForm] = useState({
-    methodType: "",
-    integrationType: "http",
-    // HTTP Integration
-    httpProxyIntegration: true,
-    httpMethod: "",
-    endpointUrl: "",
-    contentHandling: "패스스루",
-    timeout: "29000",
-    // Mock Integration
-    statusCode: "200",
-    mockResponse: "",
-    // Common
-    authorization: "없음",
-    requestValidator: "없음",
-    apiKeyRequired: false,
-    operationName: "GetPets",
-  });
-
-  const [mockHeaders, setMockHeaders] = useState<MockHeader[]>([
-    { id: "1", name: "", value: "" },
-  ]);
-
-  // 기본값을 모두 false로 설정 (닫힌 상태)
-  const [openSections, setOpenSections] = useState({
-    methodRequest: false,
-    urlQuery: false,
-    httpHeaders: false,
-    requestBody: false,
-  });
-
-  const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([
-    {
-      id: "1",
-      name: "",
-      description: "",
-      type: "string",
-      isArray: false,
-      required: false,
-      cacheKey: false,
-    },
-  ]);
-
-  const [headers, setHeaders] = useState<Header[]>([
-    {
-      id: "1",
-      name: "",
-      description: "",
-      type: "string",
-      required: false,
-    },
-  ]);
-
-  const [formData, setFormData] = useState<FormData[]>([
-    {
-      id: "1",
-      name: "",
-      description: "",
-      type: "string",
-      isArray: false,
-      required: false,
-    },
-  ]);
-
-  const [bodyModels, setBodyModels] = useState<BodyModel[]>([
-    {
-      id: "1",
-      name: "",
-      description: "",
-      model: "",
-    },
-  ]);
-
-  const [contentTypes, setContentTypes] = useState<string[]>([]);
-  const [newContentType, setNewContentType] = useState("");
-  const [contentTypeError, setContentTypeError] = useState("");
-
-  // HTTP Method options
-  const httpMethods = [
-    "GET",
-    "POST",
-    "PUT",
-    "DELETE",
-    "PATCH",
-    "HEAD",
-    "OPTIONS",
-  ];
-
-  // Predefined endpoint URLs
-  const endpointUrls = [
-    "https://api.endpoint.com/",
-    "https://jsonplaceholder.typicode.com/",
-    "https://httpbin.org/",
-    "https://reqres.in/api/",
-    "https://api.github.com/",
-  ];
-
-  const handleBack = () => {
-    router.push(`/services/api-management/resources?resourceId=${resourceId}`);
-  };
-
-  const handleCreateMethod = () => {
-    if (!methodForm.methodType) {
-      toast.error("메서드 유형을 선택해주세요.");
-      return;
+  const handleToggle = (id: string) => {
+    const updateResources = (items: ResourceItem[]): ResourceItem[] => {
+      return items.map((item) => {
+        if (item.id === id) {
+          return { ...item, isExpanded: !item.isExpanded }
+        }
+        if (item.children) {
+          return { ...item, children: updateResources(item.children) }
+        }
+        return item
+      })
     }
+    setResources(updateResources(resources))
+  }
 
-    if (methodForm.integrationType === "http" && !methodForm.httpMethod) {
-      toast.error("HTTP 메서드를 선택해주세요.");
-      return;
-    }
+  const handleEdit = (item: ResourceItem) => {
+    console.log("Edit resource:", item)
+  }
 
-    if (methodForm.integrationType === "http" && !methodForm.endpointUrl) {
-      toast.error("엔드포인트 URL을 입력해주세요.");
-      return;
-    }
+  const handleDelete = (item: ResourceItem) => {
+    console.log("Delete resource:", item)
+  }
 
-    toast.success("메서드가 성공적으로 생성되었습니다.");
-    handleBack();
-  };
+  const handleMethodClick = (item: ResourceItem, method: string) => {
+    router.push(`/services/api-management/resources/methods/${item.id}?method=${method}`)
+  }
 
-  const toggleSection = (section: keyof typeof openSections) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  };
-
-  const addMockHeader = () => {
-    const newHeader: MockHeader = {
-      id: Date.now().toString(),
-      name: "",
-      value: "",
-    };
-    setMockHeaders([...mockHeaders, newHeader]);
-  };
-
-  const updateMockHeader = (
-    id: string,
-    field: keyof MockHeader,
-    value: string
-  ) => {
-    setMockHeaders(
-      mockHeaders.map((header) =>
-        header.id === id ? { ...header, [field]: value } : header
-      )
-    );
-  };
-
-  const removeMockHeader = (id: string) => {
-    if (mockHeaders.length > 1) {
-      setMockHeaders(mockHeaders.filter((header) => header.id !== id));
-    }
-  };
-
-  const addQueryParameter = () => {
-    const newParam: QueryParameter = {
-      id: Date.now().toString(),
-      name: "",
-      description: "",
-      type: "string",
-      isArray: false,
-      required: false,
-      cacheKey: false,
-    };
-    setQueryParameters([...queryParameters, newParam]);
-  };
-
-  const updateQueryParameter = (
-    id: string,
-    field: keyof QueryParameter,
-    value: any
-  ) => {
-    setQueryParameters(
-      queryParameters.map((param) =>
-        param.id === id ? { ...param, [field]: value } : param
-      )
-    );
-  };
-
-  const removeQueryParameter = (id: string) => {
-    setQueryParameters(queryParameters.filter((param) => param.id !== id));
-  };
-
-  const addHeader = () => {
-    const newHeader: Header = {
-      id: Date.now().toString(),
-      name: "",
-      description: "",
-      type: "string",
-      required: false,
-    };
-    setHeaders([...headers, newHeader]);
-  };
-
-  const updateHeader = (id: string, field: keyof Header, value: any) => {
-    setHeaders(
-      headers.map((header) =>
-        header.id === id ? { ...header, [field]: value } : header
-      )
-    );
-  };
-
-  const removeHeader = (id: string) => {
-    setHeaders(headers.filter((header) => header.id !== id));
-  };
-
-  const addFormData = () => {
-    const newFormData: FormData = {
-      id: Date.now().toString(),
-      name: "",
-      description: "",
-      type: "string",
-      isArray: false,
-      required: false,
-    };
-    setFormData([...formData, newFormData]);
-  };
-
-  const updateFormData = (id: string, field: keyof FormData, value: any) => {
-    setFormData(
-      formData.map((data) =>
-        data.id === id ? { ...data, [field]: value } : data
-      )
-    );
-  };
-
-  const removeFormData = (id: string) => {
-    setFormData(formData.filter((data) => data.id !== id));
-  };
-
-  const addBodyModel = () => {
-    const newModel: BodyModel = {
-      id: Date.now().toString(),
-      name: "",
-      description: "",
-      model: "",
-    };
-    setBodyModels([...bodyModels, newModel]);
-  };
-
-  const updateBodyModel = (id: string, field: keyof BodyModel, value: any) => {
-    setBodyModels(
-      bodyModels.map((model) =>
-        model.id === id ? { ...model, [field]: value } : model
-      )
-    );
-  };
-
-  const removeBodyModel = (id: string) => {
-    setBodyModels(bodyModels.filter((model) => model.id !== id));
-  };
-
-  const addContentType = () => {
-    if (!newContentType.trim()) {
-      setContentTypeError("필수 입력값입니다.");
-      return;
-    }
-    setContentTypes([...contentTypes, newContentType]);
-    setNewContentType("");
-    setContentTypeError("");
-  };
-
-  const removeContentType = (index: number) => {
-    setContentTypes(contentTypes.filter((_, i) => i !== index));
-  };
-
-  const IntegrationIcon = ({ type }: { type: string }) => {
-    switch (type) {
-      case "http":
-        return <Globe className="h-8 w-8 text-blue-500" />;
-      case "mock":
-        return <Box className="h-8 w-8 text-purple-500" />;
-      default:
-        return <Box className="h-8 w-8 text-gray-500" />;
-    }
-  };
+  const filteredResources = resources.filter((resource) =>
+    resource.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  )
 
   return (
     <AppLayout>
-      <div className="container mx-auto px-4 py-6">
+      <div className="space-y-6">
         {/* Breadcrumb */}
-        <Breadcrumb className="mb-6">
+        <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink href="/services">Services</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/services/api-management">
-                API Management
-              </BreadcrumbLink>
+              <BreadcrumbLink href="/services/api-management">API Management</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/services/api-management/resources">
-                리소스
-              </BreadcrumbLink>
+              <BreadcrumbLink href="/services/api-management/resources">리소스</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>메서드 생성</BreadcrumbPage>
+              <BreadcrumbPage>메서드</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="sm" onClick={handleBack}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              뒤로가기
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                메서드 생성
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                리소스:{" "}
-                <span className="font-mono text-blue-600">{resourcePath}</span>
-              </p>
-            </div>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">메서드</h1>
+            <p className="text-gray-600 mt-1">리소스의 메서드를 관리하고 구성하세요.</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={handleBack}>
-              취소
-            </Button>
-            <Button
-              onClick={handleCreateMethod}
-              className="bg-orange-500 hover:bg-orange-600 text-white"
-            >
-              저장
-            </Button>
-          </div>
+          <Button onClick={() => router.push("/services/api-management/resources/methods/create")}>
+            <Plus className="h-4 w-4 mr-2" />
+            메서드 생성
+          </Button>
         </div>
 
-        <div className="grid grid-cols-1 gap-8">
-          {/* Left Panel - Method Creation Form */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl font-bold">메서드 생성</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Method Details */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">
-                    메서드 세부 정보
-                  </h3>
-                  <div>
-                    <Label
-                      htmlFor="method-type"
-                      className="text-sm font-medium"
-                    >
-                      메서드 유형
-                    </Label>
-                    <Select
-                      value={methodForm.methodType}
-                      onValueChange={(value) =>
-                        setMethodForm({ ...methodForm, methodType: value })
-                      }
-                    >
-                      <SelectTrigger className="mt-2">
-                        <SelectValue placeholder="메서드 유형 선택" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="GET">GET</SelectItem>
-                        <SelectItem value="POST">POST</SelectItem>
-                        <SelectItem value="PUT">PUT</SelectItem>
-                        <SelectItem value="DELETE">DELETE</SelectItem>
-                        <SelectItem value="PATCH">PATCH</SelectItem>
-                        <SelectItem value="OPTIONS">OPTIONS</SelectItem>
-                        <SelectItem value="HEAD">HEAD</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+        {/* Resource List */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>리소스 및 메서드 목록</CardTitle>
+              <div className="relative w-64">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="리소스 검색..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="border rounded-lg">
+              {filteredResources.length > 0 ? (
+                filteredResources.map((resource) => (
+                  <ResourceTreeItem
+                    key={resource.id}
+                    item={resource}
+                    onToggle={handleToggle}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onMethodClick={handleMethodClick}
+                  />
+                ))
+              ) : (
+                <div className="p-8 text-center text-gray-500">
+                  <div className="text-lg font-medium mb-2">리소스가 없습니다</div>
+                  <p className="text-sm">새로운 리소스를 생성해보세요.</p>
                 </div>
-
-                {/* Integration Type */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">통합 유형</h3>
-                  <RadioGroup
-                    value={methodForm.integrationType}
-                    onValueChange={(value) =>
-                      setMethodForm({ ...methodForm, integrationType: value })
-                    }
-                    className="space-y-4"
-                  >
-                    {/* HTTP */}
-                    <div
-                      className={`border rounded-lg p-4 transition-all ${
-                        methodForm.integrationType === "http"
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <RadioGroupItem value="http" id="http" />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3">
-                            <IntegrationIcon type="http" />
-                            <div>
-                              <Label
-                                htmlFor="http"
-                                className="text-base font-medium cursor-pointer"
-                              >
-                                HTTP
-                              </Label>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                기존 HTTP 엔드포인트와 통합합니다.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Mock */}
-                    <div
-                      className={`border rounded-lg p-4 transition-all ${
-                        methodForm.integrationType === "mock"
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <RadioGroupItem value="mock" id="mock" />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3">
-                            <IntegrationIcon type="mock" />
-                            <div>
-                              <Label
-                                htmlFor="mock"
-                                className="text-base font-medium cursor-pointer"
-                              >
-                                Mock
-                              </Label>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                API Gateway 내에서 모의 응답을 생성하여 응답을
-                                생성합니다.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                {/* HTTP Configuration */}
-                {methodForm.integrationType === "http" && (
-                  <div className="space-y-6">
-                    {/* Endpoint URL */}
-                    <div>
-                      <Label className="text-base font-medium">
-                        엔드포인트 URL
-                      </Label>
-                      <Select
-                        value={methodForm.endpointUrl}
-                        onValueChange={(value) =>
-                          setMethodForm({ ...methodForm, endpointUrl: value })
-                        }
-                      >
-                        <SelectTrigger className="mt-2">
-                          <SelectValue placeholder="https://api.endpoint.com/" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {endpointUrls.map((url) => (
-                            <SelectItem key={url} value={url}>
-                              {url}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* API 키설정 */}
-                    <div>
-                      <Label className="text-sm font-medium">요청 검사기</Label>
-                      <Select
-                        value={methodForm.requestValidator}
-                        onValueChange={(value) =>
-                          setMethodForm({
-                            ...methodForm,
-                            requestValidator: value,
-                          })
-                        }
-                      >
-                        <SelectTrigger className="mt-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="없음">없음</SelectItem>
-                          <SelectItem value="본문 검증">본문 검증</SelectItem>
-                          <SelectItem value="파라미터 검증">
-                            파라미터 검증
-                          </SelectItem>
-                          <SelectItem value="본문 및 파라미터 검증">
-                            본문 및 파라미터 검증
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="api-key-required"
-                        checked={methodForm.apiKeyRequired}
-                        onCheckedChange={(checked) =>
-                          setMethodForm({
-                            ...methodForm,
-                            apiKeyRequired: !!checked,
-                          })
-                        }
-                      />
-                      <Label
-                        htmlFor="api-key-required"
-                        className="text-sm font-medium"
-                      >
-                        API 키가 필요함
-                      </Label>
-                    </div>
-                  </div>
-                )}
-
-                {/* Mock Configuration */}
-                {methodForm.integrationType === "mock" && (
-                  <div className="space-y-6">
-                    {/* Status Code */}
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <Label className="text-base font-medium">
-                          Status Code
-                        </Label>
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      </div>
-                      <Input
-                        value={methodForm.statusCode}
-                        onChange={(e) =>
-                          setMethodForm({
-                            ...methodForm,
-                            statusCode: e.target.value,
-                          })
-                        }
-                        className="w-full"
-                        placeholder="200"
-                      />
-                    </div>
-
-                    {/* Header */}
-                    <div>
-                      <Label className="text-base font-medium mb-3 block">
-                        Header
-                      </Label>
-                      <div className="space-y-3">
-                        {mockHeaders.map((header, index) => (
-                          <div
-                            key={header.id}
-                            className="flex gap-3 items-center"
-                          >
-                            <div className="flex-1">
-                              <Input
-                                value={header.name}
-                                onChange={(e) =>
-                                  updateMockHeader(
-                                    header.id,
-                                    "name",
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="이름"
-                              />
-                            </div>
-                            <div className="flex-1">
-                              <Input
-                                value={header.value}
-                                onChange={(e) =>
-                                  updateMockHeader(
-                                    header.id,
-                                    "value",
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="값"
-                              />
-                            </div>
-                            <Button
-                              size="sm"
-                              className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2"
-                              onClick={addMockHeader}
-                            >
-                              <Plus className="h-4 w-4" />
-                            </Button>
-                            {mockHeaders.length > 1 && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => removeMockHeader(header.id)}
-                                className="px-2 py-2"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Response */}
-                    <div>
-                      <Label className="text-base font-medium mb-3 block">
-                        Response
-                      </Label>
-                      <div className="relative">
-                        <Textarea
-                          value={methodForm.mockResponse}
-                          onChange={(e) =>
-                            setMethodForm({
-                              ...methodForm,
-                              mockResponse: e.target.value,
-                            })
-                          }
-                          placeholder="응답 데이터를 입력하세요"
-                          className="min-h-[120px] resize-none"
-                          maxLength={1500}
-                        />
-                        <div className="absolute bottom-2 right-2 text-xs text-gray-500">
-                          {methodForm.mockResponse.length}/1500 자
-                        </div>
-                      </div>
-                    </div>
-                    {/* Endpoint URL */}
-                    <div>
-                      <Label className="text-base font-medium">
-                        엔드포인트 URL
-                      </Label>
-                      <Select
-                        value={methodForm.endpointUrl}
-                        onValueChange={(value) =>
-                          setMethodForm({ ...methodForm, endpointUrl: value })
-                        }
-                      >
-                        <SelectTrigger className="mt-2">
-                          <SelectValue placeholder="https://api.endpoint.com/" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {endpointUrls.map((url) => (
-                            <SelectItem key={url} value={url}>
-                              {url}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* API 키설정 */}
-                    <div>
-                      <Label className="text-sm font-medium">요청 검사기</Label>
-                      <Select
-                        value={methodForm.requestValidator}
-                        onValueChange={(value) =>
-                          setMethodForm({
-                            ...methodForm,
-                            requestValidator: value,
-                          })
-                        }
-                      >
-                        <SelectTrigger className="mt-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="없음">없음</SelectItem>
-                          <SelectItem value="본문 검증">본문 검증</SelectItem>
-                          <SelectItem value="파라미터 검증">
-                            파라미터 검증
-                          </SelectItem>
-                          <SelectItem value="본문 및 파라미터 검증">
-                            본문 및 파라미터 검증
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="api-key-required"
-                        checked={methodForm.apiKeyRequired}
-                        onCheckedChange={(checked) =>
-                          setMethodForm({
-                            ...methodForm,
-                            apiKeyRequired: !!checked,
-                          })
-                        }
-                      />
-                      <Label
-                        htmlFor="api-key-required"
-                        className="text-sm font-medium"
-                      >
-                        API 키가 필요함
-                      </Label>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right Panel - Collapsible Sections */}
-          <div className="space-y-4">
-            {/* URL Query String Parameters */}
-            <div className="border border-gray-200 rounded-lg overflow-hidden">
-              <Collapsible
-                open={openSections.urlQuery}
-                onOpenChange={() => toggleSection("urlQuery")}
-              >
-                <CollapsibleTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-between p-4 h-auto bg-green-50 hover:bg-green-100 dark:bg-green-950/20 dark:hover:bg-green-950/30 border-0 rounded-none"
-                  >
-                    <span className="text-lg font-semibold text-green-900 dark:text-green-100">
-                      URL 쿼리 문자열 파라미터
-                    </span>
-                    {openSections.urlQuery ? (
-                      <ChevronDown className="h-5 w-5 text-green-700" />
-                    ) : (
-                      <ChevronRight className="h-5 w-5 text-green-700" />
-                    )}
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="p-6 bg-white dark:bg-gray-900">
-                    <div className="space-y-4">
-                      <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
-                        <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-3">
-                          쿼리 스트링
-                        </h4>
-
-                        {queryParameters.map((param, index) => (
-                          <div
-                            key={param.id}
-                            className="grid grid-cols-12 gap-3 items-center mb-3"
-                          >
-                            <div className="col-span-2">
-                              <Input
-                                placeholder="이름"
-                                value={param.name}
-                                onChange={(e) =>
-                                  updateQueryParameter(
-                                    param.id,
-                                    "name",
-                                    e.target.value
-                                  )
-                                }
-                                className={
-                                  param.name === "" ? "border-red-300" : ""
-                                }
-                              />
-                            </div>
-                            <div className="col-span-3">
-                              <Input
-                                placeholder="설명"
-                                value={param.description}
-                                onChange={(e) =>
-                                  updateQueryParameter(
-                                    param.id,
-                                    "description",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
-                            <div className="col-span-2">
-                              <Select
-                                value={param.type}
-                                onValueChange={(value) =>
-                                  updateQueryParameter(param.id, "type", value)
-                                }
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="string">string</SelectItem>
-                                  <SelectItem value="number">number</SelectItem>
-                                  <SelectItem value="boolean">
-                                    boolean
-                                  </SelectItem>
-                                  <SelectItem value="array">array</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="col-span-1 flex justify-center">
-                              <div className="flex items-center space-x-2">
-                                <Label className="text-xs">Array</Label>
-                                <Switch
-                                  checked={param.isArray}
-                                  onCheckedChange={(checked) =>
-                                    updateQueryParameter(
-                                      param.id,
-                                      "isArray",
-                                      checked
-                                    )
-                                  }
-                                  size="sm"
-                                />
-                              </div>
-                            </div>
-                            <div className="col-span-1 flex justify-center">
-                              <div className="flex items-center space-x-2">
-                                <Label className="text-xs">Required</Label>
-                                <Switch
-                                  checked={param.required}
-                                  onCheckedChange={(checked) =>
-                                    updateQueryParameter(
-                                      param.id,
-                                      "required",
-                                      checked
-                                    )
-                                  }
-                                  size="sm"
-                                />
-                              </div>
-                            </div>
-                            <div className="col-span-2 flex gap-2">
-                              <Button
-                                size="sm"
-                                className="bg-blue-500 hover:bg-blue-600 text-white"
-                                onClick={addQueryParameter}
-                              >
-                                <Plus className="h-4 w-4 mr-1" />
-                                추가
-                              </Button>
-                              {queryParameters.length > 1 && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => removeQueryParameter(param.id)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-
-                        {queryParameters.some((param) => param.name === "") && (
-                          <div className="flex items-center gap-2 text-red-600 text-sm mt-2">
-                            <AlertCircle className="h-4 w-4" />
-                            <span>이름은 비워둘 수 없습니다.</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <Button
-                        variant="outline"
-                        className="text-blue-600 border-blue-300 hover:bg-blue-50 bg-transparent"
-                        onClick={addQueryParameter}
-                      >
-                        쿼리 문자열 추가
-                      </Button>
-                    </div>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
+              )}
             </div>
-
-            {/* HTTP Request Headers */}
-            <div className="border border-gray-200 rounded-lg overflow-hidden">
-              <Collapsible
-                open={openSections.httpHeaders}
-                onOpenChange={() => toggleSection("httpHeaders")}
-              >
-                <CollapsibleTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-between p-4 h-auto bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/20 dark:hover:bg-purple-950/30 border-0 rounded-none"
-                  >
-                    <span className="text-lg font-semibold text-purple-900 dark:text-purple-100">
-                      HTTP 요청 헤더
-                    </span>
-                    {openSections.httpHeaders ? (
-                      <ChevronDown className="h-5 w-5 text-purple-700" />
-                    ) : (
-                      <ChevronRight className="h-5 w-5 text-purple-700" />
-                    )}
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="p-6 bg-white dark:bg-gray-900">
-                    <div className="space-y-4">
-                      <div className="bg-green-50 dark:bg-green-950/20 p-4 rounded-lg">
-                        <h4 className="font-semibold text-green-900 dark:text-green-100 mb-3">
-                          헤더
-                        </h4>
-
-                        {headers.map((header, index) => (
-                          <div
-                            key={header.id}
-                            className="grid grid-cols-12 gap-3 items-center mb-3"
-                          >
-                            <div className="col-span-3">
-                              <Input
-                                placeholder="이름"
-                                value={header.name}
-                                onChange={(e) =>
-                                  updateHeader(
-                                    header.id,
-                                    "name",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
-                            <div className="col-span-4">
-                              <Input
-                                placeholder="설명"
-                                value={header.description}
-                                onChange={(e) =>
-                                  updateHeader(
-                                    header.id,
-                                    "description",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
-                            <div className="col-span-2">
-                              <Select
-                                value={header.type}
-                                onValueChange={(value) =>
-                                  updateHeader(header.id, "type", value)
-                                }
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="string">string</SelectItem>
-                                  <SelectItem value="number">number</SelectItem>
-                                  <SelectItem value="boolean">
-                                    boolean
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="col-span-1 flex justify-center">
-                              <div className="flex items-center space-x-2">
-                                <Label className="text-xs">Required</Label>
-                                <Switch
-                                  checked={header.required}
-                                  onCheckedChange={(checked) =>
-                                    updateHeader(header.id, "required", checked)
-                                  }
-                                  size="sm"
-                                />
-                              </div>
-                            </div>
-                            <div className="col-span-2 flex gap-2">
-                              <Button
-                                size="sm"
-                                className="bg-blue-500 hover:bg-blue-600 text-white"
-                                onClick={addHeader}
-                              >
-                                <Plus className="h-4 w-4 mr-1" />
-                                추가
-                              </Button>
-                              {headers.length > 1 && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => removeHeader(header.id)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
-
-            {/* Request Body */}
-            <div className="border border-gray-200 rounded-lg overflow-hidden">
-              <Collapsible
-                open={openSections.requestBody}
-                onOpenChange={() => toggleSection("requestBody")}
-              >
-                <CollapsibleTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-between p-4 h-auto bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/20 dark:hover:bg-orange-950/30 border-0 rounded-none"
-                  >
-                    <span className="text-lg font-semibold text-orange-900 dark:text-orange-100">
-                      요청 본문
-                    </span>
-                    {openSections.requestBody ? (
-                      <ChevronDown className="h-5 w-5 text-orange-700" />
-                    ) : (
-                      <ChevronRight className="h-5 w-5 text-orange-700" />
-                    )}
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="p-6 bg-white dark:bg-gray-900 space-y-6">
-                    {/* Form Data Section */}
-                    <div className="bg-purple-50 dark:bg-purple-950/20 p-4 rounded-lg">
-                      <h4 className="font-semibold text-purple-900 dark:text-purple-100 mb-3">
-                        폼 데이터
-                      </h4>
-
-                      {formData.map((data, index) => (
-                        <div
-                          key={data.id}
-                          className="grid grid-cols-12 gap-3 items-center mb-3"
-                        >
-                          <div className="col-span-2">
-                            <Input
-                              placeholder="이름"
-                              value={data.name}
-                              onChange={(e) =>
-                                updateFormData(data.id, "name", e.target.value)
-                              }
-                            />
-                          </div>
-                          <div className="col-span-3">
-                            <Input
-                              placeholder="설명"
-                              value={data.description}
-                              onChange={(e) =>
-                                updateFormData(
-                                  data.id,
-                                  "description",
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </div>
-                          <div className="col-span-2">
-                            <Select
-                              value={data.type}
-                              onValueChange={(value) =>
-                                updateFormData(data.id, "type", value)
-                              }
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="string">string</SelectItem>
-                                <SelectItem value="number">number</SelectItem>
-                                <SelectItem value="boolean">boolean</SelectItem>
-                                <SelectItem value="file">file</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="col-span-1 flex justify-center">
-                            <div className="flex items-center space-x-2">
-                              <Label className="text-xs">Array</Label>
-                              <Switch
-                                checked={data.isArray}
-                                onCheckedChange={(checked) =>
-                                  updateFormData(data.id, "isArray", checked)
-                                }
-                                size="sm"
-                              />
-                            </div>
-                          </div>
-                          <div className="col-span-1 flex justify-center">
-                            <div className="flex items-center space-x-2">
-                              <Label className="text-xs">Required</Label>
-                              <Switch
-                                checked={data.required}
-                                onCheckedChange={(checked) =>
-                                  updateFormData(data.id, "required", checked)
-                                }
-                                size="sm"
-                              />
-                            </div>
-                          </div>
-                          <div className="col-span-2 flex gap-2">
-                            <Button
-                              size="sm"
-                              className="bg-blue-500 hover:bg-blue-600 text-white"
-                              onClick={addFormData}
-                            >
-                              <Plus className="h-4 w-4 mr-1" />
-                              추가
-                            </Button>
-                            {formData.length > 1 && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => removeFormData(data.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Body Models Section */}
-                    <div className="bg-orange-50 dark:bg-orange-950/20 p-4 rounded-lg">
-                      <h4 className="font-semibold text-orange-900 dark:text-orange-100 mb-3">
-                        바디
-                      </h4>
-
-                      {bodyModels.map((model, index) => (
-                        <div
-                          key={model.id}
-                          className="grid grid-cols-12 gap-3 items-center mb-3"
-                        >
-                          <div className="col-span-3">
-                            <Input
-                              placeholder="이름"
-                              value={model.name}
-                              onChange={(e) =>
-                                updateBodyModel(
-                                  model.id,
-                                  "name",
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </div>
-                          <div className="col-span-4">
-                            <Input
-                              placeholder="설명"
-                              value={model.description}
-                              onChange={(e) =>
-                                updateBodyModel(
-                                  model.id,
-                                  "description",
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </div>
-                          <div className="col-span-3">
-                            <Select
-                              value={model.model}
-                              onValueChange={(value) =>
-                                updateBodyModel(model.id, "model", value)
-                              }
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="모델" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="User">User</SelectItem>
-                                <SelectItem value="Product">Product</SelectItem>
-                                <SelectItem value="Order">Order</SelectItem>
-                                <SelectItem value="Custom">Custom</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="col-span-2 flex gap-2">
-                            <Button
-                              size="sm"
-                              className="bg-blue-500 hover:bg-blue-600 text-white"
-                              onClick={addBodyModel}
-                            >
-                              <Plus className="h-4 w-4 mr-1" />
-                              추가
-                            </Button>
-                            {bodyModels.length > 1 && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => removeBodyModel(model.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Content Type Section */}
-                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
-                        컨텐츠 타입
-                      </h4>
-
-                      <div className="flex gap-2 mb-3">
-                        <Input
-                          placeholder="컨텐츠 타입"
-                          value={newContentType}
-                          onChange={(e) => {
-                            setNewContentType(e.target.value);
-                            if (contentTypeError) setContentTypeError("");
-                          }}
-                          className={contentTypeError ? "border-red-300" : ""}
-                        />
-                        <Button
-                          className="bg-blue-500 hover:bg-blue-600 text-white"
-                          onClick={addContentType}
-                        >
-                          <Plus className="h-4 w-4 mr-1" />
-                          추가
-                        </Button>
-                      </div>
-
-                      {contentTypeError && (
-                        <div className="flex items-center gap-2 text-red-600 text-sm mb-3">
-                          <AlertCircle className="h-4 w-4" />
-                          <span>{contentTypeError}</span>
-                        </div>
-                      )}
-
-                      {contentTypes.length > 0 && (
-                        <div className="space-y-2">
-                          {contentTypes.map((type, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center justify-between bg-white dark:bg-gray-700 p-2 rounded border"
-                            >
-                              <span className="text-sm">{type}</span>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => removeContentType(index)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    <Button
-                      variant="outline"
-                      className="text-blue-600 border-blue-300 hover:bg-blue-50 bg-transparent"
-                    >
-                      모델 추가
-                    </Button>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </AppLayout>
-  );
+  )
 }
