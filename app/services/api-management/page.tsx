@@ -475,7 +475,7 @@ export default function ApiManagementPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
+              {/* <div>
                 <Label htmlFor="deploy-version" className="text-sm font-medium">
                   버전 *
                 </Label>
@@ -491,7 +491,7 @@ export default function ApiManagementPage() {
                   placeholder="v1.0.0"
                   className="mt-1"
                 />
-              </div>
+              </div> */}
               <div>
                 <Label
                   htmlFor="deploy-description"

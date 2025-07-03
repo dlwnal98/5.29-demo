@@ -273,11 +273,10 @@ export default function StagesPage() {
     return (
       <div key={resource.id}>
         <div
-          className={`flex items-center gap-2 py-1 px-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-sm ${
-            selectedStage.id === resource.id
-              ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-              : ""
-          }`}
+          className={`flex items-center gap-2 py-1 px-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-sm ${selectedStage.id === resource.id
+            ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+            : ""
+            }`}
           style={{ paddingLeft: `${level * 16 + 8}px` }}
           onClick={() => {
             if (resource.id === "hello" || resource.id === "nexfron") {
@@ -313,9 +312,10 @@ export default function StagesPage() {
               <Folder className="h-3 w-3 text-blue-500" />
             )
           ) : (
-            <div className="w-3 h-3 bg-blue-100 rounded border border-blue-300 flex items-center justify-center">
-              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
-            </div>
+            // <div className="w-3 h-3 bg-blue-100 rounded border border-blue-300 flex items-center justify-center">
+            //   <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
+            // </div>
+            <></>
           )}
 
           <span className="font-medium text-blue-600">{resource.name}</span>
@@ -329,21 +329,20 @@ export default function StagesPage() {
               {child.methods.map((method, index) => (
                 <div
                   key={`${child.id}-${method}-${index}`}
-                  className={`flex items-center gap-2 py-1 px-2 text-xs cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 rounded ${
-                    selectedMethod?.resourceId === child.id &&
+                  className={`flex items-center gap-2 py-1 px-2 text-xs cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 rounded ${selectedMethod?.resourceId === child.id &&
                     selectedMethod?.method === method
-                      ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
-                      : "text-gray-600 dark:text-gray-400"
-                  }`}
+                    ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                    : "text-gray-600 dark:text-gray-400"
+                    }`}
                   style={{ paddingLeft: `${(level + 2) * 16 + 8}px` }}
                   onClick={() =>
                     handleMethodClick(child.id, child.path, method)
                   }
                 >
                   <div className="w-3" />
-                  <div className="w-3 h-3 bg-green-100 rounded border border-green-300 flex items-center justify-center">
+                  {/* <div className="w-3 h-3 bg-green-100 rounded border border-green-300 flex items-center justify-center">
                     <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-                  </div>
+                  </div> */}
                   <span className="font-mono text-xs bg-green-100 text-green-800 px-1.5 py-0.5 rounded">
                     {method}
                   </span>
@@ -384,7 +383,7 @@ export default function StagesPage() {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              스테이지
+              Stages
             </h1>
           </div>
           <div className="flex items-center gap-3">
@@ -607,10 +606,11 @@ export default function StagesPage() {
                   />
                 </div>
               </div>
+            </div>
 
-             
 
-             
+
+
 
             <DialogFooter className="gap-2">
               <Button

@@ -251,9 +251,11 @@ export default function ApiKeysPage() {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               API Keys
             </h1>
-            <Info className="h-5 w-5 text-blue-500" />
           </div>
           <div className="flex items-center gap-3">
+            <Button variant="outline" onClick={handleRefresh}>
+              <RefreshCw className="h-4 w-4 " />
+            </Button>
             <Dialog
               open={isCreateModalOpen}
               onOpenChange={setIsCreateModalOpen}
@@ -357,10 +359,7 @@ export default function ApiKeysPage() {
               </DialogContent>
             </Dialog>
 
-            <Button variant="outline" onClick={handleRefresh}>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              새로 고침
-            </Button>
+
           </div>
         </div>
 
@@ -401,13 +400,13 @@ export default function ApiKeysPage() {
                 <Trash2 className="h-4 w-4 mr-2" />
                 삭제
               </Button>
-              <Button
+              {/* <Button
                 variant="outline"
                 onClick={() => toast.info("연결된 Stage를 확인합니다.")}
               >
                 <Eye className="h-4 w-4 mr-2" />
                 연결된 Stage 보기
-              </Button>
+              </Button> */}
             </div>
             <div className="flex items-center gap-3">
               <div className="relative">

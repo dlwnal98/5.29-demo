@@ -51,6 +51,7 @@ import {
   Send,
   Code,
   FileText,
+  ArrowRight,
 } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
@@ -376,11 +377,10 @@ export default function ApiResourcesPage() {
     return (
       <div key={resource.id}>
         <div
-          className={`flex items-center gap-2 py-2 px-3 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md ${
-            selectedResource.id === resource.id && !selectedMethod
-              ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-              : ""
-          }`}
+          className={`flex items-center gap-2 py-2 px-3 mb-1 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md ${selectedResource.id === resource.id && !selectedMethod
+            ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+            : ""
+            }`}
           style={{ paddingLeft: `${level * 20 + 12}px` }}
           onClick={() => {
             setSelectedResource(resource)
@@ -410,9 +410,7 @@ export default function ApiResourcesPage() {
               <Folder className="h-4 w-4 text-blue-500" />
             )
           ) : (
-            <div className="w-4 h-4 bg-blue-100 rounded border border-blue-300 flex items-center justify-center">
-              <div className="w-2 h-2 bg-blue-500 rounded-full" />
-            </div>
+            <></>
           )}
 
           <span className="font-medium">{resource.path}</span>
@@ -426,18 +424,17 @@ export default function ApiResourcesPage() {
               {child.methods.map((method) => (
                 <div
                   key={method.id}
-                  className={`flex items-center gap-2 py-1 px-3 text-sm cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 rounded-md ${
-                    selectedMethod?.id === method.id
-                      ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
-                      : "text-gray-600 dark:text-gray-400"
-                  }`}
+                  className={`flex items-center gap-2 py-1 px-3 text-sm cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 rounded-md ${selectedMethod?.id === method.id
+                    ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                    : "text-gray-600 dark:text-gray-400"
+                    }`}
                   style={{ paddingLeft: `${(level + 2) * 20 + 12}px` }}
                   onClick={() => handleMethodClick(method, child)}
                 >
                   <div className="w-4" />
-                  <div className="w-4 h-4 bg-green-100 rounded border border-green-300 flex items-center justify-center">
+                  {/* <div className="w-4 h-4 bg-green-100 rounded border border-green-300 flex items-center justify-center">
                     <div className="w-2 h-2 bg-green-500 rounded-full" />
-                  </div>
+                  </div> */}
                   <span className="font-mono text-xs bg-green-100 text-green-800 px-2 py-1 rounded">{method.type}</span>
                 </div>
               ))}
@@ -477,10 +474,10 @@ export default function ApiResourcesPage() {
             </Button>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">리소스</h1>
           </div>
-          <Button className="bg-orange-500 hover:bg-orange-600 text-white" onClick={() => setIsDeployModalOpen(true)}>
+          {/* <Button className="bg-orange-500 hover:bg-orange-600 text-white" onClick={() => setIsDeployModalOpen(true)}>
             <Rocket className="h-4 w-4 mr-2" />
             API 배포
-          </Button>
+          </Button> */}
         </div>
 
         <div className="grid grid-cols-12 gap-6">
@@ -512,18 +509,35 @@ export default function ApiResourcesPage() {
                 <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                   {/* Method Header */}
                   <div className="border-b border-gray-200 dark:border-gray-700 p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-4">
-                        <Button variant="outline" size="sm" onClick={handleBackToResource}>
-                          <ArrowLeft className="h-4 w-4 mr-2" />
-                          뒤로가기
-                        </Button>
-                        <div>
+                    <div className=" mb-4">
+                      {/* <Button variant="outline" size="sm" onClick={handleBackToResource}>
+                          <ArrowLeft className="h-4 w-4" />
+                        </Button> */}
+                      <div>
+                        <div className="flex items-center justify-between mb-4">
+
                           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                             {selectedMethod.resourcePath} - {selectedMethod.type} - 메서드 상세
                           </h1>
-                          <div className="flex items-center gap-2 mt-2">
-                            <span className="text-sm text-gray-600 dark:text-gray-400">ARN</span>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 bg-transparent"
+                              onClick={() => setIsMethodDeleteDialogOpen(true)}
+                            >
+                              삭제
+                            </Button>
+                            <Button className="bg-orange-500 hover:bg-orange-600 text-white">API 배포</Button>
+
+                          </div>
+                        </div>
+                        <div className="mt-2">
+                          <div className="flex items-center gap-2  mb-2">
+                            <div className="w-16 text-sm text-gray-600 dark:text-gray-400">메서드 ID</div>
+                            <div className="font-mono text-sm">saqzyo</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="w-16 text-sm text-gray-600 dark:text-gray-400">URL</span>
                             <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
                               <code className="text-sm font-mono">
                                 arn:aws:execute-api:ap-northeast-2:446785114695:yr5g5hoch/*/{selectedMethod.type}
@@ -536,20 +550,7 @@ export default function ApiResourcesPage() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          <div className="text-sm text-gray-600 dark:text-gray-400">리소스 ID</div>
-                          <div className="font-mono text-sm">saqzyo</div>
-                        </div>
-                        <Button className="bg-orange-500 hover:bg-orange-600 text-white">API 배포</Button>
-                        <Button
-                          variant="outline"
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 bg-transparent"
-                          onClick={() => setIsMethodDeleteDialogOpen(true)}
-                        >
-                          삭제
-                        </Button>
-                      </div>
+
                     </div>
 
                     {/* Updated Flow Diagram - matching the provided image */}
@@ -563,57 +564,41 @@ export default function ApiResourcesPage() {
                           <span className="text-xs font-medium text-gray-700 dark:text-gray-300">클라이언트</span>
                         </div>
 
-                        <div className="flex items-center">
+                        <div className="space-y-3">
                           <ArrowLeft className="h-4 w-4 text-gray-400 rotate-180 mx-2" />
+                          <ArrowRight className="h-4 w-4 text-gray-400 rotate-180 mx-2" />
                         </div>
 
+
                         {/* Method Request & Response */}
-                        <div className="flex flex-col items-center bg-blue-100 dark:bg-blue-900/30 rounded-lg p-4 min-w-[120px]">
+                        <div className="flex flex-col items-center ">
                           <div
-                            className={`cursor-pointer transition-all mb-2 ${
-                              selectedFlowStep === "method-request"
-                                ? "bg-blue-200 dark:bg-blue-800 rounded px-2 py-1"
-                                : ""
-                            }`}
+                            className={`bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3 text-center cursor-pointer transition-all mb-2 ${selectedFlowStep === "method-request"
+                              ? "bg-blue-200 dark:bg-blue-800 "
+                              : ""
+                              }`}
                             onClick={() => handleFlowStepClick("method-request")}
                           >
                             <div className="text-xs font-medium text-blue-700 dark:text-blue-300">메서드 요청</div>
                           </div>
-                          <div className="flex items-center my-1">
-                            <ArrowLeft className="h-3 w-3 text-blue-500 rotate-180" />
-                            <div className="w-4 border-t border-blue-500 mx-1"></div>
-                            <ArrowLeft className="h-3 w-3 text-blue-500" />
-                          </div>
+
                           <div
-                            className={`cursor-pointer transition-all ${
-                              selectedFlowStep === "method-response"
-                                ? "bg-blue-200 dark:bg-blue-800 rounded px-2 py-1"
-                                : ""
-                            }`}
+                            className={`bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3 text-center  cursor-pointer transition-all ${selectedFlowStep === "method-response"
+                              ? "bg-blue-200 dark:bg-blue-800"
+                              : ""
+                              }`}
                             onClick={() => handleFlowStepClick("method-response")}
                           >
                             <div className="text-xs font-medium text-blue-700 dark:text-blue-300">메서드 응답</div>
                           </div>
                         </div>
 
-                        <div className="flex items-center">
+                        <div className="space-y-3">
                           <ArrowLeft className="h-4 w-4 text-gray-400 rotate-180 mx-2" />
+                          <ArrowRight className="h-4 w-4 text-gray-400 rotate-180 mx-2" />
                         </div>
 
-                        {/* HTTP Integration */}
-                        <div className="flex flex-col items-center">
-                          <div className="bg-white border-2 border-gray-300 rounded-lg p-3 mb-2 min-w-[80px]">
-                            <div className="text-center">
-                              <div className="text-xs font-bold text-gray-600">HTTP</div>
-                              <div className="text-xs text-gray-500">통합</div>
-                            </div>
-                          </div>
-                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">HTTP 통합</span>
-                        </div>
 
-                        <div className="flex items-center">
-                          <ArrowLeft className="h-4 w-4 text-gray-400 rotate-180 mx-2" />
-                        </div>
 
                         {/* HTTP Response */}
                         <div className="flex flex-col items-center">
@@ -651,7 +636,7 @@ export default function ApiResourcesPage() {
 
                           <div className="grid grid-cols-2 gap-6">
                             <div>
-                              <div className="space-y-3">
+                              <div className="space-y-2">
                                 <div>
                                   <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                     권한 부여
@@ -671,7 +656,7 @@ export default function ApiResourcesPage() {
                               </div>
                             </div>
                             <div>
-                              <div className="space-y-3">
+                              <div className="space-y-2">
                                 <div>
                                   <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                     API 키가 필요함
@@ -720,9 +705,6 @@ export default function ApiResourcesPage() {
                           <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-4">
                               <h3 className="text-lg font-bold text-gray-900 dark:text-white">메서드 응답</h3>
-                              <Button variant="link" className="text-blue-600 p-0 h-auto text-sm">
-                                정보
-                              </Button>
                             </div>
                             <Button className="bg-blue-500 hover:bg-blue-600 text-white" onClick={handleCreateResponse}>
                               응답 생성
@@ -768,17 +750,16 @@ export default function ApiResourcesPage() {
                               {/* Method and URL */}
                               <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                                 <span
-                                  className={`px-3 py-1 rounded text-sm font-mono font-bold ${
-                                    selectedMethod.type === "GET"
-                                      ? "bg-green-100 text-green-800"
-                                      : selectedMethod.type === "POST"
-                                        ? "bg-blue-100 text-blue-800"
-                                        : selectedMethod.type === "PUT"
-                                          ? "bg-yellow-100 text-yellow-800"
-                                          : selectedMethod.type === "DELETE"
-                                            ? "bg-red-100 text-red-800"
-                                            : "bg-gray-100 text-gray-800"
-                                  }`}
+                                  className={`px-3 py-1 rounded text-sm font-mono font-bold ${selectedMethod.type === "GET"
+                                    ? "bg-green-100 text-green-800"
+                                    : selectedMethod.type === "POST"
+                                      ? "bg-blue-100 text-blue-800"
+                                      : selectedMethod.type === "PUT"
+                                        ? "bg-yellow-100 text-yellow-800"
+                                        : selectedMethod.type === "DELETE"
+                                          ? "bg-red-100 text-red-800"
+                                          : "bg-gray-100 text-gray-800"
+                                    }`}
                                 >
                                   {selectedMethod.type}
                                 </span>
@@ -888,13 +869,12 @@ export default function ApiResourcesPage() {
                                   <div className="flex items-center gap-2">
                                     <span className="text-sm font-medium">상태:</span>
                                     <span
-                                      className={`px-2 py-1 rounded text-sm font-mono ${
-                                        testResponse.status >= 200 && testResponse.status < 300
-                                          ? "bg-green-100 text-green-800"
-                                          : testResponse.status >= 400
-                                            ? "bg-red-100 text-red-800"
-                                            : "bg-yellow-100 text-yellow-800"
-                                      }`}
+                                      className={`px-2 py-1 rounded text-sm font-mono ${testResponse.status >= 200 && testResponse.status < 300
+                                        ? "bg-green-100 text-green-800"
+                                        : testResponse.status >= 400
+                                          ? "bg-red-100 text-red-800"
+                                          : "bg-yellow-100 text-yellow-800"
+                                        }`}
                                     >
                                       {testResponse.status} {testResponse.statusText}
                                     </span>
@@ -951,7 +931,7 @@ export default function ApiResourcesPage() {
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-xl font-bold text-gray-900 dark:text-white">리소스 세부 정보</h2>
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2">
+                        {/* <div className="flex items-center gap-2">
                           {selectedResource.corsEnabled ? (
                             <>
                               <CheckCircle className="h-5 w-5 text-green-500" />
@@ -963,7 +943,7 @@ export default function ApiResourcesPage() {
                               <span className="text-sm text-red-600 font-medium">CORS 비활성화</span>
                             </>
                           )}
-                        </div>
+                        </div> */}
                         <Button
                           variant="outline"
                           size="sm"
@@ -976,16 +956,31 @@ export default function ApiResourcesPage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-3 gap-6">
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">리소스 ID</Label>
+                        <div className="mt-1 text-sm font-mono text-gray-900 dark:text-gray-400">jtgiezhqj1</div>
+                      </div>
                       <div>
                         <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">경로</Label>
                         <div className="mt-1 text-lg font-mono text-gray-900 dark:text-white">
                           {selectedResource.path}
                         </div>
                       </div>
+
                       <div>
-                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">리소스 ID</Label>
-                        <div className="mt-1 text-sm font-mono text-gray-600 dark:text-gray-400">jtgiezhqj1</div>
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">CORS 활성화 여부</Label>
+                        <div className="mt-1 text-sm font-mono text-gray-600 dark:text-gray-400">   {selectedResource.corsEnabled ? (
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="h-5 w-5 text-green-500" />
+                            <span className="text-sm text-green-600 font-medium">active</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <XCircle className="h-5 w-5 text-red-500" />
+                            <span className="text-sm text-red-600 font-medium">disabled</span>
+                          </div>
+                        )}</div>
                       </div>
                     </div>
                   </div>
@@ -997,9 +992,9 @@ export default function ApiResourcesPage() {
                         메서드 ({selectedResource.methods.length})
                       </h3>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
+                        {/* <Button variant="outline" size="sm">
                           삭제
-                        </Button>
+                        </Button> */}
                         <Button
                           size="sm"
                           onClick={handleCreateMethod}
@@ -1012,8 +1007,8 @@ export default function ApiResourcesPage() {
 
                     {selectedResource.methods.length > 0 ? (
                       <Table>
-                        <TableHeader>
-                          <TableRow>
+                        <TableHeader className="hover:bg-white dark:hover:bg-gray-700">
+                          <TableRow className="hover:bg-white dark:hover:bg-gray-700">
                             <TableHead>메서드 유형</TableHead>
                             <TableHead>권한 부여</TableHead>
                             <TableHead>API 키</TableHead>

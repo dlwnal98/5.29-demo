@@ -439,11 +439,10 @@ export default function CreateMethodPage() {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <Button variant="outline" size="sm" onClick={handleBack}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              뒤로가기
+              <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold">
                 메서드 생성
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-1">
@@ -465,16 +464,13 @@ export default function CreateMethodPage() {
           {/* Left Panel - Method Creation Form */}
           <div className="space-y-6">
             <Card>
-              <CardHeader>
-                <CardTitle className="text-xl font-bold">메서드 생성</CardTitle>
-              </CardHeader>
+              <div className="pt-4"></div>
               <CardContent className="space-y-6">
                 {/* Method Details */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">메서드 세부 정보</h3>
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="method-type" className="text-sm font-medium">
+                      <Label htmlFor="method-type" className="text-[16px] font-semibold mb-4">
                         메서드 유형
                       </Label>
                       <Select
@@ -500,7 +496,7 @@ export default function CreateMethodPage() {
 
                 {/* Integration Type */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">통합 유형</h3>
+                  <h3 className="text-[16px] font-semibold mb-4">통합 유형</h3>
                   <RadioGroup
                     value={methodForm.integrationType}
                     onValueChange={(value) => setMethodForm({ ...methodForm, integrationType: value })}
@@ -508,11 +504,10 @@ export default function CreateMethodPage() {
                   >
                     {/* HTTP */}
                     <div
-                      className={`border rounded-lg p-4 transition-all ${
-                        methodForm.integrationType === "http"
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
+                      className={`border rounded-lg p-4 transition-all ${methodForm.integrationType === "http"
+                        ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
+                        : "border-gray-200 hover:border-gray-300"
+                        }`}
                     >
                       <div className="flex items-center space-x-3">
                         <RadioGroupItem value="http" id="http" />
@@ -534,11 +529,10 @@ export default function CreateMethodPage() {
 
                     {/* Mock */}
                     <div
-                      className={`border rounded-lg p-4 transition-all ${
-                        methodForm.integrationType === "mock"
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
+                      className={`border rounded-lg p-4 transition-all ${methodForm.integrationType === "mock"
+                        ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
+                        : "border-gray-200 hover:border-gray-300"
+                        }`}
                     >
                       <div className="flex items-center space-x-3">
                         <RadioGroupItem value="mock" id="mock" />
@@ -607,7 +601,7 @@ export default function CreateMethodPage() {
 
                     {/* Endpoint URL */}
                     <div>
-                      <Label className="text-base font-medium">엔드포인트 URL</Label>
+                      <Label className="text-[16px] font-semibold mb-4">엔드포인트 URL</Label>
                       {!showCustomUrlInput ? (
                         <Select value={methodForm.endpointUrl} onValueChange={handleEndpointUrlChange}>
                           <SelectTrigger className="mt-2">
@@ -662,7 +656,7 @@ export default function CreateMethodPage() {
 
                     {/* 요청 검사기 */}
                     <div>
-                      <Label className="text-sm font-medium">요청 검사기</Label>
+                      <Label className="text-[16px] font-semibold mb-4m">요청 검사기</Label>
                       <Select
                         value={methodForm.requestValidator}
                         onValueChange={(value) =>
@@ -923,8 +917,8 @@ export default function CreateMethodPage() {
                 <CollapsibleContent>
                   <div className="p-6 bg-white dark:bg-gray-900">
                     <div className="space-y-4">
-                      <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
-                        <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-3">쿼리 스트링</h4>
+                      <div className=" dark:bg-blue-950/20 p-4 rounded-lg">
+                        <h4 className="font-semibold text-gray-900 dark:text-blue-100 mb-3">쿼리 스트링</h4>
 
                         {queryParameters.map((param, index) => (
                           <div key={param.id} className="grid grid-cols-12 gap-3 items-center mb-3">
@@ -1005,13 +999,13 @@ export default function CreateMethodPage() {
                         )}
                       </div>
 
-                      <Button
+                      {/* <Button
                         variant="outline"
                         className="text-blue-600 border-blue-300 hover:bg-blue-50 bg-transparent"
                         onClick={addQueryParameter}
                       >
                         쿼리 문자열 추가
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 </CollapsibleContent>
@@ -1037,8 +1031,8 @@ export default function CreateMethodPage() {
                 <CollapsibleContent>
                   <div className="p-6 bg-white dark:bg-gray-900">
                     <div className="space-y-4">
-                      <div className="bg-green-50 dark:bg-green-950/20 p-4 rounded-lg">
-                        <h4 className="font-semibold text-green-900 dark:text-green-100 mb-3">헤더</h4>
+                      <div className="dark:bg-green-950/20 p-4 rounded-lg">
+                        <h4 className="font-semibold text-gray-900 dark:text-green-100 mb-3">헤더</h4>
 
                         {headers.map((header, index) => (
                           <div key={header.id} className="grid grid-cols-12 gap-3 items-center mb-3">
@@ -1124,8 +1118,8 @@ export default function CreateMethodPage() {
                 <CollapsibleContent>
                   <div className="p-6 bg-white dark:bg-gray-900 space-y-6">
                     {/* Form Data Section */}
-                    <div className="bg-purple-50 dark:bg-purple-950/20 p-4 rounded-lg">
-                      <h4 className="font-semibold text-purple-900 dark:text-purple-100 mb-3">폼 데이터</h4>
+                    <div className="dark:bg-purple-950/20 p-4 rounded-lg">
+                      <h4 className="font-semibold text-gray-900 dark:text-purple-100 mb-3">폼 데이터</h4>
 
                       {formData.map((data, index) => (
                         <div key={data.id} className="grid grid-cols-12 gap-3 items-center mb-3">
@@ -1196,8 +1190,8 @@ export default function CreateMethodPage() {
                     </div>
 
                     {/* Body Models Section */}
-                    <div className="bg-orange-50 dark:bg-orange-950/20 p-4 rounded-lg">
-                      <h4 className="font-semibold text-orange-900 dark:text-orange-100 mb-3">바디</h4>
+                    <div className="dark:bg-orange-950/20 p-4 rounded-lg">
+                      <h4 className="font-semibold text-gray-900 dark:text-orange-100 mb-3">바디</h4>
 
                       {bodyModels.map((model, index) => (
                         <div key={model.id} className="grid grid-cols-12 gap-3 items-center mb-3">
@@ -1251,7 +1245,7 @@ export default function CreateMethodPage() {
                     </div>
 
                     {/* Content Type Section */}
-                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                    <div className="dark:bg-gray-800 p-4 rounded-lg">
                       <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">컨텐츠 타입</h4>
 
                       <div className="flex gap-2 mb-3">

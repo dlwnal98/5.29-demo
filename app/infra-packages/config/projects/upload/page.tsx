@@ -58,6 +58,7 @@ export default function UploadFilePage() {
   const [selectedStructureItem, setSelectedStructureItem] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [commitMessage, setCommitMessage] = useState("");
+  const [commitDescription, setCommitDescription] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -99,15 +100,8 @@ export default function UploadFilePage() {
   const handleDrop = (event: React.DragEvent) => {
     event.preventDefault();
     setIsDragOver(false);
-
     const files = Array.from(event.dataTransfer.files);
-    const permissionExtension = ["md", "yml", "yaml", "properties"];
-
-    if (!permissionExtension.includes(files[0]?.name?.split(".")[1])) {
-      alert("지원하지 않는 파일 입니다.");
-    } else {
-      setUploadedFiles((prev) => [...prev, ...files]);
-    }
+    setUploadedFiles((prev) => [...prev, ...files]);
   };
 
   const handleDragOver = (event: React.DragEvent) => {
@@ -172,13 +166,15 @@ export default function UploadFilePage() {
     params.toString() ? `?${params.toString()}` : ""
   }`;
 
+
+
   // 동적으로 breadcrumb 생성
   const generateBreadcrumbItems = () => {
     const items = [
       {
         name: "config",
         href: `/infra-packages/config/projects?branch=${branch}`,
-      },
+      }
     ];
 
     const lastItem = {
@@ -194,10 +190,12 @@ export default function UploadFilePage() {
       });
     }
 
+
     return [...items, lastItem];
   };
 
   const breadcrumbItems = generateBreadcrumbItems();
+  
   return (
     <AppLayout projectSlug="config">
       <div className="bg-transparent">
@@ -324,9 +322,8 @@ export default function UploadFilePage() {
                         </Button>
                         <input
                           ref={fileInputRef}
-                          multiple
                           type="file"
-                          accept=".md,.properties,.yml,.yaml"
+                          multiple
                           onChange={handleFileSelect}
                           className="hidden"
                         />
@@ -396,7 +393,7 @@ export default function UploadFilePage() {
                         className="font-mono"
                       />
                     </div>
-
+                  
                     <div className="flex justify-end space-x-2 pt-4">
                       <Button
                         variant="outline"
