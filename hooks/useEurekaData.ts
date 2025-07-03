@@ -13,7 +13,7 @@ export function useEurekaSummary() {
     queryFn: fetchEurekaSummary,
     staleTime: Infinity, // 캐시 무한히 신선하다고 간주
     refetchOnWindowFocus: false, // 포커스돼도 재요청 안 함
-    refetchOnMount: false, // 마운트 시 재요청 안 함
+    refetchOnMount: false, // 마운��� 시 재요청 안 함
     refetchOnReconnect: false, // 재접속 시 재요청 안 함
     enabled: true, // 자동 호출은 한 번만 발생 (true가 기본)
   });
