@@ -16,6 +16,7 @@ import {
   Key,
   Route,
   Layers,
+  Puzzle,
 } from "lucide-react";
 
 // 사이드 바
@@ -130,16 +131,16 @@ export const navItems: NavItem[] = [
           {
             label: "Models",
             href: "/services/api-management/models",
-            icon: Key,
+            icon: Layers,
           },
           {
             label: "Target Endpoints",
             href: "/services/api-management/target-endpoints",
-            icon: Key,
+            icon: Puzzle,
           },
           {
             label: "Keys",
-            href: "/services/api-management/keys",
+            href: "/services/api-management/api-keys",
             icon: Key,
           },
         ],

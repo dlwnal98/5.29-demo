@@ -23,15 +23,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -45,15 +36,8 @@ import {
   ChevronDown,
   Folder,
   FolderOpen,
-  CheckCircle,
-  XCircle,
   Edit,
   Copy,
-  Search,
-  Activity,
-  Settings,
-  ChevronLeft,
-  ChevronRightIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -85,6 +69,13 @@ interface DeploymentRecord {
   status: "active" | "inactive" | "failed";
   description: string;
   deploymentId: string;
+}
+
+interface SelectedMethod {
+  resourceId: string;
+  resourcePath: string;
+  method: string;
+  url: string;
 }
 
 export default function StagesPage() {
@@ -164,6 +155,10 @@ export default function StagesPage() {
     deploymentId: "xf40bg",
   });
 
+  const [selectedMethod, setSelectedMethod] = useState<SelectedMethod | null>(
+    null
+  );
+
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(
     new Set(["/", "hello"])
   );
@@ -205,6 +200,13 @@ export default function StagesPage() {
     toast.success("URL이 클립보드에 복사되었습니다.");
   };
 
+  const handleCopyMethodUrl = () => {
+    if (selectedMethod) {
+      navigator.clipboard.writeText(selectedMethod.url);
+      toast.success("메서드 URL이 클립보드에 복사되었습니다.");
+    }
+  };
+
   const handleEditSave = () => {
     setSelectedStage({
       ...selectedStage,
@@ -224,6 +226,20 @@ export default function StagesPage() {
     toast.success(`스테이지 '${createStageForm.name}'이(가) 생성되었습니다.`);
     setIsCreateStageModalOpen(false);
     setCreateStageForm({ name: "", description: "" });
+  };
+
+  const handleMethodClick = (
+    resourceId: string,
+    resourcePath: string,
+    method: string
+  ) => {
+    const methodUrl = `${selectedStage.url}${resourcePath}`;
+    setSelectedMethod({
+      resourceId,
+      resourcePath,
+      method,
+      url: methodUrl,
+    });
   };
 
   const getDeploymentStatusColor = (status: string) => {
@@ -270,6 +286,7 @@ export default function StagesPage() {
                 id: resource.id,
                 name: resource.name,
               });
+              setSelectedMethod(null); // 스테이지 변경 시 선택된 메서드 초기화
             }
           }}
         >
@@ -312,8 +329,16 @@ export default function StagesPage() {
               {child.methods.map((method, index) => (
                 <div
                   key={`${child.id}-${method}-${index}`}
-                  className="flex items-center gap-2 py-1 px-2 text-xs text-gray-600 dark:text-gray-400"
+                  className={`flex items-center gap-2 py-1 px-2 text-xs cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 rounded ${
+                    selectedMethod?.resourceId === child.id &&
+                    selectedMethod?.method === method
+                      ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                      : "text-gray-600 dark:text-gray-400"
+                  }`}
                   style={{ paddingLeft: `${(level + 2) * 16 + 8}px` }}
+                  onClick={() =>
+                    handleMethodClick(child.id, child.path, method)
+                  }
                 >
                   <div className="w-3" />
                   <div className="w-3 h-3 bg-green-100 rounded border border-green-300 flex items-center justify-center">
@@ -441,15 +466,28 @@ export default function StagesPage() {
                         </button>
                       </div>
                     </div>
-                    {/* <div>
-                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        최근에 배포
-                      </Label>
-                      <div className="mt-1 text-sm text-gray-600">
-                        {selectedStage.lastDeployed}에{" "}
-                        {selectedStage.deploymentId}
+
+                    {/* Selected Method URL */}
+                    {selectedMethod && (
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          선택된 메서드 URL ({selectedMethod.method})
+                        </Label>
+                        <div className="mt-1 flex items-center gap-2">
+                          <button
+                            onClick={handleCopyMethodUrl}
+                            className="text-green-600 hover:text-green-700 text-sm font-mono flex items-center gap-1 bg-green-50 px-2 py-1 rounded border border-green-200"
+                          >
+                            <Copy className="h-3 w-3" />
+                            {selectedMethod.url}
+                          </button>
+                        </div>
+                        <div className="mt-1 text-xs text-gray-500">
+                          리소스 경로: {selectedMethod.resourcePath}
+                        </div>
                       </div>
-                    </div> */}
+                    )}
+
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
