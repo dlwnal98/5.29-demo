@@ -1,13 +1,11 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { AppLayout } from "@/components/layout/AppLayout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -31,7 +29,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Search, Settings, Rocket, FileText } from "lucide-react"
+import { Plus, Search, Settings, Rocket,RefreshCw } from "lucide-react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
 
@@ -90,12 +88,7 @@ const mockApiPlans: ApiPlan[] = [
   },
 ]
 
-const mockApiExamples = [
-  {
-    id: "petstore",
-    name: "Pet Store API",
-    description: "완전한 펫스토어 API 예제",
-    content: `{
+const mockApiExamples = `{
   "openapi": "3.0.0",
   "info": {
     "title": "Pet Store API",
@@ -176,89 +169,7 @@ const mockApiExamples = [
       }
     }
   }
-}`,
-  },
-  {
-    id: "todo",
-    name: "Todo API",
-    description: "간단한 할일 관리 API",
-    content: `{
-  "openapi": "3.0.0",
-  "info": {
-    "title": "Todo API",
-    "version": "1.0.0",
-    "description": "Simple Todo management API"
-  },
-  "paths": {
-    "/todos": {
-      "get": {
-        "summary": "Get all todos",
-        "responses": {
-          "200": {
-            "description": "List of todos",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Todo"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "summary": "Create a new todo",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TodoInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Todo created"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "Todo": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "title": {
-            "type": "string"
-          },
-          "completed": {
-            "type": "boolean"
-          }
-        }
-      },
-      "TodoInput": {
-        "type": "object",
-        "required": ["title"],
-        "properties": {
-          "title": {
-            "type": "string"
-          }
-        }
-      }
-    }
-  }
-}`,
-  },
-]
+}`;
 
 export default function ApiManagementPage() {
   const [apiPlans, setApiPlans] = useState<ApiPlan[]>(mockApiPlans)
@@ -413,30 +324,7 @@ export default function ApiManagementPage() {
     return 0
   })
 
-  const filteredApis = sortedApis.filter(
-    (api) =>
-      api.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      api.description.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
 
-  const handleSelectAll = (checked: boolean) => {
-    setApis(apis.map((api) => ({ ...api, selected: checked })))
-  }
-
-  const handleSelectApi = (id: string, checked: boolean) => {
-    setApis(apis.map((api) => (api.id === id ? { ...api, selected: checked } : api)))
-  }
-
-  const handleDeleteSelected = () => {
-    const selectedApis = apis.filter((api) => api.selected)
-    if (selectedApis.length === 0) {
-      toast.error("삭제할 API를 선택해주세요.")
-      return
-    }
-
-    setApis(apis.filter((api) => !api.selected))
-    toast.success(`${selectedApis.length}개의 API가 삭제되었습니다.`)
-  }
 
   const handleRefresh = () => {
     toast.success("API 목록이 새로고침되었습니다.")
@@ -679,49 +567,17 @@ export default function ApiManagementPage() {
       case "example":
         return (
           <div className="space-y-4">
-            <div>
-              <Label className="text-sm font-medium text-gray-700 mb-2 block">
-                API 예제 선택 <span className="text-red-500">*</span>
-              </Label>
-              <Select
-                value={createApiForm.selectedExample}
-                onValueChange={(value) => setCreateApiForm({ ...createApiForm, selectedExample: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="API 예제를 선택하세요" />
-                </SelectTrigger>
-                <SelectContent>
-                  {mockApiExamples.map((example) => (
-                    <SelectItem key={example.id} value={example.id}>
-                      <div className="flex flex-col">
-                        <span className="font-medium">{example.name}</span>
-                        <span className="text-xs text-gray-500">{example.description}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {createApiForm.selectedExample && (
+           
               <div className="border rounded-lg bg-gray-50">
-                <div className="p-3 border-b bg-white">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-blue-500" />
-                    <Label className="text-sm font-medium text-gray-700">
-                      {mockApiExamples.find((ex) => ex.id === createApiForm.selectedExample)?.name} 예제
-                    </Label>
-                  </div>
-                </div>
+               
                 <div className="p-4">
                   <div className="bg-white rounded border max-h-96 overflow-auto">
                     <pre className="text-xs p-4 font-mono leading-relaxed">
-                      {mockApiExamples.find((ex) => ex.id === createApiForm.selectedExample)?.content}
+                      {mockApiExamples}
                     </pre>
                   </div>
                 </div>
               </div>
-            )}
           </div>
         )
 
@@ -752,7 +608,7 @@ export default function ApiManagementPage() {
             <h1 className="text-2xl font-bold text-gray-900">API Plans</h1>
             <p className="text-gray-600 mt-1">API 계획을 관리하고 배포하세요.</p>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
@@ -762,6 +618,9 @@ export default function ApiManagementPage() {
                 className="pl-10"
               />
             </div>
+               <Button variant="outline" onClick={handleRefresh}>
+              <RefreshCw className="h-4 w-4 " />
+            </Button>
             <Button onClick={() => setIsCreateModalOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               API Plan 생성
@@ -875,6 +734,7 @@ export default function ApiManagementPage() {
                   <p className="text-xs text-blue-600 font-mono">{selectedPlan.planId}</p>
                 </div>
               )}
+              
               <div>
                 <Label htmlFor="deploy-stage" className="text-sm font-medium">
                   배포 스테이지 *
@@ -977,7 +837,7 @@ export default function ApiManagementPage() {
         <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
           <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-blue-600">API 생성</DialogTitle>
+              <DialogTitle className="text-xl font-bold text-blue-600">API Plan 생성</DialogTitle>
               <DialogDescription className="text-gray-600">
                 API는 4가지 방법으로 생성할 수 있습니다. (<span className="text-red-500">*</span> 필수 입력 사항입니다.)
               </DialogDescription>
@@ -987,7 +847,7 @@ export default function ApiManagementPage() {
               {/* API Creation Type */}
               <div>
                 <Label className="text-sm font-medium text-gray-700 mb-3 block">
-                  API 생성 <span className="text-red-500">*</span>
+                  API 생성 유형 <span className="text-red-500">*</span>
                 </Label>
                 <RadioGroup
                   value={createApiForm.type}

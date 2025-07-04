@@ -29,6 +29,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import {
   ArrowLeft,
   Trash2,
@@ -42,7 +43,6 @@ import {
   AlertTriangle,
   X,
   ExternalLink,
-  Rocket,
   Edit,
   Monitor,
   Play,
@@ -52,6 +52,8 @@ import {
   Code,
   FileText,
   ArrowRight,
+  Globe,
+  Settings,
 } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
@@ -62,6 +64,7 @@ interface Resource {
   path: string
   name: string
   corsEnabled: boolean
+  corsSettings?: CorsSettings
   children?: Resource[]
   methods: Method[]
 }
@@ -72,6 +75,7 @@ interface Method {
   permissions: string
   apiKey: string
   resourcePath: string
+  endpointUrl: string
 }
 
 interface Stage {
@@ -100,6 +104,15 @@ interface TestResponse {
   responseTime: number
 }
 
+interface CorsSettings {
+  allowMethods: string[]
+  allowHeaders: string
+  allowOrigin: string
+  exposeHeaders: string
+  maxAge: string
+  allowCredentials: boolean
+}
+
 export default function ApiResourcesPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -114,6 +127,14 @@ export default function ApiResourcesPage() {
       path: "/",
       name: "Root",
       corsEnabled: true,
+      corsSettings: {
+        allowMethods: ["GET", "POST", "HEAD"],
+        allowHeaders: "content-type,x-ncp-apigw-api-key,x-ncp-apigw-timestamp,x-ncp-iam-access-key,x-ncp-apigw-signature-v1,x-ncp-apigw",
+        allowOrigin: "*",
+        exposeHeaders: "",
+        maxAge: "",
+        allowCredentials: false,
+      },
       methods: [],
       children: [
         {
@@ -128,6 +149,7 @@ export default function ApiResourcesPage() {
               permissions: "읽기",
               apiKey: "required",
               resourcePath: "/rmd",
+              endpointUrl: "https://api.example.com/rmd",
             },
           ],
         },
@@ -149,11 +171,32 @@ export default function ApiResourcesPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isMethodDeleteDialogOpen, setIsMethodDeleteDialogOpen] = useState(false)
   const [isDeployModalOpen, setIsDeployModalOpen] = useState(false)
+  const [isCorsModalOpen, setIsCorsModalOpen] = useState(false)
+  const [methodToDelete, setMethodToDelete] = useState<Method | null>(null)
+
   const [createResourceForm, setCreateResourceForm] = useState({
     path: "",
     name: "",
     corsEnabled: false,
+    corsSettings: {
+      allowMethods: [] as string[],
+      allowHeaders: "",
+      allowOrigin: "*",
+      exposeHeaders: "",
+      maxAge: "",
+      allowCredentials: false,
+    },
   })
+
+  const [corsForm, setCorsForm] = useState<CorsSettings>({
+    allowMethods: [],
+    allowHeaders: "",
+    allowOrigin: "*",
+    exposeHeaders: "",
+    maxAge: "",
+    allowCredentials: false,
+  })
+
   const [deployForm, setDeployForm] = useState({
     stage: "",
     description: "",
@@ -182,6 +225,9 @@ export default function ApiResourcesPage() {
   })
   const [testResponse, setTestResponse] = useState<TestResponse | null>(null)
   const [isTestLoading, setIsTestLoading] = useState(false)
+
+  // Available HTTP methods for CORS
+  const httpMethods = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"]
 
   // Sync heights
   useEffect(() => {
@@ -236,12 +282,25 @@ export default function ApiResourcesPage() {
       path: createResourceForm.path,
       name: createResourceForm.name,
       corsEnabled: createResourceForm.corsEnabled,
+      corsSettings: createResourceForm.corsEnabled ? createResourceForm.corsSettings : undefined,
       methods: [],
     }
 
     setResources([...resources, newResource])
     setIsCreateModalOpen(false)
-    setCreateResourceForm({ path: "", name: "", corsEnabled: false })
+    setCreateResourceForm({
+      path: "",
+      name: "",
+      corsEnabled: false,
+      corsSettings: {
+        allowMethods: [],
+        allowHeaders: "",
+        allowOrigin: "*",
+        exposeHeaders: "",
+        maxAge: "",
+        allowCredentials: false,
+      },
+    })
     toast.success(`리소스 '${newResource.name}'이(가) 생성되었습니다.`)
   }
 
@@ -256,9 +315,9 @@ export default function ApiResourcesPage() {
   }
 
   const handleDeleteMethod = () => {
-    if (selectedMethod) {
-      toast.success(`메서드 '${selectedMethod.type} ${selectedMethod.resourcePath}'이(가) 삭제되었습니다.`)
-      setSelectedMethod(null)
+    if (methodToDelete) {
+      toast.success(`메서드 '${methodToDelete.type} ${methodToDelete.resourcePath}'이(가) 삭제되었습니다.`)
+      setMethodToDelete(null)
       setIsMethodDeleteDialogOpen(false)
     }
   }
@@ -370,6 +429,57 @@ export default function ApiResourcesPage() {
     toast.success("응답이 삭제되었습니다.")
   }
 
+  const handleCorsClick = () => {
+    if (selectedResource.corsEnabled && selectedResource.corsSettings) {
+      setCorsForm(selectedResource.corsSettings)
+      setIsCorsModalOpen(true)
+    }
+  }
+
+  const handleCorsUpdate = () => {
+    // Update CORS settings logic here
+    toast.success("CORS 설정이 업데이트되었습니다.")
+    setIsCorsModalOpen(false)
+  }
+
+  const addCorsMethod = (method: string) => {
+    if (!corsForm.allowMethods.includes(method)) {
+      setCorsForm({
+        ...corsForm,
+        allowMethods: [...corsForm.allowMethods, method],
+      })
+    }
+  }
+
+  const removeCorsMethod = (method: string) => {
+    setCorsForm({
+      ...corsForm,
+      allowMethods: corsForm.allowMethods.filter((m) => m !== method),
+    })
+  }
+
+  const addCreateFormCorsMethod = (method: string) => {
+    if (!createResourceForm.corsSettings.allowMethods.includes(method)) {
+      setCreateResourceForm({
+        ...createResourceForm,
+        corsSettings: {
+          ...createResourceForm.corsSettings,
+          allowMethods: [...createResourceForm.corsSettings.allowMethods, method],
+        },
+      })
+    }
+  }
+
+  const removeCreateFormCorsMethod = (method: string) => {
+    setCreateResourceForm({
+      ...createResourceForm,
+      corsSettings: {
+        ...createResourceForm.corsSettings,
+        allowMethods: createResourceForm.corsSettings.allowMethods.filter((m) => m !== method),
+      },
+    })
+  }
+
   const renderResourceTree = (resource: Resource, level = 0) => {
     const isExpanded = expandedPaths.has(resource.path)
     const hasChildren = resource.children && resource.children.length > 0
@@ -432,9 +542,6 @@ export default function ApiResourcesPage() {
                   onClick={() => handleMethodClick(method, child)}
                 >
                   <div className="w-4" />
-                  {/* <div className="w-4 h-4 bg-green-100 rounded border border-green-300 flex items-center justify-center">
-                    <div className="w-2 h-2 bg-green-500 rounded-full" />
-                  </div> */}
                   <span className="font-mono text-xs bg-green-100 text-green-800 px-2 py-1 rounded">{method.type}</span>
                 </div>
               ))}
@@ -474,10 +581,6 @@ export default function ApiResourcesPage() {
             </Button>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">리소스</h1>
           </div>
-          {/* <Button className="bg-orange-500 hover:bg-orange-600 text-white" onClick={() => setIsDeployModalOpen(true)}>
-            <Rocket className="h-4 w-4 mr-2" />
-            API 배포
-          </Button> */}
         </div>
 
         <div className="grid grid-cols-12 gap-6">
@@ -510,12 +613,8 @@ export default function ApiResourcesPage() {
                   {/* Method Header */}
                   <div className="border-b border-gray-200 dark:border-gray-700 p-6">
                     <div className=" mb-4">
-                      {/* <Button variant="outline" size="sm" onClick={handleBackToResource}>
-                          <ArrowLeft className="h-4 w-4" />
-                        </Button> */}
                       <div>
                         <div className="flex items-center justify-between mb-4">
-
                           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                             {selectedMethod.resourcePath} - {selectedMethod.type} - 메서드 상세
                           </h1>
@@ -528,7 +627,6 @@ export default function ApiResourcesPage() {
                               삭제
                             </Button>
                             <Button className="bg-orange-500 hover:bg-orange-600 text-white">API 배포</Button>
-
                           </div>
                         </div>
                         <div className="mt-2">
@@ -550,7 +648,6 @@ export default function ApiResourcesPage() {
                           </div>
                         </div>
                       </div>
-
                     </div>
 
                     {/* Updated Flow Diagram - matching the provided image */}
@@ -568,7 +665,6 @@ export default function ApiResourcesPage() {
                           <ArrowLeft className="h-4 w-4 text-gray-400 rotate-180 mx-2" />
                           <ArrowRight className="h-4 w-4 text-gray-400 rotate-180 mx-2" />
                         </div>
-
 
                         {/* Method Request & Response */}
                         <div className="flex flex-col items-center ">
@@ -597,8 +693,6 @@ export default function ApiResourcesPage() {
                           <ArrowLeft className="h-4 w-4 text-gray-400 rotate-180 mx-2" />
                           <ArrowRight className="h-4 w-4 text-gray-400 rotate-180 mx-2" />
                         </div>
-
-
 
                         {/* HTTP Response */}
                         <div className="flex flex-col items-center">
@@ -931,19 +1025,6 @@ export default function ApiResourcesPage() {
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-xl font-bold text-gray-900 dark:text-white">리소스 세부 정보</h2>
                       <div className="flex items-center gap-3">
-                        {/* <div className="flex items-center gap-2">
-                          {selectedResource.corsEnabled ? (
-                            <>
-                              <CheckCircle className="h-5 w-5 text-green-500" />
-                              <span className="text-sm text-green-600 font-medium">CORS 활성화</span>
-                            </>
-                          ) : (
-                            <>
-                              <XCircle className="h-5 w-5 text-red-500" />
-                              <span className="text-sm text-red-600 font-medium">CORS 비활성화</span>
-                            </>
-                          )}
-                        </div> */}
                         <Button
                           variant="outline"
                           size="sm"
@@ -970,17 +1051,23 @@ export default function ApiResourcesPage() {
 
                       <div>
                         <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">CORS 활성화 여부</Label>
-                        <div className="mt-1 text-sm font-mono text-gray-600 dark:text-gray-400">   {selectedResource.corsEnabled ? (
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="h-5 w-5 text-green-500" />
-                            <span className="text-sm text-green-600 font-medium">active</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <XCircle className="h-5 w-5 text-red-500" />
-                            <span className="text-sm text-red-600 font-medium">disabled</span>
-                          </div>
-                        )}</div>
+                        <div className="mt-1 text-sm font-mono text-gray-600 dark:text-gray-400">
+                          {selectedResource.corsEnabled ? (
+                            <div
+                              className="flex items-center gap-2 cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 p-2 rounded transition-colors"
+                              onClick={handleCorsClick}
+                            >
+                              <CheckCircle className="h-5 w-5 text-green-500" />
+                              <span className="text-sm text-green-600 font-medium">active</span>
+                              <Settings className="h-4 w-4 text-green-500 ml-1" />
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <XCircle className="h-5 w-5 text-red-500" />
+                              <span className="text-sm text-red-600 font-medium">disabled</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -992,9 +1079,6 @@ export default function ApiResourcesPage() {
                         메서드 ({selectedResource.methods.length})
                       </h3>
                       <div className="flex gap-2">
-                        {/* <Button variant="outline" size="sm">
-                          삭제
-                        </Button> */}
                         <Button
                           size="sm"
                           onClick={handleCreateMethod}
@@ -1012,6 +1096,8 @@ export default function ApiResourcesPage() {
                             <TableHead>메서드 유형</TableHead>
                             <TableHead>권한 부여</TableHead>
                             <TableHead>API 키</TableHead>
+                            <TableHead>엔드포인트 URL</TableHead>
+                            <TableHead className="w-[100px]">작업</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -1019,15 +1105,37 @@ export default function ApiResourcesPage() {
                             <TableRow
                               key={method.id}
                               className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
-                              onClick={() => handleMethodClick(method, selectedResource)}
                             >
-                              <TableCell>
+                              <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
                                 <span className="font-mono text-sm bg-green-100 text-green-800 px-2 py-1 rounded">
                                   {method.type}
                                 </span>
                               </TableCell>
-                              <TableCell>{method.permissions}</TableCell>
-                              <TableCell>{method.apiKey}</TableCell>
+                              <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
+                                {method.permissions}
+                              </TableCell>
+                              <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
+                                {method.apiKey}
+                              </TableCell>
+                              <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
+                                <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                                  {method.endpointUrl}
+                                </code>
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 bg-transparent"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setMethodToDelete(method)
+                                    setIsMethodDeleteDialogOpen(true)
+                                  }}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
@@ -1048,7 +1156,7 @@ export default function ApiResourcesPage() {
 
         {/* Create Resource Modal */}
         <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-          <DialogContent className="sm:max-w-[600px]">
+          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-scroll">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-blue-600">Resource 생성</DialogTitle>
             </DialogHeader>
@@ -1119,6 +1227,152 @@ export default function ApiResourcesPage() {
                   }
                 />
               </div>
+
+              {/* CORS Settings - Only show when CORS is enabled */}
+              {createResourceForm.corsEnabled && (
+                <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-4 space-y-4">
+                  <h4 className="font-medium text-blue-900 dark:text-blue-100">CORS 설정</h4>
+                  
+                  {/* Access-Control-Allow-Method */}
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                      Access-Control-Allow-Method
+                    </Label>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {createResourceForm.corsSettings.allowMethods.map((method) => (
+                        <Badge
+                          key={method}
+                          className={`${method === "GET"
+                            ? "bg-green-100 text-green-800 hover:bg-green-100"
+                            : method === "POST"
+                              ? "bg-blue-100 text-blue-800 hover:bg-blue-100"
+                              : method === "HEAD"
+                                ? "bg-purple-100 text-purple-800 hover:bg-purple-100"
+                                : "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                            } cursor-pointer`}
+                          onClick={() => removeCreateFormCorsMethod(method)}
+                        >
+                          {method}
+                          <X className="h-3 w-3 ml-1" />
+                        </Badge>
+                      ))}
+                    </div>
+                    <Select onValueChange={addCreateFormCorsMethod}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="메서드 추가" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {httpMethods
+                          .filter((method) => !createResourceForm.corsSettings.allowMethods.includes(method))
+                          .map((method) => (
+                            <SelectItem key={method} value={method}>
+                              {method}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Access-Control-Allow-Headers */}
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                      Access-Control-Allow-Headers
+                    </Label>
+                    <Input
+                      value={createResourceForm.corsSettings.allowHeaders}
+                      onChange={(e) =>
+                        setCreateResourceForm({
+                          ...createResourceForm,
+                          corsSettings: {
+                            ...createResourceForm.corsSettings,
+                            allowHeaders: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="content-type,x-ncp-apigw-api-key,x-ncp-apigw-timestamp"
+                    />
+                  </div>
+
+                  {/* Access-Control-Allow-Origin */}
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                      Access-Control-Allow-Origin
+                    </Label>
+                    <Input
+                      value={createResourceForm.corsSettings.allowOrigin}
+                      onChange={(e) =>
+                        setCreateResourceForm({
+                          ...createResourceForm,
+                          corsSettings: {
+                            ...createResourceForm.corsSettings,
+                            allowOrigin: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="*"
+                    />
+                  </div>
+
+                  {/* Access-Control-Expose-Headers */}
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                      Access-Control-Expose-Headers
+                    </Label>
+                    <Input
+                      value={createResourceForm.corsSettings.exposeHeaders}
+                      onChange={(e) =>
+                        setCreateResourceForm({
+                          ...createResourceForm,
+                          corsSettings: {
+                            ...createResourceForm.corsSettings,
+                            exposeHeaders: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="헤더 이름들을 쉼표로 구분"
+                    />
+                  </div>
+
+                  {/* Access-Control-Max-Age */}
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                      Access-Control-Max-Age
+                    </Label>
+                    <Input
+                      value={createResourceForm.corsSettings.maxAge}
+                      onChange={(e) =>
+                        setCreateResourceForm({
+                          ...createResourceForm,
+                          corsSettings: {
+                            ...createResourceForm.corsSettings,
+                            maxAge: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="86400"
+                    />
+                  </div>
+
+                  {/* Access-Control-Allow-Credentials */}
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Access-Control-Allow-Credentials
+                    </Label>
+                    <Switch
+                      checked={createResourceForm.corsSettings.allowCredentials}
+                      onCheckedChange={(checked) =>
+                        setCreateResourceForm({
+                          ...createResourceForm,
+                          corsSettings: {
+                            ...createResourceForm.corsSettings,
+                            allowCredentials: checked,
+                          },
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <DialogFooter className="gap-2">
@@ -1130,6 +1384,14 @@ export default function ApiResourcesPage() {
                     path: "",
                     name: "",
                     corsEnabled: false,
+                    corsSettings: {
+                      allowMethods: [],
+                      allowHeaders: "",
+                      allowOrigin: "*",
+                      exposeHeaders: "",
+                      maxAge: "",
+                      allowCredentials: false,
+                    },
                   })
                 }}
               >
@@ -1137,6 +1399,128 @@ export default function ApiResourcesPage() {
               </Button>
               <Button onClick={handleCreateResource} className="bg-blue-500 hover:bg-blue-600 text-white">
                 생성
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* CORS Settings Modal */}
+        <Dialog open={isCorsModalOpen} onOpenChange={setIsCorsModalOpen}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-blue-600 flex items-center gap-2">
+                <Globe className="h-5 w-5" />
+                CORS 설정
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4 py-4">
+              {/* Access-Control-Allow-Method */}
+              <div>
+                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                  Access-Control-Allow-Method
+                </Label>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {corsForm.allowMethods.map((method) => (
+                    <Badge
+                      key={method}
+                      className={`${method === "GET"
+                        ? "bg-green-100 text-green-800 hover:bg-green-100"
+                        : method === "POST"
+                          ? "bg-blue-100 text-blue-800 hover:bg-blue-100"
+                          : method === "HEAD"
+                            ? "bg-purple-100 text-purple-800 hover:bg-purple-100"
+                            : "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                        } cursor-pointer`}
+                      onClick={() => removeCorsMethod(method)}
+                    >
+                      {method}
+                      <X className="h-3 w-3 ml-1" />
+                    </Badge>
+                  ))}
+                </div>
+                <Select onValueChange={addCorsMethod}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="메서드 추가" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {httpMethods
+                      .filter((method) => !corsForm.allowMethods.includes(method))
+                      .map((method) => (
+                        <SelectItem key={method} value={method}>
+                          {method}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Access-Control-Allow-Headers */}
+              <div>
+                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                  Access-Control-Allow-Headers
+                </Label>
+                <Input
+                  value={corsForm.allowHeaders}
+                  onChange={(e) => setCorsForm({ ...corsForm, allowHeaders: e.target.value })}
+                  placeholder="content-type,x-ncp-apigw-api-key,x-ncp-apigw-timestamp"
+                />
+              </div>
+
+              {/* Access-Control-Allow-Origin */}
+              <div>
+                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                  Access-Control-Allow-Origin
+                </Label>
+                <Input
+                  value={corsForm.allowOrigin}
+                  onChange={(e) => setCorsForm({ ...corsForm, allowOrigin: e.target.value })}
+                  placeholder="*"
+                />
+              </div>
+
+              {/* Access-Control-Expose-Headers */}
+              <div>
+                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                  Access-Control-Expose-Headers
+                </Label>
+                <Input
+                  value={corsForm.exposeHeaders}
+                  onChange={(e) => setCorsForm({ ...corsForm, exposeHeaders: e.target.value })}
+                  placeholder="헤더 이름들을 쉼표로 구분"
+                />
+              </div>
+
+              {/* Access-Control-Max-Age */}
+              <div>
+                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                  Access-Control-Max-Age
+                </Label>
+                <Input
+                  value={corsForm.maxAge}
+                  onChange={(e) => setCorsForm({ ...corsForm, maxAge: e.target.value })}
+                  placeholder="86400"
+                />
+              </div>
+
+              {/* Access-Control-Allow-Credentials */}
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Access-Control-Allow-Credentials
+                </Label>
+                <Switch
+                  checked={corsForm.allowCredentials}
+                  onChange={(e) => setCorsForm({ ...corsForm, allowCredentials: e.target.checked })}
+                />
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setIsCorsModalOpen(false)}>
+                취소
+              </Button>
+              <Button onClick={handleCorsUpdate} className="bg-blue-500 hover:bg-blue-600 text-white">
+                저장
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -1276,7 +1660,7 @@ export default function ApiResourcesPage() {
                     <p className="text-red-700 text-sm">
                       메서드{" "}
                       <strong>
-                        {selectedMethod?.type} {selectedMethod?.resourcePath}
+                        {methodToDelete?.type} {methodToDelete?.resourcePath}
                       </strong>
                       를 영구적으로 삭제합니다.
                     </p>
@@ -1292,23 +1676,15 @@ export default function ApiResourcesPage() {
                       <li>연결된 통합 설정과 응답 매핑이 모두 삭제됩니다</li>
                       <li>API 배포 시 이 메서드가 완전히 제거됩니다</li>
                       <li>클라이언트 애플리케이션에서 404 오류가 발생할 수 있습니다</li>
-                      <li>삭제된 메서드는 복구할 수 없습니다</li>
                     </ul>
-                  </div>
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                    <p className="text-yellow-800 text-sm">
-                      <strong>권장사항:</strong> 삭제하기 전에 이 메서드를 사용하는 모든 클라이언트가 업데이트되었는지
-                      확인하세요.
-                    </p>
                   </div>
                 </div>
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>취소</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteMethod} className="bg-red-600 hover:bg-red-700 text-white">
-                <Trash2 className="h-4 w-4 mr-2" />
-                영구 삭제
+              <AlertDialogAction onClick={handleDeleteResource} className="bg-red-600 hover:bg-red-700 text-white">
+                삭제하기
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -1316,4 +1692,4 @@ export default function ApiResourcesPage() {
       </div>
     </AppLayout>
   )
-}
+};
