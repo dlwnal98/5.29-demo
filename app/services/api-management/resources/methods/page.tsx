@@ -2,7 +2,7 @@
 
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import {
@@ -23,6 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -42,6 +43,9 @@ import {
   AlertCircle,
   Key,
   CheckCircle,
+  Settings,
+  Code,
+  Eye,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -94,6 +98,13 @@ interface ApiKey {
   value: string;
 }
 
+interface Model {
+  id: string;
+  name: string;
+  description: string;
+  schema: string;
+}
+
 export default function CreateMethodPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -108,6 +119,7 @@ export default function CreateMethodPage() {
     httpMethod: '',
     endpointUrl: '',
     customEndpointUrl: '',
+    additionalParameter: '',
     contentHandling: '패스스루',
     timeout: '29000',
     // Mock Integration
@@ -123,7 +135,7 @@ export default function CreateMethodPage() {
 
   const [mockHeaders, setMockHeaders] = useState<MockHeader[]>([{ id: '1', name: '', value: '' }]);
 
-  const [apiKeys] = useState<ApiKey[]>([
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([
     {
       id: '1',
       name: 'Production API Key',
@@ -144,8 +156,90 @@ export default function CreateMethodPage() {
     },
   ]);
 
+  const [models, setModels] = useState<Model[]>([
+    {
+      id: '1',
+      name: 'User',
+      description: '사용자 정보 모델',
+      schema: `{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "사용자 ID"
+    },
+    "name": {
+      "type": "string",
+      "description": "사용자 이름"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "이메일 주소"
+    }
+  },
+  "required": ["id", "name", "email"]
+}`,
+    },
+    {
+      id: '2',
+      name: 'Product',
+      description: '상품 정보 모델',
+      schema: `{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "상품 ID"
+    },
+    "name": {
+      "type": "string",
+      "description": "상품명"
+    },
+    "price": {
+      "type": "number",
+      "minimum": 0,
+      "description": "가격"
+    }
+  },
+  "required": ["id", "name", "price"]
+}`,
+    },
+  ]);
+
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
-  const [showCustomUrlInput, setShowCustomUrlInput] = useState(false);
+  const [isModelModalOpen, setIsModelModalOpen] = useState(false);
+  const [isDirectUrlInput, setIsDirectUrlInput] = useState(false);
+  const [selectedApiKeyId, setSelectedApiKeyId] = useState('');
+  const [isCreatingNewApiKey, setIsCreatingNewApiKey] = useState(false);
+  const [newApiKeyForm, setNewApiKeyForm] = useState({
+    name: '',
+    description: '',
+  });
+
+  const [newModelForm, setNewModelForm] = useState({
+    name: '',
+    description: '',
+    schema: `{
+  "type": "object",
+  "properties": {
+    "firstName": {
+      "type": "string"
+    },
+    "lastName": {
+      "type": "string"
+    },
+    "age": {
+      "description": "Age in years",
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "firstName"
+  ]
+}`,
+  });
 
   // 기본값을 모두 false로 설정 (닫힌 상태)
   const [openSections, setOpenSections] = useState({
@@ -200,11 +294,7 @@ export default function CreateMethodPage() {
   const [contentTypes, setContentTypes] = useState<string[]>([]);
   const [newContentType, setNewContentType] = useState('');
   const [contentTypeError, setContentTypeError] = useState('');
-  const [createResourceForm, setCreateResourceForm] = useState({
-    path: '',
-    name: '',
-    corsEnabled: false,
-  });
+
   // HTTP Method options
   const httpMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
 
@@ -233,7 +323,7 @@ export default function CreateMethodPage() {
     }
 
     if (methodForm.integrationType === 'http') {
-      const finalUrl = showCustomUrlInput ? methodForm.customEndpointUrl : methodForm.endpointUrl;
+      const finalUrl = isDirectUrlInput ? methodForm.customEndpointUrl : methodForm.endpointUrl;
       if (!finalUrl) {
         toast.error('엔드포인트 URL을 입력해주세요.');
         return;
@@ -243,7 +333,7 @@ export default function CreateMethodPage() {
     // 실제 저장 로직 구현
     const methodData = {
       ...methodForm,
-      finalEndpointUrl: showCustomUrlInput ? methodForm.customEndpointUrl : methodForm.endpointUrl,
+      finalEndpointUrl: isDirectUrlInput ? methodForm.customEndpointUrl : methodForm.endpointUrl,
       queryParameters: queryParameters.filter((param) => param.name),
       headers: headers.filter((header) => header.name),
       formData: formData.filter((data) => data.name),
@@ -277,29 +367,138 @@ export default function CreateMethodPage() {
     }
   };
 
-  const handleApiKeySelect = (apiKeyId: string) => {
-    setMethodForm({
-      ...methodForm,
-      apiKeyRequired: true,
-      selectedApiKey: apiKeyId,
-    });
+  const handleApiKeySelect = () => {
+    if (isCreatingNewApiKey) {
+      // 새 API 키 생성
+      if (!newApiKeyForm.name.trim()) {
+        toast.error('API 키 이름을 입력해주세요.');
+        return;
+      }
+
+      const newApiKey: ApiKey = {
+        id: Date.now().toString(),
+        name: newApiKeyForm.name,
+        description: newApiKeyForm.description,
+        value: `api-key-${Date.now()}`,
+      };
+
+      setApiKeys([...apiKeys, newApiKey]);
+      setMethodForm({
+        ...methodForm,
+        apiKeyRequired: true,
+        selectedApiKey: newApiKey.id,
+      });
+
+      setNewApiKeyForm({ name: '', description: '' });
+      setIsCreatingNewApiKey(false);
+      toast.success('새 API 키가 생성되고 선택되었습니다.');
+    } else {
+      // 기존 API 키 선택
+      if (!selectedApiKeyId) {
+        toast.error('API 키를 선택해주세요.');
+        return;
+      }
+
+      setMethodForm({
+        ...methodForm,
+        apiKeyRequired: true,
+        selectedApiKey: selectedApiKeyId,
+      });
+      toast.success('API 키가 선택되었습니다.');
+    }
+
     setIsApiKeyModalOpen(false);
-    toast.success('API 키가 선택되었습니다.');
+    setSelectedApiKeyId('');
   };
 
   const handleApiKeyModalCancel = () => {
     setMethodForm({ ...methodForm, apiKeyRequired: false, selectedApiKey: '' });
     setIsApiKeyModalOpen(false);
+    setSelectedApiKeyId('');
+    setIsCreatingNewApiKey(false);
+    setNewApiKeyForm({ name: '', description: '' });
   };
 
-  const handleEndpointUrlChange = (value: string) => {
-    if (value === 'custom') {
-      setShowCustomUrlInput(true);
-      setMethodForm({ ...methodForm, endpointUrl: 'test' });
-    } else {
-      setShowCustomUrlInput(false);
-      setMethodForm({ ...methodForm, endpointUrl: value, customEndpointUrl: '' });
+  const handleModelSelect = (modelId: string) => {
+    if (modelId === 'create-new') {
+      setIsModelModalOpen(true);
     }
+  };
+
+  const handleCreateModel = () => {
+    if (!newModelForm.name.trim()) {
+      toast.error('모델 이름을 입력해주세요.');
+      return;
+    }
+
+    try {
+      // JSON 스키마 유효성 검사
+      JSON.parse(newModelForm.schema);
+    } catch (error) {
+      toast.error('올바른 JSON 스키마를 입력해주세요.');
+      return;
+    }
+
+    const newModel: Model = {
+      id: Date.now().toString(),
+      name: newModelForm.name,
+      description: newModelForm.description,
+      schema: newModelForm.schema,
+    };
+
+    setModels([...models, newModel]);
+    setNewModelForm({
+      name: '',
+      description: '',
+      schema: `{
+  "type": "object",
+  "properties": {
+    "firstName": {
+      "type": "string"
+    },
+    "lastName": {
+      "type": "string"
+    },
+    "age": {
+      "description": "Age in years",
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "firstName"
+  ]
+}`,
+    });
+    setIsModelModalOpen(false);
+    toast.success('새 모델이 생성되었습니다.');
+  };
+
+  const handleModelModalCancel = () => {
+    setIsModelModalOpen(false);
+    setNewModelForm({
+      name: '',
+      description: '',
+      schema: `{
+  "type": "object",
+  "properties": {
+    "firstName": {
+      "type": "string"
+    },
+    "lastName": {
+      "type": "string"
+    },
+    "age": {
+      "description": "Age in years",
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "firstName"
+  ]
+}`,
+    });
   };
 
   const addMockHeader = () => {
@@ -435,6 +634,9 @@ export default function CreateMethodPage() {
   // Get selected API key info
   const selectedApiKeyInfo = apiKeys.find((key) => key.id === methodForm.selectedApiKey);
 
+  // Calculate schema byte count
+  const schemaByteCount = new TextEncoder().encode(newModelForm.schema).length;
+
   return (
     <AppLayout>
       <div className="container mx-auto px-4 py-6">
@@ -569,13 +771,7 @@ export default function CreateMethodPage() {
                     <div className="">
                       <div className="flex items-center mb-3 gap-3">
                         <div>
-                          {/* <Label className="text-sm font-medium flex items-center gap-2">
-                            <Key className="h-4 w-4" />
-                            API 키가 필요함
-                          </Label> */}
-
                           <Label className="text-[16px] font-semibold mb-4">API Key 설정</Label>
-                          {/* <p className="text-xs text-gray-500 mt-1">API 키 인증을 활성화합니다</p> */}
                         </div>
                         <Switch
                           checked={methodForm.apiKeyRequired}
@@ -605,7 +801,7 @@ export default function CreateMethodPage() {
                               </p>
                               <div className="bg-white dark:bg-gray-800 p-2 rounded border">
                                 <p className="text-xs font-mono text-gray-700 dark:text-gray-300">
-                                  {selectedApiKeyInfo.value}
+                                  ID: {selectedApiKeyInfo.id}
                                 </p>
                               </div>
                             </div>
@@ -616,71 +812,62 @@ export default function CreateMethodPage() {
 
                     {/* Endpoint URL */}
                     <div>
-                      <Label className="text-[16px] font-semibold mb-4">엔드포인트 URL</Label>
-                      <div className="grid grid-cols-2 flex align-items justify-between gap-2 mt-2">
-                        <Select
-                          value={methodForm.endpointUrl}
-                          onValueChange={handleEndpointUrlChange}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="엔드포인트 URL 선택" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {endpointUrls.map((url) => (
-                              <SelectItem key={url} value={url}>
-                                {url}
-                              </SelectItem>
-                            ))}
-                            <SelectItem value="custom">
-                              <div className="flex items-center gap-2">
-                                <Plus className="h-4 w-4" />
-                                직접 입력
-                              </div>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {!showCustomUrlInput ? (
-                          <div>
-                            <Input
-                              id="resource-name"
-                              placeholder="my-resource"
-                              value={createResourceForm.name}
-                              onChange={(e) =>
-                                setCreateResourceForm({
-                                  ...createResourceForm,
-                                  name: e.target.value,
-                                })
-                              }
-                            />
-                          </div>
-                        ) : (
-                          <div className="flex gap-2">
-                            <Input
-                              placeholder="https://your-api-endpoint.com/"
-                              value={methodForm.customEndpointUrl}
-                              onChange={(e) =>
-                                setMethodForm({
-                                  ...methodForm,
-                                  customEndpointUrl: e.target.value,
-                                })
-                              }
-                            />
-                            <Button
-                              variant="outline"
-                              onClick={() => {
-                                setShowCustomUrlInput(false);
-                                setMethodForm({
-                                  ...methodForm,
-                                  customEndpointUrl: '',
-                                  endpointUrl: '',
-                                });
-                              }}
-                            >
-                              X
-                            </Button>
-                          </div>
-                        )}
+                      <div className="flex items-center gap-3 mb-4">
+                        <Label className="text-[16px] font-semibold">엔드포인트 URL</Label>
+                        <div className="flex items-center gap-2">
+                          <Label className="text-sm text-gray-600">직접 입력</Label>
+                          <Switch
+                            checked={isDirectUrlInput}
+                            onCheckedChange={setIsDirectUrlInput}
+                          />
+                        </div>
                       </div>
+
+                      {isDirectUrlInput ? (
+                        <div className="space-y-2">
+                          <Input
+                            placeholder="https://your-api-endpoint.com/"
+                            value={methodForm.customEndpointUrl}
+                            onChange={(e) =>
+                              setMethodForm({
+                                ...methodForm,
+                                customEndpointUrl: e.target.value,
+                              })
+                            }
+                          />
+                          <p className="text-xs text-gray-500">직접 엔드포인트 URL을 입력하세요</p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-2">
+                          <Select
+                            value={methodForm.endpointUrl}
+                            onValueChange={(value) =>
+                              setMethodForm({ ...methodForm, endpointUrl: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="엔드포인트 URL 선택" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {endpointUrls.map((url) => (
+                                <SelectItem key={url} value={url}>
+                                  {url}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Input
+                            placeholder="추가 파라미터 (예: /users/{id})"
+                            value={methodForm.additionalParameter}
+                            onChange={(e) =>
+                              setMethodForm({
+                                ...methodForm,
+                                additionalParameter: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                      )}
                     </div>
 
                     {/* 요청 검사기 */}
@@ -837,14 +1024,6 @@ export default function CreateMethodPage() {
                           </div>
                         )}
                       </div>
-
-                      {/* <Button
-                        variant="outline"
-                        className="text-blue-600 border-blue-300 hover:bg-blue-50 bg-transparent"
-                        onClick={addQueryParameter}
-                      >
-                        쿼리 문자열 추가
-                      </Button> */}
                     </div>
                   </div>
                 </CollapsibleContent>
@@ -1093,16 +1272,32 @@ export default function CreateMethodPage() {
                           <div className="col-span-3">
                             <Select
                               value={model.model}
-                              onValueChange={(value) => updateBodyModel(model.id, 'model', value)}
+                              onValueChange={(value) => {
+                                if (value === 'create-new') {
+                                  handleModelSelect(value);
+                                } else {
+                                  updateBodyModel(model.id, 'model', value);
+                                }
+                              }}
                             >
                               <SelectTrigger>
                                 <SelectValue placeholder="모델" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="User">User</SelectItem>
-                                <SelectItem value="Product">Product</SelectItem>
-                                <SelectItem value="Order">Order</SelectItem>
-                                <SelectItem value="Custom">Custom</SelectItem>
+                                {models.map((availableModel) => (
+                                  <SelectItem key={availableModel.id} value={availableModel.name}>
+                                    {availableModel.name}
+                                  </SelectItem>
+                                ))}
+                                <SelectItem
+                                  value="create-new"
+                                  className="text-blue-600 font-medium"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <Plus className="h-4 w-4" />
+                                    새로운 모델 생성
+                                  </div>
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
@@ -1195,45 +1390,285 @@ export default function CreateMethodPage() {
           </div>
         </div>
 
-        {/* API Key Selection Modal */}
+        {/* Enhanced API Key Selection Modal */}
         <Dialog open={isApiKeyModalOpen} onOpenChange={setIsApiKeyModalOpen}>
-          <DialogContent className="sm:max-w-[600px]">
+          <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
-                API 키 선택
+              <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <Key className="h-5 w-5" />
+                API 키 설정
               </DialogTitle>
             </DialogHeader>
 
             <div className="py-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                이 메서드에 사용할 API 키를 선택하세요.
-              </p>
+              {/* Toggle between existing and new API key */}
+              <div className="flex items-center gap-4 mb-6 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <Button
+                  variant={!isCreatingNewApiKey ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setIsCreatingNewApiKey(false)}
+                  className="flex items-center gap-2"
+                >
+                  <Settings className="h-4 w-4" />
+                  기존 API 키 선택
+                </Button>
+                <Button
+                  variant={isCreatingNewApiKey ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setIsCreatingNewApiKey(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />새 API 키 생성
+                </Button>
+              </div>
 
-              <div className="space-y-3">
-                {apiKeys.map((apiKey) => (
-                  <div
-                    key={apiKey.id}
-                    className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-all"
-                    onClick={() => handleApiKeySelect(apiKey.id)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white">{apiKey.name}</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          {apiKey.description}
-                        </p>
-                        <p className="text-xs font-mono text-gray-500 mt-2">{apiKey.value}</p>
+              {!isCreatingNewApiKey ? (
+                // Existing API Keys Selection
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    사용할 API 키를 선택하세요.
+                  </p>
+
+                  {apiKeys.length > 0 ? (
+                    <div className="space-y-3 max-h-60 overflow-y-auto">
+                      {apiKeys.map((apiKey) => (
+                        <div
+                          key={apiKey.id}
+                          className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                            selectedApiKeyId === apiKey.id
+                              ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
+                              : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+                          }`}
+                          onClick={() => setSelectedApiKeyId(apiKey.id)}
+                        >
+                          <div className="flex items-start gap-3">
+                            <input
+                              type="radio"
+                              name="apiKey"
+                              value={apiKey.id}
+                              checked={selectedApiKeyId === apiKey.id}
+                              onChange={() => setSelectedApiKeyId(apiKey.id)}
+                              className="mt-1"
+                            />
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h4 className="font-medium text-gray-900 dark:text-white">
+                                  {apiKey.name}
+                                </h4>
+                                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-xs rounded-full font-medium">
+                                  ID: {apiKey.id}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                {apiKey.description}
+                              </p>
+                              <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded text-xs font-mono text-gray-700 dark:text-gray-300">
+                                {apiKey.value}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Key className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                      <p>등록된 API 키가 없습니다.</p>
+                      <p className="text-sm">새 API 키를 생성해주세요.</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                // New API Key Creation Form
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    새로운 API 키를 생성합니다.
+                  </p>
+
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="new-api-key-name" className="text-sm font-medium">
+                        API 키 이름 <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="new-api-key-name"
+                        placeholder="예: Production API Key"
+                        value={newApiKeyForm.name}
+                        onChange={(e) =>
+                          setNewApiKeyForm({ ...newApiKeyForm, name: e.target.value })
+                        }
+                        className="mt-1"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="new-api-key-description" className="text-sm font-medium">
+                        설명
+                      </Label>
+                      <Textarea
+                        id="new-api-key-description"
+                        placeholder="API 키에 대한 설명을 입력하세요"
+                        value={newApiKeyForm.description}
+                        onChange={(e) =>
+                          setNewApiKeyForm({ ...newApiKeyForm, description: e.target.value })
+                        }
+                        className="mt-1 min-h-[80px]"
+                      />
+                    </div>
+
+                    <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg">
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <div className="text-sm text-blue-800 dark:text-blue-200">
+                          <p className="font-medium mb-1">참고사항</p>
+                          <p>API 키는 자동으로 생성되며, 생성 후 안전한 곳에 보관해주세요.</p>
+                        </div>
                       </div>
-                      <ChevronRight className="h-5 w-5 text-gray-400" />
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
             </div>
 
             <DialogFooter className="gap-2">
               <Button variant="outline" onClick={handleApiKeyModalCancel}>
                 취소
+              </Button>
+              <Button
+                onClick={handleApiKeySelect}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={
+                  isCreatingNewApiKey
+                    ? !newApiKeyForm.name.trim()
+                    : !selectedApiKeyId && apiKeys.length > 0
+                }
+              >
+                {isCreatingNewApiKey ? '생성 및 선택' : '선택'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Model Creation Modal */}
+        <Dialog open={isModelModalOpen} onOpenChange={setIsModelModalOpen}>
+          <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-hidden flex flex-col">
+            <DialogHeader className="flex-shrink-0">
+              <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <Code className="h-5 w-5" />
+                새로운 모델 생성
+              </DialogTitle>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                <span className="text-red-500">*</span> 필수 입력 사항입니다.
+              </p>
+            </DialogHeader>
+
+            <div className="flex-1 overflow-hidden">
+              <div className="space-y-6 h-full">
+                {/* Model Name and Description */}
+                <div className="space-y-4">
+                  <div>
+                    <Label
+                      htmlFor="model-name"
+                      className="text-sm font-medium flex items-center gap-1"
+                    >
+                      모델 이름 <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="model-name"
+                      placeholder="예: UserProfile"
+                      value={newModelForm.name}
+                      onChange={(e) => setNewModelForm({ ...newModelForm, name: e.target.value })}
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="model-description" className="text-sm font-medium">
+                      설명
+                    </Label>
+                    <Input
+                      id="model-description"
+                      placeholder="모델에 대한 간단한 설명을 입력하세요"
+                      value={newModelForm.description}
+                      onChange={(e) =>
+                        setNewModelForm({ ...newModelForm, description: e.target.value })
+                      }
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+
+                {/* Schema Section */}
+                <div className="flex-1 flex flex-col min-h-0">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Label className="text-sm font-medium flex items-center gap-1">
+                      Schema <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <AlertCircle className="h-3 w-3" />
+                      <span>JSON 형식으로 입력해주세요</span>
+                    </div>
+                  </div>
+
+                  <Tabs defaultValue="schema" className="flex-1 flex flex-col">
+                    <TabsList className="grid w-full grid-cols-2 mb-3">
+                      <TabsTrigger value="schema" className="flex items-center gap-2">
+                        <Code className="h-4 w-4" />
+                        Schema
+                      </TabsTrigger>
+                      <TabsTrigger value="preview" className="flex items-center gap-2">
+                        <Eye className="h-4 w-4" />
+                        미리보기
+                      </TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="schema" className="flex-1 mt-0">
+                      <div className="relative h-full">
+                        <Textarea
+                          value={newModelForm.schema}
+                          onChange={(e) =>
+                            setNewModelForm({ ...newModelForm, schema: e.target.value })
+                          }
+                          className="font-mono text-sm resize-none h-full min-h-[400px] p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-blue-500 dark:focus:border-blue-400"
+                          placeholder="JSON 스키마를 입력하세요..."
+                        />
+                        <div className="absolute bottom-2 right-2 text-xs text-gray-500 bg-white dark:bg-gray-800 px-2 py-1 rounded border">
+                          {schemaByteCount}/65535 bytes
+                        </div>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="preview" className="flex-1 mt-0">
+                      <div className="h-full min-h-[400px] p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border-2 border-gray-200 dark:border-gray-700">
+                        <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                          스키마 미리보기:
+                        </div>
+                        <pre className="text-sm font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap overflow-auto h-full">
+                          {(() => {
+                            try {
+                              return JSON.stringify(JSON.parse(newModelForm.schema), null, 2);
+                            } catch (error) {
+                              return '올바른 JSON 형식이 아닙니다.';
+                            }
+                          })()}
+                        </pre>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className="flex-shrink-0 gap-2 pt-4 border-t">
+              <Button variant="outline" onClick={handleModelModalCancel}>
+                아니요
+              </Button>
+              <Button
+                onClick={handleCreateModel}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={!newModelForm.name.trim()}
+              >
+                추가
               </Button>
             </DialogFooter>
           </DialogContent>
