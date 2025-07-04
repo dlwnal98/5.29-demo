@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { AppLayout } from "@/components/layout/AppLayout";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { AppLayout } from '@/components/layout/AppLayout';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -11,20 +11,20 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,11 +34,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+} from '@/components/ui/alert-dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -46,84 +45,88 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+} from '@/components/ui/breadcrumb';
 import {
   Plus,
   RefreshCw,
   Search,
   ChevronDown,
-  Info,
+  ChevronRight,
   Edit,
   Trash2,
   Eye,
   Copy,
   AlertTriangle,
   EyeOff,
-} from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
+} from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface ApiKey {
   id: string;
   name: string;
   description: string;
-  status: "active" | "inactive";
+  status: 'active' | 'inactive';
   primaryKey: string;
   secondaryKey: string;
   createdAt: string;
+  usedInMethods: string[];
 }
 
 export default function ApiKeysPage() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([
     {
-      id: "m8iv2tyj8g",
-      name: "임시키",
-      description: "임시로 만든 키",
-      status: "active",
-      primaryKey: "pk_live_51234567890abcdef1234567890abcdef12345678",
-      secondaryKey: "sk_live_51234567890abcdef1234567890abcdef12345678",
-      createdAt: "July 03, 2025, 09:15 (UTC+09:00)",
+      id: 'm8iv2tyj8g',
+      name: '임시키',
+      description: '임시로 만든 키',
+      status: 'active',
+      primaryKey: 'pk_live_51234567890abcdef1234567890abcdef12345678',
+      secondaryKey: 'sk_live_51234567890abcdef1234567890abcdef12345678',
+      createdAt: 'July 03, 2025, 09:15 (UTC+09:00)',
+      usedInMethods: ['GET /api/users', 'POST /api/orders', 'GET /api/products'],
     },
     {
-      id: "bdvxa9y5iw",
-      name: "apikey001",
-      description: "apikey001",
-      status: "active",
-      primaryKey: "pk_live_98765432109876543210987654321098765432",
-      secondaryKey: "sk_live_98765432109876543210987654321098765432",
-      createdAt: "July 02, 2025, 14:30 (UTC+09:00)",
+      id: 'bdvxa9y5iw',
+      name: 'apikey001',
+      description: 'apikey001',
+      status: 'active',
+      primaryKey: 'pk_live_98765432109876543210987654321098765432',
+      secondaryKey: 'sk_live_98765432109876543210987654321098765432',
+      createdAt: 'July 02, 2025, 14:30 (UTC+09:00)',
+      usedInMethods: ['GET /api/analytics', 'POST /api/reports'],
     },
     {
-      id: "6jnesgo4xl",
-      name: "name",
-      description: "name설명",
-      status: "active",
-      primaryKey: "pk_live_11223344556677889900112233445566778899",
-      secondaryKey: "sk_live_11223344556677889900112233445566778899",
-      createdAt: "July 01, 2025, 10:45 (UTC+09:00)",
+      id: '6jnesgo4xl',
+      name: 'name',
+      description: 'name설명',
+      status: 'active',
+      primaryKey: 'pk_live_11223344556677889900112233445566778899',
+      secondaryKey: 'sk_live_11223344556677889900112233445566778899',
+      createdAt: 'July 01, 2025, 10:45 (UTC+09:00)',
+      usedInMethods: ['DELETE /api/cache', 'PUT /api/settings'],
     },
   ]);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
   const [editingApiKey, setEditingApiKey] = useState<ApiKey | null>(null);
-  const [viewingApiKey, setViewingApiKey] = useState<ApiKey | null>(null);
-  const [showApiKey, setShowApiKey] = useState(false);
+  const [deletingApiKey, setDeletingApiKey] = useState<ApiKey | null>(null);
+  const [showApiKey, setShowApiKey] = useState<{ [key: string]: boolean }>({});
   const [newApiKey, setNewApiKey] = useState({
-    name: "",
-    description: "",
-    keyGeneration: "auto",
-    customKey: "",
+    name: '',
+    description: '',
+    keyGeneration: 'auto',
+    customKey: '',
   });
 
   const generateRandomKey = (prefix: string) => {
-    const chars =
-      "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    let result = prefix + "_live_";
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result = prefix + '_live_';
     for (let i = 0; i < 32; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
@@ -131,7 +134,7 @@ export default function ApiKeysPage() {
   };
 
   const handleRefresh = () => {
-    toast.success("페이지가 새로고침되었습니다.");
+    toast.success('페이지가 새로고침되었습니다.');
     window.location.reload();
   };
 
@@ -151,9 +154,17 @@ export default function ApiKeysPage() {
     }
   };
 
+  const toggleExpanded = (keyId: string) => {
+    if (expandedKeys.includes(keyId)) {
+      setExpandedKeys(expandedKeys.filter((id) => id !== keyId));
+    } else {
+      setExpandedKeys([...expandedKeys, keyId]);
+    }
+  };
+
   const handleCreateApiKey = () => {
     if (!newApiKey.name.trim()) {
-      toast.error("API Key 이름을 입력해주세요.");
+      toast.error('API Key 이름을 입력해주세요.');
       return;
     }
 
@@ -161,31 +172,30 @@ export default function ApiKeysPage() {
       id: Math.random().toString(36).substr(2, 10),
       name: newApiKey.name,
       description: newApiKey.description,
-      status: "active",
+      status: 'active',
       primaryKey:
-        newApiKey.keyGeneration === "auto"
-          ? generateRandomKey("pk")
-          : newApiKey.customKey,
-      secondaryKey: generateRandomKey("sk"),
-      createdAt: new Date().toLocaleString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        timeZoneName: "short",
+        newApiKey.keyGeneration === 'auto' ? generateRandomKey('pk') : newApiKey.customKey,
+      secondaryKey: generateRandomKey('sk'),
+      createdAt: new Date().toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'short',
       }),
+      usedInMethods: [],
     };
 
     setApiKeys([apiKey, ...apiKeys]);
     setNewApiKey({
-      name: "",
-      description: "",
-      keyGeneration: "auto",
-      customKey: "",
+      name: '',
+      description: '',
+      keyGeneration: 'auto',
+      customKey: '',
     });
     setIsCreateModalOpen(false);
-    toast.success("API Key가 생성되었습니다.");
+    toast.success('API Key가 생성되었습니다.');
   };
 
   const handleEditApiKey = (apiKey: ApiKey) => {
@@ -196,25 +206,46 @@ export default function ApiKeysPage() {
   const handleUpdateApiKey = () => {
     if (!editingApiKey) return;
 
-    setApiKeys(
-      apiKeys.map((key) => (key.id === editingApiKey.id ? editingApiKey : key))
-    );
+    setApiKeys(apiKeys.map((key) => (key.id === editingApiKey.id ? editingApiKey : key)));
     setIsEditModalOpen(false);
     setEditingApiKey(null);
-    toast.success("API Key가 수정되었습니다.");
+    toast.success('API Key가 수정되었습니다.');
   };
 
-  const handleDeleteApiKeys = () => {
+  const handleDeleteApiKey = (apiKey: ApiKey) => {
+    setDeletingApiKey(apiKey);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDeleteApiKey = () => {
+    if (!deletingApiKey) return;
+
+    setApiKeys(apiKeys.filter((key) => key.id !== deletingApiKey.id));
+    setIsDeleteModalOpen(false);
+    setDeletingApiKey(null);
+    toast.success('API Key가 삭제되었습니다.');
+  };
+
+  const handleBulkDeleteApiKeys = () => {
+    if (selectedKeys.length === 0) {
+      toast.error('삭제할 API Key를 선택해주세요.');
+      return;
+    }
+    setIsBulkDeleteModalOpen(true);
+  };
+
+  const confirmBulkDeleteApiKeys = () => {
     setApiKeys(apiKeys.filter((key) => !selectedKeys.includes(key.id)));
     setSelectedKeys([]);
-    setIsDeleteModalOpen(false);
+    setIsBulkDeleteModalOpen(false);
     toast.success(`${selectedKeys.length}개의 API Key가 삭제되었습니다.`);
   };
 
-  const handleViewDetails = (apiKey: ApiKey) => {
-    setViewingApiKey(apiKey);
-    setShowApiKey(false);
-    setIsDetailModalOpen(true);
+  const toggleShowApiKey = (keyId: string) => {
+    setShowApiKey((prev) => ({
+      ...prev,
+      [keyId]: !prev[keyId],
+    }));
   };
 
   const filteredApiKeys = apiKeys.filter(
@@ -234,9 +265,7 @@ export default function ApiKeysPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/infra-packages/gateway">
-                API Gateway
-              </BreadcrumbLink>
+              <BreadcrumbLink href="/infra-packages/gateway">API Gateway</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -248,18 +277,42 @@ export default function ApiKeysPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              API Keys
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">API Keys</h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
+            <div className="flex items-center justify-between ">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="API Key 이름"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 w-64"
+                  />
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      20 개씩 보기
+                      <ChevronDown className="h-4 w-4 ml-2" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem>10 개씩 보기</DropdownMenuItem>
+                    <DropdownMenuItem>20 개씩 보기</DropdownMenuItem>
+                    <DropdownMenuItem>50 개씩 보기</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
             <Button variant="outline" onClick={handleRefresh}>
               <RefreshCw className="h-4 w-4 " />
             </Button>
-            <Dialog
-              open={isCreateModalOpen}
-              onOpenChange={setIsCreateModalOpen}
-            >
+            <Button variant="outline" onClick={handleBulkDeleteApiKeys}>
+              <Trash2 className="h-4 w-4" />
+            </Button>
+            <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-blue-500 hover:bg-blue-600 text-white">
                   <Plus className="h-4 w-4 mr-2" />
@@ -278,18 +331,13 @@ export default function ApiKeysPage() {
                     <Input
                       id="name"
                       value={newApiKey.name}
-                      onChange={(e) =>
-                        setNewApiKey({ ...newApiKey, name: e.target.value })
-                      }
+                      onChange={(e) => setNewApiKey({ ...newApiKey, name: e.target.value })}
                       placeholder=""
                       className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label
-                      htmlFor="description"
-                      className="text-sm font-medium"
-                    >
+                    <Label htmlFor="description" className="text-sm font-medium">
                       설명 - 선택 사항
                     </Label>
                     <Textarea
@@ -305,194 +353,209 @@ export default function ApiKeysPage() {
                       className="mt-1 min-h-[80px]"
                     />
                   </div>
-                  <div>
-                    <Label className="text-sm font-medium">API 키</Label>
-                    <RadioGroup
-                      value={newApiKey.keyGeneration}
-                      onValueChange={(value) =>
-                        setNewApiKey({ ...newApiKey, keyGeneration: value })
-                      }
-                      className="mt-2"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="auto" id="auto" />
-                        <Label htmlFor="auto" className="text-sm">
-                          자동 생성
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="custom" id="custom" />
-                        <Label htmlFor="custom" className="text-sm">
-                          사용자 지정
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                    {newApiKey.keyGeneration === "custom" && (
-                      <Input
-                        value={newApiKey.customKey}
-                        onChange={(e) =>
-                          setNewApiKey({
-                            ...newApiKey,
-                            customKey: e.target.value,
-                          })
-                        }
-                        placeholder="사용자 정의 API 키를 입력하세요"
-                        className="mt-2"
-                      />
-                    )}
-                  </div>
+
                   <div className="flex justify-end gap-2 pt-4">
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsCreateModalOpen(false)}
-                    >
+                    <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
                       취소
                     </Button>
                     <Button
                       onClick={handleCreateApiKey}
                       className="bg-orange-500 hover:bg-orange-600 text-white"
                     >
-                      저장
+                      발급
                     </Button>
                   </div>
                 </div>
               </DialogContent>
             </Dialog>
-
-
           </div>
         </div>
 
         {/* Action Buttons and Search */}
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  if (selectedKeys.length === 0) {
-                    toast.error("수정할 API Key를 선택해주세요.");
-                    return;
-                  }
-                  if (selectedKeys.length > 1) {
-                    toast.error("한 번에 하나의 API Key만 수정할 수 있습니다.");
-                    return;
-                  }
-                  const keyToEdit = apiKeys.find(
-                    (key) => key.id === selectedKeys[0]
-                  );
-                  if (keyToEdit) handleEditApiKey(keyToEdit);
-                }}
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                수정
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  if (selectedKeys.length === 0) {
-                    toast.error("삭제할 API Key를 선택해주세요.");
-                    return;
-                  }
-                  setIsDeleteModalOpen(true);
-                }}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                삭제
-              </Button>
-              {/* <Button
-                variant="outline"
-                onClick={() => toast.info("연결된 Stage를 확인합니다.")}
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                연결된 Stage 보기
-              </Button> */}
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="API Key 이름"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-64"
-                />
-              </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    20 개씩 보기
-                    <ChevronDown className="h-4 w-4 ml-2" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem>10 개씩 보기</DropdownMenuItem>
-                  <DropdownMenuItem>20 개씩 보기</DropdownMenuItem>
-                  <DropdownMenuItem>50 개씩 보기</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-
           {/* API Keys Table */}
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-12">
                   <Checkbox
-                    checked={
-                      selectedKeys.length === apiKeys.length &&
-                      apiKeys.length > 0
-                    }
+                    checked={selectedKeys.length === apiKeys.length && apiKeys.length > 0}
                     onCheckedChange={handleSelectAll}
                   />
                 </TableHead>
                 <TableHead>API Key ID</TableHead>
                 <TableHead>API Key 이름</TableHead>
                 <TableHead>설명</TableHead>
-                <TableHead>상태</TableHead>
-                <TableHead>API keys</TableHead>
+                <TableHead>사용여부</TableHead>
+                <TableHead className="text-right">작업</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredApiKeys.map((apiKey) => (
-                <TableRow
-                  key={apiKey.id}
-                  className="bg-blue-50 dark:bg-blue-900/20"
-                >
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedKeys.includes(apiKey.id)}
-                      onCheckedChange={(checked) =>
-                        handleSelectKey(apiKey.id, checked as boolean)
-                      }
-                    />
-                  </TableCell>
-                  <TableCell className="font-medium text-blue-600">
-                    {apiKey.id}
-                  </TableCell>
-                  <TableCell>{apiKey.name}</TableCell>
-                  <TableCell>{apiKey.description}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        apiKey.status === "active" ? "default" : "secondary"
-                      }
-                    >
-                      {apiKey.status === "active" ? "활성" : "비활성"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleViewDetails(apiKey)}
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      상세보기
-                    </Button>
-                  </TableCell>
-                </TableRow>
+                <>
+                  <TableRow key={apiKey.id} className="bg-blue-50 dark:bg-blue-900/20">
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedKeys.includes(apiKey.id)}
+                        onCheckedChange={(checked) =>
+                          handleSelectKey(apiKey.id, checked as boolean)
+                        }
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium text-blue-600">{apiKey.id}</TableCell>
+                    <TableCell>
+                      <button
+                        onClick={() => toggleExpanded(apiKey.id)}
+                        className="flex items-center gap-2 text-left hover:text-blue-600 transition-colors"
+                      >
+                        <span className="font-medium">{apiKey.name}</span>
+                      </button>
+                    </TableCell>
+                    <TableCell>{apiKey.description}</TableCell>
+                    <TableCell>
+                      <Badge variant={apiKey.status === 'active' ? 'default' : 'secondary'}>
+                        {apiKey.status === 'active' ? '사용' : '미사용'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditApiKey(apiKey)}
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteApiKey(apiKey)}
+                          className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  {expandedKeys.includes(apiKey.id) && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="bg-gray-50 dark:bg-gray-900/50 p-6">
+                        <div className="space-y-6">
+                          <div className="grid grid-cols-2 gap-6">
+                            <div>
+                              <Label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                ID
+                              </Label>
+                              <div className="mt-1 text-sm font-medium">{apiKey.id}</div>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                상태
+                              </Label>
+                              <div className="mt-1 flex items-center gap-2">
+                                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <span className="text-sm">활성</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <Label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                              설명
+                            </Label>
+                            <div className="mt-1 text-sm">{apiKey.description || '-'}</div>
+                          </div>
+
+                          <div>
+                            <Label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                              생성 날짜
+                            </Label>
+                            <div className="mt-1 text-sm">{apiKey.createdAt}</div>
+                          </div>
+
+                          <div>
+                            <Label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                              API 키
+                            </Label>
+                            <div className="mt-1 flex items-center gap-2">
+                              <div className="flex items-center gap-1 text-blue-600">
+                                <span className="text-sm font-mono">
+                                  {showApiKey[apiKey.id]
+                                    ? apiKey.primaryKey
+                                    : '••••••••••••••••••••••••••••••••••••••••••••••••'}
+                                </span>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => toggleShowApiKey(apiKey.id)}
+                                className="text-blue-600 hover:text-blue-800 p-1 h-auto"
+                              >
+                                {showApiKey[apiKey.id] ? (
+                                  <EyeOff className="h-4 w-4" />
+                                ) : (
+                                  <Eye className="h-4 w-4" />
+                                )}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(apiKey.primaryKey);
+                                  toast.success('API 키가 복사되었습니다.');
+                                }}
+                                className="text-blue-600 hover:text-blue-800 p-1 h-auto"
+                              >
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div>
+                            <Label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                              사용 중인 메서드 ({apiKey.usedInMethods.length}개)
+                            </Label>
+                            <div className="mt-2 space-y-2">
+                              {apiKey.usedInMethods.length > 0 ? (
+                                apiKey.usedInMethods.map((method, index) => (
+                                  <div
+                                    key={index}
+                                    className="flex items-center gap-2 p-2 bg-white dark:bg-gray-800 rounded border"
+                                  >
+                                    <Badge
+                                      variant="outline"
+                                      className={`text-xs ${
+                                        method.startsWith('GET')
+                                          ? 'text-green-600 border-green-600'
+                                          : method.startsWith('POST')
+                                            ? 'text-blue-600 border-blue-600'
+                                            : method.startsWith('PUT')
+                                              ? 'text-yellow-600 border-yellow-600'
+                                              : method.startsWith('DELETE')
+                                                ? 'text-red-600 border-red-600'
+                                                : 'text-gray-600 border-gray-600'
+                                      }`}
+                                    >
+                                      {method.split(' ')[0]}
+                                    </Badge>
+                                    <span className="text-sm font-mono">
+                                      {method.split(' ')[1]}
+                                    </span>
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="text-sm text-gray-500 italic">
+                                  현재 사용 중인 메서드가 없습니다.
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </>
               ))}
             </TableBody>
           </Table>
@@ -502,19 +565,19 @@ export default function ApiKeysPage() {
         <div className="flex justify-center mt-6">
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" disabled>
-              {"<<"}
+              {'<<'}
             </Button>
             <Button variant="outline" size="sm" disabled>
-              {"<"}
+              {'<'}
             </Button>
             <Button size="sm" className="bg-blue-600 text-white">
               1
             </Button>
             <Button variant="outline" size="sm" disabled>
-              {">"}
+              {'>'}
             </Button>
             <Button variant="outline" size="sm" disabled>
-              {">>"}
+              {'>>'}
             </Button>
           </div>
         </div>
@@ -535,6 +598,7 @@ export default function ApiKeysPage() {
                     id="edit-id"
                     value={editingApiKey.id}
                     readOnly
+                    disabled
                     className="mt-1 bg-gray-50 dark:bg-gray-800"
                   />
                 </div>
@@ -555,10 +619,7 @@ export default function ApiKeysPage() {
                   />
                 </div>
                 <div>
-                  <Label
-                    htmlFor="edit-description"
-                    className="text-sm font-medium"
-                  >
+                  <Label htmlFor="edit-description" className="text-sm font-medium">
                     설명 - 선택 사항
                   </Label>
                   <Textarea
@@ -580,6 +641,7 @@ export default function ApiKeysPage() {
                   <Input
                     id="edit-key"
                     value={editingApiKey.primaryKey}
+                    disabled
                     onChange={(e) =>
                       setEditingApiKey({
                         ...editingApiKey,
@@ -589,36 +651,16 @@ export default function ApiKeysPage() {
                     className="mt-1 font-mono text-sm"
                   />
                 </div>
-                <div>
-                  <Label className="text-sm font-medium">API 키 상태</Label>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <Checkbox
-                      id="edit-status"
-                      checked={editingApiKey.status === "active"}
-                      onCheckedChange={(checked) =>
-                        setEditingApiKey({
-                          ...editingApiKey,
-                          status: checked ? "active" : "inactive",
-                        })
-                      }
-                    />
-                    <Label htmlFor="edit-status" className="text-sm">
-                      활성
-                    </Label>
-                  </div>
-                </div>
+
                 <div className="flex justify-end gap-2 pt-4">
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsEditModalOpen(false)}
-                  >
+                  <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
                     취소
                   </Button>
                   <Button
                     onClick={handleUpdateApiKey}
                     className="bg-orange-500 hover:bg-orange-600 text-white"
                   >
-                    저장
+                    수정
                   </Button>
                 </div>
               </div>
@@ -626,97 +668,58 @@ export default function ApiKeysPage() {
           </DialogContent>
         </Dialog>
 
-        {/* API Key Details Modal */}
-        <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>API 키 세부 정보</DialogTitle>
-            </DialogHeader>
-            {viewingApiKey && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                      ID
-                    </Label>
-                    <div className="mt-1 text-sm font-medium">
-                      {viewingApiKey.id}
+        {/* Individual Delete Confirmation Modal */}
+        <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+                <AlertTriangle className="h-5 w-5" />
+                API Key 삭제 확인
+              </AlertDialogTitle>
+              <AlertDialogDescription className="space-y-3">
+                {deletingApiKey && (
+                  <>
+                    <div className="text-gray-700 dark:text-gray-300">
+                      <strong className="text-red-600">경고:</strong> 이 작업은 되돌릴 수 없습니다.
                     </div>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                      상태
-                    </Label>
-                    <div className="mt-1 flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-sm">활성</span>
+                    <div className="text-gray-700 dark:text-gray-300">
+                      API Key <strong className="text-red-600">"{deletingApiKey.name}"</strong>이
+                      영구적으로 삭제됩니다.
                     </div>
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    설명
-                  </Label>
-                  <div className="mt-1 text-sm">
-                    {viewingApiKey.name || "-"}
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    생성 날짜
-                  </Label>
-                  <div className="mt-1 text-sm">{viewingApiKey.createdAt}</div>
-                </div>
-
-                <div>
-                  <Label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    API 키
-                  </Label>
-                  <div className="mt-1 flex items-center gap-2">
-                    <div className="flex items-center gap-1 text-blue-600">
-                      <span className="text-sm font-mono">
-                        {showApiKey
-                          ? viewingApiKey.primaryKey
-                          : "••••••••••••••••••••••••••••••••••••••••••••••••"}
-                      </span>
+                    <div className="text-gray-700 dark:text-gray-300">
+                      삭제된 API Key를 사용하는 모든 애플리케이션과 서비스는 즉시 액세스가
+                      차단됩니다.
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowApiKey(!showApiKey)}
-                      className="text-blue-600 hover:text-blue-800 p-1 h-auto"
-                    >
-                      {showApiKey ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        navigator.clipboard.writeText(viewingApiKey.primaryKey);
-                        toast.success("API 키가 복사되었습니다.");
-                      }}
-                      className="text-blue-600 hover:text-blue-800 p-1 h-auto"
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
+                    <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-md border border-red-200 dark:border-red-800">
+                      <div className="text-sm text-red-800 dark:text-red-200 font-medium">
+                        삭제될 API Key:
+                      </div>
+                      <div className="mt-2 text-sm text-red-700 dark:text-red-300">
+                        <div className="flex items-center gap-2">
+                          <span>•</span>
+                          <span className="font-mono">{deletingApiKey.id}</span>
+                          <span>({deletingApiKey.name})</span>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>취소</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmDeleteApiKey}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                삭제
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
-        {/* Delete Confirmation Modal */}
-        <AlertDialog
-          open={isDeleteModalOpen}
-          onOpenChange={setIsDeleteModalOpen}
-        >
+        {/* Bulk Delete Confirmation Modal */}
+        <AlertDialog open={isBulkDeleteModalOpen} onOpenChange={setIsBulkDeleteModalOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle className="flex items-center gap-2 text-red-600">
@@ -725,19 +728,14 @@ export default function ApiKeysPage() {
               </AlertDialogTitle>
               <AlertDialogDescription className="space-y-3">
                 <div className="text-gray-700 dark:text-gray-300">
-                  <strong className="text-red-600">경고:</strong> 이 작업은
-                  되돌릴 수 없습니다.
+                  <strong className="text-red-600">경고:</strong> 이 작업은 되돌릴 수 없습니다.
                 </div>
                 <div className="text-gray-700 dark:text-gray-300">
-                  선택된{" "}
-                  <strong className="text-red-600">
-                    {selectedKeys.length}개
-                  </strong>
-                  의 API Key가 영구적으로 삭제됩니다.
+                  선택된 <strong className="text-red-600">{selectedKeys.length}개</strong>의 API
+                  Key가 영구적으로 삭제됩니다.
                 </div>
                 <div className="text-gray-700 dark:text-gray-300">
-                  삭제된 API Key를 사용하는 모든 애플리케이션과 서비스는 즉시
-                  액세스가 차단됩니다.
+                  삭제된 API Key를 사용하는 모든 애플리케이션과 서비스는 즉시 액세스가 차단됩니다.
                 </div>
                 <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-md border border-red-200 dark:border-red-800">
                   <div className="text-sm text-red-800 dark:text-red-200 font-medium">
@@ -761,7 +759,7 @@ export default function ApiKeysPage() {
             <AlertDialogFooter>
               <AlertDialogCancel>취소</AlertDialogCancel>
               <AlertDialogAction
-                onClick={handleDeleteApiKeys}
+                onClick={confirmBulkDeleteApiKeys}
                 className="bg-red-600 hover:bg-red-700 text-white"
               >
                 삭제

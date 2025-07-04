@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
+import { useState } from 'react';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -22,7 +22,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+} from '@/components/ui/breadcrumb';
 import {
   Table,
   TableBody,
@@ -30,9 +30,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Plus, Search, Edit, Trash2, AlertTriangle } from "lucide-react";
-import { toast } from "sonner";
+} from '@/components/ui/table';
+import { Plus, Search, Edit, Trash2, AlertTriangle } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface TargetEndpoint {
   id: string;
@@ -44,43 +44,42 @@ interface TargetEndpoint {
 
 const mockEndpoints: TargetEndpoint[] = [
   {
-    id: "1",
-    targetId: "endpoint-001",
-    url: "https://api.example.com/v1",
-    createdAt: "2024-01-15",
-    description: "메인 API 서버 엔드포인트",
+    id: '1',
+    targetId: 'endpoint-001',
+    url: 'https://api.example.com/v1',
+    createdAt: '2024-01-15',
+    description: '메인 API 서버 엔드포인트',
   },
   {
-    id: "2",
-    targetId: "endpoint-002",
-    url: "https://staging-api.example.com/v1",
-    createdAt: "2024-01-20",
-    description: "스테이징 환경 API 엔드포인트",
+    id: '2',
+    targetId: 'endpoint-002',
+    url: 'https://staging-api.example.com/v1',
+    createdAt: '2024-01-20',
+    description: '스테이징 환경 API 엔드포인트',
   },
   {
-    id: "3",
-    targetId: "endpoint-003",
-    url: "https://dev-api.example.com/v1",
-    createdAt: "2024-01-25",
-    description: "개발 환경 API 엔드포인트",
+    id: '3',
+    targetId: 'endpoint-003',
+    url: 'https://dev-api.example.com/v1',
+    createdAt: '2024-01-25',
+    description: '개발 환경 API 엔드포인트',
   },
 ];
 
 export default function TargetEndpointsPage() {
   const [endpoints, setEndpoints] = useState<TargetEndpoint[]>(mockEndpoints);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedEndpoint, setSelectedEndpoint] =
-    useState<TargetEndpoint | null>(null);
+  const [selectedEndpoint, setSelectedEndpoint] = useState<TargetEndpoint | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isSelectAll, setIsSelectAll] = useState(false);
-  const [deleteType, setDeleteType] = useState<"selected" | "all">("selected");
+  const [deleteType, setDeleteType] = useState<'selected' | 'all'>('selected');
   const [formData, setFormData] = useState({
-    targetId: "",
-    url: "",
-    description: "",
+    targetId: '',
+    url: '',
+    description: '',
   });
 
   const filteredEndpoints = endpoints.filter(
@@ -109,7 +108,7 @@ export default function TargetEndpointsPage() {
   };
 
   const handleCreate = () => {
-    setFormData({ targetId: "", url: "", description: "" });
+    setFormData({ targetId: '', url: '', description: '' });
     setIsCreateModalOpen(true);
   };
 
@@ -125,16 +124,16 @@ export default function TargetEndpointsPage() {
 
   const handleDelete = () => {
     if (selectedIds.length > 0) {
-      setDeleteType("selected");
+      setDeleteType('selected');
     } else {
-      setDeleteType("all");
+      setDeleteType('all');
     }
     setIsDeleteModalOpen(true);
   };
 
   const handleCreateSubmit = () => {
     if (!formData.url) {
-      toast.error("필수 필드를 모두 입력해주세요.");
+      toast.error('필수 필드를 모두 입력해주세요.');
       return;
     }
 
@@ -143,18 +142,18 @@ export default function TargetEndpointsPage() {
       targetId: `endpoint-${Date.now()}`,
       url: formData.url,
       description: formData.description,
-      createdAt: new Date().toISOString().split("T")[0],
+      createdAt: new Date().toISOString().split('T')[0],
     };
 
     setEndpoints([...endpoints, newEndpoint]);
     setIsCreateModalOpen(false);
-    setFormData({ targetId: "", url: "", description: "" });
-    toast.success("Target Endpoint가 성공적으로 생성되었습니다.");
+    setFormData({ targetId: '', url: '', description: '' });
+    toast.success('Target Endpoint가 성공적으로 생성되었습니다.');
   };
 
   const handleEditSubmit = () => {
     if (!formData.url || !selectedEndpoint) {
-      toast.error("필수 필드를 모두 입력해주세요.");
+      toast.error('필수 필드를 모두 입력해주세요.');
       return;
     }
 
@@ -171,26 +170,36 @@ export default function TargetEndpointsPage() {
     setEndpoints(updatedEndpoints);
     setIsEditModalOpen(false);
     setSelectedEndpoint(null);
-    setFormData({ targetId: "", url: "", description: "" });
-    toast.success("Target Endpoint가 성공적으로 수정되었습니다.");
+    setFormData({ targetId: '', url: '', description: '' });
+    toast.success('Target Endpoint가 성공적으로 수정되었습니다.');
+  };
+
+  const handleDeleteSingle = (endpoint: TargetEndpoint) => {
+    setSelectedEndpoint(endpoint);
+    setSelectedIds([endpoint.id]);
+    setDeleteType('selected');
+    setIsDeleteModalOpen(true);
   };
 
   const handleDeleteConfirm = () => {
-    if (deleteType === "selected" && selectedIds.length > 0) {
-      const updatedEndpoints = endpoints.filter(
-        (endpoint) => !selectedIds.includes(endpoint.id)
-      );
+    if (deleteType === 'selected' && selectedIds.length > 0) {
+      const updatedEndpoints = endpoints.filter((endpoint) => !selectedIds.includes(endpoint.id));
       setEndpoints(updatedEndpoints);
       setSelectedIds([]);
       setIsSelectAll(false);
-      toast.success(
-        `${selectedIds.length}개의 Target Endpoint가 성공적으로 삭제되었습니다.`
-      );
-    } else if (deleteType === "all") {
+
+      if (selectedIds.length === 1 && selectedEndpoint) {
+        toast.success(
+          `Target Endpoint "${selectedEndpoint.targetId}"가 성공적으로 삭제되었습니다.`
+        );
+      } else {
+        toast.success(`${selectedIds.length}개의 Target Endpoint가 성공적으로 삭제되었습니다.`);
+      }
+    } else if (deleteType === 'all') {
       setEndpoints([]);
       setSelectedIds([]);
       setIsSelectAll(false);
-      toast.success("모든 Target Endpoint가 성공적으로 삭제되었습니다.");
+      toast.success('모든 Target Endpoint가 성공적으로 삭제되었습니다.');
     }
 
     setIsDeleteModalOpen(false);
@@ -202,27 +211,37 @@ export default function TargetEndpointsPage() {
     setIsEditModalOpen(false);
     setIsDeleteModalOpen(false);
     setSelectedEndpoint(null);
-    setFormData({ targetId: "", url: "", description: "" });
+    setFormData({ targetId: '', url: '', description: '' });
   };
 
   const getDeleteModalContent = () => {
-    if (deleteType === "selected") {
-      return {
-        title: "선택된 Target Endpoint 삭제",
-        description: `선택된 ${selectedIds.length}개의 Target Endpoint가 영구적으로 삭제됩니다.`,
-        details: selectedIds
-          .map((id) => {
-            const endpoint = endpoints.find((e) => e.id === id);
-            return endpoint ? `• ${endpoint.targetId} (${endpoint.url})` : "";
-          })
-          .filter(Boolean)
-          .join("\n"),
-      };
+    if (deleteType === 'selected') {
+      if (selectedEndpoint && selectedIds.length === 1) {
+        // 개별 삭제인 경우
+        return {
+          title: 'Target Endpoint 삭제',
+          description: `선택된 Target Endpoint가 영구적으로 삭제됩니다.`,
+          details: `• ${selectedEndpoint.targetId} (${selectedEndpoint.url})`,
+        };
+      } else {
+        // 다중 선택 삭제인 경우
+        return {
+          title: '선택된 Target Endpoint 삭제',
+          description: `선택된 ${selectedIds.length}개의 Target Endpoint가 영구적으로 삭제됩니다.`,
+          details: selectedIds
+            .map((id) => {
+              const endpoint = endpoints.find((e) => e.id === id);
+              return endpoint ? `• ${endpoint.targetId} (${endpoint.url})` : '';
+            })
+            .filter(Boolean)
+            .join('\n'),
+        };
+      }
     } else {
       return {
-        title: "모든 Target Endpoint 삭제",
+        title: '모든 Target Endpoint 삭제',
         description: `총 ${endpoints.length}개의 모든 Target Endpoint가 영구적으로 삭제됩니다.`,
-        details: "이 작업은 모든 데이터를 완전히 제거하며, 복구할 수 없습니다.",
+        details: '이 작업은 모든 데이터를 완전히 제거하며, 복구할 수 없습니다.',
       };
     }
   };
@@ -240,9 +259,7 @@ export default function TargetEndpointsPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/services/api-management">
-                API Management
-              </BreadcrumbLink>
+              <BreadcrumbLink href="/services/api-management">API Management</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -254,12 +271,8 @@ export default function TargetEndpointsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Target Endpoints
-            </h1>
-            <p className="text-gray-600 mt-1">
-              API 대상 엔드포인트를 관리하세요.
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900">Target Endpoints</h1>
+            <p className="text-gray-600 mt-1">API 대상 엔드포인트를 관리하세요.</p>
           </div>
 
           <div className="flex gap-2">
@@ -274,9 +287,7 @@ export default function TargetEndpointsPage() {
             </div>
             <Button variant="destructive" onClick={handleDelete}>
               <Trash2 className="h-4 w-4 mr-2" />
-              {selectedIds.length > 0
-                ? `선택 삭제 (${selectedIds.length})`
-                : "전체 삭제"}
+              삭제
             </Button>
             <Button onClick={handleCreate}>
               <Plus className="h-4 w-4 mr-2" />
@@ -319,31 +330,30 @@ export default function TargetEndpointsPage() {
                           aria-label={`${endpoint.targetId} 선택`}
                         />
                       </TableCell>
-                      <TableCell className="font-medium">
-                        {endpoint.targetId}
-                      </TableCell>
-                      <TableCell className="font-mono text-sm">
-                        {endpoint.url}
-                      </TableCell>
+                      <TableCell className="font-medium">{endpoint.targetId}</TableCell>
+                      <TableCell className="font-mono text-sm">{endpoint.url}</TableCell>
                       <TableCell>{endpoint.createdAt}</TableCell>
                       <TableCell>{endpoint.description}</TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEdit(endpoint)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-2 justify-end">
+                          <Button variant="outline" size="sm" onClick={() => handleEdit(endpoint)}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteSingle(endpoint)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="text-center py-8 text-gray-500"
-                    >
+                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                       검색 결과가 없습니다.
                     </TableCell>
                   </TableRow>
@@ -367,26 +377,19 @@ export default function TargetEndpointsPage() {
                 <Input
                   id="create-url"
                   value={formData.url}
-                  onChange={(e) =>
-                    setFormData({ ...formData, url: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                   placeholder="https://api.example.com/v1"
                   className="mt-2"
                 />
               </div>
               <div>
-                <Label
-                  htmlFor="create-description"
-                  className="text-sm font-medium"
-                >
+                <Label htmlFor="create-description" className="text-sm font-medium">
                   설명
                 </Label>
                 <Textarea
                   id="create-description"
                   value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="엔드포인트 설명을 입력하세요"
                   className="mt-2"
                 />
@@ -415,26 +418,19 @@ export default function TargetEndpointsPage() {
                 <Input
                   id="edit-url"
                   value={formData.url}
-                  onChange={(e) =>
-                    setFormData({ ...formData, url: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                   placeholder="https://api.example.com/v1"
                   className="mt-2"
                 />
               </div>
               <div>
-                <Label
-                  htmlFor="edit-description"
-                  className="text-sm font-medium"
-                >
+                <Label htmlFor="edit-description" className="text-sm font-medium">
                   설명
                 </Label>
                 <Textarea
                   id="edit-description"
                   value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="엔드포인트 설명을 입력하세요"
                   className="mt-2"
                 />
@@ -468,20 +464,18 @@ export default function TargetEndpointsPage() {
                   <br />
                   연결된 모든 API와 설정이 영향을 받을 수 있습니다.
                 </p>
-                {deleteType === "all" && (
+                {deleteType === 'all' && (
                   <div className="bg-red-100 border border-red-300 rounded p-3 mt-3">
-                    <p className="text-red-800 font-semibold text-sm">
-                      🚨 전체 삭제 경고
-                    </p>
+                    <p className="text-red-800 font-semibold text-sm">🚨 전체 삭제 경고</p>
                     <p className="text-red-700 text-xs mt-1">
-                      모든 Target Endpoint 데이터가 완전히 제거되며, 이는 시스템
-                      전체에 영향을 줄 수 있습니다.
+                      모든 Target Endpoint 데이터가 완전히 제거되며, 이는 시스템 전체에 영향을 줄 수
+                      있습니다.
                     </p>
                   </div>
                 )}
               </div>
 
-              {deleteType === "selected" && selectedIds.length > 0 && (
+              {deleteType === 'selected' && selectedIds.length > 0 && (
                 <div className="bg-gray-50 p-3 rounded max-h-32 overflow-y-auto">
                   <p className="text-sm font-medium mb-2">삭제될 항목:</p>
                   {selectedIds.map((id) => {
@@ -495,14 +489,11 @@ export default function TargetEndpointsPage() {
                 </div>
               )}
 
-              {deleteType === "all" && (
+              {deleteType === 'all' && (
                 <div className="bg-gray-50 p-3 rounded">
                   <p className="text-sm font-medium text-gray-800">
-                    총{" "}
-                    <strong className="text-red-600">
-                      {endpoints.length}개
-                    </strong>
-                    의 Target Endpoint가 삭제됩니다.
+                    총 <strong className="text-red-600">{endpoints.length}개</strong>의 Target
+                    Endpoint가 삭제됩니다.
                   </p>
                 </div>
               )}
@@ -517,9 +508,7 @@ export default function TargetEndpointsPage() {
                 className="bg-red-600 hover:bg-red-700"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                {deleteType === "selected"
-                  ? `선택 삭제 (${selectedIds.length}개)`
-                  : "전체 삭제"}
+                {deleteType === 'selected' ? `선택 삭제 (${selectedIds.length}개)` : '전체 삭제'}
               </Button>
             </DialogFooter>
           </DialogContent>
