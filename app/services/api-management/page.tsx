@@ -69,7 +69,6 @@ interface ApiPlan {
   name: string;
   planId: string;
   description: string;
-  protocol: "HTTP" | "HTTPS";
   createdAt: string;
   status: "active" | "inactive" | "draft";
 }
@@ -80,8 +79,7 @@ const mockApiPlans: ApiPlan[] = [
     name: "User Management API",
     planId: "plan-001",
     description: "사용자 관리를 위한 REST API",
-    protocol: "HTTPS",
-    createdAt: "2024-01-15",
+    createdAt: "2024-01-15 14:44:23",
     status: "active",
   },
   {
@@ -89,8 +87,7 @@ const mockApiPlans: ApiPlan[] = [
     name: "Product Catalog API",
     planId: "plan-002",
     description: "상품 카탈로그 조회 및 관리 API",
-    protocol: "HTTPS",
-    createdAt: "2024-01-20",
+    createdAt: "2024-01-20 14:44:23",
     status: "active",
   },
   {
@@ -98,8 +95,7 @@ const mockApiPlans: ApiPlan[] = [
     name: "Payment Processing API",
     planId: "plan-003",
     description: "결제 처리를 위한 보안 API",
-    protocol: "HTTPS",
-    createdAt: "2024-01-25",
+    createdAt: "2024-01-25 14:44:23",
     status: "draft",
   },
   {
@@ -107,8 +103,7 @@ const mockApiPlans: ApiPlan[] = [
     name: "Analytics API",
     planId: "plan-004",
     description: "데이터 분석 및 리포팅 API",
-    protocol: "HTTP",
-    createdAt: "2024-01-30",
+    createdAt: "2024-01-30 14:44:23",
     status: "inactive",
   },
 ];
@@ -124,6 +119,7 @@ export default function ApiManagementPage() {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState<{
     key: keyof ApiItem;
@@ -137,6 +133,14 @@ export default function ApiManagementPage() {
     description: "",
   });
 
+  // Create API Modal State
+  const [modifyApiForm, setModifyApiForm] = useState({
+    type: "new",
+    name: "",
+    description: "",
+  });
+
+
   const filteredPlans = apiPlans.filter(
     (plan) =>
       plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -144,9 +148,7 @@ export default function ApiManagementPage() {
       plan.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSettings = (plan: ApiPlan) => {
-    router.push(`/services/api-management/plans/${plan.id}/settings`);
-  };
+
 
   const handleDeploy = (plan: ApiPlan) => {
     setSelectedPlan(plan);
@@ -181,20 +183,11 @@ export default function ApiManagementPage() {
         return "bg-green-100 text-green-700 border-green-200";
       case "inactive":
         return "bg-gray-100 text-gray-700 border-gray-200";
-      case "draft":
-        return "bg-yellow-100 text-yellow-700 border-yellow-200";
       default:
         return "bg-gray-100 text-gray-700 border-gray-200";
     }
   };
 
-  const getProtocolIcon = (protocol: string) => {
-    return protocol === "HTTPS" ? (
-      <Shield className="h-4 w-4 text-green-600" />
-    ) : (
-      <Globe className="h-4 w-4 text-blue-600" />
-    );
-  };
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -296,6 +289,30 @@ export default function ApiManagementPage() {
     toast.success(`API '${newApi.name}'이(가) 생성되었습니다.`);
   };
 
+ const handleModifyApi = () => {
+    if (!modifyApiForm.name.trim()) {
+      toast.error("API 이름을 입력해주세요.");
+      return;
+    }
+
+    const newApi: ApiItem = {
+      id: Date.now().toString(),
+      name: modifyApiForm.name,
+      description: modifyApiForm.description,
+      apiId: Math.random().toString(36).substring(2, 12),
+      protocol: "REST",
+      endpointType: "지역",
+      createdDate: new Date().toISOString().split("T")[0],
+      selected: false,
+    };
+
+    setApis([...apis, newApi]);
+    setIsModifyModalOpen(false);
+    setModifyApiForm({ type: "new", name: "", description: "" });
+    toast.success(`API '${newApi.name}'이(가) 수정되었습니다.`);
+  };
+
+
   const handleApiClick = (api: ApiPlan) => {
     // Navigate to API resource creation page
     router.push(
@@ -354,7 +371,7 @@ export default function ApiManagementPage() {
                   <TableHead>이름</TableHead>
                   <TableHead>Plan ID</TableHead>
                   <TableHead>설명</TableHead>
-                  <TableHead>프로토콜</TableHead>
+                  <TableHead>배포 상태</TableHead>
                   <TableHead>생성일</TableHead>
                   <TableHead className="text-right">작업</TableHead>
                 </TableRow>
@@ -371,12 +388,7 @@ export default function ApiManagementPage() {
                           >
                             {plan.name}
                           </span>
-                          <Badge
-                            variant="outline"
-                            className={getStatusColor(plan.status)}
-                          >
-                            {plan.status}
-                          </Badge>
+                        
                         </div>
                       </TableCell>
                       <TableCell className="font-mono text-sm">
@@ -387,33 +399,34 @@ export default function ApiManagementPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
-                          {getProtocolIcon(plan.protocol)}
-                          <span>{plan.protocol}</span>
+                           <Badge
+                            variant="outline"
+                            className={getStatusColor(plan.status)}
+                          >
+                            {plan.status}
+                          </Badge>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
-                          <Clock className="h-4 w-4 text-gray-400" />
                           <span>{plan.createdAt}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell>
                         <div className="flex items-center justify-end space-x-2">
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleSettings(plan)}
+                            onClick={() =>setIsModifyModalOpen(true)}
                           >
-                            <Settings className="h-4 w-4 mr-1" />
-                            설정
+                            <Settings className="h-4 w-4" />
                           </Button>
                           <Button
                             size="sm"
                             onClick={() => handleDeploy(plan)}
                             className="bg-orange-500 hover:bg-orange-600 text-white"
                           >
-                            <Rocket className="h-4 w-4 mr-1" />
-                            배포
+                            <Rocket className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -433,6 +446,27 @@ export default function ApiManagementPage() {
             </Table>
           </CardContent>
         </Card>
+
+          {/* Pagination */}
+        <div className="flex justify-center mt-6">
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" disabled>
+              {"<<"}
+            </Button>
+            <Button variant="outline" size="sm" disabled>
+              {"<"}
+            </Button>
+            <Button size="sm" className="bg-blue-600 text-white">
+              1
+            </Button>
+            <Button variant="outline" size="sm" disabled>
+              {">"}
+            </Button>
+            <Button variant="outline" size="sm" disabled>
+              {">>"}
+            </Button>
+          </div>
+        </div>
 
         {/* Deploy Modal */}
         <Dialog open={isDeployModalOpen} onOpenChange={handleDeployModalClose}>
@@ -475,23 +509,6 @@ export default function ApiManagementPage() {
                   </SelectContent>
                 </Select>
               </div>
-              {/* <div>
-                <Label htmlFor="deploy-version" className="text-sm font-medium">
-                  버전 *
-                </Label>
-                <Input
-                  id="deploy-version"
-                  value={deploymentData.version}
-                  onChange={(e) =>
-                    setDeploymentData({
-                      ...deploymentData,
-                      version: e.target.value,
-                    })
-                  }
-                  placeholder="v1.0.0"
-                  className="mt-1"
-                />
-              </div> */}
               <div>
                 <Label
                   htmlFor="deploy-description"
@@ -645,6 +662,83 @@ export default function ApiManagementPage() {
                 className="bg-blue-500 hover:bg-blue-600 text-white"
               >
                 API 생성
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Modify APL Plan */}
+        <Dialog open={isModifyModalOpen} onOpenChange={setIsModifyModalOpen}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-blue-600">
+                API Plan 수정
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-6 py-4">
+
+              {/* API Name */}
+              <div>
+                <Label
+                  htmlFor="api-name"
+                  className="text-sm font-medium text-gray-700 mb-2 block"
+                >
+                  API 이름 <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="api-name"
+                  placeholder="API 이름을 입력하세요"
+                  value={modifyApiForm.name}
+                  onChange={(e) =>
+                    setModifyApiForm({ ...modifyApiForm, name: e.target.value })
+                  }
+                  className="w-full"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <Label
+                  htmlFor="description"
+                  className="text-sm font-medium text-gray-700 mb-2 block"
+                >
+                  설명
+                </Label>
+                <Textarea
+                  id="description"
+                  placeholder="설명을 입력하세요"
+                  value={modifyApiForm.description}
+                  onChange={(e) =>
+                    setModifyApiForm({
+                      ...modifyApiForm,
+                      description: e.target.value,
+                    })
+                  }
+                  className="w-full min-h-[100px] resize-none"
+                  maxLength={300}
+                />
+                <div className="text-right text-sm text-gray-500 mt-1">
+                  {modifyApiForm.description.length}/300 자
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsModifyModalOpen(false);
+                  setModifyApiForm({ type: "new", name: "", description: "" });
+                }}
+              >
+                취소
+              </Button>
+              <Button
+                onClick={handleModifyApi}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                수정
               </Button>
             </DialogFooter>
           </DialogContent>
