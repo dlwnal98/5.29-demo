@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { ThemeToggle, CollapseThemeToggle } from "../theme-toggle";
-import { Avatar } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { ThemeToggle, CollapseThemeToggle } from '../theme-toggle';
+import { Avatar } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,28 +11,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Settings } from "lucide-react";
-import {
-  projectsData,
-  navItems,
-  userMenuItems,
-} from "@/constants/app-layout-data";
-import { usePathname, useRouter } from "next/navigation";
-import { useState, type Dispatch, type SetStateAction } from "react";
-import type { NavButtonProps, SubNavItem } from "@/types";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { ChevronDown, ChevronRight } from "lucide-react";
+} from '@/components/ui/dropdown-menu';
+import { Settings } from 'lucide-react';
+import { projectsData, navItems, userMenuItems } from '@/constants/app-layout-data';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState, type Dispatch, type SetStateAction } from 'react';
+import type { NavButtonProps, SubNavItem } from '@/types';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 
 interface AppSidebarProps {
   sidebarCollapsed: boolean;
@@ -56,9 +43,8 @@ const SubNavButton = ({
 
   const isSubActive =
     pathname === subItem.href ||
-    pathname.includes(subItem.href ?? "") ||
-    (subItem.subItems &&
-      subItem.subItems.some((subSubItem) => pathname === subSubItem.href));
+    pathname.includes(subItem.href ?? '') ||
+    (subItem.subItems && subItem.subItems.some((subSubItem) => pathname === subSubItem.href));
 
   const handleSubClick = () => {
     if (subItem.subItems) {
@@ -72,8 +58,6 @@ const SubNavButton = ({
     router.push(href);
   };
 
-  console.log(sidebarCollapsed, isSubOpen);
-
   if (subItem.subItems) {
     return (
       <Collapsible
@@ -86,16 +70,12 @@ const SubNavButton = ({
             variant="ghost"
             size="sm"
             className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-1 ${
-              isSubActive
-                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                : ""
+              isSubActive ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : ''
             }`}
             onClick={handleSubClick}
           >
             <SubIcon className="h-3 w-3" />
-            <span className="ml-2 text-sm flex-1 text-left">
-              {subItem.label}
-            </span>
+            <span className="ml-2 text-sm flex-1 text-left">{subItem.label}</span>
             <div className="flex items-center space-x-1">
               {isSubOpen ? (
                 <ChevronDown className="h-3 w-3" />
@@ -109,11 +89,9 @@ const SubNavButton = ({
           <div className="ml-4 space-y-1 py-1">
             {subItem.subItems.map((subSubItem) => {
               const SubSubIcon = subSubItem.icon;
-              const normalizePath = (path: string) =>
-                path.replace(/\/$/, "").split("?")[0];
+              const normalizePath = (path: string) => path.replace(/\/$/, '').split('?')[0];
 
-              const isSubSubActive =
-                normalizePath(pathname) === normalizePath(subSubItem.href);
+              const isSubSubActive = normalizePath(pathname) === normalizePath(subSubItem.href);
               return (
                 <Button
                   key={subSubItem.href}
@@ -121,8 +99,8 @@ const SubNavButton = ({
                   size="sm"
                   className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-2 ${
                     isSubSubActive
-                      ? "bg-blue-50 dark:bg-blue-800 text-blue-600 dark:text-blue-400"
-                      : ""
+                      ? 'bg-blue-50 dark:bg-blue-800 text-blue-600 dark:text-blue-400'
+                      : ''
                   }`}
                   onClick={() => handleSubSubItemClick(subSubItem.href)}
                 >
@@ -142,9 +120,7 @@ const SubNavButton = ({
       variant="ghost"
       size="sm"
       className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-1 ${
-        isSubActive
-          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-          : ""
+        isSubActive ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : ''
       }`}
       onClick={handleSubClick}
     >
@@ -155,27 +131,21 @@ const SubNavButton = ({
 };
 
 // NavButton 컴포넌트는 별도 파일로 분리 가능
-const NavButton = ({
-  item,
-  sidebarCollapsed,
-  onClick,
-  pathname,
-}: NavButtonProps) => {
+const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps) => {
   const Icon = item.icon;
   const [isOpen, setIsOpen] = useState(
-    item.label === "Infra Packages" || item.label === "Services"
+    item.label === 'Infra Packages' || item.label === 'Services'
   ); // Services 1은 기본적으로 열려있음
   const router = useRouter();
 
   const isActive =
     pathname === item.href ||
-    pathname.includes(item.href ?? "string") ||
+    pathname.includes(item.href ?? 'string') ||
     (item.subItems &&
       item.subItems.some(
         (subItem) =>
           pathname === subItem.href ||
-          (subItem.subItems &&
-            subItem.subItems.some((subSubItem) => pathname === subSubItem.href))
+          (subItem.subItems && subItem.subItems.some((subSubItem) => pathname === subSubItem.href))
       ));
 
   const handleClick = () => {
@@ -205,11 +175,11 @@ const NavButton = ({
                 <Button
                   variant="ghost"
                   className={`w-full ${
-                    sidebarCollapsed ? "justify-center px-2" : "justify-start"
+                    sidebarCollapsed ? 'justify-center px-2' : 'justify-start'
                   } hover:bg-blue-50 dark:hover:bg-gray-800 ${
                     isActive
-                      ? "bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 text-blue-700 dark:text-blue-300 border-l-4 border-blue-600"
-                      : ""
+                      ? 'bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 text-blue-700 dark:text-blue-300 border-l-4 border-blue-600'
+                      : ''
                   }`}
                   size="sm"
                   onClick={handleClick}
@@ -217,9 +187,7 @@ const NavButton = ({
                   <Icon className="h-4 w-4" />
                   {!sidebarCollapsed && (
                     <>
-                      <span className="ml-2 flex-1 text-left">
-                        {item.label}
-                      </span>
+                      <span className="ml-2 flex-1 text-left">{item.label}</span>
                       <div className="flex items-center space-x-1">
                         {isOpen ? (
                           <ChevronDown className="h-4 w-4" />
@@ -253,9 +221,7 @@ const NavButton = ({
                                     <button
                                       key={subSubItem.href}
                                       className="w-full flex items-center space-x-2 px-2 py-1 text-xs hover:bg-blue-50 dark:hover:bg-gray-700 rounded"
-                                      onClick={() =>
-                                        handleSubItemClick(subSubItem.href)
-                                      }
+                                      onClick={() => handleSubItemClick(subSubItem.href)}
                                     >
                                       <SubSubIcon className="h-3 w-3" />
                                       <span>{subSubItem.label}</span>
@@ -307,11 +273,11 @@ const NavButton = ({
           <Button
             variant="ghost"
             className={`w-full ${
-              sidebarCollapsed ? "justify-center px-2" : "justify-start"
+              sidebarCollapsed ? 'justify-center px-2' : 'justify-start'
             } hover:bg-blue-50 dark:hover:bg-gray-800 ${
               isActive
-                ? "bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 text-blue-700 dark:text-blue-300 border-l-4 border-blue-600"
-                : ""
+                ? 'bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 text-blue-700 dark:text-blue-300 border-l-4 border-blue-600'
+                : ''
             }`}
             size="sm"
             onClick={handleClick}
@@ -320,9 +286,7 @@ const NavButton = ({
             {!sidebarCollapsed && <span className="ml-2">{item.label}</span>}
           </Button>
         </TooltipTrigger>
-        {sidebarCollapsed && (
-          <TooltipContent side="right">{item.label}</TooltipContent>
-        )}
+        {sidebarCollapsed && <TooltipContent side="right">{item.label}</TooltipContent>}
       </Tooltip>
     </TooltipProvider>
   );
@@ -335,26 +299,24 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const currentProject = projectSlug
-    ? projectsData.find((p) => p.slug === projectSlug)
-    : null;
-  const isProjectPage = pathname?.startsWith("/project/");
+  const currentProject = projectSlug ? projectsData.find((p) => p.slug === projectSlug) : null;
+  const isProjectPage = pathname?.startsWith('/project/');
 
   const [isHovered, setIsHovered] = useState(false);
 
   const handleUserMenuClick = (action: string) => {
     switch (action) {
-      case "profile":
-        router.push("/profile");
+      case 'profile':
+        router.push('/profile');
         break;
-      case "account":
-        router.push("/settings/account");
+      case 'account':
+        router.push('/settings/account');
         break;
-      case "settings":
-        router.push("/settings");
+      case 'settings':
+        router.push('/settings');
         break;
-      case "logout":
-        router.push("/login");
+      case 'logout':
+        router.push('/login');
         break;
       default:
         break;
@@ -364,7 +326,7 @@ export function AppSidebar({
   return (
     <aside
       className={`fixed top-14 z-40 h-[calc(100vh-3.5rem)] border-r border-blue-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60 transition-all duration-500 ease-in-out transform ${
-        sidebarCollapsed ? "w-16" : "w-[220px]"
+        sidebarCollapsed ? 'w-16' : 'w-[220px]'
         // sidebarCollapsed && !isHovered ? "w-16" : "w-[220px]"
       }`}
       // onMouseEnter={() => setIsHovered(true)}
@@ -383,9 +345,9 @@ export function AppSidebar({
                   <Badge
                     variant="secondary"
                     className={`text-xs ${
-                      currentProject.visibility === "Public"
-                        ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-                        : "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300"
+                      currentProject.visibility === 'Public'
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                        : 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300'
                     }`}
                   >
                     {currentProject.visibility}
@@ -419,9 +381,7 @@ export function AppSidebar({
                   </Avatar>
                   <div className="flex-1 min-w-0 text-left">
                     <h3 className="text-sm font-semibold truncate">John Doe</h3>
-                    <p className="text-xs text-muted-foreground">
-                      john@example.com
-                    </p>
+                    <p className="text-xs text-muted-foreground">john@example.com</p>
                   </div>
                 </div>
                 <DropdownMenu>
@@ -433,19 +393,11 @@ export function AppSidebar({
                       <Settings />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    className="w-56"
-                    align="start"
-                    forceMount
-                  >
+                  <DropdownMenuContent className="w-56" align="start" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          John Doe
-                        </p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          userID
-                        </p>
+                        <p className="text-sm font-medium leading-none">John Doe</p>
+                        <p className="text-xs leading-none text-muted-foreground">userID</p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
@@ -475,19 +427,11 @@ export function AppSidebar({
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    className="w-56"
-                    align="start"
-                    forceMount
-                  >
+                  <DropdownMenuContent className="w-56" align="start" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          John Doe
-                        </p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          userID
-                        </p>
+                        <p className="text-sm font-medium leading-none">John Doe</p>
+                        <p className="text-xs leading-none text-muted-foreground">userID</p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
