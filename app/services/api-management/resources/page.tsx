@@ -5,8 +5,21 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,7 +30,28 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Trash2, ChevronRight, Edit, Monitor, Copy, ChevronLeft, ArrowRight, Plus } from "lucide-react"
+import {
+  ArrowLeft,
+  Trash2,
+  ChevronRight,
+  CheckCircle,
+  XCircle,
+  Shield,
+  AlertTriangle,
+  X,
+  Edit,
+  Monitor,
+  Play,
+  Copy,
+  ChevronLeft,
+  Send,
+  Code,
+  FileText,
+  ArrowRight,
+  Globe,
+  Settings,
+  Plus,
+} from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -115,26 +149,6 @@ interface Model {
   schema: string
 }
 
-interface MethodResponse {
-  id: string
-  statusCode: string
-  headers: ResponseHeader[]
-  bodies: ResponseBody[]
-}
-
-interface ResponseHeaderForm {
-  id: string
-  name: string
-  value: string
-}
-
-interface ResponseBodyForm {
-  id: string
-  contentType: string
-  modelId: string
-  modelName: string
-}
-
 export default function ApiResourcesPage() {
   const router = useRouter()
   const leftSidebarRef = useRef<HTMLDivElement>(null)
@@ -177,35 +191,6 @@ export default function ApiResourcesPage() {
   const [isCorsModalOpen, setIsCorsModalOpen] = useState(false)
   const [methodToDelete, setMethodToDelete] = useState<Method | null>(null)
   const [isEditMode, setIsEditMode] = useState(false)
-
-  // Response management states
-  const [methodResponses, setMethodResponses] = useState<MethodResponse[]>([
-    {
-      id: "1",
-      statusCode: "200",
-      headers: [{ id: "1", name: "content-type", value: "" }],
-      bodies: [{ id: "1", contentType: "application/json", model: "Empty" }],
-    },
-    {
-      id: "2", 
-      statusCode: "201",
-      headers: [{ id: "2", name: "authorization", value: "" }],
-      bodies: [{ id: "2", contentType: "application/html", model: "Error" }],
-    },
-  ])
-
-  const [isCreateResponseModalOpen, setIsCreateResponseModalOpen] = useState(false)
-  const [isEditResponseModalOpen, setIsEditResponseModalOpen] = useState(false)
-  const [isDeleteResponseDialogOpen, setIsDeleteResponseDialogOpen] = useState(false)
-  const [responseToEdit, setResponseToEdit] = useState<MethodResponse | null>(null)
-  const [responseToDelete, setResponseToDelete] = useState<MethodResponse | null>(null)
-
-  // Response form states
-  const [responseForm, setResponseForm] = useState({
-    statusCode: "",
-    headers: [] as ResponseHeaderForm[],
-    bodies: [] as ResponseBodyForm[],
-  })
 
   // Edit form states
   const [editForm, setEditForm] = useState({
@@ -305,30 +290,6 @@ export default function ApiResourcesPage() {
   "required": ["orderId", "userId", "items", "totalAmount"]
 }`,
     },
-    {
-      id: "4",
-      name: "Empty",
-      description: "빈 응답 모델",
-      schema: "{}",
-    },
-    {
-      id: "5",
-      name: "Error",
-      description: "오류 응답 모델",
-      schema: `{
-  "type": "object",
-  "properties": {
-    "error": {
-      "type": "string",
-      "description": "오류 메시지"
-    },
-    "code": {
-      "type": "integer",
-      "description": "오류 코드"
-    }
-  }
-}`,
-    },
   ])
 
   const [createResourceForm, setCreateResourceForm] = useState({
@@ -377,11 +338,6 @@ export default function ApiResourcesPage() {
     { value: "본문 검증", label: "본문 검증" },
     { value: "파라미터 검증", label: "파라미터 검증" },
     { value: "본문 및 파라미터 검증", label: "본문 및 파라미터 검증" },
-  ]
-
-  // HTTP Status codes
-  const statusCodes = [
-    "200", "201", "202", "204", "301", "302", "304", "400", "401", "403", "404", "405", "409", "422", "429", "500", "502", "503", "504"
   ]
 
   // Initialize edit form when method changes
@@ -626,134 +582,16 @@ export default function ApiResourcesPage() {
     }
   }
 
-  // Response management functions
   const handleCreateResponse = () => {
-    setResponseForm({
-      statusCode: "",
-      headers: [],
-      bodies: [],
-    })
-    setIsCreateResponseModalOpen(true)
+    toast.success("새 응답이 생성되었습니다.")
   }
 
-  const handleEditResponse = (response: MethodResponse) => {
-    setResponseToEdit(response)
-    setResponseForm({
-      statusCode: response.statusCode,
-      headers: response.headers.map(h => ({ id: h.id, name: h.name, value: h.value })),
-      bodies: response.bodies.map(b => ({ 
-        id: b.id, 
-        contentType: b.contentType, 
-        modelId: availableModels.find(m => m.name === b.model)?.id || "",
-        modelName: b.model 
-      })),
-    })
-    setIsEditResponseModalOpen(true)
+  const handleEditResponse = () => {
+    toast.success("응답 편집 모드로 전환되었습니다.")
   }
 
-  const handleDeleteResponse = (response: MethodResponse) => {
-    setResponseToDelete(response)
-    setIsDeleteResponseDialogOpen(true)
-  }
-
-  const confirmDeleteResponse = () => {
-    if (responseToDelete) {
-      setMethodResponses(methodResponses.filter(r => r.id !== responseToDelete.id))
-      toast.success(`응답 ${responseToDelete.statusCode}이(가) 삭제되었습니다.`)
-      setResponseToDelete(null)
-      setIsDeleteResponseDialogOpen(false)
-    }
-  }
-
-  const saveResponse = () => {
-    if (!responseForm.statusCode) {
-      toast.error("HTTP 상태 코드를 입력해주세요.")
-      return
-    }
-
-    const newResponse: MethodResponse = {
-      id: responseToEdit?.id || Date.now().toString(),
-      statusCode: responseForm.statusCode,
-      headers: responseForm.headers.map(h => ({ id: h.id, name: h.name, value: h.value })),
-      bodies: responseForm.bodies.map(b => ({ id: b.id, contentType: b.contentType, model: b.modelName })),
-    }
-
-    if (responseToEdit) {
-      setMethodResponses(methodResponses.map(r => r.id === responseToEdit.id ? newResponse : r))
-      toast.success("응답이 수정되었습니다.")
-      setIsEditResponseModalOpen(false)
-    } else {
-      setMethodResponses([...methodResponses, newResponse])
-      toast.success("응답이 생성되었습니다.")
-      setIsCreateResponseModalOpen(false)
-    }
-
-    setResponseToEdit(null)
-  }
-
-  const addResponseHeader = () => {
-    const newHeader: ResponseHeaderForm = {
-      id: Date.now().toString(),
-      name: "",
-      value: "",
-    }
-    setResponseForm({
-      ...responseForm,
-      headers: [...responseForm.headers, newHeader],
-    })
-  }
-
-  const updateResponseHeader = (id: string, field: keyof ResponseHeaderForm, value: string) => {
-    setResponseForm({
-      ...responseForm,
-      headers: responseForm.headers.map(h => h.id === id ? { ...h, [field]: value } : h),
-    })
-  }
-
-  const removeResponseHeader = (id: string) => {
-    setResponseForm({
-      ...responseForm,
-      headers: responseForm.headers.filter(h => h.id !== id),
-    })
-  }
-
-  const addResponseBody = () => {
-    const newBody: ResponseBodyForm = {
-      id: Date.now().toString(),
-      contentType: "application/json",
-      modelId: "",
-      modelName: "",
-    }
-    setResponseForm({
-      ...responseForm,
-      bodies: [...responseForm.bodies, newBody],
-    })
-  }
-
-  const updateResponseBody = (id: string, field: keyof ResponseBodyForm, value: string) => {
-    if (field === "modelId") {
-      const selectedModel = availableModels.find(m => m.id === value)
-      setResponseForm({
-        ...responseForm,
-        bodies: responseForm.bodies.map(b => b.id === id ? { 
-          ...b, 
-          modelId: value,
-          modelName: selectedModel?.name || ""
-        } : b),
-      })
-    } else {
-      setResponseForm({
-        ...responseForm,
-        bodies: responseForm.bodies.map(b => b.id === id ? { ...b, [field]: value } : b),
-      })
-    }
-  }
-
-  const removeResponseBody = (id: string) => {
-    setResponseForm({
-      ...responseForm,
-      bodies: responseForm.bodies.filter(b => b.id !== id),
-    })
+  const handleDeleteResponse = () => {
+    toast.success("응답이 삭제되었습니다.")
   }
 
   const handleCorsClick = () => {
@@ -1491,4 +1329,1242 @@ export default function ApiResourcesPage() {
                                   {queryParameters.length === 0 && (
                                     <div className="text-center py-6 text-gray-500">
                                       쿼리 파라미터가 없습니다. 추가 버튼을 클릭하여 새 파라미터를 추가하세요.
-                                    </div\
+                                    </div>
+                                  )}
+                                </div>
+                              </CardContent>
+                            </Card>
+
+                            {/* HTTP Request Headers Edit */}
+                            <Card>
+                              <CardHeader>
+                                <CardTitle className="flex items-center justify-between">
+                                  HTTP 요청 헤더
+                                  <Button
+                                    size="sm"
+                                    onClick={addRequestHeader}
+                                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                                  >
+                                    <Plus className="h-4 w-4 mr-1" />
+                                    추가
+                                  </Button>
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="space-y-3">
+                                  {requestHeaders.map((header) => (
+                                    <div key={header.id} className="grid grid-cols-12 gap-3 items-center">
+                                      <div className="col-span-4">
+                                        <Input
+                                          value={header.name}
+                                          onChange={(e) => updateRequestHeader(header.id, "name", e.target.value)}
+                                          placeholder="헤더 이름"
+                                          disabled={header.name === "Content-Type"}
+                                        />
+                                      </div>
+                                      <div className="col-span-4">
+                                        <Input
+                                          value={header.description}
+                                          onChange={(e) =>
+                                            updateRequestHeader(header.id, "description", e.target.value)
+                                          }
+                                          placeholder="설명"
+                                        />
+                                      </div>
+                                      <div className="col-span-2">
+                                        <Select
+                                          value={header.type}
+                                          onValueChange={(value) => updateRequestHeader(header.id, "type", value)}
+                                        >
+                                          <SelectTrigger>
+                                            <SelectValue />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="string">string</SelectItem>
+                                            <SelectItem value="number">number</SelectItem>
+                                            <SelectItem value="boolean">boolean</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                      <div className="col-span-1 flex justify-center">
+                                        <Switch
+                                          checked={header.required}
+                                          onCheckedChange={(checked) =>
+                                            updateRequestHeader(header.id, "required", checked)
+                                          }
+                                          disabled={header.name === "Content-Type"}
+                                        />
+                                      </div>
+                                      <div className="col-span-1 flex justify-end">
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => removeRequestHeader(header.id)}
+                                          disabled={header.name === "Content-Type"}
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </CardContent>
+                            </Card>
+
+                            {/* Request Body Edit */}
+                            <Card>
+                              <CardHeader>
+                                <CardTitle className="flex items-center justify-between">
+                                  요청 본문
+                                  <Button
+                                    size="sm"
+                                    onClick={addRequestBodyModel}
+                                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                                  >
+                                    <Plus className="h-4 w-4 mr-1" />
+                                    추가
+                                  </Button>
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="space-y-3">
+                                  {requestBodyModels.map((model) => (
+                                    <div key={model.id} className="grid grid-cols-12 gap-3 items-center">
+                                      <div className="col-span-4">
+                                        <Select
+                                          value={model.contentType}
+                                          onValueChange={(value) =>
+                                            updateRequestBodyModel(model.id, "contentType", value)
+                                          }
+                                        >
+                                          <SelectTrigger>
+                                            <SelectValue />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="application/json">application/json</SelectItem>
+                                            <SelectItem value="application/xml">application/xml</SelectItem>
+                                            <SelectItem value="text/plain">text/plain</SelectItem>
+                                            <SelectItem value="application/x-www-form-urlencoded">
+                                              application/x-www-form-urlencoded
+                                            </SelectItem>
+                                            <SelectItem value="multipart/form-data">multipart/form-data</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                      <div className="col-span-4">
+                                        <Input
+                                          value={model.modelName}
+                                          onChange={(e) =>
+                                            updateRequestBodyModel(model.id, "modelName", e.target.value)
+                                          }
+                                          placeholder="모델 이름"
+                                        />
+                                      </div>
+                                      <div className="col-span-3">
+                                        <Select
+                                          value={model.modelId}
+                                          onValueChange={(value) => {
+                                            const selectedModel = availableModels.find((m) => m.id === value)
+                                            updateRequestBodyModel(model.id, "modelId", value)
+                                            if (selectedModel) {
+                                              updateRequestBodyModel(model.id, "modelName", selectedModel.name)
+                                            }
+                                          }}
+                                        >
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="모델 선택" />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            {availableModels.map((availableModel) => (
+                                              <SelectItem key={availableModel.id} value={availableModel.id}>
+                                                <div className="flex items-center justify-between w-full">
+                                                  <span>{availableModel.name}</span>
+                                                  <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation()
+                                                      deleteModel(availableModel.id)
+                                                    }}
+                                                    className="ml-2 h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                                                  >
+                                                    <Trash2 className="h-3 w-3" />
+                                                  </Button>
+                                                </div>
+                                              </SelectItem>
+                                            ))}
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                      <div className="col-span-1 flex justify-end">
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => removeRequestBodyModel(model.id)}
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                  {requestBodyModels.length === 0 && (
+                                    <div className="text-center py-6 text-gray-500">
+                                      요청 본문이 없습니다. 추가 버튼을 클릭하여 새 요청 본문을 추가하세요.
+                                    </div>
+                                  )}
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        )}
+                      </TabsContent>
+
+                      {/* Method Response Tab */}
+                      <TabsContent value="method-response" className="space-y-6 mt-6">
+                        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-4">
+                              <h3 className="text-lg font-bold text-gray-900 dark:text-white">메서드 응답</h3>
+                            </div>
+                            <Button className="bg-blue-500 hover:bg-blue-600 text-white" onClick={handleCreateResponse}>
+                              응답 생성
+                            </Button>
+                          </div>
+
+                          {/* Response 200 */}
+                          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border">
+                            <div className="flex items-center justify-between mb-4">
+                              <h4 className="text-md font-semibold text-gray-900 dark:text-white">응답 200</h4>
+                              <div className="flex gap-2">
+                                <Button variant="outline" size="sm" onClick={handleEditResponse}>
+                                  편집
+                                </Button>
+                                <Button variant="outline" size="sm" onClick={handleDeleteResponse}>
+                                  삭제
+                                </Button>
+                              </div>
+                            </div>
+
+                            <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-3">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-gray-900 dark:text-white">application/json</span>
+                                <span className="text-sm text-gray-600 dark:text-gray-400">Empty</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+
+                      {/* Enhanced Test Tab */}
+                      <TabsContent value="test" className="space-y-6 mt-6">
+                        <div className="space-y-6">
+                          {/* Request Section */}
+                          <Card>
+                            <CardHeader>
+                              <CardTitle className="flex items-center gap-2">
+                                <Send className="h-5 w-5" />
+                                요청 설정
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                              {/* Method and URL */}
+                              <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                <span
+                                  className={`px-3 py-1 rounded text-sm font-mono font-bold ${
+                                    selectedMethod.type === "GET"
+                                      ? "bg-green-100 text-green-800"
+                                      : selectedMethod.type === "POST"
+                                        ? "bg-blue-100 text-blue-800"
+                                        : selectedMethod.type === "PUT"
+                                          ? "bg-yellow-100 text-yellow-800"
+                                          : selectedMethod.type === "DELETE"
+                                            ? "bg-red-100 text-red-800"
+                                            : "bg-gray-100 text-gray-800"
+                                  }`}
+                                >
+                                  {selectedMethod.type}
+                                </span>
+                                <code className="flex-1 text-sm bg-white dark:bg-gray-700 px-3 py-2 rounded border">
+                                  {selectedMethod.endpointUrl}
+                                </code>
+                                <Button
+                                  className="bg-orange-500 hover:bg-orange-600 text-white px-6"
+                                  onClick={handleTest}
+                                  disabled={isTestLoading}
+                                >
+                                  {isTestLoading ? (
+                                    <>
+                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                      테스트 중...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Play className="h-4 w-4 mr-2" />
+                                      Send
+                                    </>
+                                  )}
+                                </Button>
+                              </div>
+
+                              {/* Query Parameters */}
+                              {selectedMethod.parameters?.filter((p: any) => p.in === "query").length > 0 && (
+                                <div>
+                                  <Label className="text-base font-medium text-gray-900 dark:text-white mb-3 block">
+                                    Query Parameters
+                                  </Label>
+                                  <div className="space-y-2">
+                                    {selectedMethod.parameters
+                                      .filter((param: any) => param.in === "query")
+                                      .map((param: any, index: number) => (
+                                        <div key={param.name} className="grid grid-cols-12 gap-3 items-center">
+                                          <div className="col-span-1 flex justify-center">
+                                            <input
+                                              type="checkbox"
+                                              defaultChecked={param.required}
+                                              className="rounded border-gray-300"
+                                            />
+                                          </div>
+                                          <div className="col-span-3">
+                                            <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                              {param.name}
+                                              {param.required && <span className="text-red-500 ml-1">*</span>}
+                                            </div>
+                                            <div className="text-xs text-gray-500">
+                                              {param.schema?.type || "string"}
+                                            </div>
+                                          </div>
+                                          <div className="col-span-8">
+                                            <Input placeholder={`Enter ${param.name}`} className="w-full" />
+                                          </div>
+                                        </div>
+                                      ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Path Parameters */}
+                              {selectedMethod.parameters?.filter((p: any) => p.in === "path").length > 0 && (
+                                <div>
+                                  <Label className="text-base font-medium text-gray-900 dark:text-white mb-3 block">
+                                    Path Parameters
+                                  </Label>
+                                  <div className="space-y-2">
+                                    {selectedMethod.parameters
+                                      .filter((param: any) => param.in === "path")
+                                      .map((param: any) => (
+                                        <div key={param.name} className="grid grid-cols-12 gap-3 items-center">
+                                          <div className="col-span-1 flex justify-center">
+                                            <input
+                                              type="checkbox"
+                                              defaultChecked={true}
+                                              disabled
+                                              className="rounded border-gray-300"
+                                            />
+                                          </div>
+                                          <div className="col-span-3">
+                                            <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                              {param.name}
+                                              <span className="text-red-500 ml-1">*</span>
+                                            </div>
+                                            <div className="text-xs text-gray-500">
+                                              {param.schema?.type || "string"}
+                                            </div>
+                                          </div>
+                                          <div className="col-span-8">
+                                            <Input placeholder={`Enter ${param.name}`} className="w-full" required />
+                                          </div>
+                                        </div>
+                                      ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Headers */}
+                              <div>
+                                <Label className="text-base font-medium text-gray-900 dark:text-white mb-3 block">
+                                  Headers
+                                </Label>
+                                <div className="space-y-2">
+                                  {/* Common Headers */}
+                                  <div className="grid grid-cols-12 gap-3 items-center">
+                                    <div className="col-span-1 flex justify-center">
+                                      <input
+                                        type="checkbox"
+                                        defaultChecked={selectedMethod.apiKey !== "-"}
+                                        className="rounded border-gray-300"
+                                      />
+                                    </div>
+                                    <div className="col-span-3">
+                                      <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Authorization
+                                      </div>
+                                      <div className="text-xs text-gray-500">Authentication</div>
+                                    </div>
+                                    <div className="col-span-8">
+                                      <Select>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select auth type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="bearer">Bearer Token</SelectItem>
+                                          <SelectItem value="basic">Basic Auth</SelectItem>
+                                          <SelectItem value="apikey">API Key</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </div>
+
+                                  <div className="grid grid-cols-12 gap-3 items-center">
+                                    <div className="col-span-1 flex justify-center">
+                                      <input
+                                        type="checkbox"
+                                        defaultChecked={["POST", "PUT", "PATCH"].includes(selectedMethod.type)}
+                                        className="rounded border-gray-300"
+                                      />
+                                    </div>
+                                    <div className="col-span-3">
+                                      <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Content-Type
+                                      </div>
+                                      <div className="text-xs text-gray-500">Media type</div>
+                                    </div>
+                                    <div className="col-span-8">
+                                      <Select defaultValue="application/json">
+                                        <SelectTrigger>
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="application/json">application/json</SelectItem>
+                                          <SelectItem value="application/xml">application/xml</SelectItem>
+                                          <SelectItem value="text/plain">text/plain</SelectItem>
+                                          <SelectItem value="application/x-www-form-urlencoded">
+                                            application/x-www-form-urlencoded
+                                          </SelectItem>
+                                          <SelectItem value="multipart/form-data">multipart/form-data</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </div>
+
+                                  <div className="grid grid-cols-12 gap-3 items-center">
+                                    <div className="col-span-1 flex justify-center">
+                                      <input type="checkbox" className="rounded border-gray-300" />
+                                    </div>
+                                    <div className="col-span-3">
+                                      <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Accept</div>
+                                      <div className="text-xs text-gray-500">Response type</div>
+                                    </div>
+                                    <div className="col-span-8">
+                                      <Select>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select accept type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="application/json">application/json</SelectItem>
+                                          <SelectItem value="application/xml">application/xml</SelectItem>
+                                          <SelectItem value="text/html">text/html</SelectItem>
+                                          <SelectItem value="*/*">*/*</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </div>
+
+                                  <div className="grid grid-cols-12 gap-3 items-center">
+                                    <div className="col-span-1 flex justify-center">
+                                      <input type="checkbox" className="rounded border-gray-300" />
+                                    </div>
+                                    <div className="col-span-3">
+                                      <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        User-Agent
+                                      </div>
+                                      <div className="text-xs text-gray-500">Client info</div>
+                                    </div>
+                                    <div className="col-span-8">
+                                      <Select>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select user agent" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="postman">Postman Runtime/7.29.2</SelectItem>
+                                          <SelectItem value="chrome">Mozilla/5.0 (Chrome)</SelectItem>
+                                          <SelectItem value="firefox">Mozilla/5.0 (Firefox)</SelectItem>
+                                          <SelectItem value="custom">Custom</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Request Body (for POST, PUT, PATCH) */}
+                              {["POST", "PUT", "PATCH"].includes(selectedMethod.type) && (
+                                <div>
+                                  <Label className="text-base font-medium text-gray-900 dark:text-white mb-3 block">
+                                    Request Body
+                                  </Label>
+                                  <div className="space-y-3">
+                                    <div className="flex gap-2">
+                                      <Button variant="outline" size="sm" className="bg-blue-50 text-blue-600">
+                                        JSON
+                                      </Button>
+                                      <Button variant="outline" size="sm">
+                                        XML
+                                      </Button>
+                                      <Button variant="outline" size="sm">
+                                        Form Data
+                                      </Button>
+                                      <Button variant="outline" size="sm">
+                                        Raw
+                                      </Button>
+                                    </div>
+                                    <Textarea
+                                      value={testSettings.requestBody}
+                                      onChange={(e) =>
+                                        setTestSettings({
+                                          ...testSettings,
+                                          requestBody: e.target.value,
+                                        })
+                                      }
+                                      placeholder={`{
+  "name": "John Doe",
+  "email": "john@example.com"
+}`}
+                                      className="min-h-[150px] font-mono text-sm"
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+
+                          {/* Response Section */}
+                          {testResponse && (
+                            <Card>
+                              <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                  <FileText className="h-5 w-5" />
+                                  응답 결과
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="space-y-4">
+                                  {/* Status and Time */}
+                                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                    <div className="flex items-center gap-4">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm font-medium">Status:</span>
+                                        <span
+                                          className={`px-2 py-1 rounded text-sm font-mono ${
+                                            testResponse.status >= 200 && testResponse.status < 300
+                                              ? "bg-green-100 text-green-800"
+                                              : testResponse.status >= 400
+                                                ? "bg-red-100 text-red-800"
+                                                : "bg-yellow-100 text-yellow-800"
+                                          }`}
+                                        >
+                                          {testResponse.status} {testResponse.statusText}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm font-medium">Time:</span>
+                                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                                          {testResponse.responseTime}ms
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm font-medium">Size:</span>
+                                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                                          {new Blob([testResponse.body]).size} bytes
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Response Tabs */}
+                                  <Tabs defaultValue="body" className="w-full">
+                                    <TabsList className="grid w-full grid-cols-3">
+                                      <TabsTrigger value="body">Body</TabsTrigger>
+                                      <TabsTrigger value="headers">
+                                        Headers ({Object.keys(testResponse.headers).length})
+                                      </TabsTrigger>
+                                      <TabsTrigger value="test-results">Test Results</TabsTrigger>
+                                    </TabsList>
+
+                                    <TabsContent value="body" className="mt-4">
+                                      <div className="space-y-2">
+                                        <div className="flex gap-2">
+                                          <Button variant="outline" size="sm" className="bg-blue-50 text-blue-600">
+                                            Pretty
+                                          </Button>
+                                          <Button variant="outline" size="sm">
+                                            Raw
+                                          </Button>
+                                          <Button variant="outline" size="sm">
+                                            Preview
+                                          </Button>
+                                        </div>
+                                        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 max-h-96 overflow-auto">
+                                          <pre className="text-sm font-mono text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                                            {JSON.stringify(JSON.parse(testResponse.body), null, 2)}
+                                          </pre>
+                                        </div>
+                                      </div>
+                                    </TabsContent>
+
+                                    <TabsContent value="headers" className="mt-4">
+                                      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                                        <div className="space-y-2">
+                                          {Object.entries(testResponse.headers).map(([key, value]) => (
+                                            <div
+                                              key={key}
+                                              className="grid grid-cols-3 gap-4 py-2 border-b border-gray-200 dark:border-gray-600 last:border-b-0"
+                                            >
+                                              <div className="font-medium text-sm text-gray-700 dark:text-gray-300">
+                                                {key}
+                                              </div>
+                                              <div className="col-span-2 text-sm text-gray-600 dark:text-gray-400 font-mono">
+                                                {value}
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    </TabsContent>
+
+                                    <TabsContent value="test-results" className="mt-4">
+                                      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                                        <div className="space-y-3">
+                                          <div className="flex items-center gap-2">
+                                            <CheckCircle className="h-4 w-4 text-green-500" />
+                                            <span className="text-sm">Status code is 200</span>
+                                          </div>
+                                          <div className="flex items-center gap-2">
+                                            <CheckCircle className="h-4 w-4 text-green-500" />
+                                            <span className="text-sm">Response time is less than 2000ms</span>
+                                          </div>
+                                          <div className="flex items-center gap-2">
+                                            <CheckCircle className="h-4 w-4 text-green-500" />
+                                            <span className="text-sm">Content-Type header is present</span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </TabsContent>
+                                  </Tabs>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          )}
+
+                          {/* Empty State when no response */}
+                          {!testResponse && (
+                            <div className="text-center py-12 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+                              <Code className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                              <p className="text-gray-500 dark:text-gray-400 mb-2">응답 대기 중</p>
+                              <p className="text-sm text-gray-400 dark:text-gray-500">
+                                Send 버튼을 클릭하여 API를 테스트하세요
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </div>
+                </div>
+              ) : (
+                /* Resource Detail View */
+                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                  {/* Resource Details Header */}
+                  <div className="border-b border-gray-200 dark:border-gray-700 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-xl font-bold text-gray-900 dark:text-white">리소스 세부 정보</h2>
+                      <div className="flex items-center gap-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsDeleteDialogOpen(true)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          리소스 삭제
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-6">
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">리소스 ID</Label>
+                        <div className="mt-1 text-sm font-mono text-gray-900 dark:text-gray-400">{mockData2?._id}</div>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">경로</Label>
+                        <div className="mt-1 text-lg font-mono text-gray-900 dark:text-white">
+                          {selectedResource.path}
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">CORS 활성화 여부</Label>
+                        <div className="mt-1 text-sm font-mono text-gray-600 dark:text-gray-400">
+                          {selectedResource.corsEnabled ? (
+                            <div
+                              className="flex items-center gap-2 cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 p-2 rounded transition-colors"
+                              onClick={handleCorsClick}
+                            >
+                              <CheckCircle className="h-5 w-5 text-green-500" />
+                              <span className="text-sm text-green-600 font-medium">active</span>
+                              <Settings className="h-4 w-4 text-green-500 ml-1" />
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <XCircle className="h-5 w-5 text-red-500" />
+                              <span className="text-sm text-red-600 font-medium">disabled</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Methods Section */}
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className={`text-lg font-semibold text-gray-900 dark:text-white`}>
+                        메서드 ({selectedResource.methods.length})
+                      </h3>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={handleCreateMethod}
+                          className="bg-blue-500 hover:bg-blue-600 text-white"
+                        >
+                          메서드 생성
+                        </Button>
+                      </div>
+                    </div>
+
+                    {selectedResource.methods.length > 0 ? (
+                      <Table>
+                        <TableHeader className="hover:bg-white dark:hover:bg-gray-700">
+                          <TableRow className="hover:bg-white dark:hover:bg-gray-700">
+                            <TableHead>메서드 유형</TableHead>
+                            <TableHead>권한 부여</TableHead>
+                            <TableHead>API 키</TableHead>
+                            <TableHead>엔드포인트 URL</TableHead>
+                            <TableHead className="w-[100px]">작업</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {selectedResource.methods.map((method) => (
+                            <TableRow
+                              key={method.id}
+                              className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
+                            >
+                              <TableCell
+                                onClick={() => {
+                                  console.log(method)
+                                  handleMethodClick(method, selectedResource)
+                                }}
+                              >
+                                <span
+                                  className={`${getMethodStyle(method.type.toUpperCase() as HttpMethod)} font-mono text-sm px-2 py-1 rounded`}
+                                >
+                                  {method.type}
+                                </span>
+                              </TableCell>
+                              <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
+                                {method.permissions}
+                              </TableCell>
+                              <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
+                                {method.apiKey}
+                              </TableCell>
+                              <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
+                                <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                                  {method.endpointUrl}
+                                </code>
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 bg-transparent"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setMethodToDelete(method)
+                                    setIsMethodDeleteDialogOpen(true)
+                                  }}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    ) : (
+                      <div className="text-center py-12">
+                        <Shield className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-600 dark:text-gray-400 mb-2">메서드 없음</p>
+                        <p className="text-sm text-gray-500">정의된 메서드가 없습니다.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Create Resource Modal */}
+      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-scroll">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-blue-600">Resource 생성</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {/* Resource Path and Name - Side by Side */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="resource-path" className="text-sm font-medium text-gray-700 mb-2 block">
+                  리소스 경로
+                </Label>
+                <Select
+                  value={createResourceForm.path}
+                  onValueChange={(value) =>
+                    setCreateResourceForm({
+                      ...createResourceForm,
+                      path: value,
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="경로를 선택하세요" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableResourcePaths.map((path) => (
+                      <SelectItem key={path} value={path}>
+                        {path}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="resource-name" className="text-sm font-medium text-gray-700 mb-2 block">
+                  리소스 이름
+                </Label>
+                <Input
+                  id="resource-name"
+                  placeholder="my-resource"
+                  value={createResourceForm.name}
+                  onChange={(e) =>
+                    setCreateResourceForm({
+                      ...createResourceForm,
+                      name: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
+
+            {/* CORS Toggle */}
+            <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div>
+                <Label htmlFor="cors-toggle" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  원본에서 CORS
+                </Label>
+                <p className="text-xs text-gray-500 mt-1">Cross-Origin Resource Sharing을 활성화합니다</p>
+              </div>
+              <Switch
+                id="cors-toggle"
+                checked={createResourceForm.corsEnabled}
+                onCheckedChange={(checked) =>
+                  setCreateResourceForm({
+                    ...createResourceForm,
+                    corsEnabled: checked,
+                  })
+                }
+              />
+            </div>
+
+            {/* CORS Settings - Only show when CORS is enabled */}
+            {createResourceForm.corsEnabled && (
+              <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-4 space-y-4">
+                <h4 className="font-medium text-blue-900 dark:text-blue-100">CORS 설정</h4>
+
+                {/* Access-Control-Allow-Method */}
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                    Access-Control-Allow-Method
+                  </Label>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {createResourceForm.corsSettings.allowMethods.map((method) => (
+                      <Badge
+                        key={method}
+                        className={`${
+                          method === "GET"
+                            ? "bg-green-100 text-green-800 hover:bg-green-100"
+                            : method === "POST"
+                              ? "bg-blue-100 text-blue-800 hover:bg-blue-100"
+                              : method === "HEAD"
+                                ? "bg-purple-100 text-purple-800 hover:bg-purple-100"
+                                : "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                        } cursor-pointer`}
+                        onClick={() => removeCreateFormCorsMethod(method)}
+                      >
+                        {method}
+                        <X className="h-3 w-3 ml-1" />
+                      </Badge>
+                    ))}
+                  </div>
+                  <Select onValueChange={addCreateFormCorsMethod}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="메서드 추가" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {httpMethods
+                        .filter((method) => !createResourceForm.corsSettings.allowMethods.includes(method))
+                        .map((method) => (
+                          <SelectItem key={method} value={method}>
+                            {method}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Access-Control-Allow-Headers */}
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                    Access-Control-Allow-Headers
+                  </Label>
+                  <Input
+                    value={createResourceForm.corsSettings.allowHeaders}
+                    onChange={(e) =>
+                      setCreateResourceForm({
+                        ...createResourceForm,
+                        corsSettings: {
+                          ...createResourceForm.corsSettings,
+                          allowHeaders: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="content-type,x-ncp-apigw-api-key,x-ncp-apigw-timestamp"
+                  />
+                </div>
+
+                {/* Access-Control-Allow-Origin */}
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                    Access-Control-Allow-Origin
+                  </Label>
+                  <Input
+                    value={createResourceForm.corsSettings.allowOrigin}
+                    onChange={(e) =>
+                      setCreateResourceForm({
+                        ...createResourceForm,
+                        corsSettings: {
+                          ...createResourceForm.corsSettings,
+                          allowOrigin: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="*"
+                  />
+                </div>
+
+                {/* Access-Control-Expose-Headers */}
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                    Access-Control-Expose-Headers
+                  </Label>
+                  <Input
+                    value={createResourceForm.corsSettings.exposeHeaders}
+                    onChange={(e) =>
+                      setCreateResourceForm({
+                        ...createResourceForm,
+                        corsSettings: {
+                          ...createResourceForm.corsSettings,
+                          exposeHeaders: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="헤더 이름들을 쉼표로 구분"
+                  />
+                </div>
+
+                {/* Access-Control-Max-Age */}
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                    Access-Control-Max-Age
+                  </Label>
+                  <Input
+                    value={createResourceForm.corsSettings.maxAge}
+                    onChange={(e) =>
+                      setCreateResourceForm({
+                        ...createResourceForm,
+                        corsSettings: {
+                          ...createResourceForm.corsSettings,
+                          maxAge: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="86400"
+                  />
+                </div>
+
+                {/* Access-Control-Allow-Credentials */}
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Access-Control-Allow-Credentials
+                  </Label>
+                  <Switch
+                    checked={createResourceForm.corsSettings.allowCredentials}
+                    onCheckedChange={(checked) =>
+                      setCreateResourceForm({
+                        ...createResourceForm,
+                        corsSettings: {
+                          ...createResourceForm.corsSettings,
+                          allowCredentials: checked,
+                        },
+                      })
+                    }
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsCreateModalOpen(false)
+                setCreateResourceForm({
+                  path: "",
+                  name: "",
+                  corsEnabled: false,
+                  corsSettings: {
+                    allowMethods: [],
+                    allowHeaders: "",
+                    allowOrigin: "*",
+                    exposeHeaders: "",
+                    maxAge: "",
+                    allowCredentials: false,
+                  },
+                })
+              }}
+            >
+              취소
+            </Button>
+            <Button onClick={handleCreateResource} className="bg-blue-500 hover:bg-blue-600 text-white">
+              생성
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* CORS Settings Modal */}
+      <Dialog open={isCorsModalOpen} onOpenChange={setIsCorsModalOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-blue-600 flex items-center gap-2">
+              <Globe className="h-5 w-5" />
+              CORS 설정
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {/* Access-Control-Allow-Method */}
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                Access-Control-Allow-Method
+              </Label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {corsForm.allowMethods.map((method) => (
+                  <Badge
+                    key={method}
+                    className={`${
+                      method === "GET"
+                        ? "bg-green-100 text-green-800 hover:bg-green-100"
+                        : method === "POST"
+                          ? "bg-blue-100 text-blue-800 hover:bg-blue-100"
+                          : method === "HEAD"
+                            ? "bg-purple-100 text-purple-800 hover:bg-purple-100"
+                            : "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                    } cursor-pointer`}
+                    onClick={() => removeCorsMethod(method)}
+                  >
+                    {method}
+                    <X className="h-3 w-3 ml-1" />
+                  </Badge>
+                ))}
+              </div>
+              <Select onValueChange={addCorsMethod}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="메서드 추가" />
+                </SelectTrigger>
+                <SelectContent>
+                  {httpMethods
+                    .filter((method) => !corsForm.allowMethods.includes(method))
+                    .map((method) => (
+                      <SelectItem key={method} value={method}>
+                        {method}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Access-Control-Allow-Headers */}
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                Access-Control-Allow-Headers
+              </Label>
+              <Input
+                value={corsForm.allowHeaders}
+                onChange={(e) => setCorsForm({ ...corsForm, allowHeaders: e.target.value })}
+                placeholder="content-type,x-ncp-apigw-api-key,x-ncp-apigw-timestamp"
+              />
+            </div>
+
+            {/* Access-Control-Allow-Origin */}
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                Access-Control-Allow-Origin
+              </Label>
+              <Input
+                value={corsForm.allowOrigin}
+                onChange={(e) => setCorsForm({ ...corsForm, allowOrigin: e.target.value })}
+                placeholder="*"
+              />
+            </div>
+
+            {/* Access-Control-Expose-Headers */}
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                Access-Control-Expose-Headers
+              </Label>
+              <Input
+                value={corsForm.exposeHeaders}
+                onChange={(e) => setCorsForm({ ...corsForm, exposeHeaders: e.target.value })}
+                placeholder="헤더 이름들을 쉼표로 구분"
+              />
+            </div>
+
+            {/* Access-Control-Max-Age */}
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                Access-Control-Max-Age
+              </Label>
+              <Input
+                value={corsForm.maxAge}
+                onChange={(e) => setCorsForm({ ...corsForm, maxAge: e.target.value })}
+                placeholder="86400"
+              />
+            </div>
+
+            {/* Access-Control-Allow-Credentials */}
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Access-Control-Allow-Credentials
+              </Label>
+              <Switch
+                checked={corsForm.allowCredentials}
+                onChange={(checked) => setCorsForm({ ...corsForm, allowCredentials: checked })}
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setIsCorsModalOpen(false)}>
+              취소
+            </Button>
+            <Button onClick={handleCorsUpdate} className="bg-blue-500 hover:bg-blue-600 text-white">
+              저장
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Resource Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+              리소스 삭제 확인
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-600">
+              <div className="space-y-2">
+                <p className="font-semibold">⚠️ 경고: 이 작업은 되돌릴 수 없습니다!</p>
+                <p>
+                  리소스 <span className="font-mono bg-gray-100 px-2 py-1 rounded">{selectedResource.path}</span>
+                  을(를) 삭제하시겠습니까?
+                </p>
+                <p className="text-sm text-red-600">
+                  • 이 리소스와 연결된 모든 메서드가 삭제됩니다
+                  <br />• API 호출이 실패할 수 있습니다
+                  <br />• 이 작업은 즉시 적용되며 복구할 수 없습니다
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteResource} className="bg-red-600 hover:bg-red-700 text-white">
+              삭제하기
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Method Confirmation Dialog */}
+      <AlertDialog open={isMethodDeleteDialogOpen} onOpenChange={setIsMethodDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+              메서드 삭제 확인
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-600">
+              <div className="space-y-3">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <p className="font-semibold text-red-800 mb-2">🚨 위험: 이 작업은 되돌릴 수 없습니다!</p>
+                  <p className="text-red-700 text-sm">
+                    메서드{" "}
+                    <strong>
+                      {methodToDelete?.type} {methodToDelete?.resourcePath}
+                    </strong>
+                    를 영구적으로 삭제합니다.
+                  </p>
+                </div>
+                <div className="text-sm text-red-600 space-y-1">
+                  <p>
+                    ⚠️ <strong>삭제 시 발생하는 문제:</strong>
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 ml-4">
+                    <li>
+                      이 메서드를 사용하는 모든 API 호출이 <strong>즉시 실패</strong>합니다
+                    </li>
+                    <li>연결된 통합 설정과 응답 매핑이 모두 삭제됩니다</li>
+                    <li>API 배포 시 이 메서드가 완전히 제거됩니다</li>
+                    <li>클라이언트 애플리케이션에서 404 오류가 발생할 수 있습니다</li>
+                  </ul>
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteMethod} className="bg-red-600 hover:bg-red-700 text-white">
+              삭제하기
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </AppLayout>
+  )
+}
