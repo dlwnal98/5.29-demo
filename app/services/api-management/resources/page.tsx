@@ -321,6 +321,7 @@ export default function ApiResourcesPage() {
   };
 
   const handleMethodClick = (method: Method, resource: Resource) => {
+    console.log(method, resource);
     setSelectedMethod(method);
     setSelectedResource(resource);
     setActiveTab('method-request');
@@ -526,7 +527,23 @@ export default function ApiResourcesPage() {
                         style={{ paddingLeft: `10px` }} // (level + 2) * 20 + 12, level=0
                         onClick={() => {
                           console.log((methods as any)[method]);
-                          setSelectedMethod((methods as any)[method]);
+                          // OpenAPI 객체를 Method 타입으로 변환
+                          const openApiMethod = (methods as any)[method];
+                          const convertedMethod: Method = {
+                            id: `method-${path}-${method}`,
+                            type: method.toUpperCase(),
+                            permissions: openApiMethod['x-permissions'] || '-',
+                            apiKey: openApiMethod['x-apiKeyId'] || '-',
+                            resourcePath: path,
+                            endpointUrl: (mockData2.spec.servers?.[0]?.url || '') + path,
+                            summary: openApiMethod.summary || '',
+                            description: openApiMethod.description || '',
+                            parameters: openApiMethod.parameters || [],
+                            requestBody: openApiMethod.requestBody || null,
+                            responses: openApiMethod.responses || {},
+                            security: openApiMethod.security || null,
+                          };
+                          setSelectedMethod(convertedMethod);
                         }}
                       >
                         <div className="w-4" />
@@ -580,6 +597,7 @@ export default function ApiResourcesPage() {
 
         <div className="grid grid-cols-12 gap-6">
           {/* Left Sidebar - Resource Tree */}
+          {/* 리소스 목록 */}
           <div className="col-span-3">
             <div
               ref={leftSidebarRef}
@@ -746,11 +764,17 @@ export default function ApiResourcesPage() {
                                   <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                     권한 부여
                                   </Label>
+                                  <div className="mt-1 text-sm text-gray-900 dark:text-white">
+                                    {selectedMethod.security ? 'BearerAuth' : 'NONE'}
+                                  </div>
                                 </div>
                                 <div>
                                   <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                     요청 검사기
                                   </Label>
+                                  <div className="mt-1 text-sm text-gray-900 dark:text-white">
+                                    {selectedMethod.requestBody ? 'BODY' : 'PARAM'}
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -760,11 +784,17 @@ export default function ApiResourcesPage() {
                                   <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                     API 키가 필요함
                                   </Label>
+                                  <div className="mt-1 text-sm text-gray-900 dark:text-white">
+                                    {selectedMethod.apiKey !== '-' ? 'True' : 'False'}
+                                  </div>
                                 </div>
                                 <div>
                                   <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                     SDK 작업 이름
                                   </Label>
+                                  <div className="mt-1 text-sm text-gray-900 dark:text-white">
+                                    {selectedMethod.summary || '메서드 및 경로에 따라 생성됨'}
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -775,7 +805,10 @@ export default function ApiResourcesPage() {
                         <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                           <div className="flex items-center justify-between mb-4">
                             <h4 className="text-md font-semibold text-gray-900 dark:text-white">
-                              URL 쿼리 문자열 파라미터 (0)
+                              URL 쿼리 문자열 파라미터 (
+                              {selectedMethod.parameters?.filter((p) => p.in === 'query').length ||
+                                0}
+                              )
                             </h4>
                             <div className="flex items-center gap-2">
                               <ChevronLeft className="h-4 w-4 text-gray-400" />
@@ -783,15 +816,105 @@ export default function ApiResourcesPage() {
                               <ChevronRight className="h-4 w-4 text-gray-400" />
                             </div>
                           </div>
-                          <div className="text-center py-6">
-                            <p className="text-gray-500 dark:text-gray-400 mb-2">
-                              URL 쿼리 문자열 파라미터 없음
-                            </p>
-                            <p className="text-sm text-gray-400 dark:text-gray-500">
-                              정의된 URL 쿼리 문자열 파라미터가 없습니다
-                            </p>
-                          </div>
+                          {selectedMethod.parameters?.filter((p) => p.in === 'query').length ? (
+                            <div className="space-y-2">
+                              {selectedMethod.parameters
+                                .filter((param: any) => param.in === 'query')
+                                .map((param: any) => (
+                                  <div
+                                    key={param.name}
+                                    className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border"
+                                  >
+                                    <div>
+                                      <span className="font-medium">{param.name}</span>
+                                      <span className="text-sm text-gray-500 ml-2">
+                                        ({param.schema?.type || 'string'})
+                                      </span>
+                                    </div>
+                                    <div className="text-sm text-gray-500">
+                                      {param.required ? 'Required' : 'Optional'}
+                                    </div>
+                                  </div>
+                                ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-6">
+                              <p className="text-gray-500 dark:text-gray-400 mb-2">
+                                URL 쿼리 문자열 파라미터 없음
+                              </p>
+                              <p className="text-sm text-gray-400 dark:text-gray-500">
+                                정의된 URL 쿼리 문자열 파라미터가 없습니다
+                              </p>
+                            </div>
+                          )}
                         </div>
+
+                        {/* Path Parameters */}
+                        {selectedMethod.parameters?.filter((p: any) => p.in === 'path').length >
+                          0 && (
+                          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-4">
+                              <h4 className="text-md font-semibold text-gray-900 dark:text-white">
+                                경로 파라미터 (
+                                {
+                                  selectedMethod.parameters?.filter((p: any) => p.in === 'path')
+                                    .length
+                                }
+                                )
+                              </h4>
+                            </div>
+                            <div className="space-y-2">
+                              {selectedMethod.parameters
+                                .filter((param: any) => param.in === 'path')
+                                .map((param: any) => (
+                                  <div
+                                    key={param.name}
+                                    className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border"
+                                  >
+                                    <div>
+                                      <span className="font-medium">{param.name}</span>
+                                      <span className="text-sm text-gray-500 ml-2">
+                                        ({param.schema?.type || 'string'})
+                                      </span>
+                                    </div>
+                                    <div className="text-sm text-gray-500">
+                                      {param.required ? 'Required' : 'Optional'}
+                                    </div>
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Request Body */}
+                        {selectedMethod.requestBody && (
+                          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-4">
+                              <h4 className="text-md font-semibold text-gray-900 dark:text-white">
+                                요청 본문
+                              </h4>
+                            </div>
+                            <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border">
+                              <div className="space-y-2">
+                                {Object.entries(selectedMethod.requestBody.content || {}).map(
+                                  ([contentType, content]: [string, any]) => (
+                                    <div key={contentType}>
+                                      <div className="font-medium text-sm">{contentType}</div>
+                                      {content.schema && (
+                                        <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                          스키마:{' '}
+                                          {content.schema.$ref
+                                            ? content.schema.$ref.split('/').pop()
+                                            : JSON.stringify(content.schema)}
+                                        </div>
+                                      )}
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </TabsContent>
 
                       {/* Method Response Tab */}
