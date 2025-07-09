@@ -29,9 +29,10 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Search, Settings, Rocket,RefreshCw } from "lucide-react"
+import { Plus, Search, Settings, Rocket, RefreshCw } from "lucide-react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { setSelectedApiName } from "@/constants/app-layout-data"
 
 interface ApiItem {
   id: string
@@ -169,7 +170,7 @@ const mockApiExamples = `{
       }
     }
   }
-}`;
+}`
 
 export default function ApiManagementPage() {
   const [apiPlans, setApiPlans] = useState<ApiPlan[]>(mockApiPlans)
@@ -324,8 +325,6 @@ export default function ApiManagementPage() {
     return 0
   })
 
-
-
   const handleRefresh = () => {
     toast.success("API 목록이 새로고침되었습니다.")
     // Simulate refresh
@@ -428,6 +427,8 @@ export default function ApiManagementPage() {
   }
 
   const handleApiClick = (api: ApiPlan) => {
+    // API 이름을 사이드바에 설정
+    setSelectedApiName(api.name)
     // Navigate to API resource creation page
     router.push(`/services/api-management/resources?apiId=${api.planId}&apiName=${api.name}`)
   }
@@ -567,17 +568,13 @@ export default function ApiManagementPage() {
       case "example":
         return (
           <div className="space-y-4">
-           
-              <div className="border rounded-lg bg-gray-50">
-               
-                <div className="p-4">
-                  <div className="bg-white rounded border max-h-96 overflow-auto">
-                    <pre className="text-xs p-4 font-mono leading-relaxed">
-                      {mockApiExamples}
-                    </pre>
-                  </div>
+            <div className="border rounded-lg bg-gray-50">
+              <div className="p-4">
+                <div className="bg-white rounded border max-h-96 overflow-auto">
+                  <pre className="text-xs p-4 font-mono leading-relaxed">{mockApiExamples}</pre>
                 </div>
               </div>
+            </div>
           </div>
         )
 
@@ -618,7 +615,7 @@ export default function ApiManagementPage() {
                 className="pl-10"
               />
             </div>
-               <Button variant="outline" onClick={handleRefresh}>
+            <Button variant="outline" onClick={handleRefresh}>
               <RefreshCw className="h-4 w-4 " />
             </Button>
             <Button onClick={() => setIsCreateModalOpen(true)}>
@@ -734,7 +731,7 @@ export default function ApiManagementPage() {
                   <p className="text-xs text-blue-600 font-mono">{selectedPlan.planId}</p>
                 </div>
               )}
-              
+
               <div>
                 <Label htmlFor="deploy-stage" className="text-sm font-medium">
                   배포 스테이지 *

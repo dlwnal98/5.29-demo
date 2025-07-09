@@ -1,4 +1,4 @@
-import type { Project, NavItem } from '@/types';
+import type { Project, NavItem } from "@/types"
 import {
   LogOut,
   Users,
@@ -14,133 +14,145 @@ import {
   Lock,
   FolderOpen,
   Key,
-  Route,
   Layers,
-  Puzzle,
-} from 'lucide-react';
+  Globe,
+  Box,
+  Target,
+} from "lucide-react"
 
 // 사이드 바
 
 export const projectsData: Project[] = [
   {
-    slug: 'my-project',
-    name: 'my-project',
-    avatar: 'MP',
-    visibility: 'Public',
+    slug: "my-project",
+    name: "my-project",
+    avatar: "MP",
+    visibility: "Public",
     stars: 24,
     forks: 8,
-    status: 'Active',
-    lastCommit: '2 hours ago',
+    status: "Active",
+    lastCommit: "2 hours ago",
     contributors: 5,
   },
   {
-    slug: 'another-project',
-    name: 'another-project',
-    avatar: 'AP',
-    visibility: 'Private',
+    slug: "another-project",
+    name: "another-project",
+    avatar: "AP",
+    visibility: "Private",
     stars: 12,
     forks: 4,
-    status: 'Active',
-    lastCommit: '1 day ago',
+    status: "Active",
+    lastCommit: "1 day ago",
     contributors: 3,
   },
-];
+]
 
-export const navItems: NavItem[] = [
+export let selectedApiName: string | null = null
+
+export const setSelectedApiName = (name: string | null) => {
+  selectedApiName = name
+}
+
+export const getNavItems = (): NavItem[] => [
   {
     icon: BarChart3,
-    label: 'Dashboard',
-    href: '/dashboard',
+    label: "Dashboard",
+    href: "/dashboard",
     isActive: true,
   },
   {
     icon: Zap,
-    label: 'Infra Packages',
-    href: '/infra-packages',
+    label: "Infra Packages",
+    href: "/infra-packages",
     subItems: [
       {
         icon: Gateway,
-        label: 'Gateway',
-        href: '/infra-packages/gateway',
+        label: "Gateway",
+        href: "/infra-packages/gateway",
       },
       {
         icon: Cog,
-        label: 'Config',
-        href: '/infra-packages/config',
+        label: "Config",
+        href: "/infra-packages/config",
         subItems: [
           {
             icon: FolderOpen,
-            label: 'Projects',
-            href: '/infra-packages/config/projects?branch=main',
+            label: "Projects",
+            href: "/infra-packages/config/projects?branch=main",
           },
           {
             icon: Key,
-            label: 'Secret Key',
-            href: '/infra-packages/config/secret-key',
+            label: "Secret Key",
+            href: "/infra-packages/config/secret-key",
           },
         ],
       },
       {
         icon: Server,
-        label: 'Eureka',
-        href: '/infra-packages/eureka',
+        label: "Eureka",
+        href: "/infra-packages/eureka",
       },
       {
         icon: Lock,
-        label: 'Auth',
-        href: '/infra-packages/auth',
+        label: "Auth",
+        href: "/infra-packages/auth",
         subItems: [
           {
             icon: FolderOpen,
-            label: 'OAuth',
-            href: '/infra-packages/auth/ouath',
+            label: "OAuth",
+            href: "/infra-packages/auth/ouath",
           },
           {
             icon: Key,
-            label: 'Key',
-            href: '/infra-packages/auth/key',
+            label: "Key",
+            href: "/infra-packages/auth/key",
           },
         ],
       },
       {
         icon: Package,
-        label: 'Instance Module',
-        href: '/infra-packages/instance-module',
+        label: "Instance Module",
+        href: "/infra-packages/instance-module",
       },
     ],
   },
   {
-    label: 'Services',
+    label: "Services",
     icon: Server,
     subItems: [
       {
-        label: 'API Management',
-        href: '/services/api-management',
+        label: "API Management",
+        href: "/services/api-management",
         icon: Shield,
         subItems: [
           {
-            label: 'APIs',
-            href: '/services/api-management',
-            icon: Route,
+            label: selectedApiName ? `APIs: ${selectedApiName}` : "APIs",
+            href: "/services/api-management",
+            icon: Globe,
+          },
+          ...(selectedApiName
+            ? [
+                {
+                  label: "Stages",
+                  href: "/services/api-management/stages",
+                  icon: Layers,
+                },
+                {
+                  label: "Models",
+                  href: "/services/api-management/models",
+                  icon: Box,
+                },
+                { separator: true } as any,
+              ]
+            : []),
+          {
+            label: "Target Endpoints",
+            href: "/services/api-management/target-endpoints",
+            icon: Target,
           },
           {
-            label: 'Stages',
-            href: '/services/api-management/stages',
-            icon: Zap,
-          },
-          {
-            label: 'Models',
-            href: '/services/api-management/models',
-            icon: Layers,
-          },
-          {
-            label: 'Target Endpoints',
-            href: '/services/api-management/target-endpoints',
-            icon: Puzzle,
-          },
-          {
-            label: 'Keys',
-            href: '/services/api-management/api-keys',
+            label: "API Keys",
+            href: "/services/api-management/api-keys",
             icon: Key,
           },
         ],
@@ -149,30 +161,25 @@ export const navItems: NavItem[] = [
   },
   {
     icon: Users,
-    label: 'Members',
-    href: '/members',
+    label: "Members",
+    href: "/members",
   },
   {
     icon: Settings,
-    label: 'Settings',
-    href: '/settings',
+    label: "Settings",
+    href: "/settings",
   },
-];
+]
 
 export const userMenuItems = [
-  // {
-  //   icon: User,
-  //   label: "프로필",
-  //   action: "profile",
-  // },
   {
     icon: UserCog,
-    label: '계정 설정',
-    action: 'account',
+    label: "계정 설정",
+    action: "account",
   },
   {
     icon: LogOut,
-    label: '로그아웃',
-    action: 'logout',
+    label: "로그아웃",
+    action: "logout",
   },
-];
+]
