@@ -87,7 +87,7 @@ export function goToBaseProjectUrl() {
 }
 
 // 메소드 별 색상 지정
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS' | 'HEAD';
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS' | 'HEAD';
 
 export function getMethodStyle(method: HttpMethod): string {
   const base = 'text-sm font-medium px-2.5 py-0.5 rounded border';
