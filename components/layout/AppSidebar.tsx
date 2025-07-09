@@ -38,8 +38,19 @@ const SubNavButton = ({
   pathname: string
 }) => {
   const SubIcon = subItem.icon
-  const [isSubOpen, setIsSubOpen] = useState(false)
   const router = useRouter()
+  const isApiManagementPath = pathname.startsWith("/services/api-management")
+
+  // API Management는 항상 열린 상태로 유지
+  const [isSubOpen, setIsSubOpen] = useState(() => {
+    return subItem.label === "API Management" ? isApiManagementPath : false
+  })
+
+  useEffect(() => {
+    if (subItem.label === "API Management" && isApiManagementPath && !isSubOpen) {
+      setIsSubOpen(true)
+    }
+  }, [pathname, subItem.label, isApiManagementPath, isSubOpen])
 
   // separator 처리
   if (subItem.separator) {
@@ -57,10 +68,23 @@ const SubNavButton = ({
 
   const handleSubClick = () => {
     if (subItem.subItems) {
+      // API Management인 경우 API Management 경로에서는 닫지 않음
+      if (subItem.label === "API Management" && isApiManagementPath) {
+        return
+      }
       setIsSubOpen(!isSubOpen)
     } else if (subItem.href) {
       router.push(subItem.href)
     }
+  }
+
+  const handleSubOpenChange = (open: boolean) => {
+    // API Management가 API Management 경로에 있을 때는 강제로 열린 상태 유지
+    if (subItem.label === "API Management" && isApiManagementPath) {
+      setIsSubOpen(true)
+      return
+    }
+    setIsSubOpen(open)
   }
 
   const handleSubSubItemClick = (href: string) => {
@@ -69,7 +93,11 @@ const SubNavButton = ({
 
   if (subItem.subItems) {
     return (
-      <Collapsible open={isSubOpen} onOpenChange={setIsSubOpen} className="transition-all duration-100 ease-in-out">
+      <Collapsible
+        open={isSubOpen}
+        onOpenChange={handleSubOpenChange}
+        className="transition-all duration-100 ease-in-out"
+      >
         <CollapsibleTrigger asChild>
           <Button
             variant="ghost"
@@ -141,8 +169,29 @@ const SubNavButton = ({
 // NavButton 컴포넌트
 const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps) => {
   const Icon = item.icon
-  const [isOpen, setIsOpen] = useState(item.label === "Infra Packages" || item.label === "Services")
   const router = useRouter()
+  const isApiManagementPath = pathname.startsWith("/services/api-management")
+
+  // Services는 API Management 경로에서 항상 열린 상태로 유지
+  const [isOpen, setIsOpen] = useState(() => {
+    if (item.label === "Services" && isApiManagementPath) return true
+    return item.label === "Infra Packages" || item.label === "Services"
+  })
+
+  useEffect(() => {
+    if (item.label === "Services" && isApiManagementPath && !isOpen) {
+      setIsOpen(true)
+    }
+  }, [pathname, item.label, isApiManagementPath, isOpen])
+
+  // separator 처리
+  if (item.separator) {
+    return (
+      <div className="my-2">
+        <div className="h-px bg-gray-200 dark:bg-gray-700 mx-2" />
+      </div>
+    )
+  }
 
   const isActive =
     pathname === item.href ||
@@ -156,11 +205,24 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
 
   const handleClick = () => {
     if (item.subItems) {
+      // Services 메뉴가 API Management 경로에 있을 때는 토글하지 않음
+      if (item.label === "Services" && isApiManagementPath) {
+        return
+      }
       setIsOpen(!isOpen)
     } else if (item.href) {
       router.push(item.href)
     }
     onClick?.()
+  }
+
+  const handleOpenChange = (open: boolean) => {
+    // Services가 API Management 경로에 있을 때는 강제로 열린 상태 유지
+    if (item.label === "Services" && isApiManagementPath) {
+      setIsOpen(true)
+      return
+    }
+    setIsOpen(open)
   }
 
   const handleSubItemClick = (href: string) => {
@@ -170,7 +232,7 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
   if (item.subItems) {
     return (
       <TooltipProvider>
-        <Collapsible open={isOpen} onOpenChange={setIsOpen} className="transition-all duration-100 ease-in-out">
+        <Collapsible open={isOpen} onOpenChange={handleOpenChange} className="transition-all duration-100 ease-in-out">
           <Tooltip>
             <TooltipTrigger asChild>
               <CollapsibleTrigger asChild>
@@ -315,7 +377,6 @@ export function AppSidebar({ sidebarCollapsed, setSidebarCollapsed, projectSlug 
   const isProjectPage = pathname?.startsWith("/project/")
   const [navItems, setNavItems] = useState(getNavItems())
 
-  // navItems를 주기적으로 업데이트하여 selectedApiName 변경사항 반영
   useEffect(() => {
     const interval = setInterval(() => {
       setNavItems(getNavItems())
