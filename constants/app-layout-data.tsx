@@ -131,22 +131,26 @@ export const getNavItems = (): NavItem[] => [
         icon: Shield,
         subItems: [
           {
-            label: selectedApiName ? `APIs: ${selectedApiName}` : 'APIs',
-            href: selectedApiName
-              ? `/services/api-management?apiId=${selectedApiId}&apiName=${selectedApiName}`
-              : '/services/api-management',
+            label: 'APIs',
+            href: '/services/api-management',
             icon: Globe,
           },
           ...(selectedApiName
             ? [
+                { separator: true } as any,
+                {
+                  label: `API : ${selectedApiName}`,
+                  href: `/services/api-management/resources?apiId=${selectedApiId}&apiName=${selectedApiName}`,
+                  icon: Globe,
+                },
                 {
                   label: 'Stages',
-                  href: '/services/api-management/stages',
+                  href: `/services/api-management/stages?apiId=${selectedApiId}&apiName=${selectedApiName}`,
                   icon: Layers,
                 },
                 {
                   label: 'Models',
-                  href: '/services/api-management/models',
+                  href: `/services/api-management/models?apiId=${selectedApiId}&apiName=${selectedApiName}`,
                   icon: Box,
                 },
                 { separator: true } as any,

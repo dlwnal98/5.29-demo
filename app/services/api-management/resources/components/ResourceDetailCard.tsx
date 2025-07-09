@@ -111,7 +111,6 @@ export function ResourceDetailCard({
             <TableHeader className="hover:bg-white dark:hover:bg-gray-700">
               <TableRow className="hover:bg-white dark:hover:bg-gray-700">
                 <TableHead>메서드 유형</TableHead>
-                <TableHead>권한 부여</TableHead>
                 <TableHead>API 키</TableHead>
                 <TableHead>엔드포인트 URL</TableHead>
                 <TableHead className="w-[100px]">작업</TableHead>
@@ -134,9 +133,7 @@ export function ResourceDetailCard({
                       {method.type}
                     </span>
                   </TableCell>
-                  <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
-                    {method.permissions}
-                  </TableCell>
+
                   <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
                     {method.apiKey}
                   </TableCell>

@@ -64,6 +64,7 @@ import {
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { Switch } from '@/components/ui/switch';
 
 interface ApiResource {
   id: string;
@@ -239,6 +240,7 @@ export default function StagesPage() {
   const [isCreateStageModalOpen, setIsCreateStageModalOpen] = useState(false);
   const [isDeleteStageDialogOpen, setIsDeleteStageDialogOpen] = useState(false);
   const [isRevokeDeploymentDialogOpen, setIsRevokeDeploymentDialogOpen] = useState(false);
+  const [isDirectUrlInput, setIsDirectUrlInput] = useState(false);
 
   const [editForm, setEditForm] = useState({
     name: selectedStage.name,
@@ -860,6 +862,13 @@ export default function StagesPage() {
                   placeholder="스테이지 설명을 입력하세요 (선택사항)"
                   className="mt-1"
                 />
+              </div>
+              <div>
+                <Label className="text-sm text-gray-600">배포 여부</Label>
+                <div>
+                  <span className="text-xs mr-3 text-gray-600">기본값으로 설정 여부</span>
+                  <Switch checked={isDirectUrlInput} onCheckedChange={setIsDirectUrlInput} />
+                </div>
               </div>
             </div>
 

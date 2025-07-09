@@ -835,7 +835,7 @@ export default function CreateMethodPage() {
                               })
                             }
                           />
-                          <p className="text-xs text-gray-500">직접 엔드포인트 URL을 입력하세요</p>
+                          <p className="text-xs text-gray-500">직접 을 입력하세요</p>
                         </div>
                       ) : (
                         <div className="grid grid-cols-2 gap-2">
