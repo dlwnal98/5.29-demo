@@ -1,14 +1,14 @@
-"use client"
+'use client';
 
-import type React from "react"
-import { useState } from "react"
-import { AppLayout } from "@/components/layout/AppLayout"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
+import type React from 'react';
+import { useState } from 'react';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -16,9 +16,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 
 import {
   Breadcrumb,
@@ -27,68 +33,75 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Plus, Search, Settings, RefreshCw } from "lucide-react"
-import { useSearchParams, useRouter } from "next/navigation"
-import { toast } from "sonner"
-import { setSelectedApiInfo } from "@/constants/app-layout-data"
+} from '@/components/ui/breadcrumb';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Search, Settings, RefreshCw } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { setSelectedApiInfo } from '@/constants/app-layout-data';
 
 interface ApiItem {
-  id: string
-  name: string
-  description: string
-  apiId: string
-  protocol: string
-  endpointType: string
-  createdDate: string
-  selected: boolean
+  id: string;
+  name: string;
+  description: string;
+  apiId: string;
+  protocol: string;
+  endpointType: string;
+  createdDate: string;
+  selected: boolean;
 }
 
 interface ApiPlan {
-  id: string
-  name: string
-  planId: string
-  description: string
-  createdAt: string
-  status: "active" | "inactive" | "draft"
+  id: string;
+  name: string;
+  planId: string;
+  description: string;
+  createdAt: string;
+  status: 'active' | 'inactive' | 'draft';
 }
 
 const mockApiPlans: ApiPlan[] = [
   {
-    id: "1",
-    name: "User Management API",
-    planId: "plan-001",
-    description: "사용자 관리를 위한 REST API",
-    createdAt: "2024-01-15 14:44:23",
-    status: "active",
+    id: '1',
+    name: 'User Management API',
+    planId: 'plan-001',
+    description: '사용자 관리를 위한 REST API',
+    createdAt: '2024-01-15 14:44:23',
+    status: 'active',
   },
   {
-    id: "2",
-    name: "Product Catalog API",
-    planId: "plan-002",
-    description: "상품 카탈로그 조회 및 관리 API",
-    createdAt: "2024-01-20 14:44:23",
-    status: "active",
+    id: '2',
+    name: 'Product Catalog API',
+    planId: 'plan-002',
+    description: '상품 카탈로그 조회 및 관리 API',
+    createdAt: '2024-01-20 14:44:23',
+    status: 'active',
   },
   {
-    id: "3",
-    name: "Payment Processing API",
-    planId: "plan-003",
-    description: "결제 처리를 위한 보안 API",
-    createdAt: "2024-01-25 14:44:23",
-    status: "draft",
+    id: '3',
+    name: 'Payment Processing API',
+    planId: 'plan-003',
+    description: '결제 처리를 위한 보안 API',
+    createdAt: '2024-01-25 14:44:23',
+    status: 'draft',
   },
   {
-    id: "4",
-    name: "Analytics API",
-    planId: "plan-004",
-    description: "데이터 분석 및 리포팅 API",
-    createdAt: "2024-01-30 14:44:23",
-    status: "inactive",
+    id: '4',
+    name: 'Analytics API',
+    planId: 'plan-004',
+    description: '데이터 분석 및 리포팅 API',
+    createdAt: '2024-01-30 14:44:23',
+    status: 'inactive',
   },
-]
+];
 
 const mockApiExamples = `{
   "openapi": "3.0.0",
@@ -171,210 +184,107 @@ const mockApiExamples = `{
       }
     }
   }
-}`
+}`;
 
 export default function ApiManagementPage() {
-  const [apiPlans, setApiPlans] = useState<ApiPlan[]>(mockApiPlans)
-  const [isDeployModalOpen, setIsDeployModalOpen] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState<ApiPlan | null>(null)
-  const [deploymentData, setDeploymentData] = useState({
-    stage: "",
-    version: "",
-    description: "",
-    newStageName: "",
-    newStageDescription: "",
-  })
-  const [searchTerm, setSearchTerm] = useState("")
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [isModifyModalOpen, setIsModifyModalOpen] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [sortConfig, setSortConfig] = useState<{
-    key: keyof ApiItem
-    direction: "asc" | "desc"
-  } | null>(null)
+  const [apiPlans, setApiPlans] = useState<ApiPlan[]>(mockApiPlans);
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
 
   // Create API Modal State
   const [createApiForm, setCreateApiForm] = useState({
-    type: "new",
-    name: "",
-    description: "",
-    sourceApiId: "",
-    swaggerContent: "",
-    selectedExample: "",
-  })
+    type: 'new',
+    name: '',
+    description: '',
+    sourceApiId: '',
+    swaggerContent: '',
+    selectedExample: '',
+  });
 
   // Modify API Modal State
   const [modifyApiForm, setModifyApiForm] = useState({
-    type: "new",
-    name: "",
-    description: "",
-  })
+    type: 'new',
+    name: '',
+    description: '',
+  });
 
   // Swagger states
-  const [swaggerFile, setSwaggerFile] = useState<File | null>(null)
-  const [swaggerPreview, setSwaggerPreview] = useState("")
-  const [showSwaggerPreview, setShowSwaggerPreview] = useState(false)
+  const [swaggerFile, setSwaggerFile] = useState<File | null>(null);
 
   const filteredPlans = apiPlans.filter(
     (plan) =>
       plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       plan.planId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      plan.description.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
-
-  const handleDeploy = (plan: ApiPlan) => {
-    setSelectedPlan(plan)
-    setDeploymentData({
-      stage: "",
-      version: "",
-      description: "",
-      newStageName: "",
-      newStageDescription: "",
-    })
-    setIsDeployModalOpen(true)
-  }
-
-  const handleDeploySubmit = () => {
-    if (deploymentData.stage === "new") {
-      if (!deploymentData.newStageName.trim()) {
-        toast.error("새 스테이지 이름을 입력해주세요.")
-        return
-      }
-      // 새 스테이지 생성 로직
-      toast.success(
-        `새 스테이지 '${deploymentData.newStageName}'가 생성되고 ${selectedPlan?.name}이(가) 성공적으로 배포되었습니다.`,
-      )
-    } else {
-      if (!deploymentData.stage) {
-        toast.error("배포 스테이지를 선택해주세요.")
-        return
-      }
-      toast.success(`${selectedPlan?.name}이(가) ${deploymentData.stage} 스테이지에 성공적으로 배포되었습니다.`)
-    }
-
-    setIsDeployModalOpen(false)
-    setSelectedPlan(null)
-    setDeploymentData({
-      stage: "",
-      version: "",
-      description: "",
-      newStageName: "",
-      newStageDescription: "",
-    })
-  }
-
-  const handleDeployModalClose = () => {
-    setIsDeployModalOpen(false)
-    setSelectedPlan(null)
-    setDeploymentData({
-      stage: "",
-      version: "",
-      description: "",
-      newStageName: "",
-      newStageDescription: "",
-    })
-  }
+      plan.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "active":
-        return "bg-green-100 text-green-700 border-green-200"
-      case "inactive":
-        return "bg-gray-100 text-gray-700 border-gray-200"
+      case 'active':
+        return 'bg-green-100 text-green-700 border-green-200';
+      case 'inactive':
+        return 'bg-gray-100 text-gray-700 border-gray-200';
       default:
-        return "bg-gray-100 text-gray-700 border-gray-200"
+        return 'bg-gray-100 text-gray-700 border-gray-200';
     }
-  }
+  };
 
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const productId = searchParams.get("productId")
+  const router = useRouter();
 
   const [apis, setApis] = useState<ApiItem[]>([
     {
-      id: "1",
-      name: "test",
-      description: "테스트용",
-      apiId: "yrr5q5hoch",
-      protocol: "REST",
-      endpointType: "지역",
-      createdDate: "2025-05-21",
+      id: '1',
+      name: 'test',
+      description: '테스트용',
+      apiId: 'yrr5q5hoch',
+      protocol: 'REST',
+      endpointType: '지역',
+      createdDate: '2025-05-21',
       selected: false,
     },
-  ])
-
-  const handleSort = (key: keyof ApiItem) => {
-    let direction: "asc" | "desc" = "asc"
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc"
-    }
-    setSortConfig({ key, direction })
-  }
-
-  const sortedApis = [...apis].sort((a, b) => {
-    if (!sortConfig) return 0
-
-    const aValue = a[sortConfig.key]
-    const bValue = b[sortConfig.key]
-
-    if (aValue < bValue) {
-      return sortConfig.direction === "asc" ? -1 : 1
-    }
-    if (aValue > bValue) {
-      return sortConfig.direction === "asc" ? 1 : -1
-    }
-    return 0
-  })
+  ]);
 
   const handleRefresh = () => {
-    toast.success("API 목록이 새로고침되었습니다.")
+    toast.success('API 목록이 새로고침되었습니다.');
     // Simulate refresh
-    setApis([...apis])
-  }
+    setApis([...apis]);
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
+    const file = event.target.files?.[0];
     if (file) {
-      setSwaggerFile(file)
-      const reader = new FileReader()
+      setSwaggerFile(file);
+      const reader = new FileReader();
       reader.onload = (e) => {
-        const content = e.target?.result as string
-        setCreateApiForm({ ...createApiForm, swaggerContent: content })
-        setSwaggerPreview(content)
-      }
-      reader.readAsText(file)
+        const content = e.target?.result as string;
+        setCreateApiForm({ ...createApiForm, swaggerContent: content });
+      };
+      reader.readAsText(file);
     }
-  }
-
-  const handleSwaggerPreview = () => {
-    if (createApiForm.swaggerContent) {
-      setSwaggerPreview(createApiForm.swaggerContent)
-      setShowSwaggerPreview(true)
-    } else {
-      toast.error("미리보기할 내용이 없습니다.")
-    }
-  }
+  };
 
   const handleCreateApi = () => {
     if (!createApiForm.name.trim()) {
-      toast.error("API 이름을 입력해주세요.")
-      return
+      toast.error('API 이름을 입력해주세요.');
+      return;
     }
 
     // 타입별 추가 검증
-    if (createApiForm.type === "copy" && !createApiForm.sourceApiId) {
-      toast.error("복사할 API를 선택해주세요.")
-      return
+    if (createApiForm.type === 'copy' && !createApiForm.sourceApiId) {
+      toast.error('복사할 API를 선택해주세요.');
+      return;
     }
 
-    if (createApiForm.type === "swagger" && !createApiForm.swaggerContent.trim()) {
-      toast.error("Swagger 내용을 입력하거나 파일을 업로드해주세요.")
-      return
+    if (createApiForm.type === 'swagger' && !createApiForm.swaggerContent.trim()) {
+      toast.error('Swagger 내용을 입력하거나 파일을 업로드해주세요.');
+      return;
     }
 
-    if (createApiForm.type === "example" && !createApiForm.selectedExample) {
-      toast.error("API 예제를 선택해주세요.")
-      return
+    if (createApiForm.type === 'example' && !createApiForm.selectedExample) {
+      toast.error('API 예제를 선택해주세요.');
+      return;
     }
 
     const newApi: ApiItem = {
@@ -382,32 +292,30 @@ export default function ApiManagementPage() {
       name: createApiForm.name,
       description: createApiForm.description,
       apiId: Math.random().toString(36).substring(2, 12),
-      protocol: "REST",
-      endpointType: "지역",
-      createdDate: new Date().toISOString().split("T")[0],
+      protocol: 'REST',
+      endpointType: '지역',
+      createdDate: new Date().toISOString().split('T')[0],
       selected: false,
-    }
+    };
 
-    setApis([...apis, newApi])
-    setIsCreateModalOpen(false)
+    setApis([...apis, newApi]);
+    setIsCreateModalOpen(false);
     setCreateApiForm({
-      type: "new",
-      name: "",
-      description: "",
-      sourceApiId: "",
-      swaggerContent: "",
-      selectedExample: "",
-    })
-    setSwaggerFile(null)
-    setSwaggerPreview("")
-    setShowSwaggerPreview(false)
-    toast.success(`API '${newApi.name}'이(가) 생성되었습니다.`)
-  }
+      type: 'new',
+      name: '',
+      description: '',
+      sourceApiId: '',
+      swaggerContent: '',
+      selectedExample: '',
+    });
+    setSwaggerFile(null);
+    toast.success(`API '${newApi.name}'이(가) 생성되었습니다.`);
+  };
 
   const handleModifyApi = () => {
     if (!modifyApiForm.name.trim()) {
-      toast.error("API 이름을 입력해주세요.")
-      return
+      toast.error('API 이름을 입력해주세요.');
+      return;
     }
 
     const newApi: ApiItem = {
@@ -415,28 +323,28 @@ export default function ApiManagementPage() {
       name: modifyApiForm.name,
       description: modifyApiForm.description,
       apiId: Math.random().toString(36).substring(2, 12),
-      protocol: "REST",
-      endpointType: "지역",
-      createdDate: new Date().toISOString().split("T")[0],
+      protocol: 'REST',
+      endpointType: '지역',
+      createdDate: new Date().toISOString().split('T')[0],
       selected: false,
-    }
+    };
 
-    setApis([...apis, newApi])
-    setIsModifyModalOpen(false)
-    setModifyApiForm({ type: "new", name: "", description: "" })
-    toast.success(`API '${newApi.name}'이(가) 수정되었습니다.`)
-  }
+    setApis([...apis, newApi]);
+    setIsModifyModalOpen(false);
+    setModifyApiForm({ type: 'new', name: '', description: '' });
+    toast.success(`API '${newApi.name}'이(가) 수정되었습니다.`);
+  };
 
   const handleApiClick = (api: ApiPlan) => {
     // API 정보를 localStorage에 저장하고 사이드바에 설정
-    setSelectedApiInfo(api.name, api.planId)
+    setSelectedApiInfo(api.name, api.planId);
     // Navigate to API resource creation page
-    router.push(`/services/api-management/resources?apiId=${api.planId}&apiName=${api.name}`)
-  }
+    router.push(`/services/api-management/resources?apiId=${api.planId}&apiName=${api.name}`);
+  };
 
   const renderCreateApiContent = () => {
     switch (createApiForm.type) {
-      case "copy":
+      case 'copy':
         return (
           <div className="space-y-4">
             <div>
@@ -445,7 +353,9 @@ export default function ApiManagementPage() {
               </Label>
               <Select
                 value={createApiForm.sourceApiId}
-                onValueChange={(value) => setCreateApiForm({ ...createApiForm, sourceApiId: value })}
+                onValueChange={(value) =>
+                  setCreateApiForm({ ...createApiForm, sourceApiId: value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="복사할 API를 선택하세요" />
@@ -463,9 +373,9 @@ export default function ApiManagementPage() {
               </Select>
             </div>
           </div>
-        )
+        );
 
-      case "swagger":
+      case 'swagger':
         return (
           <div className="space-y-4">
             <Tabs defaultValue="swagger" className="w-full">
@@ -475,59 +385,28 @@ export default function ApiManagementPage() {
               </TabsList>
 
               <TabsContent value="swagger" className="space-y-4">
-                {/* File Upload Area */}
-                <div className="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center bg-blue-50">
-                  <div className="space-y-3">
-                    <div className="text-blue-600 text-lg">+</div>
-                    <p className="text-gray-600">Drop files here or click to upload.</p>
-                    <input
-                      type="file"
-                      accept=".json,.yaml,.yml"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                      id="swagger-upload"
-                    />
-                    <label
-                      htmlFor="swagger-upload"
-                      className="inline-block cursor-pointer text-blue-600 hover:text-blue-700"
-                    >
-                      파일 선택
-                    </label>
-                  </div>
+                <input
+                  type="file"
+                  accept=".json,.yaml,.yml"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="swagger-upload"
+                />
+                <label
+                  htmlFor="swagger-upload"
+                  className="block cursor-pointer text-blue-600 hover:text-blue-700 border-2 border-dashed border-blue-300 rounded-lg p-8 text-center bg-blue-50 hover:cursor-pointer space-y-3"
+                >
+                  <p className="text-gray-600">Drop files here or click to upload.</p>
                   {swaggerFile && (
-                    <p className="mt-3 text-sm text-green-600 font-medium">선택된 파일: {swaggerFile.name}</p>
+                    <p className="mt-3 text-sm text-green-600 font-medium">
+                      선택된 파일: {swaggerFile.name}
+                    </p>
                   )}
-                </div>
-
-                {/* Warning Options */}
-                <div className="space-y-3">
-                  <RadioGroup defaultValue="ignore" className="flex space-x-6">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="fail" id="warning-fail" />
-                      <Label htmlFor="warning-fail" className="text-sm">
-                        경고 실패
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="ignore" id="warning-ignore" />
-                      <Label htmlFor="warning-ignore" className="text-sm">
-                        경고 무시
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </div>
+                </label>
 
                 {/* Text Input Area */}
                 <div className="grid grid-cols-4 gap-4">
-                  <div className="col-span-1">
-                    <Textarea
-                      placeholder="1"
-                      className="min-h-[300px] font-mono text-sm resize-none bg-gray-50"
-                      readOnly
-                      value="1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20"
-                    />
-                  </div>
-                  <div className="col-span-3">
+                  <div className="col-span-4">
                     <Textarea
                       placeholder="Swagger JSON 또는 YAML 내용을 입력하세요..."
                       value={createApiForm.swaggerContent}
@@ -564,9 +443,9 @@ export default function ApiManagementPage() {
               </TabsContent>
             </Tabs>
           </div>
-        )
+        );
 
-      case "example":
+      case 'example':
         return (
           <div className="space-y-4">
             <div className="border rounded-lg bg-gray-50">
@@ -577,12 +456,12 @@ export default function ApiManagementPage() {
               </div>
             </div>
           </div>
-        )
+        );
 
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
     <AppLayout>
@@ -591,7 +470,7 @@ export default function ApiManagementPage() {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/services">Services</BreadcrumbLink>
+              <BreadcrumbLink href="/services/api-management">Services</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -647,7 +526,10 @@ export default function ApiManagementPage() {
                     <TableRow key={plan.id}>
                       <TableCell>
                         <div className="flex items-center space-x-2">
-                          <span className="font-medium hover:cursor-pointer" onClick={() => handleApiClick(plan)}>
+                          <span
+                            className="font-medium hover:cursor-pointer"
+                            onClick={() => handleApiClick(plan)}
+                          >
                             {plan.name}
                           </span>
                         </div>
@@ -668,7 +550,11 @@ export default function ApiManagementPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end space-x-2">
-                          <Button variant="outline" size="sm" onClick={() => setIsModifyModalOpen(true)}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setIsModifyModalOpen(true)}
+                          >
                             <Settings className="h-4 w-4" />
                           </Button>
                         </div>
@@ -691,30 +577,31 @@ export default function ApiManagementPage() {
         <div className="flex justify-center mt-6">
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" disabled>
-              {"<<"}
+              {'<<'}
             </Button>
             <Button variant="outline" size="sm" disabled>
-              {"<"}
+              {'<'}
             </Button>
             <Button size="sm" className="bg-blue-600 text-white">
               1
             </Button>
             <Button variant="outline" size="sm" disabled>
-              {">"}
+              {'>'}
             </Button>
             <Button variant="outline" size="sm" disabled>
-              {">>"}
+              {'>>'}
             </Button>
           </div>
         </div>
 
         {/* Create API Modal */}
         <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-          <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+          <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto overflow-x-hidden">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-blue-600">API Plan 생성</DialogTitle>
               <DialogDescription className="text-gray-600">
-                API는 4가지 방법으로 생성할 수 있습니다. (<span className="text-red-500">*</span> 필수 입력 사항입니다.)
+                API는 4가지 방법으로 생성할 수 있습니다. (<span className="text-red-500">*</span>{' '}
+                필수 입력 사항입니다.)
               </DialogDescription>
             </DialogHeader>
 
@@ -731,25 +618,28 @@ export default function ApiManagementPage() {
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="new" id="new" />
-                    <Label htmlFor="new" className="text-sm font-medium text-blue-600">
+                    <Label
+                      htmlFor="new"
+                      className="text-sm font-medium text-blue-600 hover:cursor-pointer"
+                    >
                       새로운 API
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="copy" id="copy" />
-                    <Label htmlFor="copy" className="text-sm">
+                    <Label htmlFor="copy" className="text-sm hover:cursor-pointer">
                       API 복사
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="swagger" id="swagger" />
-                    <Label htmlFor="swagger" className="text-sm">
+                    <Label htmlFor="swagger" className="text-sm hover:cursor-pointer">
                       Swagger에서 가져오기
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="example" id="example" />
-                    <Label htmlFor="example" className="text-sm">
+                    <Label htmlFor="example" className="text-sm hover:cursor-pointer">
                       API 예제
                     </Label>
                   </div>
@@ -772,7 +662,10 @@ export default function ApiManagementPage() {
 
               {/* Description */}
               <div>
-                <Label htmlFor="description" className="text-sm font-medium text-gray-700 mb-2 block">
+                <Label
+                  htmlFor="description"
+                  className="text-sm font-medium text-gray-700 mb-2 block"
+                >
                   설명
                 </Label>
                 <Textarea
@@ -788,7 +681,9 @@ export default function ApiManagementPage() {
                   className="w-full min-h-[100px] resize-none"
                   maxLength={300}
                 />
-                <div className="text-right text-sm text-gray-500 mt-1">{createApiForm.description.length}/300 자</div>
+                <div className="text-right text-sm text-gray-500 mt-1">
+                  {createApiForm.description.length}/300 자
+                </div>
               </div>
 
               {/* Type-specific content */}
@@ -799,23 +694,24 @@ export default function ApiManagementPage() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  setIsCreateModalOpen(false)
+                  setIsCreateModalOpen(false);
                   setCreateApiForm({
-                    type: "new",
-                    name: "",
-                    description: "",
-                    sourceApiId: "",
-                    swaggerContent: "",
-                    selectedExample: "",
-                  })
-                  setSwaggerFile(null)
-                  setSwaggerPreview("")
-                  setShowSwaggerPreview(false)
+                    type: 'new',
+                    name: '',
+                    description: '',
+                    sourceApiId: '',
+                    swaggerContent: '',
+                    selectedExample: '',
+                  });
+                  setSwaggerFile(null);
                 }}
               >
                 취소
               </Button>
-              <Button onClick={handleCreateApi} className="bg-blue-500 hover:bg-blue-600 text-white">
+              <Button
+                onClick={handleCreateApi}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              >
                 API 생성
               </Button>
             </DialogFooter>
@@ -846,7 +742,10 @@ export default function ApiManagementPage() {
 
               {/* Description */}
               <div>
-                <Label htmlFor="description" className="text-sm font-medium text-gray-700 mb-2 block">
+                <Label
+                  htmlFor="description"
+                  className="text-sm font-medium text-gray-700 mb-2 block"
+                >
                   설명
                 </Label>
                 <Textarea
@@ -862,7 +761,9 @@ export default function ApiManagementPage() {
                   className="w-full min-h-[100px] resize-none"
                   maxLength={300}
                 />
-                <div className="text-right text-sm text-gray-500 mt-1">{modifyApiForm.description.length}/300 자</div>
+                <div className="text-right text-sm text-gray-500 mt-1">
+                  {modifyApiForm.description.length}/300 자
+                </div>
               </div>
             </div>
 
@@ -870,13 +771,16 @@ export default function ApiManagementPage() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  setIsModifyModalOpen(false)
-                  setModifyApiForm({ type: "new", name: "", description: "" })
+                  setIsModifyModalOpen(false);
+                  setModifyApiForm({ type: 'new', name: '', description: '' });
                 }}
               >
                 취소
               </Button>
-              <Button onClick={handleModifyApi} className="bg-blue-500 hover:bg-blue-600 text-white">
+              <Button
+                onClick={handleModifyApi}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              >
                 수정
               </Button>
             </DialogFooter>
@@ -884,5 +788,5 @@ export default function ApiManagementPage() {
         </Dialog>
       </div>
     </AppLayout>
-  )
+  );
 }
