@@ -58,6 +58,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { Suspense } from 'react';
+import { AppSidebar } from '@/components/layout/AppSidebar';
 
 export default function ApiResourcesPage() {
   const router = useRouter();

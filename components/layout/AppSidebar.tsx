@@ -1,9 +1,9 @@
-"use client"
+'use client';
 
-import { ThemeToggle, CollapseThemeToggle } from "../theme-toggle"
-import { Avatar } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { ThemeToggle, CollapseThemeToggle } from '../theme-toggle';
+import { Avatar } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,8 +11,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Settings } from "lucide-react"
+} from '@/components/ui/dropdown-menu';
+import { Settings } from 'lucide-react';
 import {
   projectsData,
   getNavItems,
@@ -20,18 +20,19 @@ import {
   clearSelectedApiInfo,
   setSelectedApiInfo,
   selectedApiName,
-} from "@/constants/app-layout-data"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useState, type Dispatch, type SetStateAction, useEffect } from "react"
-import type { NavButtonProps, SubNavItem } from "@/types"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { ChevronDown, ChevronRight } from "lucide-react"
+} from '@/constants/app-layout-data';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useState, type Dispatch, type SetStateAction, useEffect } from 'react';
+import type { NavButtonProps, SubNavItem } from '@/types';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronDown, ChevronRight } from 'lucide-react';
+import { Suspense } from 'react';
 
 interface AppSidebarProps {
-  sidebarCollapsed: boolean
-  setSidebarCollapsed: Dispatch<SetStateAction<boolean>>
-  projectSlug?: string
+  sidebarCollapsed: boolean;
+  setSidebarCollapsed: Dispatch<SetStateAction<boolean>>;
+  projectSlug?: string;
 }
 
 // SubNavButton 컴포넌트 - 2단계 서브메뉴용
@@ -40,37 +41,37 @@ const SubNavButton = ({
   sidebarCollapsed,
   pathname,
 }: {
-  subItem: SubNavItem
-  sidebarCollapsed: boolean
-  pathname: string
+  subItem: SubNavItem;
+  sidebarCollapsed: boolean;
+  pathname: string;
 }) => {
-  const SubIcon = subItem.icon
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const isApiManagementPath = pathname.startsWith("/services/api-management")
+  const SubIcon = subItem.icon;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const isApiManagementPath = pathname.startsWith('/services/api-management');
 
   // API Management는 항상 열린 상태로 유지
   const [isSubOpen, setIsSubOpen] = useState(() => {
-    return subItem.label === "API Management" ? isApiManagementPath : false
-  })
+    return subItem.label === 'API Management' ? isApiManagementPath : false;
+  });
 
   useEffect(() => {
-    if (subItem.label === "API Management" && isApiManagementPath && !isSubOpen) {
-      setIsSubOpen(true)
+    if (subItem.label === 'API Management' && isApiManagementPath && !isSubOpen) {
+      setIsSubOpen(true);
     }
-  }, [pathname, subItem.label, isApiManagementPath, isSubOpen])
+  }, [pathname, subItem.label, isApiManagementPath, isSubOpen]);
 
   // URL에서 API 정보 복원
   useEffect(() => {
     if (isApiManagementPath && !selectedApiName) {
-      const apiId = searchParams.get("apiId")
-      const apiName = searchParams.get("apiName")
+      const apiId = searchParams.get('apiId');
+      const apiName = searchParams.get('apiName');
 
       if (apiId && apiName) {
-        setSelectedApiInfo(apiName, apiId)
+        setSelectedApiInfo(apiName, apiId);
       }
     }
-  }, [pathname, searchParams, isApiManagementPath])
+  }, [pathname, searchParams, isApiManagementPath]);
 
   // separator 처리
   if (subItem.separator) {
@@ -78,43 +79,43 @@ const SubNavButton = ({
       <div className="my-2">
         <div className="h-px bg-gray-200 dark:bg-gray-700 mx-2" />
       </div>
-    )
+    );
   }
 
   const isSubActive =
     pathname === subItem.href ||
-    pathname.includes(subItem.href ?? "") ||
-    (subItem.subItems && subItem.subItems.some((subSubItem) => pathname === subSubItem.href))
+    pathname.includes(subItem.href ?? '') ||
+    (subItem.subItems && subItem.subItems.some((subSubItem) => pathname === subSubItem.href));
 
   const handleSubClick = () => {
     if (subItem.subItems) {
       // API Management인 경우 API Management 경로에서는 닫지 않음
-      if (subItem.label === "API Management" && isApiManagementPath) {
-        return
+      if (subItem.label === 'API Management' && isApiManagementPath) {
+        return;
       }
 
-      setIsSubOpen(!isSubOpen)
+      setIsSubOpen(!isSubOpen);
     } else if (subItem.href) {
-      router.push(subItem.href)
+      router.push(subItem.href);
     }
-  }
+  };
 
   const handleSubOpenChange = (open: boolean) => {
     // API Management가 API Management 경로에 있을 때는 강제로 열린 상태 유지
-    if (subItem.label === "API Management" && isApiManagementPath) {
-      setIsSubOpen(true)
-      return
+    if (subItem.label === 'API Management' && isApiManagementPath) {
+      setIsSubOpen(true);
+      return;
     }
-    setIsSubOpen(open)
-  }
+    setIsSubOpen(open);
+  };
 
   const handleSubSubItemClick = (label: string, href: string) => {
-    if (label === "APIs") {
+    if (label === 'APIs') {
       // APIs 메뉴를 클릭했을 때만 API 정보 초기화
-      clearSelectedApiInfo()
+      clearSelectedApiInfo();
     }
-    router.push(href)
-  }
+    router.push(href);
+  };
 
   if (subItem.subItems) {
     return (
@@ -128,13 +129,17 @@ const SubNavButton = ({
             variant="ghost"
             size="sm"
             className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-1 ${
-              isSubActive ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" : ""
+              isSubActive ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : ''
             }`}
             onClick={handleSubClick}
           >
             <span className="ml-2 text-sm flex-1 text-left">{subItem.label}</span>
             <div className="flex items-center space-x-1">
-              {isSubOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+              {isSubOpen ? (
+                <ChevronDown className="h-3 w-3" />
+              ) : (
+                <ChevronRight className="h-3 w-3" />
+              )}
             </div>
           </Button>
         </CollapsibleTrigger>
@@ -147,64 +152,68 @@ const SubNavButton = ({
                   <div key={`separator-${index}`} className="my-2">
                     <div className="h-px bg-gray-200 dark:bg-gray-700 mx-2" />
                   </div>
-                )
+                );
               }
 
-              const SubSubIcon = subSubItem.icon
-              const normalizePath = (path: string) => path.replace(/\/$/, "").split("?")[0]
+              const SubSubIcon = subSubItem.icon;
+              const normalizePath = (path: string) => path.replace(/\/$/, '').split('?')[0];
 
-              const isSubSubActive = normalizePath(pathname) === normalizePath(subSubItem.href!)
+              const isSubSubActive = normalizePath(pathname) === normalizePath(subSubItem.href!);
               return (
                 <Button
                   key={subSubItem.href || `item-${index}`}
                   variant="ghost"
                   size="sm"
                   className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-2 ${
-                    isSubSubActive ? "bg-blue-50 dark:bg-blue-800 text-blue-600 dark:text-blue-400" : ""
+                    isSubSubActive
+                      ? 'bg-blue-50 dark:bg-blue-800 text-blue-600 dark:text-blue-400'
+                      : ''
                   }`}
                   onClick={() => handleSubSubItemClick(subSubItem.label, subSubItem.href!)}
                 >
                   <span className="ml-2 text-xs">{subSubItem.label}</span>
                 </Button>
-              )
+              );
             })}
           </div>
         </CollapsibleContent>
       </Collapsible>
-    )
+    );
   }
 
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-1 ${
-        isSubActive ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300" : ""
-      }`}
-      onClick={handleSubClick}
-    >
-      <span className="ml-2 text-sm">{subItem.label}</span>
-    </Button>
-  )
-}
+    <Suspense fallback={<div>Loading...</div>}>
+      <Button
+        variant="ghost"
+        size="sm"
+        className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-1 ${
+          isSubActive ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : ''
+        }`}
+        onClick={handleSubClick}
+      >
+        <span className="ml-2 text-sm">{subItem.label}</span>
+      </Button>
+    </Suspense>
+  );
+};
 
 // NavButton 컴포넌트
 const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps) => {
-  const Icon = item.icon
-  const router = useRouter()
-  const isApiManagementPath = pathname.startsWith("/services/api-management")
+  const Icon = item.icon;
+  const router = useRouter();
+  const isApiManagementPath = pathname.startsWith('/services/api-management');
 
   // Services는 API Management 경로에서 항상 열린 상태로 유지
   const [isOpen, setIsOpen] = useState(() => {
-    if (item.label === "Services" && isApiManagementPath) return true
-    return item.label === "Infra Packages" || item.label === "Services"
-  })
+    if (item.label === 'Services' && isApiManagementPath) return true;
+    return item.label === 'Infra Packages' || item.label === 'Services';
+  });
 
   useEffect(() => {
-    if (item.label === "Services" && isApiManagementPath && !isOpen) {
-      setIsOpen(true)
+    if (item.label === 'Services' && isApiManagementPath && !isOpen) {
+      setIsOpen(true);
     }
-  }, [pathname, item.label, isApiManagementPath, isOpen])
+  }, [pathname, item.label, isApiManagementPath, isOpen]);
 
   // separator 처리
   if (item.separator) {
@@ -212,60 +221,64 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
       <div className="my-2">
         <div className="h-px bg-gray-200 dark:bg-gray-700 mx-2" />
       </div>
-    )
+    );
   }
 
   const isActive =
     pathname === item.href ||
-    pathname.includes(item.href ?? "string") ||
+    pathname.includes(item.href ?? 'string') ||
     (item.subItems &&
       item.subItems.some(
         (subItem) =>
           pathname === subItem.href ||
-          (subItem.subItems && subItem.subItems.some((subSubItem) => pathname === subSubItem.href)),
-      ))
+          (subItem.subItems && subItem.subItems.some((subSubItem) => pathname === subSubItem.href))
+      ));
 
   const handleClick = () => {
     if (item.subItems) {
       // Services 메뉴가 API Management 경로에 있을 때는 토글하지 않음
-      if (item.label === "Services" && isApiManagementPath) {
-        return
+      if (item.label === 'Services' && isApiManagementPath) {
+        return;
       }
-      setIsOpen(!isOpen)
+      setIsOpen(!isOpen);
     } else if (item.href) {
-      router.push(item.href)
+      router.push(item.href);
     }
-    onClick?.()
-  }
+    onClick?.();
+  };
 
   const handleOpenChange = (open: boolean) => {
     // Services가 API Management 경로에 있을 때는 강제로 열린 상태 유지
-    if (item.label === "Services" && isApiManagementPath) {
-      setIsOpen(true)
-      return
+    if (item.label === 'Services' && isApiManagementPath) {
+      setIsOpen(true);
+      return;
     }
-    setIsOpen(open)
-  }
+    setIsOpen(open);
+  };
 
   const handleSubItemClick = (href: string) => {
-    router.push(href)
-  }
+    router.push(href);
+  };
 
   if (item.subItems) {
     return (
       <TooltipProvider>
-        <Collapsible open={isOpen} onOpenChange={handleOpenChange} className="transition-all duration-100 ease-in-out">
+        <Collapsible
+          open={isOpen}
+          onOpenChange={handleOpenChange}
+          className="transition-all duration-100 ease-in-out"
+        >
           <Tooltip>
             <TooltipTrigger asChild>
               <CollapsibleTrigger asChild>
                 <Button
                   variant="ghost"
                   className={`w-full ${
-                    sidebarCollapsed ? "justify-center px-2" : "justify-start"
+                    sidebarCollapsed ? 'justify-center px-2' : 'justify-start'
                   } hover:bg-blue-50 dark:hover:bg-gray-800 ${
                     isActive
-                      ? "bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 text-blue-700 dark:text-blue-300 border-l-4 border-blue-600"
-                      : ""
+                      ? 'bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 text-blue-700 dark:text-blue-300 border-l-4 border-blue-600'
+                      : ''
                   }`}
                   size="sm"
                   onClick={handleClick}
@@ -275,7 +288,11 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
                     <>
                       <span className="ml-2 flex-1 text-left">{item.label}</span>
                       <div className="flex items-center space-x-1">
-                        {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        {isOpen ? (
+                          <ChevronDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4" />
+                        )}
                       </div>
                     </>
                   )}
@@ -293,10 +310,10 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
                           <div key={`separator-${index}`} className="my-1">
                             <div className="h-px bg-gray-200 dark:bg-gray-700 mx-2" />
                           </div>
-                        )
+                        );
                       }
 
-                      const SubIcon = subItem.icon
+                      const SubIcon = subItem.icon;
                       return (
                         <div key={subItem.label || `item-${index}`}>
                           {subItem.subItems ? (
@@ -313,10 +330,10 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
                                       <div key={`sub-separator-${subIndex}`} className="my-1">
                                         <div className="h-px bg-gray-200 dark:bg-gray-700 mx-2" />
                                       </div>
-                                    )
+                                    );
                                   }
 
-                                  const SubSubIcon = subSubItem.icon
+                                  const SubSubIcon = subSubItem.icon;
                                   return (
                                     <button
                                       key={subSubItem.href || `sub-item-${subIndex}`}
@@ -326,7 +343,7 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
                                       <SubSubIcon className="h-3 w-3" />
                                       <span>{subSubItem.label}</span>
                                     </button>
-                                  )
+                                  );
                                 })}
                               </div>
                             </div>
@@ -340,7 +357,7 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
                             </button>
                           )}
                         </div>
-                      )
+                      );
                     })}
                   </div>
                 </div>
@@ -363,7 +380,7 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
           )}
         </Collapsible>
       </TooltipProvider>
-    )
+    );
   }
 
   return (
@@ -373,11 +390,11 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
           <Button
             variant="ghost"
             className={`w-full ${
-              sidebarCollapsed ? "justify-center px-2" : "justify-start"
+              sidebarCollapsed ? 'justify-center px-2' : 'justify-start'
             } hover:bg-blue-50 dark:hover:bg-gray-800 ${
               isActive
-                ? "bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 text-blue-700 dark:text-blue-300 border-l-4 border-blue-600"
-                : ""
+                ? 'bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 text-blue-700 dark:text-blue-300 border-l-4 border-blue-600'
+                : ''
             }`}
             size="sm"
             onClick={handleClick}
@@ -389,47 +406,51 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
         {sidebarCollapsed && <TooltipContent side="right">{item.label}</TooltipContent>}
       </Tooltip>
     </TooltipProvider>
-  )
-}
+  );
+};
 
-export function AppSidebar({ sidebarCollapsed, setSidebarCollapsed, projectSlug }: AppSidebarProps) {
-  const pathname = usePathname()
-  const router = useRouter()
-  const currentProject = projectSlug ? projectsData.find((p) => p.slug === projectSlug) : null
-  const isProjectPage = pathname?.startsWith("/project/")
-  const [navItems, setNavItems] = useState(getNavItems())
+export function AppSidebar({
+  sidebarCollapsed,
+  setSidebarCollapsed,
+  projectSlug,
+}: AppSidebarProps) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const currentProject = projectSlug ? projectsData.find((p) => p.slug === projectSlug) : null;
+  const isProjectPage = pathname?.startsWith('/project/');
+  const [navItems, setNavItems] = useState(getNavItems());
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setNavItems(getNavItems())
-    }, 100)
+      setNavItems(getNavItems());
+    }, 100);
 
-    return () => clearInterval(interval)
-  }, [])
+    return () => clearInterval(interval);
+  }, []);
 
   const handleUserMenuClick = (action: string) => {
     switch (action) {
-      case "profile":
-        router.push("/profile")
-        break
-      case "account":
-        router.push("/settings/account")
-        break
-      case "settings":
-        router.push("/settings")
-        break
-      case "logout":
-        router.push("/login")
-        break
+      case 'profile':
+        router.push('/profile');
+        break;
+      case 'account':
+        router.push('/settings/account');
+        break;
+      case 'settings':
+        router.push('/settings');
+        break;
+      case 'logout':
+        router.push('/login');
+        break;
       default:
-        break
+        break;
     }
-  }
+  };
 
   return (
     <aside
       className={`fixed top-14 z-40 h-[calc(100vh-3.5rem)] border-r border-blue-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60 transition-all duration-500 ease-in-out transform ${
-        sidebarCollapsed ? "w-16" : "w-[250px]"
+        sidebarCollapsed ? 'w-16' : 'w-[250px]'
       }`}
     >
       <div className="flex h-full flex-col">
@@ -445,9 +466,9 @@ export function AppSidebar({ sidebarCollapsed, setSidebarCollapsed, projectSlug 
                   <Badge
                     variant="secondary"
                     className={`text-xs ${
-                      currentProject.visibility === "Public"
-                        ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-                        : "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300"
+                      currentProject.visibility === 'Public'
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                        : 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300'
                     }`}
                   >
                     {currentProject.visibility}
@@ -461,7 +482,12 @@ export function AppSidebar({ sidebarCollapsed, setSidebarCollapsed, projectSlug 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-2 space-y-1">
           {navItems.map((item) => (
-            <NavButton key={item.label} item={item} sidebarCollapsed={sidebarCollapsed} pathname={pathname} />
+            <NavButton
+              key={item.label}
+              item={item}
+              sidebarCollapsed={sidebarCollapsed}
+              pathname={pathname}
+            />
           ))}
         </nav>
 
@@ -497,7 +523,10 @@ export function AppSidebar({ sidebarCollapsed, setSidebarCollapsed, projectSlug 
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {userMenuItems.map((item) => (
-                      <DropdownMenuItem key={item.action} onClick={() => handleUserMenuClick(item.action)}>
+                      <DropdownMenuItem
+                        key={item.action}
+                        onClick={() => handleUserMenuClick(item.action)}
+                      >
                         {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                         <span>{item.label}</span>
                       </DropdownMenuItem>
@@ -528,7 +557,10 @@ export function AppSidebar({ sidebarCollapsed, setSidebarCollapsed, projectSlug 
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {userMenuItems.map((item) => (
-                      <DropdownMenuItem key={item.action} onClick={() => handleUserMenuClick(item.action)}>
+                      <DropdownMenuItem
+                        key={item.action}
+                        onClick={() => handleUserMenuClick(item.action)}
+                      >
                         {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                         <span>{item.label}</span>
                       </DropdownMenuItem>
@@ -552,5 +584,5 @@ export function AppSidebar({ sidebarCollapsed, setSidebarCollapsed, projectSlug 
         )}
       </div>
     </aside>
-  )
+  );
 }

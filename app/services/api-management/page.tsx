@@ -47,6 +47,7 @@ import { Plus, Search, Settings, RefreshCw, Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { setSelectedApiInfo } from '@/constants/app-layout-data';
+import { Suspense } from 'react';
 
 interface ApiItem {
   id: string;
@@ -518,329 +519,337 @@ export default function ApiManagementPage() {
   };
 
   return (
-    <AppLayout>
-      <div className="space-y-6 container px-4 py-6">
-        {/* Breadcrumb */}
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/services/api-management">Services</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>API Management</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+    <Suspense fallback={<div>Loading...</div>}>
+      <AppLayout>
+        <div className="space-y-6 container px-4 py-6">
+          {/* Breadcrumb */}
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/services/api-management">Services</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>API Management</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
 
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">APIs</h1>
-            <p className="text-gray-600 mt-1">API 계획을 관리하고 배포하세요.</p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="API Plan 검색..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">APIs</h1>
+              <p className="text-gray-600 mt-1">API 계획을 관리하고 배포하세요.</p>
             </div>
-            <Button variant="outline" onClick={handleRefresh}>
-              <RefreshCw className="h-4 w-4 " />
-            </Button>
-            <Button onClick={() => setIsCreateModalOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              API Plan 생성
-            </Button>
+            <div className="flex items-center space-x-2">
+              <div className="relative w-64">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="API Plan 검색..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Button variant="outline" onClick={handleRefresh}>
+                <RefreshCw className="h-4 w-4 " />
+              </Button>
+              <Button onClick={() => setIsCreateModalOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                API Plan 생성
+              </Button>
+            </div>
           </div>
-        </div>
 
-        {/* API Plans List */}
-        <Card>
-          <div className="pt-6"></div>
-          <CardContent>
-            <Table>
-              <TableHeader className="hover:bg-white">
-                <TableRow className="hover:bg-white">
-                  <TableHead>이름</TableHead>
-                  <TableHead>Plan ID</TableHead>
-                  <TableHead>설명</TableHead>
-                  <TableHead>배포 상태</TableHead>
-                  <TableHead>생성일</TableHead>
-                  <TableHead className="text-right">작업</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredPlans.length > 0 ? (
-                  filteredPlans.map((plan) => (
-                    <TableRow key={plan.id}>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <span
-                            className="font-medium hover:cursor-pointer"
-                            onClick={() => handleApiClick(plan)}
-                          >
-                            {plan.name}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-mono text-sm">{plan.planId}</TableCell>
-                      <TableCell className="max-w-xs truncate">{plan.description}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Badge variant="outline" className={getStatusColor(plan.status)}>
-                            {plan.status}
-                          </Badge>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <span>{plan.createdAt}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center justify-end space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setIsModifyModalOpen(true)}
-                          >
-                            <Settings className="h-4 w-4" />
-                          </Button>
-                        </div>
+          {/* API Plans List */}
+          <Card>
+            <div className="pt-6"></div>
+            <CardContent>
+              <Table>
+                <TableHeader className="hover:bg-white">
+                  <TableRow className="hover:bg-white">
+                    <TableHead>이름</TableHead>
+                    <TableHead>Plan ID</TableHead>
+                    <TableHead>설명</TableHead>
+                    <TableHead>배포 상태</TableHead>
+                    <TableHead>생성일</TableHead>
+                    <TableHead className="text-right">작업</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredPlans.length > 0 ? (
+                    filteredPlans.map((plan) => (
+                      <TableRow key={plan.id}>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <span
+                              className="font-medium hover:cursor-pointer"
+                              onClick={() => handleApiClick(plan)}
+                            >
+                              {plan.name}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-mono text-sm">{plan.planId}</TableCell>
+                        <TableCell className="max-w-xs truncate">{plan.description}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Badge variant="outline" className={getStatusColor(plan.status)}>
+                              {plan.status}
+                            </Badge>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <span>{plan.createdAt}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center justify-end space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setIsModifyModalOpen(true)}
+                            >
+                              <Settings className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                        검색 결과가 없습니다.
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                      검색 결과가 없습니다.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
 
-        {/* Pagination */}
-        <div className="flex justify-center mt-6">
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" disabled>
-              {'<<'}
-            </Button>
-            <Button variant="outline" size="sm" disabled>
-              {'<'}
-            </Button>
-            <Button size="sm" className="bg-blue-600 text-white">
-              1
-            </Button>
-            <Button variant="outline" size="sm" disabled>
-              {'>'}
-            </Button>
-            <Button variant="outline" size="sm" disabled>
-              {'>>'}
-            </Button>
+          {/* Pagination */}
+          <div className="flex justify-center mt-6">
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" disabled>
+                {'<<'}
+              </Button>
+              <Button variant="outline" size="sm" disabled>
+                {'<'}
+              </Button>
+              <Button size="sm" className="bg-blue-600 text-white">
+                1
+              </Button>
+              <Button variant="outline" size="sm" disabled>
+                {'>'}
+              </Button>
+              <Button variant="outline" size="sm" disabled>
+                {'>>'}
+              </Button>
+            </div>
           </div>
-        </div>
 
-        {/* Create API Modal */}
-        <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-          <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto overflow-x-hidden">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-blue-600">API Plan 생성</DialogTitle>
-              <DialogDescription className="text-gray-600">
-                API는 4가지 방법으로 생성할 수 있습니다. (<span className="text-red-500">*</span>{' '}
-                필수 입력 사항입니다.)
-              </DialogDescription>
-            </DialogHeader>
+          {/* Create API Modal */}
+          <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+            <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto overflow-x-hidden">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-blue-600">API Plan 생성</DialogTitle>
+                <DialogDescription className="text-gray-600">
+                  API는 4가지 방법으로 생성할 수 있습니다. (<span className="text-red-500">*</span>{' '}
+                  필수 입력 사항입니다.)
+                </DialogDescription>
+              </DialogHeader>
 
-            <div className="space-y-6 py-4">
-              {/* API Creation Type */}
-              <div>
-                <Label className="text-sm font-medium text-gray-700 mb-3 block">
-                  API 생성 유형 <span className="text-red-500">*</span>
-                </Label>
-                <RadioGroup
-                  value={createApiForm.type}
-                  onValueChange={(value) => setCreateApiForm({ ...createApiForm, type: value })}
-                  className="grid grid-cols-2 gap-4"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="new" id="new" />
-                    <Label
-                      htmlFor="new"
-                      className="text-sm font-medium text-blue-600 hover:cursor-pointer"
-                    >
-                      새로운 API
-                    </Label>
+              <div className="space-y-6 py-4">
+                {/* API Creation Type */}
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 mb-3 block">
+                    API 생성 유형 <span className="text-red-500">*</span>
+                  </Label>
+                  <RadioGroup
+                    value={createApiForm.type}
+                    onValueChange={(value) => setCreateApiForm({ ...createApiForm, type: value })}
+                    className="grid grid-cols-2 gap-4"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="new" id="new" />
+                      <Label
+                        htmlFor="new"
+                        className="text-sm font-medium text-blue-600 hover:cursor-pointer"
+                      >
+                        새로운 API
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="copy" id="copy" />
+                      <Label htmlFor="copy" className="text-sm hover:cursor-pointer">
+                        API 복사
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="swagger" id="swagger" />
+                      <Label htmlFor="swagger" className="text-sm hover:cursor-pointer">
+                        Swagger에서 가져오기
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="example" id="example" />
+                      <Label htmlFor="example" className="text-sm hover:cursor-pointer">
+                        API 예제
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                {/* API Name */}
+                <div>
+                  <Label
+                    htmlFor="api-name"
+                    className="text-sm font-medium text-gray-700 mb-2 block"
+                  >
+                    API 이름 <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="api-name"
+                    placeholder="API 이름을 입력하세요"
+                    value={createApiForm.name}
+                    onChange={(e) => setCreateApiForm({ ...createApiForm, name: e.target.value })}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <Label
+                    htmlFor="description"
+                    className="text-sm font-medium text-gray-700 mb-2 block"
+                  >
+                    설명
+                  </Label>
+                  <Textarea
+                    id="description"
+                    placeholder="설명을 입력하세요"
+                    value={createApiForm.description}
+                    onChange={(e) =>
+                      setCreateApiForm({
+                        ...createApiForm,
+                        description: e.target.value,
+                      })
+                    }
+                    className="w-full min-h-[100px] resize-none"
+                    maxLength={300}
+                  />
+                  <div className="text-right text-sm text-gray-500 mt-1">
+                    {createApiForm.description.length}/300 자
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="copy" id="copy" />
-                    <Label htmlFor="copy" className="text-sm hover:cursor-pointer">
-                      API 복사
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="swagger" id="swagger" />
-                    <Label htmlFor="swagger" className="text-sm hover:cursor-pointer">
-                      Swagger에서 가져오기
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="example" id="example" />
-                    <Label htmlFor="example" className="text-sm hover:cursor-pointer">
-                      API 예제
-                    </Label>
-                  </div>
-                </RadioGroup>
+                </div>
+
+                {/* Type-specific content */}
+                {renderCreateApiContent()}
               </div>
 
-              {/* API Name */}
-              <div>
-                <Label htmlFor="api-name" className="text-sm font-medium text-gray-700 mb-2 block">
-                  API 이름 <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="api-name"
-                  placeholder="API 이름을 입력하세요"
-                  value={createApiForm.name}
-                  onChange={(e) => setCreateApiForm({ ...createApiForm, name: e.target.value })}
-                  className="w-full"
-                />
-              </div>
-
-              {/* Description */}
-              <div>
-                <Label
-                  htmlFor="description"
-                  className="text-sm font-medium text-gray-700 mb-2 block"
-                >
-                  설명
-                </Label>
-                <Textarea
-                  id="description"
-                  placeholder="설명을 입력하세요"
-                  value={createApiForm.description}
-                  onChange={(e) =>
+              <DialogFooter className="gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsCreateModalOpen(false);
                     setCreateApiForm({
-                      ...createApiForm,
-                      description: e.target.value,
-                    })
-                  }
-                  className="w-full min-h-[100px] resize-none"
-                  maxLength={300}
-                />
-                <div className="text-right text-sm text-gray-500 mt-1">
-                  {createApiForm.description.length}/300 자
-                </div>
-              </div>
-
-              {/* Type-specific content */}
-              {renderCreateApiContent()}
-            </div>
-
-            <DialogFooter className="gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsCreateModalOpen(false);
-                  setCreateApiForm({
-                    type: 'new',
-                    name: '',
-                    description: '',
-                    sourceApiId: '',
-                    swaggerContent: '',
-                    selectedExample: '',
-                  });
-                  setSwaggerFile(null);
-                }}
-              >
-                취소
-              </Button>
-              <Button
-                onClick={handleCreateApi}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
-              >
-                API 생성
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Modify API Plan */}
-        <Dialog open={isModifyModalOpen} onOpenChange={setIsModifyModalOpen}>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-blue-600">API Plan 수정</DialogTitle>
-            </DialogHeader>
-
-            <div className="space-y-6 py-4">
-              {/* API Name */}
-              <div>
-                <Label htmlFor="api-name" className="text-sm font-medium text-gray-700 mb-2 block">
-                  API 이름 <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="api-name"
-                  placeholder="API 이름을 입력하세요"
-                  value={modifyApiForm.name}
-                  onChange={(e) => setModifyApiForm({ ...modifyApiForm, name: e.target.value })}
-                  className="w-full"
-                />
-              </div>
-
-              {/* Description */}
-              <div>
-                <Label
-                  htmlFor="description"
-                  className="text-sm font-medium text-gray-700 mb-2 block"
+                      type: 'new',
+                      name: '',
+                      description: '',
+                      sourceApiId: '',
+                      swaggerContent: '',
+                      selectedExample: '',
+                    });
+                    setSwaggerFile(null);
+                  }}
                 >
-                  설명
-                </Label>
-                <Textarea
-                  id="description"
-                  placeholder="설명을 입력하세요"
-                  value={modifyApiForm.description}
-                  onChange={(e) =>
-                    setModifyApiForm({
-                      ...modifyApiForm,
-                      description: e.target.value,
-                    })
-                  }
-                  className="w-full min-h-[100px] resize-none"
-                  maxLength={300}
-                />
-                <div className="text-right text-sm text-gray-500 mt-1">
-                  {modifyApiForm.description.length}/300 자
+                  취소
+                </Button>
+                <Button
+                  onClick={handleCreateApi}
+                  className="bg-blue-500 hover:bg-blue-600 text-white"
+                >
+                  API 생성
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Modify API Plan */}
+          <Dialog open={isModifyModalOpen} onOpenChange={setIsModifyModalOpen}>
+            <DialogContent className="sm:max-w-[600px]">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-blue-600">API Plan 수정</DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-6 py-4">
+                {/* API Name */}
+                <div>
+                  <Label
+                    htmlFor="api-name"
+                    className="text-sm font-medium text-gray-700 mb-2 block"
+                  >
+                    API 이름 <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="api-name"
+                    placeholder="API 이름을 입력하세요"
+                    value={modifyApiForm.name}
+                    onChange={(e) => setModifyApiForm({ ...modifyApiForm, name: e.target.value })}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <Label
+                    htmlFor="description"
+                    className="text-sm font-medium text-gray-700 mb-2 block"
+                  >
+                    설명
+                  </Label>
+                  <Textarea
+                    id="description"
+                    placeholder="설명을 입력하세요"
+                    value={modifyApiForm.description}
+                    onChange={(e) =>
+                      setModifyApiForm({
+                        ...modifyApiForm,
+                        description: e.target.value,
+                      })
+                    }
+                    className="w-full min-h-[100px] resize-none"
+                    maxLength={300}
+                  />
+                  <div className="text-right text-sm text-gray-500 mt-1">
+                    {modifyApiForm.description.length}/300 자
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <DialogFooter className="gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsModifyModalOpen(false);
-                  setModifyApiForm({ type: 'new', name: '', description: '' });
-                }}
-              >
-                취소
-              </Button>
-              <Button
-                onClick={handleModifyApi}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
-              >
-                수정
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </AppLayout>
+              <DialogFooter className="gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsModifyModalOpen(false);
+                    setModifyApiForm({ type: 'new', name: '', description: '' });
+                  }}
+                >
+                  취소
+                </Button>
+                <Button
+                  onClick={handleModifyApi}
+                  className="bg-blue-500 hover:bg-blue-600 text-white"
+                >
+                  수정
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </AppLayout>
+    </Suspense>
   );
 }

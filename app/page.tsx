@@ -1,33 +1,27 @@
-"use client";
+'use client';
 
-import type React from "react";
+import type React from 'react';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { AlertCircle, Eye, EyeOff, Waves, User, Lock } from "lucide-react";
-import Link from "next/link";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertCircle, Eye, EyeOff, Waves, User, Lock } from 'lucide-react';
+import Link from 'next/link';
 
 export default function LoginPage() {
-  const [userId, setUserId] = useState("");
-  const [password, setPassword] = useState("");
+  const [userId, setUserId] = useState('');
+  const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
     setIsLoading(true);
 
     try {
@@ -35,9 +29,9 @@ export default function LoginPage() {
       await new Promise((resolve) => setTimeout(resolve, 2000)); // 시뮬레이션
 
       // 로그인 성공 시 대시보드로 리다이렉트
-      window.location.href = "/dashboard";
+      window.location.href = '/dashboard';
     } catch (err) {
-      setError("아이디와 비밀번호를 확인해주세요.");
+      setError('아이디와 비밀번호를 확인해주세요.');
     } finally {
       setIsLoading(false);
     }
@@ -69,10 +63,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* ID 입력 */}
             <div className="space-y-2">
-              <Label
-                htmlFor="userId"
-                className="text-sm font-medium text-gray-700"
-              >
+              <Label htmlFor="userId" className="text-sm font-medium text-gray-700">
                 ID
               </Label>
               <div className="relative">
@@ -91,17 +82,14 @@ export default function LoginPage() {
 
             {/* PW 입력 */}
             <div className="space-y-2">
-              <Label
-                htmlFor="password"
-                className="text-sm font-medium text-gray-700"
-              >
+              <Label htmlFor="password" className="text-sm font-medium text-gray-700">
                 Password
               </Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
                 <Input
                   id="password"
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="비밀번호를 입력해주세요."
@@ -130,15 +118,10 @@ export default function LoginPage() {
                 <Checkbox
                   id="remember"
                   checked={rememberMe}
-                  onCheckedChange={(checked) =>
-                    setRememberMe(checked as boolean)
-                  }
+                  onCheckedChange={(checked) => setRememberMe(checked as boolean)}
                   className="border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                 />
-                <Label
-                  htmlFor="remember"
-                  className="text-sm text-gray-600 cursor-pointer"
-                >
+                <Label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer">
                   아이디 저장
                 </Label>
               </div>
@@ -170,7 +153,7 @@ export default function LoginPage() {
                   Signing in...
                 </>
               ) : (
-                "로그인"
+                '로그인'
               )}
             </Button>
 
