@@ -43,7 +43,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Search, Settings, RefreshCw } from 'lucide-react';
+import { Plus, Search, Settings, RefreshCw, Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { setSelectedApiInfo } from '@/constants/app-layout-data';
@@ -252,6 +252,46 @@ export default function ApiManagementPage() {
     setApis([...apis]);
   };
 
+  // Swagger states
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  // 드래그 앤 드롭 핸들러 추가
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (
+        file.type === 'application/json' ||
+        file.name.endsWith('.json') ||
+        file.name.endsWith('.yaml') ||
+        file.name.endsWith('.yml')
+      ) {
+        setSwaggerFile(file);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const content = e.target?.result as string;
+          setCreateApiForm({ ...createApiForm, swaggerContent: content });
+        };
+        reader.readAsText(file);
+      } else {
+        toast.error('JSON, YAML 파일만 업로드 가능합니다.');
+      }
+    }
+  };
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -264,7 +304,6 @@ export default function ApiManagementPage() {
       reader.readAsText(file);
     }
   };
-
   const handleCreateApi = () => {
     if (!createApiForm.name.trim()) {
       toast.error('API 이름을 입력해주세요.');
@@ -392,17 +431,32 @@ export default function ApiManagementPage() {
                   className="hidden"
                   id="swagger-upload"
                 />
-                <label
-                  htmlFor="swagger-upload"
-                  className="block cursor-pointer text-blue-600 hover:text-blue-700 border-2 border-dashed border-blue-300 rounded-lg p-8 text-center bg-blue-50 hover:cursor-pointer space-y-3"
+                <div
+                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                    isDragOver ? 'border-blue-500 bg-blue-100' : 'border-blue-300 bg-blue-50'
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
                 >
-                  <p className="text-gray-600">Drop files here or click to upload.</p>
+                  <div className="space-y-3">
+                    <Upload className="h-8 w-8 text-blue-600 mx-auto" />
+                    <p className="text-gray-600">
+                      파일을 여기로 드래그하거나 클릭하여 업로드하세요
+                    </p>
+                    <label
+                      htmlFor="swagger-upload"
+                      className="inline-block cursor-pointer text-blue-600 hover:text-blue-700 px-4 py-2 border border-blue-300 rounded-md hover:bg-blue-50 transition-colors"
+                    >
+                      파일 선택
+                    </label>
+                  </div>
                   {swaggerFile && (
                     <p className="mt-3 text-sm text-green-600 font-medium">
                       선택된 파일: {swaggerFile.name}
                     </p>
                   )}
-                </label>
+                </div>
 
                 {/* Text Input Area */}
                 <div className="grid grid-cols-4 gap-4">

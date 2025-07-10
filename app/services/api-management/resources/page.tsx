@@ -704,6 +704,44 @@ export default function ApiResourcesPage() {
     });
   };
 
+  const [selectedDeploymentRecord, setSelectedDeploymentRecord] = useState('');
+
+  // Mock deployment records from stages page
+  const mockDeploymentRecords = [
+    {
+      id: '1',
+      stageName: 'hello',
+      date: 'July 03, 2025, 08:26 (UTC+09:00)',
+      status: 'inactive',
+      description: 'Initial deployment',
+      deploymentId: 'eemowu',
+    },
+    {
+      id: '2',
+      stageName: 'nexfron',
+      date: 'July 03, 2025, 08:26 (UTC+09:00)',
+      status: 'inactive',
+      description: 'Production update',
+      deploymentId: 'jje6x',
+    },
+    {
+      id: '3',
+      stageName: 'hello',
+      date: 'July 02, 2025, 17:44 (UTC+09:00)',
+      status: 'active',
+      description: 'Bug fix deployment',
+      deploymentId: 'xf40pg',
+    },
+    {
+      id: '4',
+      stageName: 'nexfron',
+      date: 'July 02, 2025, 17:42 (UTC+09:00)',
+      status: 'inactive',
+      description: 'Feature rollback',
+      deploymentId: 'ussiri',
+    },
+  ];
+
   return (
     <AppLayout>
       <div className="container mx-auto px-4 py-6">
@@ -1109,12 +1147,47 @@ export default function ApiResourcesPage() {
                 className="mt-1"
               />
             </div>
-            <div>
-              <Label className="text-sm text-gray-600">배포 여부</Label>
-              <div>
-                <span className="text-xs mr-3 text-gray-600">기본값으로 설정 여부</span>
-                <Switch checked={isDirectUrlInput} onCheckedChange={setIsDirectUrlInput} />
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={isDirectUrlInput}
+                  onCheckedChange={(checked) => {
+                    setIsDirectUrlInput(checked);
+                    if (!checked) {
+                      setSelectedDeploymentRecord('');
+                    }
+                  }}
+                />
+                <Label>배포 여부</Label>
               </div>
+
+              {isDirectUrlInput && (
+                <div>
+                  <Label htmlFor="deployment-record">배포 기록 선택</Label>
+                  <Select
+                    value={selectedDeploymentRecord}
+                    onValueChange={setSelectedDeploymentRecord}
+                  >
+                    <SelectTrigger className="mt-2">
+                      <SelectValue placeholder="배포 기록을 선택하세요" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockDeploymentRecords.map((record) => (
+                        <SelectItem key={record.id} value={record.deploymentId}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">
+                              {record.stageName} - {record.deploymentId}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {record.date} ({record.status})
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter className="flex space-x-2">
