@@ -36,12 +36,13 @@ export function ResourceTree({
   const renderResourcePaths = Object.entries((mockData2?.spec?.paths || {}) as Record<string, any>);
   return (
     <div>
+      <div className="font-mono pl-1">/</div>
       {renderResourcePaths.map(([path, methods]) => {
         const isPathSelected = selectedPath === path && !selectedMethod;
         return (
           <div key={path}>
             <div
-              className={`flex items-center gap-2 py-2 px-3 mb-1 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md ${
+              className={`flex items-center gap-2 py-1 px-2 mb-1 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md ${
                 isPathSelected
                   ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
                   : ''
@@ -52,8 +53,8 @@ export function ResourceTree({
                 setSelectedMethod(null);
               }}
             >
-              <div className="w-4" />
-              <span className="font-mono font-medium">{path}</span>
+              <div className="pl-3" />
+              <span className="font-mono font-medium text-[15px]">{path}</span>
             </div>
             {selectedPath === path && (
               <ul>
@@ -62,7 +63,7 @@ export function ResourceTree({
                   return (
                     <li
                       key={method}
-                      className={`flex items-center gap-2 py-1 px-3 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-green-900/20 rounded-md ${
+                      className={`flex items-center gap-2 py-1 px-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-green-900/20 rounded-md ${
                         isMethodSelected
                           ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
                           : 'text-gray-600 dark:text-gray-400'
@@ -94,7 +95,7 @@ export function ResourceTree({
                       <span className={`${getMethodStyle(method?.toUpperCase())}`}>
                         {method.toUpperCase()}
                       </span>
-                      <span>- {(methods as any)[method].summary}</span>
+                      <span className=" text-[12px]">- {(methods as any)[method].summary}</span>
                     </li>
                   );
                 })}

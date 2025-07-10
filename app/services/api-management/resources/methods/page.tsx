@@ -50,60 +50,15 @@ import {
 import { useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-
-interface QueryParameter {
-  id: string;
-  name: string;
-  description: string;
-  type: string;
-  isArray: boolean;
-  required: boolean;
-  cacheKey: boolean;
-}
-
-interface Header {
-  id: string;
-  name: string;
-  description: string;
-  type: string;
-  required: boolean;
-}
-
-interface FormData {
-  id: string;
-  name: string;
-  description: string;
-  type: string;
-  isArray: boolean;
-  required: boolean;
-}
-
-interface BodyModel {
-  id: string;
-  name: string;
-  description: string;
-  model: string;
-}
-
-interface MockHeader {
-  id: string;
-  name: string;
-  value: string;
-}
-
-interface ApiKey {
-  id: string;
-  name: string;
-  description: string;
-  value: string;
-}
-
-interface Model {
-  id: string;
-  name: string;
-  description: string;
-  schema: string;
-}
+import {
+  QueryParameter,
+  Header,
+  FormData,
+  BodyModel,
+  MockHeader,
+  ApiKey,
+  Model,
+} from '@/types/methods';
 
 export default function CreateMethodPage() {
   const searchParams = useSearchParams();
@@ -116,15 +71,9 @@ export default function CreateMethodPage() {
     integrationType: 'http',
     // HTTP Integration
     httpProxyIntegration: true,
-    httpMethod: '',
     endpointUrl: '',
     customEndpointUrl: '',
     additionalParameter: '',
-    contentHandling: '패스스루',
-    timeout: '29000',
-    // Mock Integration
-    statusCode: '200',
-    mockResponse: '',
     // Common
     authorization: '없음',
     requestValidator: '없음',
@@ -501,27 +450,6 @@ export default function CreateMethodPage() {
     });
   };
 
-  const addMockHeader = () => {
-    const newHeader: MockHeader = {
-      id: Date.now().toString(),
-      name: '',
-      value: '',
-    };
-    setMockHeaders([...mockHeaders, newHeader]);
-  };
-
-  const updateMockHeader = (id: string, field: keyof MockHeader, value: string) => {
-    setMockHeaders(
-      mockHeaders.map((header) => (header.id === id ? { ...header, [field]: value } : header))
-    );
-  };
-
-  const removeMockHeader = (id: string) => {
-    if (mockHeaders.length > 1) {
-      setMockHeaders(mockHeaders.filter((header) => header.id !== id));
-    }
-  };
-
   const addQueryParameter = () => {
     const newParam: QueryParameter = {
       id: Date.now().toString(),
@@ -566,26 +494,6 @@ export default function CreateMethodPage() {
     setHeaders(headers.filter((header) => header.id !== id));
   };
 
-  const addFormData = () => {
-    const newFormData: FormData = {
-      id: Date.now().toString(),
-      name: '',
-      description: '',
-      type: 'string',
-      isArray: false,
-      required: false,
-    };
-    setFormData([...formData, newFormData]);
-  };
-
-  const updateFormData = (id: string, field: keyof FormData, value: any) => {
-    setFormData(formData.map((data) => (data.id === id ? { ...data, [field]: value } : data)));
-  };
-
-  const removeFormData = (id: string) => {
-    setFormData(formData.filter((data) => data.id !== id));
-  };
-
   const addBodyModel = () => {
     const newModel: BodyModel = {
       id: Date.now().toString(),
@@ -606,20 +514,6 @@ export default function CreateMethodPage() {
     setBodyModels(bodyModels.filter((model) => model.id !== id));
   };
 
-  const addContentType = () => {
-    if (!newContentType.trim()) {
-      setContentTypeError('필수 입력값입니다.');
-      return;
-    }
-    setContentTypes([...contentTypes, newContentType]);
-    setNewContentType('');
-    setContentTypeError('');
-  };
-
-  const removeContentType = (index: number) => {
-    setContentTypes(contentTypes.filter((_, i) => i !== index));
-  };
-
   const IntegrationIcon = ({ type }: { type: string }) => {
     switch (type) {
       case 'http':
@@ -636,6 +530,23 @@ export default function CreateMethodPage() {
 
   // Calculate schema byte count
   const schemaByteCount = new TextEncoder().encode(newModelForm.schema).length;
+
+  const httpHeaderOptions = [
+    'Content-Type',
+    'Accept',
+    'Authorization',
+    'User-Agent',
+    'Cache-Control',
+    'Pragma',
+    'Expires',
+    'Origin',
+    'Referer',
+    'Cookie',
+    'Set-Cookie',
+    'Host',
+    'X-Requested-With',
+    'X-Forwarded-For',
+  ];
 
   return (
     <AppLayout>
@@ -934,7 +845,7 @@ export default function CreateMethodPage() {
 
                         {queryParameters.map((param, index) => (
                           <div key={param.id} className="grid grid-cols-12 gap-3 items-center mb-3">
-                            <div className="col-span-2">
+                            <div className="col-span-6">
                               <Input
                                 placeholder="이름"
                                 value={param.name}
@@ -943,45 +854,6 @@ export default function CreateMethodPage() {
                                 }
                                 className={param.name === '' ? 'border-red-300' : ''}
                               />
-                            </div>
-                            <div className="col-span-3">
-                              <Input
-                                placeholder="설명"
-                                value={param.description}
-                                onChange={(e) =>
-                                  updateQueryParameter(param.id, 'description', e.target.value)
-                                }
-                              />
-                            </div>
-                            <div className="col-span-2">
-                              <Select
-                                value={param.type}
-                                onValueChange={(value) =>
-                                  updateQueryParameter(param.id, 'type', value)
-                                }
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="string">string</SelectItem>
-                                  <SelectItem value="number">number</SelectItem>
-                                  <SelectItem value="boolean">boolean</SelectItem>
-                                  <SelectItem value="array">array</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="col-span-1 flex justify-center">
-                              <div className="flex items-center space-x-2">
-                                <Label className="text-xs">Array</Label>
-                                <Switch
-                                  checked={param.isArray}
-                                  onCheckedChange={(checked) =>
-                                    updateQueryParameter(param.id, 'isArray', checked)
-                                  }
-                                  size="sm"
-                                />
-                              </div>
                             </div>
                             <div className="col-span-1 flex justify-center">
                               <div className="flex items-center space-x-2">
@@ -1064,23 +936,7 @@ export default function CreateMethodPage() {
                             key={header.id}
                             className="grid grid-cols-12 gap-3 items-center mb-3"
                           >
-                            <div className="col-span-3">
-                              <Input
-                                placeholder="이름"
-                                value={header.name}
-                                onChange={(e) => updateHeader(header.id, 'name', e.target.value)}
-                              />
-                            </div>
-                            <div className="col-span-4">
-                              <Input
-                                placeholder="설명"
-                                value={header.description}
-                                onChange={(e) =>
-                                  updateHeader(header.id, 'description', e.target.value)
-                                }
-                              />
-                            </div>
-                            <div className="col-span-2">
+                            <div className="col-span-8">
                               <Select
                                 value={header.type}
                                 onValueChange={(value) => updateHeader(header.id, 'type', value)}
@@ -1089,9 +945,11 @@ export default function CreateMethodPage() {
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="string">string</SelectItem>
-                                  <SelectItem value="number">number</SelectItem>
-                                  <SelectItem value="boolean">boolean</SelectItem>
+                                  {httpHeaderOptions.map((headerName) => (
+                                    <SelectItem key={headerName} value={headerName}>
+                                      {headerName}
+                                    </SelectItem>
+                                  ))}
                                 </SelectContent>
                               </Select>
                             </div>
@@ -1159,117 +1017,24 @@ export default function CreateMethodPage() {
                 <CollapsibleContent>
                   <div className="p-6 bg-white dark:bg-gray-900 space-y-6">
                     {/* Form Data Section */}
-                    <div className="dark:bg-purple-950/20 p-4 rounded-lg">
-                      <h4 className="font-semibold text-gray-900 dark:text-purple-100 mb-3">
-                        폼 데이터
-                      </h4>
-
-                      {formData.map((data, index) => (
-                        <div key={data.id} className="grid grid-cols-12 gap-3 items-center mb-3">
-                          <div className="col-span-2">
-                            <Input
-                              placeholder="이름"
-                              value={data.name}
-                              onChange={(e) => updateFormData(data.id, 'name', e.target.value)}
-                            />
-                          </div>
-                          <div className="col-span-3">
-                            <Input
-                              placeholder="설명"
-                              value={data.description}
-                              onChange={(e) =>
-                                updateFormData(data.id, 'description', e.target.value)
-                              }
-                            />
-                          </div>
-                          <div className="col-span-2">
-                            <Select
-                              value={data.type}
-                              onValueChange={(value) => updateFormData(data.id, 'type', value)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="string">string</SelectItem>
-                                <SelectItem value="number">number</SelectItem>
-                                <SelectItem value="boolean">boolean</SelectItem>
-                                <SelectItem value="file">file</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="col-span-1 flex justify-center">
-                            <div className="flex items-center space-x-2">
-                              <Label className="text-xs">Array</Label>
-                              <Switch
-                                checked={data.isArray}
-                                onCheckedChange={(checked) =>
-                                  updateFormData(data.id, 'isArray', checked)
-                                }
-                                size="sm"
-                              />
-                            </div>
-                          </div>
-                          <div className="col-span-1 flex justify-center">
-                            <div className="flex items-center space-x-2">
-                              <Label className="text-xs">Required</Label>
-                              <Switch
-                                checked={data.required}
-                                onCheckedChange={(checked) =>
-                                  updateFormData(data.id, 'required', checked)
-                                }
-                                size="sm"
-                              />
-                            </div>
-                          </div>
-                          <div className="col-span-3 flex gap-2 justify-end">
-                            <Button
-                              size="sm"
-                              className="bg-blue-500 hover:bg-blue-600 text-white"
-                              onClick={addFormData}
-                            >
-                              <Plus className="h-4 w-4 mr-1" />
-                              추가
-                            </Button>
-                            {formData.length > 1 && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => removeFormData(data.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
 
                     {/* Body Models Section */}
                     <div className="dark:bg-orange-950/20 p-4 rounded-lg">
                       <h4 className="font-semibold text-gray-900 dark:text-orange-100 mb-3">
-                        바디
+                        요청 모델
                       </h4>
 
                       {bodyModels.map((model, index) => (
                         <div key={model.id} className="grid grid-cols-12 gap-3 items-center mb-3">
-                          <div className="col-span-3">
+                          <div className="col-span-5">
                             <Input
-                              placeholder="이름"
+                              placeholder="콘텐츠 유형"
                               value={model.name}
                               onChange={(e) => updateBodyModel(model.id, 'name', e.target.value)}
                             />
                           </div>
-                          <div className="col-span-4">
-                            <Input
-                              placeholder="설명"
-                              value={model.description}
-                              onChange={(e) =>
-                                updateBodyModel(model.id, 'description', e.target.value)
-                              }
-                            />
-                          </div>
-                          <div className="col-span-3">
+
+                          <div className="col-span-5">
                             <Select
                               value={model.model}
                               onValueChange={(value) => {
@@ -1323,66 +1088,6 @@ export default function CreateMethodPage() {
                         </div>
                       ))}
                     </div>
-
-                    {/* Content Type Section */}
-                    <div className="dark:bg-gray-800 p-4 rounded-lg">
-                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
-                        컨텐츠 타입
-                      </h4>
-
-                      <div className="flex gap-2 mb-3">
-                        <Input
-                          placeholder="컨텐츠 타입"
-                          value={newContentType}
-                          onChange={(e) => {
-                            setNewContentType(e.target.value);
-                            if (contentTypeError) setContentTypeError('');
-                          }}
-                          className={contentTypeError ? 'border-red-300' : ''}
-                        />
-                        <Button
-                          className="bg-blue-500 hover:bg-blue-600 text-white"
-                          onClick={addContentType}
-                        >
-                          <Plus className="h-4 w-4 mr-1" />
-                          추가
-                        </Button>
-                      </div>
-
-                      {contentTypeError && (
-                        <div className="flex items-center gap-2 text-red-600 text-sm mb-3">
-                          <AlertCircle className="h-4 w-4" />
-                          <span>{contentTypeError}</span>
-                        </div>
-                      )}
-
-                      {contentTypes.length > 0 && (
-                        <div className="space-y-2">
-                          {contentTypes.map((type, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center justify-between bg-white dark:bg-gray-700 p-2 rounded border"
-                            >
-                              <span className="text-sm">{type}</span>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => removeContentType(index)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    <Button
-                      variant="outline"
-                      className="text-blue-600 border-blue-300 hover:bg-blue-50 bg-transparent"
-                    >
-                      모델 추가
-                    </Button>
                   </div>
                 </CollapsibleContent>
               </Collapsible>

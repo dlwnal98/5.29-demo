@@ -3,6 +3,7 @@ export interface Resource {
   path: string;
   name: string;
   corsEnabled: boolean;
+  corsSettings?: any;
   children?: Resource[];
   methods: Method[];
 }

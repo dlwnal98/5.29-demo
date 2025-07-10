@@ -31,7 +31,6 @@ import {
 } from '@/types/resource';
 import { getMethodStyle } from '@/lib/etc';
 import { ResourceCreateDialog } from './components/ResourceCreateDialog';
-import { CorsSettingsDialog } from './components/CorsSettingsDialog';
 import { DeleteResourceDialog } from './components/DeleteResourceDialog';
 import { DeleteMethodDialog } from './components/DeleteMethodDialog';
 import { ResourceTree } from './components/ResourceTree';
@@ -101,7 +100,6 @@ export default function ApiResourcesPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isMethodDeleteDialogOpen, setIsMethodDeleteDialogOpen] = useState(false);
-  const [isCorsModalOpen, setIsCorsModalOpen] = useState(false);
   const [methodToDelete, setMethodToDelete] = useState<Method | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
 
@@ -517,14 +515,12 @@ export default function ApiResourcesPage() {
   const handleCorsClick = () => {
     if (selectedResource.corsEnabled && selectedResource.corsSettings) {
       setCorsForm(selectedResource.corsSettings);
-      setIsCorsModalOpen(true);
     }
   };
 
   const handleCorsUpdate = () => {
     // Update CORS settings logic here
     toast.success('CORS 설정이 업데이트되었습니다.');
-    setIsCorsModalOpen(false);
   };
 
   const addCorsMethod = (method: string) => {
@@ -979,6 +975,12 @@ export default function ApiResourcesPage() {
                   setMethodToDelete={setMethodToDelete}
                   setIsMethodDeleteDialogOpen={setIsMethodDeleteDialogOpen}
                   getMethodStyle={getMethodStyle}
+                  corsForm={corsForm}
+                  setCorsForm={setCorsForm}
+                  handleCorsUpdate={handleCorsUpdate}
+                  httpMethods={httpMethods}
+                  addCorsMethod={addCorsMethod}
+                  removeCorsMethod={removeCorsMethod}
                 />
               )}
             </div>
@@ -995,18 +997,6 @@ export default function ApiResourcesPage() {
         handleCreateResource={handleCreateResource}
         availableResourcePaths={availableResourcePaths}
         httpMethods={httpMethods}
-      />
-
-      {/* CORS Settings Modal */}
-      <CorsSettingsDialog
-        open={isCorsModalOpen}
-        onOpenChange={setIsCorsModalOpen}
-        corsForm={corsForm}
-        setCorsForm={setCorsForm}
-        handleCorsUpdate={handleCorsUpdate}
-        httpMethods={httpMethods}
-        addCorsMethod={addCorsMethod}
-        removeCorsMethod={removeCorsMethod}
       />
 
       {/* Delete Resource Confirmation Dialog */}

@@ -150,7 +150,7 @@ export function ResourceCreateDialog({
                   {createResourceForm.corsSettings.allowMethods.map((method) => (
                     <Badge
                       key={method}
-                      className={`$ {
+                      className={`${
                         method === 'GET'
                           ? 'bg-green-100 text-green-800 hover:bg-green-100'
                           : method === 'POST'
