@@ -307,22 +307,7 @@ export function MethodRequestEdit({
                     placeholder="설명"
                   />
                 </div>
-                <div className="col-span-2">
-                  <Select
-                    value={param.type}
-                    onValueChange={(value) => updateQueryParameter(param.id, 'type', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="string">string</SelectItem>
-                      <SelectItem value="number">number</SelectItem>
-                      <SelectItem value="boolean">boolean</SelectItem>
-                      <SelectItem value="array">array</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+
                 <div className="col-span-1 flex justify-cente space-x-1">
                   <Switch
                     checked={param.required}

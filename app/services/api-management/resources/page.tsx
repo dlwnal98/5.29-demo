@@ -49,6 +49,7 @@ import { MethodRequestEdit } from './components/MethodRequestEdit';
 import { ResourceDetailCard } from './components/ResourceDetailCard';
 import { MethodTestTab } from './components/MethodTestTab';
 import { MethodResponseTab } from './components/MethodResponseTab';
+import { MethodResponseEdit } from './components/MethodResponseEdit';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -1106,12 +1107,25 @@ export default function ApiResourcesPage() {
 
                       {/* Method Response Tab */}
                       <TabsContent value="method-response" className="space-y-6 mt-6">
-                        <MethodResponseTab
-                          methodResponses={methodResponses}
-                          handleCreateResponse={handleCreateResponse}
-                          handleEditResponse={handleEditResponse}
-                          handleDeleteResponse={handleDeleteResponse}
-                        />
+                        {!isEditMode ? (
+                          <MethodResponseTab
+                            methodResponses={methodResponses}
+                            handleCreateResponse={handleCreateResponse}
+                            handleEditResponse={handleEditResponse}
+                            handleDeleteResponse={handleDeleteResponse}
+                            availableModels={availableModels}
+                          />
+                        ) : (
+                          <MethodResponseEdit
+                            methodResponses={methodResponses}
+                            handleCreateResponse={handleCreateResponse}
+                            handleEditResponse={handleEditResponse}
+                            handleDeleteResponse={handleDeleteResponse}
+                            handleCancelEdit={handleCancelEdit}
+                            handleSaveEdit={handleSaveEdit}
+                            availableModels={availableModels}
+                          />
+                        )}
                       </TabsContent>
 
                       {/* Enhanced Test Tab */}

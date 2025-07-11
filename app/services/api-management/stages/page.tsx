@@ -60,11 +60,20 @@ import {
   Trash2,
   AlertTriangle,
   ExternalLink,
+  SquarePlus,
+  SquareMinus,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface ApiResource {
   id: string;
@@ -375,23 +384,23 @@ export default function StagesPage() {
               }}
             >
               {isExpanded ? (
-                <ChevronDown className="h-3 w-3 text-gray-500" />
+                <SquareMinus className="h-3 w-3 text-blue-500" />
               ) : (
-                <ChevronRight className="h-3 w-3 text-gray-500" />
+                <SquarePlus className="h-3 w-3 text-blue-500" />
               )}
             </button>
           )}
-          {!hasChildren && <div className="w-3" />}
+          {!hasChildren && <div className="w-2" />}
 
-          {hasChildren ? (
+          {/* {hasChildren ? (
             isExpanded ? (
-              <FolderOpen className="h-3 w-3 text-blue-500" />
+              <SquareMinus className="h-3 w-3 text-blue-500" />
             ) : (
-              <Folder className="h-3 w-3 text-blue-500" />
+              <SquarePlus className="h-3 w-3 text-blue-500" />
             )
           ) : (
             <></>
-          )}
+          )} */}
 
           <span
             className={`font-medium ${isStage ? 'text-blue-600' : 'text-gray-700 dark:text-gray-300'}`}
@@ -416,7 +425,7 @@ export default function StagesPage() {
                   style={{ paddingLeft: `${(level + 2) * 16 + 8}px` }}
                   onClick={() => handleMethodClick(method, child)}
                 >
-                  <div className="w-3" />
+                  <div className="w-2" />
                   <span
                     className={`font-mono text-xs px-1.5 py-0.5 rounded ${
                       method.type === 'GET'
@@ -439,6 +448,43 @@ export default function StagesPage() {
       </div>
     );
   };
+  const [selectedDeploymentRecord, setSelectedDeploymentRecord] = useState('');
+
+  // Mock deployment records from stages page
+  const mockDeploymentRecords = [
+    {
+      id: '1',
+      stageName: 'hello',
+      date: 'July 03, 2025, 08:26 (UTC+09:00)',
+      status: 'inactive',
+      description: 'Initial deployment',
+      deploymentId: 'eemowu',
+    },
+    {
+      id: '2',
+      stageName: 'nexfron',
+      date: 'July 03, 2025, 08:26 (UTC+09:00)',
+      status: 'inactive',
+      description: 'Production update',
+      deploymentId: 'jje6x',
+    },
+    {
+      id: '3',
+      stageName: 'hello',
+      date: 'July 02, 2025, 17:44 (UTC+09:00)',
+      status: 'active',
+      description: 'Bug fix deployment',
+      deploymentId: 'xf40pg',
+    },
+    {
+      id: '4',
+      stageName: 'nexfron',
+      date: 'July 02, 2025, 17:42 (UTC+09:00)',
+      status: 'inactive',
+      description: 'Feature rollback',
+      deploymentId: 'ussiri',
+    },
+  ];
 
   return (
     <AppLayout>
@@ -694,16 +740,16 @@ export default function StagesPage() {
                   </div>
                 </div>
 
-                <div className="p-4">
+                <div className="p-4 pt-0">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>스테이지 이름</TableHead>
-                        <TableHead>배포 날짜</TableHead>
+                        <TableHead className="text-center">배포 날짜</TableHead>
                         <TableHead>활성 상태</TableHead>
-                        <TableHead>설명</TableHead>
+                        <TableHead className="text-center">설명</TableHead>
                         <TableHead>배포 ID</TableHead>
-                        <TableHead className="w-[100px]">작업</TableHead>
+                        <TableHead className="w-[100px] text-center">작업</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -729,7 +775,11 @@ export default function StagesPage() {
                             {deployment.deploymentId}
                           </TableCell>
                           <TableCell>
-                            <DropdownMenu>
+                            <Button variant={'outline'}>
+                              <RotateCcw className="h-4 w-4 mr-1" />
+                              롤백
+                            </Button>
+                            {/* <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="sm">
                                   <MoreVertical className="h-4 w-4" />
@@ -745,7 +795,7 @@ export default function StagesPage() {
                                   롤백
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
-                            </DropdownMenu>
+                            </DropdownMenu> */}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -870,6 +920,33 @@ export default function StagesPage() {
                   <Switch checked={isDirectUrlInput} onCheckedChange={setIsDirectUrlInput} />
                 </div>
               </div>
+              {isDirectUrlInput && (
+                <div>
+                  <Label htmlFor="deployment-record">배포 기록 선택</Label>
+                  <Select
+                    value={selectedDeploymentRecord}
+                    onValueChange={setSelectedDeploymentRecord}
+                  >
+                    <SelectTrigger className="mt-2">
+                      <SelectValue placeholder="배포 기록을 선택하세요" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockDeploymentRecords.map((record) => (
+                        <SelectItem key={record.id} value={record.deploymentId}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">
+                              {record.stageName} - {record.deploymentId}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {record.date} ({record.status})
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
 
             <DialogFooter className="gap-2">

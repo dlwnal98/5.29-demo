@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import type { MethodResponse } from '@/types/resource';
+import { MethodResponseEdit } from './MethodResponseEdit';
+import type { MethodResponse, Model } from '@/types/resource';
 
 interface MethodResponseTabProps {
   methodResponses: MethodResponse[];
   handleCreateResponse: () => void;
   handleEditResponse: (response: MethodResponse) => void;
   handleDeleteResponse: (response: MethodResponse) => void;
+  availableModels?: Model[];
+  deleteModel?: (modelId: string) => void;
 }
 
 export function MethodResponseTab({
@@ -16,12 +19,54 @@ export function MethodResponseTab({
   handleCreateResponse,
   handleEditResponse,
   handleDeleteResponse,
+  availableModels,
+  deleteModel,
 }: MethodResponseTabProps) {
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingResponse, setEditingResponse] = useState<MethodResponse | null>(null);
+
+  const handleStartEdit = (response: MethodResponse) => {
+    setEditingResponse(response);
+    setIsEditMode(true);
+  };
+
+  const handleStartCreate = () => {
+    setEditingResponse(null);
+    setIsEditMode(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false);
+    setEditingResponse(null);
+  };
+
+  const handleSaveEdit = () => {
+    setIsEditMode(false);
+    setEditingResponse(null);
+    // 실제 저장 로직은 부모 컴포넌트에서 처리
+  };
+
+  if (isEditMode) {
+    return (
+      <MethodResponseEdit
+        methodResponses={editingResponse ? [editingResponse] : []}
+        handleCreateResponse={handleCreateResponse}
+        handleEditResponse={handleEditResponse}
+        handleDeleteResponse={handleDeleteResponse}
+        handleCancelEdit={handleCancelEdit}
+        handleSaveEdit={handleSaveEdit}
+        editingResponse={editingResponse}
+        availableModels={availableModels}
+        deleteModel={deleteModel}
+      />
+    );
+  }
+
   return (
     <>
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold text-gray-900 dark:text-white">메서드 응답</h3>
-        <Button onClick={handleCreateResponse} className="bg-blue-500 hover:bg-blue-600 text-white">
+        <Button onClick={handleStartCreate} className="bg-blue-500 hover:bg-blue-600 text-white">
           응답 추가
         </Button>
       </div>
@@ -32,7 +77,7 @@ export function MethodResponseTab({
               <CardHeader className="flex items-center justify-between">
                 <CardTitle>HTTP {response.statusCode}</CardTitle>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => handleEditResponse(response)}>
+                  <Button variant="outline" size="sm" onClick={() => handleStartEdit(response)}>
                     편집
                   </Button>
                   <Button
