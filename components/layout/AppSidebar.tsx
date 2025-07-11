@@ -27,7 +27,6 @@ import type { NavButtonProps, SubNavItem } from '@/types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { Suspense } from 'react';
 
 interface AppSidebarProps {
   sidebarCollapsed: boolean;
@@ -117,6 +116,18 @@ const SubNavButton = ({
     router.push(href);
   };
 
+  // resource 페이지가 아닐 때 selectedApiInfo를 초기화
+  useEffect(() => {
+    // resource 관련 경로들
+    const isResourcePage =
+      pathname.startsWith('/services/api-management/resources') ||
+      pathname.startsWith('/services/api-management/models') ||
+      pathname.startsWith('/services/api-management/stages');
+    if (!isResourcePage) {
+      clearSelectedApiInfo();
+    }
+  }, [pathname]);
+
   if (subItem.subItems) {
     return (
       <Collapsible
@@ -182,18 +193,16 @@ const SubNavButton = ({
   }
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <Button
-        variant="ghost"
-        size="sm"
-        className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-1 ${
-          isSubActive ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : ''
-        }`}
-        onClick={handleSubClick}
-      >
-        <span className="ml-2 text-sm">{subItem.label}</span>
-      </Button>
-    </Suspense>
+    <Button
+      variant="ghost"
+      size="sm"
+      className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-1 ${
+        isSubActive ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : ''
+      }`}
+      onClick={handleSubClick}
+    >
+      <span className="ml-2 text-sm">{subItem.label}</span>
+    </Button>
   );
 };
 
@@ -427,6 +436,18 @@ export function AppSidebar({
 
     return () => clearInterval(interval);
   }, []);
+
+  // resource 페이지가 아닐 때 selectedApiInfo를 초기화
+  useEffect(() => {
+    // resource 관련 경로들
+    const isResourcePage =
+      pathname.startsWith('/services/api-management/resources') ||
+      pathname.startsWith('/services/api-management/models') ||
+      pathname.startsWith('/services/api-management/stages');
+    if (!isResourcePage) {
+      clearSelectedApiInfo();
+    }
+  }, [pathname]);
 
   const handleUserMenuClick = (action: string) => {
     switch (action) {

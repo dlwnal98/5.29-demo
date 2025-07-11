@@ -11,14 +11,25 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { ArrowLeft, Monitor, Copy, ArrowRight, Rocket, Plus } from 'lucide-react';
+import {
+  ArrowLeft,
+  Monitor,
+  Copy,
+  ArrowRight,
+  Rocket,
+  Plus,
+  ChevronDown,
+  ChevronRight,
+  SquarePlus,
+  SquareMinus,
+} from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { mockData2 } from '@/lib/data';
 import { Switch } from '@/components/ui/switch';
 
-import {
+import type {
   QueryParameter,
   CorsSettings,
   Model,
@@ -33,7 +44,6 @@ import { getMethodStyle } from '@/lib/etc';
 import { ResourceCreateDialog } from './components/ResourceCreateDialog';
 import { DeleteResourceDialog } from './components/DeleteResourceDialog';
 import { DeleteMethodDialog } from './components/DeleteMethodDialog';
-import { ResourceTree } from './components/ResourceTree';
 import { MethodRequestView } from './components/MethodRequestView';
 import { MethodRequestEdit } from './components/MethodRequestEdit';
 import { ResourceDetailCard } from './components/ResourceDetailCard';
@@ -41,14 +51,12 @@ import { MethodTestTab } from './components/MethodTestTab';
 import { MethodResponseTab } from './components/MethodResponseTab';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   Select,
@@ -58,24 +66,22 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Suspense } from 'react';
-import { AppSidebar } from '@/components/layout/AppSidebar';
 
 export default function ApiResourcesPage() {
   const router = useRouter();
   const leftSidebarRef = useRef<HTMLDivElement>(null);
   const rightContentRef = useRef<HTMLDivElement>(null);
 
-  // mockData2의 OpenAPI 구조를 기존 Resource/Method[] 형태로 변환하는 함수 추가
+  // mockData2의 OpenAPI 구조를 기존 Resource/Method[] 형태로 변환하는 함수 수정
   function convertOpenApiToResources(openApiPaths: any): Resource[] {
-    return Object.entries(openApiPaths).map(([path, methods]: [string, any], idx) => ({
+    const resources = Object.entries(openApiPaths).map(([path, methods]: [string, any], idx) => ({
       id: `resource-${idx}`,
       path,
       name: path.replace(/^\//, '') || 'root',
-      corsEnabled: false, // mockData2에는 cors 정보 없음
-      corsSettings: undefined, // ← 이 줄 추가
+      corsEnabled: false,
+      corsSettings: undefined,
       methods: Object.entries(methods).map(([type, methodObj]: [string, any], mIdx) => ({
-        id: methodObj['x-methodId'] || '-',
+        id: methodObj['x-methodId'] || `method-${path}-${type}`,
         type: type.toUpperCase(),
         permissions: methodObj['x-permissions'] || '-',
         apiKey: methodObj['x-apiKeyId'] || '-',
@@ -90,6 +96,28 @@ export default function ApiResourcesPage() {
         requestValidator: '없음',
       })),
     }));
+
+    // 루트 리소스를 항상 최상단에 추가
+    const rootResource: Resource = {
+      id: 'root',
+      path: '/',
+      name: 'root',
+      corsEnabled: false,
+      corsSettings: undefined,
+      methods: [],
+    };
+
+    // 루트가 이미 존재하는지 확인하고, 없으면 추가
+    const hasRoot = resources.some((r) => r.path === '/');
+    if (!hasRoot) {
+      return [rootResource, ...resources];
+    } else {
+      // 루트가 있다면 맨 앞으로 이동
+      const rootIndex = resources.findIndex((r) => r.path === '/');
+      const root = resources[rootIndex];
+      const otherResources = resources.filter((_, index) => index !== rootIndex);
+      return [root, ...otherResources];
+    }
   }
 
   // 기존 useState(Resource[]) 부분을 mockData2 기반으로 초기화
@@ -104,6 +132,9 @@ export default function ApiResourcesPage() {
   const [isMethodDeleteDialogOpen, setIsMethodDeleteDialogOpen] = useState(false);
   const [methodToDelete, setMethodToDelete] = useState<Method | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
+
+  // 확장된 리소스 상태 관리
+  const [expandedResources, setExpandedResources] = useState<Set<string>>(new Set(['root']));
 
   // Edit form states
   const [editForm, setEditForm] = useState({
@@ -380,7 +411,12 @@ export default function ApiResourcesPage() {
       methods: [],
     };
 
-    setResources([...resources, newResource]);
+    // 새 리소스를 루트 다음에 추가 (트리 구조 유지)
+    const rootIndex = resources.findIndex((r) => r.id === 'root');
+    const newResources = [...resources];
+    newResources.splice(rootIndex + 1, 0, newResource);
+    setResources(newResources);
+
     setIsCreateModalOpen(false);
     setCreateResourceForm({
       path: '',
@@ -430,6 +466,12 @@ export default function ApiResourcesPage() {
     setSelectedResource(resource);
     setActiveTab('method-request');
     setIsEditMode(false);
+  };
+
+  // 리소스 클릭 핸들러 수정
+  const handleResourceClick = (resource: Resource) => {
+    setSelectedResource(resource);
+    setSelectedMethod(null); // 메서드 선택 해제
   };
 
   const handleCopyArn = () => {
@@ -744,6 +786,99 @@ export default function ApiResourcesPage() {
     },
   ];
 
+  // 리소스 확장/축소 토글 함수
+  const toggleResourceExpansion = (resourceId: string) => {
+    const newExpanded = new Set(expandedResources);
+    if (newExpanded.has(resourceId)) {
+      newExpanded.delete(resourceId);
+    } else {
+      newExpanded.add(resourceId);
+    }
+    setExpandedResources(newExpanded);
+  };
+
+  // 트리 구조 리소스 목록 렌더링 함수
+  const renderResourceTree = () => {
+    return (
+      <div className="space-y-1">
+        {resources.map((resource, index) => {
+          const isExpanded = expandedResources.has(resource.id);
+          const hasMethods = resource.methods.length > 0;
+          const isSelected = selectedResource?.id === resource.id && !selectedMethod;
+          const isRoot = resource.id === 'root';
+
+          return (
+            <div key={resource.id} className={isRoot ? '' : 'ml-4'}>
+              {/* 리소스 항목 */}
+              <div
+                className={`flex items-center gap-2 py-1 px-2 mb-1 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md ${
+                  isSelected
+                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                    : ''
+                }`}
+                onClick={() => handleResourceClick(resource)}
+              >
+                {/* 확장/축소 버튼 */}
+                {hasMethods ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-4 w-4 p-0 hover:bg-transparent"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleResourceExpansion(resource.id);
+                    }}
+                  >
+                    {isExpanded ? (
+                      <SquareMinus className="h-3 w-3" />
+                    ) : (
+                      <SquarePlus className="h-3 w-3" />
+                    )}
+                  </Button>
+                ) : (
+                  <div className="w-2" />
+                )}
+
+                <span className="font-mono font-medium text-[15px]">
+                  {resource.path === '/' ? '/' : resource.path}
+                </span>
+              </div>
+
+              {/* 메서드 목록 */}
+              {hasMethods && isExpanded && (
+                <div className="ml-6 space-y-1">
+                  {resource.methods.map((method) => {
+                    const isMethodSelected = selectedMethod?.id === method.id;
+                    return (
+                      <div
+                        key={method.id}
+                        className={`flex items-center gap-2 py-1 px-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-green-900/20 rounded-md ${
+                          isMethodSelected
+                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                            : 'text-gray-600 dark:text-gray-400'
+                        }`}
+                        onClick={() => handleMethodClick(method, resource)}
+                      >
+                        <span
+                          className={`${getMethodStyle(method.type)} font-mono text-xs px-2 py-1 rounded`}
+                        >
+                          {method.type}
+                        </span>
+                        <span className="text-[12px]">
+                          - {method.summary || method.description}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <AppLayout>
       <div className="container mx-auto px-4 py-6">
@@ -803,19 +938,8 @@ export default function ApiResourcesPage() {
                 </Button>
               </div>
 
-              {/* renderResourceTree */}
-              <div className="space-y-1">
-                <ResourceTree
-                  mockData2={mockData2}
-                  selectedPath={selectedPath}
-                  setSelectedPath={setSelectedPath}
-                  selectedMethod={selectedMethod}
-                  setSelectedMethod={setSelectedMethod}
-                  getMethodStyle={getMethodStyle}
-                  setActiveTab={setActiveTab}
-                  setIsEditMode={setIsEditMode}
-                />
-              </div>
+              {/* 트리 구조 리소스 목록 렌더링 */}
+              {renderResourceTree()}
             </div>
           </div>
 
