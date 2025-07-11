@@ -160,7 +160,7 @@ export default function LoginPage() {
             {/* 회원가입 링크 */}
             <div className="text-center">
               <p className="text-sm text-gray-600">
-                계정이 없으신가요?
+                계��이 없으신가요?
                 <Link
                   href="/signup"
                   className="ml-[5px] text-blue-600 hover:text-blue-700 font-medium hover:underline"
