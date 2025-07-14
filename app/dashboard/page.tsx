@@ -35,7 +35,6 @@ import { dashboardApps, tooltipDescriptions, eventData } from '@/constants/dashb
 import { LogViewerModal } from '@/app/LogViewerModal';
 import { useRouter } from 'next/navigation';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { fetchWithAuth } from '@/hooks/fetchWithAuth';
 
 // 로그 뷰어 모달 컴포넌트
 
@@ -55,22 +54,6 @@ function RealTimeAreaChart({
   unit?: string;
   tooltipDescription: string;
 }) {
-  const [userData, setUserData] = useState<any>(null);
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const res = await fetchWithAuth('/api/protected');
-        const json = await res.json();
-        setUserData(json);
-      } catch (e) {
-        console.error('로그인 세션이 만료되었습니다.');
-      }
-    };
-
-    loadData();
-  }, []);
-
   const [data, setData] = useState(() => {
     const initialData = [];
     const now = new Date();

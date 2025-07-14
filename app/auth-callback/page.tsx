@@ -23,8 +23,9 @@ export default function AuthCallback() {
 
     if (res.status == 200) {
       console.log(res);
-      if (res.data) {
-        localStorage.setItem('access_token', res.data.access_token || res.data.token || res.data);
+      if (res) {
+        localStorage.setItem('access_token', res.data.accessToken);
+        localStorage.setItem('refresh_token', res.data.refreshToken);
         router.push('/dashboard');
       }
     }
@@ -32,6 +33,7 @@ export default function AuthCallback() {
 
   useEffect(() => {
     if (code) {
+      console.log(code);
       getJWTToken();
     }
   }, [code]);

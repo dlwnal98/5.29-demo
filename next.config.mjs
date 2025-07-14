@@ -25,7 +25,7 @@ const nextConfig = {
       },
       {
         source: '/api/v1/:path*',
-        destination: 'http://1.224.162.188:58081/:path*',
+        destination: 'http://1.224.162.188:58081/api/v1/:path*',
       },
     ];
   },

@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { AlertCircle, Eye, EyeOff, Waves, User, Lock } from 'lucide-react';
 import Link from 'next/link';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [userId, setUserId] = useState('');
@@ -19,29 +20,28 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const router = useRouter();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
   };
 
   const handleLogin = async () => {
-    const REDIRECT_URI = process.env.NEXT_PUBLIC_AUTH_REDIRECT_URI;
+    try {
+      const REDIRECT_URI = process.env.NEXT_PUBLIC_AUTH_REDIRECT_URI;
 
-    const res = await axios.post('/api/v1/code', {
-      userId: 'user01',
-      userPassword: '1234',
-      redirectUri: REDIRECT_URI,
-    });
+      const res = await axios.post('/api/v1/code', {
+        userId: 'user01',
+        userPassword: '1234',
+        redirectUri: REDIRECT_URI,
+      });
 
-    console.log(res);
-
-    if (res.status == 302) {
-      console.log(1);
-    } else if (res.status == 400) {
-      console.log(2);
-    } else if (res.status == 401) {
-      console.log(3);
-    } else {
-      console.log(4);
+      if (res.status == 200) {
+        window.location.href = res.request.responseURL;
+      }
+    } catch (e) {
+      console.log(e);
+      throw e;
     }
   };
 
