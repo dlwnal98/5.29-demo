@@ -1,14 +1,27 @@
-"use client"
+'use client';
 
-import { AppLayout } from "@/components/layout/AppLayout"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { AppLayout } from '@/components/layout/AppLayout';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,8 +31,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+} from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -27,7 +45,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+} from '@/components/ui/breadcrumb';
 import {
   ArrowLeft,
   ChevronRight,
@@ -41,145 +59,154 @@ import {
   SquarePlus,
   SquareMinus,
   X,
-} from "lucide-react"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { toast } from "sonner"
-import { Switch } from "@/components/ui/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+} from 'lucide-react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { Switch } from '@/components/ui/switch';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface ApiResource {
-  id: string
-  path: string
-  name: string
-  children?: ApiResource[]
-  methods: ApiMethod[]
+  id: string;
+  path: string;
+  name: string;
+  children?: ApiResource[];
+  methods: ApiMethod[];
 }
 
 interface ApiMethod {
-  id: string
-  type: string
-  path: string
-  endpointUrl: string
-  description: string
+  id: string;
+  type: string;
+  path: string;
+  endpointUrl: string;
+  description: string;
 }
 
 interface Stage {
-  id: string
-  name: string
-  description: string
-  cacheEnabled: boolean
-  throttleRate: number
-  burstRate: number
-  url: string
-  lastDeployed: string
-  deploymentId: string
+  id: string;
+  name: string;
+  description: string;
+  cacheEnabled: boolean;
+  throttleRate: number;
+  burstRate: number;
+  url: string;
+  lastDeployed: string;
+  deploymentId: string;
 }
 
 interface DeploymentRecord {
-  id: string
-  stageName: string
-  date: string
-  status: "active" | "inactive" | "failed"
-  description: string
-  deploymentId: string
+  id: string;
+  stageName: string;
+  date: string;
+  status: 'active' | 'inactive' | 'failed';
+  description: string;
+  deploymentId: string;
 }
 
 interface SelectedMethod {
-  resourceId: string
-  resourcePath: string
-  method: ApiMethod
-  url: string
+  resourceId: string;
+  resourcePath: string;
+  method: ApiMethod;
+  url: string;
 }
 
 interface SelectedResource {
-  resource: ApiResource
-  type: "stage" | "resource"
+  resource: ApiResource;
+  type: 'stage' | 'resource';
 }
 
 export default function StagesPage() {
-  const router = useRouter()
+  const router = useRouter();
 
   const mockDeployments: DeploymentRecord[] = [
     {
-      id: "1",
-      stageName: "hello",
-      date: "July 03, 2025, 08:26 (UTC+09:00)",
-      status: "inactive",
-      description: "Initial deployment",
-      deploymentId: "eemowu",
+      id: '1',
+      stageName: 'hello',
+      date: 'July 03, 2025, 08:26 (UTC+09:00)',
+      status: 'inactive',
+      description: 'Initial deployment',
+      deploymentId: 'eemowu',
     },
     {
-      id: "2",
-      stageName: "nexfron",
-      date: "July 03, 2025, 08:26 (UTC+09:00)",
-      status: "inactive",
-      description: "Production update",
-      deploymentId: "jje6x",
+      id: '2',
+      stageName: 'nexfron',
+      date: 'July 03, 2025, 08:26 (UTC+09:00)',
+      status: 'inactive',
+      description: 'Production update',
+      deploymentId: 'jje6x',
     },
     {
-      id: "3",
-      stageName: "hello",
-      date: "July 02, 2025, 17:44 (UTC+09:00)",
-      status: "active",
-      description: "Bug fix deployment",
-      deploymentId: "xf40pg",
+      id: '3',
+      stageName: 'hello',
+      date: 'July 02, 2025, 17:44 (UTC+09:00)',
+      status: 'active',
+      description: 'Bug fix deployment',
+      deploymentId: 'xf40pg',
     },
     {
-      id: "4",
-      stageName: "nexfron",
-      date: "July 02, 2025, 17:42 (UTC+09:00)",
-      status: "inactive",
-      description: "Feature rollback",
-      deploymentId: "ussiri",
+      id: '4',
+      stageName: 'nexfron',
+      date: 'July 02, 2025, 17:42 (UTC+09:00)',
+      status: 'inactive',
+      description: 'Feature rollback',
+      deploymentId: 'ussiri',
     },
-  ]
+  ];
 
   const [apiResources] = useState<ApiResource[]>([
     {
-      id: "hello",
-      path: "/",
-      name: "hello",
+      id: 'hello',
+      path: '/',
+      name: 'hello',
       methods: [],
       children: [
         {
-          id: "root",
-          path: "/",
-          name: "/",
+          id: 'root',
+          path: '/',
+          name: '/',
           methods: [],
           children: [
             {
-              id: "rnd",
-              path: "/rnd",
-              name: "/rnd",
+              id: 'rnd',
+              path: '/rnd',
+              name: '/rnd',
               methods: [
                 {
-                  id: "get-rnd",
-                  type: "GET",
-                  path: "/rnd",
-                  endpointUrl: "https://ynr5g5hoch.execute-api.ap-northeast-2.amazonaws.com/hello/rnd",
-                  description: "Get random data",
+                  id: 'get-rnd',
+                  type: 'GET',
+                  path: '/rnd',
+                  endpointUrl:
+                    'https://ynr5g5hoch.execute-api.ap-northeast-2.amazonaws.com/hello/rnd',
+                  description: 'Get random data',
                 },
               ],
             },
             {
-              id: "users",
-              path: "/users",
-              name: "/users",
+              id: 'users',
+              path: '/users',
+              name: '/users',
               methods: [
                 {
-                  id: "get-users",
-                  type: "GET",
-                  path: "/users",
-                  endpointUrl: "https://ynr5g5hoch.execute-api.ap-northeast-2.amazonaws.com/hello/users",
-                  description: "Get all users",
+                  id: 'get-users',
+                  type: 'GET',
+                  path: '/users',
+                  endpointUrl:
+                    'https://ynr5g5hoch.execute-api.ap-northeast-2.amazonaws.com/hello/users',
+                  description: 'Get all users',
                 },
                 {
-                  id: "post-users",
-                  type: "POST",
-                  path: "/users",
-                  endpointUrl: "https://ynr5g5hoch.execute-api.ap-northeast-2.amazonaws.com/hello/users",
-                  description: "Create new user",
+                  id: 'post-users',
+                  type: 'POST',
+                  path: '/users',
+                  endpointUrl:
+                    'https://ynr5g5hoch.execute-api.ap-northeast-2.amazonaws.com/hello/users',
+                  description: 'Create new user',
                 },
               ],
             },
@@ -188,40 +215,66 @@ export default function StagesPage() {
       ],
     },
     {
-      id: "nexfron",
-      path: "/nexfron",
-      name: "nexfron",
+      id: 'nexfron',
+      path: '/nexfron',
+      name: 'nexfron',
       methods: [],
+      children: [
+        {
+          id: 'root',
+          path: '/',
+          name: '/',
+          methods: [],
+          children: [
+            {
+              id: 'rnd',
+              path: '/rnd',
+              name: '/rnd',
+              methods: [
+                {
+                  id: 'get-rnd',
+                  type: 'GET',
+                  path: '/rnd',
+                  endpointUrl:
+                    'https://ynr5g5hoch.execute-api.ap-northeast-2.amazonaws.com/hello/rnd',
+                  description: 'Get random data',
+                },
+              ],
+            },
+          ],
+        },
+      ],
     },
-  ])
+  ]);
 
   const [selectedStage, setSelectedStage] = useState<Stage>({
-    id: "hello",
-    name: "hello",
-    description: "",
+    id: 'hello',
+    name: 'hello',
+    description: '',
     cacheEnabled: false,
     throttleRate: 10000,
     burstRate: 5000,
-    url: "https://ynr5g5hoch.execute-api.ap-northeast-2.amazonaws.com/hello",
-    lastDeployed: "July 02, 2025, 17:44 (UTC+09:00)",
-    deploymentId: "xf40bg",
-  })
+    url: 'https://ynr5g5hoch.execute-api.ap-northeast-2.amazonaws.com/hello',
+    lastDeployed: 'July 02, 2025, 17:44 (UTC+09:00)',
+    deploymentId: 'xf40bg',
+  });
 
   const [selectedResource, setSelectedResource] = useState<SelectedResource>({
     resource: apiResources[0],
-    type: "stage",
-  })
+    type: 'stage',
+  });
 
-  const [selectedMethod, setSelectedMethod] = useState<SelectedMethod | null>(null)
+  const [selectedMethod, setSelectedMethod] = useState<SelectedMethod | null>(null);
 
-  const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set(["/", "hello"]))
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [isCreateStageModalOpen, setIsCreateStageModalOpen] = useState(false)
-  const [isDeleteStageDialogOpen, setIsDeleteStageDialogOpen] = useState(false)
-  const [isRevokeDeploymentDialogOpen, setIsRevokeDeploymentDialogOpen] = useState(false)
-  const [isDirectUrlInput, setIsDirectUrlInput] = useState(false)
-  const [isRollbackModalOpen, setIsRollbackModalOpen] = useState(false)
-  const [selectedRollbackDeployment, setSelectedRollbackDeployment] = useState<DeploymentRecord | null>(null)
+  const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set(['hello']));
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCreateStageModalOpen, setIsCreateStageModalOpen] = useState(false);
+  const [isDeleteStageDialogOpen, setIsDeleteStageDialogOpen] = useState(false);
+  const [isRevokeDeploymentDialogOpen, setIsRevokeDeploymentDialogOpen] = useState(false);
+  const [isDirectUrlInput, setIsDirectUrlInput] = useState(false);
+  const [isRollbackModalOpen, setIsRollbackModalOpen] = useState(false);
+  const [selectedRollbackDeployment, setSelectedRollbackDeployment] =
+    useState<DeploymentRecord | null>(null);
 
   const [editForm, setEditForm] = useState({
     name: selectedStage.name,
@@ -229,144 +282,152 @@ export default function StagesPage() {
     apiCacheEnabled: false,
     methodLevelCacheEnabled: false,
     throttlingEnabled: false,
-    wafProfile: "없음",
-    clientCertificate: "없음",
-  })
+    wafProfile: '없음',
+    clientCertificate: '없음',
+  });
 
   const [createStageForm, setCreateStageForm] = useState({
-    name: "",
-    description: "",
-  })
+    name: '',
+    description: '',
+  });
 
-  const toggleExpanded = (path: string) => {
-    const newExpanded = new Set(expandedPaths)
-    if (newExpanded.has(path)) {
-      newExpanded.delete(path)
+  const getResourceKey = (resource: ApiResource, parentPath = '') => {
+    // 부모 경로와 현재 리소스의 id를 조합하여 고유한 키 생성
+    return `${parentPath}${resource.id}`;
+  };
+
+  const toggleExpanded = (resource: ApiResource, parentPath = '') => {
+    const resourceKey = getResourceKey(resource, parentPath);
+    const newExpanded = new Set(expandedPaths);
+    if (newExpanded.has(resourceKey)) {
+      newExpanded.delete(resourceKey);
     } else {
-      newExpanded.add(path)
+      newExpanded.add(resourceKey);
     }
-    setExpandedPaths(newExpanded)
-  }
+    setExpandedPaths(newExpanded);
+  };
 
   const handleBack = () => {
-    router.push("/services/api-management")
-  }
+    router.push('/services/api-management');
+  };
 
   const handleCopyUrl = () => {
-    navigator.clipboard.writeText(selectedStage.url)
-    toast.success("URL이 클립보드에 복사되었습니다.")
-  }
+    navigator.clipboard.writeText(selectedStage.url);
+    toast.success('URL이 클립보드에 복사되었습니다.');
+  };
 
   const handleCopyMethodUrl = (url: string) => {
-    navigator.clipboard.writeText(url)
-    toast.success("메서드 URL이 클립보드에 복사되었습니다.")
-  }
+    navigator.clipboard.writeText(url);
+    toast.success('메서드 URL이 클립보드에 복사되었습니다.');
+  };
 
   const handleEditSave = () => {
     setSelectedStage({
       ...selectedStage,
       name: editForm.name,
       description: editForm.description,
-    })
-    setIsEditModalOpen(false)
-    toast.success("스테이지가 성공적으로 업데이트되었습니다.")
-  }
+    });
+    setIsEditModalOpen(false);
+    toast.success('스테이지가 성공적으로 업데이트되었습니다.');
+  };
 
   const handleCreateStage = () => {
     if (!createStageForm.name.trim()) {
-      toast.error("스테이지 이름을 입력해주세요.")
-      return
+      toast.error('스테이지 이름을 입력해주세요.');
+      return;
     }
 
-    toast.success(`스테이지 '${createStageForm.name}'이(가) 생성되었습니다.`)
-    setIsCreateStageModalOpen(false)
-    setCreateStageForm({ name: "", description: "" })
-  }
+    toast.success(`스테이지 '${createStageForm.name}'이(가) 생성되었습니다.`);
+    setIsCreateStageModalOpen(false);
+    setCreateStageForm({ name: '', description: '' });
+  };
 
-  const handleResourceClick = (resource: ApiResource, type: "stage" | "resource") => {
-    if (type === "stage") {
+  const handleResourceClick = (resource: ApiResource, type: 'stage' | 'resource') => {
+    if (type === 'stage') {
       setSelectedStage({
         ...selectedStage,
         id: resource.id,
         name: resource.name,
-      })
+      });
     }
-    setSelectedResource({ resource, type })
-    setSelectedMethod(null)
-  }
+    setSelectedResource({ resource, type });
+    setSelectedMethod(null);
+  };
 
   const handleMethodClick = (method: ApiMethod, resource: ApiResource) => {
-    const methodUrl = `${selectedStage.url}${method.path}`
+    const methodUrl = `${selectedStage.url}${method.path}`;
     setSelectedMethod({
       resourceId: resource.id,
       resourcePath: resource.path,
       method,
       url: methodUrl,
-    })
-  }
+    });
+  };
 
   const handleExportApi = () => {
-    toast.success("API 내보내기가 시작되었습니다.")
-  }
+    toast.success('API 내보내기가 시작되었습니다.');
+  };
 
   const handleRevokeDeployment = () => {
-    setIsRevokeDeploymentDialogOpen(false)
-    toast.success("배포가 회수되었습니다.")
-  }
+    setIsRevokeDeploymentDialogOpen(false);
+    toast.success('배포가 회수되었습니다.');
+  };
 
   const handleDeleteStage = () => {
-    setIsDeleteStageDialogOpen(false)
-    toast.success(`스테이지 '${selectedStage.name}'이(가) 삭제되었습니다.`)
-  }
+    setIsDeleteStageDialogOpen(false);
+    toast.success(`스테이지 '${selectedStage.name}'이(가) 삭제되었습니다.`);
+  };
 
   const handleRollbackClick = (deployment: DeploymentRecord) => {
-    setSelectedRollbackDeployment(deployment)
-    setIsRollbackModalOpen(true)
-  }
+    setSelectedRollbackDeployment(deployment);
+    setIsRollbackModalOpen(true);
+  };
 
   const handleRollbackConfirm = () => {
     if (selectedRollbackDeployment) {
-      toast.success(`배포 ${selectedRollbackDeployment.deploymentId}로 롤백되었습니다.`)
-      setIsRollbackModalOpen(false)
-      setSelectedRollbackDeployment(null)
+      toast.success(`배포 ${selectedRollbackDeployment.deploymentId}로 롤백되었습니다.`);
+      setIsRollbackModalOpen(false);
+      setSelectedRollbackDeployment(null);
     }
-  }
+  };
 
   const getDeploymentStatusColor = (status: string) => {
     switch (status) {
-      case "active":
-        return "bg-green-100 text-green-700"
-      case "inactive":
-        return "bg-gray-100 text-gray-700"
-      case "failed":
-        return "bg-red-100 text-red-700"
+      case 'active':
+        return 'bg-green-100 text-green-700';
+      case 'inactive':
+        return 'bg-gray-100 text-gray-700';
+      case 'failed':
+        return 'bg-red-100 text-red-700';
       default:
-        return "bg-gray-100 text-gray-700"
+        return 'bg-gray-100 text-gray-700';
     }
-  }
+  };
 
-  const renderResourceTree = (resource: ApiResource, level = 0) => {
-    const isExpanded = expandedPaths.has(resource.id)
+  const renderResourceTree = (resource: ApiResource, level = 0, parentPath = '') => {
+    const resourceKey = getResourceKey(resource, parentPath);
+    const isExpanded = expandedPaths.has(resourceKey);
     const hasChildren =
-      (resource.children && resource.children.length > 0) || (resource.methods && resource.methods.length > 0)
-    const isStage = level === 0
+      (resource.children && resource.children.length > 0) ||
+      (resource.methods && resource.methods.length > 0);
+    const isStage = level === 0;
 
     return (
       <div key={resource.id}>
         <div
           className={`flex items-center gap-2 py-1 px-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-sm ${
             selectedResource.resource.id === resource.id
-              ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-              : ""
+              ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+              : ''
           }`}
           style={{ paddingLeft: `${level * 16 + 8}px` }}
-          onClick={() => handleResourceClick(resource, isStage ? "stage" : "resource")}
+          onClick={() => handleResourceClick(resource, isStage ? 'stage' : 'resource')}
         >
           {hasChildren && (
             <button
               onClick={(e) => {
-                e.stopPropagation()
-                toggleExpanded(resource.id)
+                e.stopPropagation();
+                toggleExpanded(resource, parentPath);
               }}
             >
               {isExpanded ? (
@@ -378,21 +439,23 @@ export default function StagesPage() {
           )}
           {!hasChildren && <div className="w-3" />}
 
-          <span className={`font-medium ${isStage ? "text-blue-600" : "text-gray-700 dark:text-gray-300"}`}>
+          <span
+            className={`font-medium ${isStage ? 'text-blue-600' : 'text-gray-700 dark:text-gray-300'}`}
+          >
             {resource.name}
           </span>
         </div>
 
         {hasChildren && isExpanded && (
           <>
-            {resource.children?.map((child) => renderResourceTree(child, level + 1))}
+            {resource.children?.map((child) => renderResourceTree(child, level + 1, resourceKey))}
             {resource.methods?.map((method, index) => (
               <div
                 key={`${resource.id}-${method.id}-${index}`}
                 className={`flex items-center gap-2 py-1 px-2 text-xs cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 rounded ${
                   selectedMethod?.method.id === method.id
-                    ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
-                    : "text-gray-600 dark:text-gray-400"
+                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                    : 'text-gray-600 dark:text-gray-400'
                 }`}
                 style={{ paddingLeft: `${(level + 1) * 16 + 8}px` }}
                 onClick={() => handleMethodClick(method, resource)}
@@ -400,15 +463,15 @@ export default function StagesPage() {
                 <div className="w-3" />
                 <span
                   className={`font-mono text-xs px-1.5 py-0.5 rounded ${
-                    method.type === "GET"
-                      ? "bg-green-100 text-green-800"
-                      : method.type === "POST"
-                        ? "bg-blue-100 text-blue-800"
-                        : method.type === "PUT"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : method.type === "DELETE"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-gray-100 text-gray-800"
+                    method.type === 'GET'
+                      ? 'bg-green-100 text-green-800'
+                      : method.type === 'POST'
+                        ? 'bg-blue-100 text-blue-800'
+                        : method.type === 'PUT'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : method.type === 'DELETE'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-gray-100 text-gray-800'
                   }`}
                 >
                   {method.type}
@@ -418,48 +481,48 @@ export default function StagesPage() {
           </>
         )}
       </div>
-    )
-  }
-  const [selectedDeploymentRecord, setSelectedDeploymentRecord] = useState("")
+    );
+  };
+  const [selectedDeploymentRecord, setSelectedDeploymentRecord] = useState('');
 
   // Mock deployment records from stages page
   const mockDeploymentRecords = [
     {
-      id: "1",
-      stageName: "hello",
-      date: "July 03, 2025, 08:26 (UTC+09:00)",
-      status: "inactive",
-      description: "Initial deployment",
-      deploymentId: "eemowu",
+      id: '1',
+      stageName: 'hello',
+      date: 'July 03, 2025, 08:26 (UTC+09:00)',
+      status: 'inactive',
+      description: 'Initial deployment',
+      deploymentId: 'eemowu',
     },
     {
-      id: "2",
-      stageName: "nexfron",
-      date: "July 03, 2025, 08:26 (UTC+09:00)",
-      status: "inactive",
-      description: "Production update",
-      deploymentId: "jje6x",
+      id: '2',
+      stageName: 'nexfron',
+      date: 'July 03, 2025, 08:26 (UTC+09:00)',
+      status: 'inactive',
+      description: 'Production update',
+      deploymentId: 'jje6x',
     },
     {
-      id: "3",
-      stageName: "hello",
-      date: "July 02, 2025, 17:44 (UTC+09:00)",
-      status: "active",
-      description: "Bug fix deployment",
-      deploymentId: "xf40pg",
+      id: '3',
+      stageName: 'hello',
+      date: 'July 02, 2025, 17:44 (UTC+09:00)',
+      status: 'active',
+      description: 'Bug fix deployment',
+      deploymentId: 'xf40pg',
     },
     {
-      id: "4",
-      stageName: "nexfron",
-      date: "July 02, 2025, 17:42 (UTC+09:00)",
-      status: "inactive",
-      description: "Feature rollback",
-      deploymentId: "ussiri",
+      id: '4',
+      stageName: 'nexfron',
+      date: 'July 02, 2025, 17:42 (UTC+09:00)',
+      status: 'inactive',
+      description: 'Feature rollback',
+      deploymentId: 'ussiri',
     },
-  ]
+  ];
 
   // Get current active deployment
-  const currentActiveDeployment = mockDeployments.find((d) => d.status === "active")
+  const currentActiveDeployment = mockDeployments.find((d) => d.status === 'active');
 
   return (
     <AppLayout>
@@ -503,7 +566,9 @@ export default function StagesPage() {
           {/* Left Sidebar - Resource Tree */}
           <div className="col-span-3">
             <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3 h-full">
-              <div className="space-y-1">{apiResources.map((resource) => renderResourceTree(resource))}</div>
+              <div className="space-y-1">
+                {apiResources.map((resource) => renderResourceTree(resource))}
+              </div>
             </div>
           </div>
 
@@ -518,15 +583,15 @@ export default function StagesPage() {
                       <CardTitle className="flex items-center gap-2">
                         <span
                           className={`px-2 py-1 rounded text-sm font-mono ${
-                            selectedMethod.method.type === "GET"
-                              ? "bg-green-100 text-green-800"
-                              : selectedMethod.method.type === "POST"
-                                ? "bg-blue-100 text-blue-800"
-                                : selectedMethod.method.type === "PUT"
-                                  ? "bg-yellow-100 text-yellow-800"
-                                  : selectedMethod.method.type === "DELETE"
-                                    ? "bg-red-100 text-red-800"
-                                    : "bg-gray-100 text-gray-800"
+                            selectedMethod.method.type === 'GET'
+                              ? 'bg-green-100 text-green-800'
+                              : selectedMethod.method.type === 'POST'
+                                ? 'bg-blue-100 text-blue-800'
+                                : selectedMethod.method.type === 'PUT'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : selectedMethod.method.type === 'DELETE'
+                                    ? 'bg-red-100 text-red-800'
+                                    : 'bg-gray-100 text-gray-800'
                           }`}
                         >
                           {selectedMethod.method.type}
@@ -537,25 +602,33 @@ export default function StagesPage() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">설명</Label>
+                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        설명
+                      </Label>
                       <div className="mt-1 text-sm text-gray-900 dark:text-white">
                         {selectedMethod.method.description}
                       </div>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">엔드포인트 URL</Label>
+                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        엔드포인트 URL
+                      </Label>
                       <div className="mt-1 flex items-center gap-2">
                         <code className="flex-1 text-sm bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded border font-mono">
                           {selectedMethod.url}
                         </code>
-                        <Button size="sm" variant="outline" onClick={() => handleCopyMethodUrl(selectedMethod.url)}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleCopyMethodUrl(selectedMethod.url)}
+                        >
                           <Copy className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              ) : selectedResource.type === "resource" ? (
+              ) : selectedResource.type === 'resource' ? (
                 /* Resource Detail View */
                 <Card>
                   <CardHeader>
@@ -578,22 +651,24 @@ export default function StagesPage() {
                                 <div className="flex items-center gap-3">
                                   <span
                                     className={`px-2 py-1 rounded text-sm font-mono ${
-                                      method.type === "GET"
-                                        ? "bg-green-100 text-green-800"
-                                        : method.type === "POST"
-                                          ? "bg-blue-100 text-blue-800"
-                                          : method.type === "PUT"
-                                            ? "bg-yellow-100 text-yellow-800"
-                                            : method.type === "DELETE"
-                                              ? "bg-red-100 text-red-800"
-                                              : "bg-gray-100 text-gray-800"
+                                      method.type === 'GET'
+                                        ? 'bg-green-100 text-green-800'
+                                        : method.type === 'POST'
+                                          ? 'bg-blue-100 text-blue-800'
+                                          : method.type === 'PUT'
+                                            ? 'bg-yellow-100 text-yellow-800'
+                                            : method.type === 'DELETE'
+                                              ? 'bg-red-100 text-red-800'
+                                              : 'bg-gray-100 text-gray-800'
                                     }`}
                                   >
                                     {method.type}
                                   </span>
                                   <div>
                                     <div className="font-medium">{method.path}</div>
-                                    <div className="text-sm text-gray-600 dark:text-gray-400">{method.description}</div>
+                                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                                      {method.description}
+                                    </div>
                                   </div>
                                 </div>
                                 <ChevronRight className="h-4 w-4 text-gray-400" />
@@ -615,10 +690,16 @@ export default function StagesPage() {
                   <div className="border-b border-gray-200 dark:border-gray-700 p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">스테이지 세부 정보</h2>
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                          스테이지 세부 정보
+                        </h2>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsEditModalOpen(true)}
+                        >
                           <Edit className="h-4 w-4 mr-1" />
                           편집
                         </Button>
@@ -659,7 +740,9 @@ export default function StagesPage() {
                             <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                               스테이지 이름
                             </Label>
-                            <div className="mt-1 text-blue-600 font-medium">{selectedStage.name}</div>
+                            <div className="mt-1 text-blue-600 font-medium">
+                              {selectedStage.name}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -667,7 +750,9 @@ export default function StagesPage() {
 
                     <div className="mt-6 space-y-4">
                       <div>
-                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">URL 호출</Label>
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          URL 호출
+                        </Label>
                         <div className="mt-1 flex items-center gap-2">
                           <button
                             onClick={handleCopyUrl}
@@ -715,16 +800,23 @@ export default function StagesPage() {
                           </TableCell>
                           <TableCell className="text-sm">{deployment.date}</TableCell>
                           <TableCell>
-                            {deployment.status === "active" ? (
-                              <Badge className={getDeploymentStatusColor(deployment.status)}>활성</Badge>
+                            {deployment.status === 'active' ? (
+                              <Badge className={getDeploymentStatusColor(deployment.status)}>
+                                활성
+                              </Badge>
                             ) : (
                               <span className="text-sm text-gray-500">-</span>
                             )}
                           </TableCell>
                           <TableCell className="text-sm">{deployment.description}</TableCell>
-                          <TableCell className="font-mono text-sm">{deployment.deploymentId}</TableCell>
+                          <TableCell className="font-mono text-sm">
+                            {deployment.deploymentId}
+                          </TableCell>
                           <TableCell>
-                            <Button variant="outline" onClick={() => handleRollbackClick(deployment)}>
+                            <Button
+                              variant="outline"
+                              onClick={() => handleRollbackClick(deployment)}
+                            >
                               <RotateCcw className="h-4 w-4 mr-1" />
                               롤백
                             </Button>
@@ -743,14 +835,21 @@ export default function StagesPage() {
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
           <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">스테이지 편집</DialogTitle>
+              <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
+                스테이지 편집
+              </DialogTitle>
             </DialogHeader>
 
             <div className="space-y-6 py-4">
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">스테이지 세부 정보</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  스테이지 세부 정보
+                </h3>
                 <div>
-                  <Label htmlFor="stage-name" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Label
+                    htmlFor="stage-name"
+                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     스테이지 이름
                   </Label>
                   <Input
@@ -761,7 +860,10 @@ export default function StagesPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="stage-description" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Label
+                    htmlFor="stage-description"
+                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     스테이지 설명 - <span className="text-gray-500">선택 사항</span>
                   </Label>
                   <Textarea
@@ -789,12 +891,17 @@ export default function StagesPage() {
         <Dialog open={isCreateStageModalOpen} onOpenChange={setIsCreateStageModalOpen}>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">스테이지 생성</DialogTitle>
+              <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
+                스테이지 생성
+              </DialogTitle>
             </DialogHeader>
 
             <div className="space-y-4 py-4">
               <div>
-                <Label htmlFor="create-stage-name" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Label
+                  htmlFor="create-stage-name"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   스테이지 이름 *
                 </Label>
                 <Input
@@ -840,7 +947,10 @@ export default function StagesPage() {
               {isDirectUrlInput && (
                 <div>
                   <Label htmlFor="deployment-record">배포 기록 선택</Label>
-                  <Select value={selectedDeploymentRecord} onValueChange={setSelectedDeploymentRecord}>
+                  <Select
+                    value={selectedDeploymentRecord}
+                    onValueChange={setSelectedDeploymentRecord}
+                  >
                     <SelectTrigger className="mt-2">
                       <SelectValue placeholder="배포 기록을 선택하세요" />
                     </SelectTrigger>
@@ -867,13 +977,16 @@ export default function StagesPage() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  setIsCreateStageModalOpen(false)
-                  setCreateStageForm({ name: "", description: "" })
+                  setIsCreateStageModalOpen(false);
+                  setCreateStageForm({ name: '', description: '' });
                 }}
               >
                 취소
               </Button>
-              <Button onClick={handleCreateStage} className="bg-orange-500 hover:bg-orange-600 text-white">
+              <Button
+                onClick={handleCreateStage}
+                className="bg-orange-500 hover:bg-orange-600 text-white"
+              >
                 생성
               </Button>
             </DialogFooter>
@@ -884,25 +997,31 @@ export default function StagesPage() {
         <Dialog open={isRollbackModalOpen} onOpenChange={setIsRollbackModalOpen}>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-              <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">활성 배포 변경</DialogTitle>
-              
+              <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+                활성 배포 변경
+              </DialogTitle>
             </DialogHeader>
 
             <div className="space-y-4">
               <div className="text-sm text-gray-700 dark:text-gray-300">
-                '{selectedRollbackDeployment?.stageName}' 스테이지의 활성 배포를 업데이트하시겠습니까?
+                '{selectedRollbackDeployment?.stageName}' 스테이지의 활성 배포를
+                업데이트하시겠습니까?
               </div>
 
               <div className="space-y-3">
                 <div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white mb-1">현재 활성 배포</div>
+                  <div className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                    현재 활성 배포
+                  </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">
                     {currentActiveDeployment?.deploymentId} - {currentActiveDeployment?.date}
                   </div>
                 </div>
 
                 <div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white mb-1">새 활성 배포</div>
+                  <div className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                    새 활성 배포
+                  </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">
                     {selectedRollbackDeployment?.deploymentId} - {selectedRollbackDeployment?.date}
                   </div>
@@ -918,7 +1037,10 @@ export default function StagesPage() {
               <Button variant="outline" onClick={() => setIsRollbackModalOpen(false)}>
                 취소
               </Button>
-              <Button onClick={handleRollbackConfirm} className="bg-orange-500 hover:bg-orange-600 text-white">
+              <Button
+                onClick={handleRollbackConfirm}
+                className="bg-orange-500 hover:bg-orange-600 text-white"
+              >
                 활성 배포 변경
               </Button>
             </DialogFooter>
@@ -937,7 +1059,10 @@ export default function StagesPage() {
                 <div className="space-y-2">
                   <p className="font-semibold">⚠️ 경고: 이 작업은 되돌릴 수 없습니다!</p>
                   <p>
-                    스테이지 <span className="font-mono bg-gray-100 px-2 py-1 rounded">{selectedStage.name}</span>
+                    스테이지{' '}
+                    <span className="font-mono bg-gray-100 px-2 py-1 rounded">
+                      {selectedStage.name}
+                    </span>
                     을(를) 삭제하시겠습니까?
                   </p>
                   <p className="text-sm text-red-600">
@@ -950,7 +1075,10 @@ export default function StagesPage() {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>취소</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteStage} className="bg-red-600 hover:bg-red-700 text-white">
+              <AlertDialogAction
+                onClick={handleDeleteStage}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
                 삭제하기
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -958,7 +1086,10 @@ export default function StagesPage() {
         </AlertDialog>
 
         {/* Revoke Deployment Confirmation Dialog */}
-        <AlertDialog open={isRevokeDeploymentDialogOpen} onOpenChange={setIsRevokeDeploymentDialogOpen}>
+        <AlertDialog
+          open={isRevokeDeploymentDialogOpen}
+          onOpenChange={setIsRevokeDeploymentDialogOpen}
+        >
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle className="flex items-center gap-2 text-orange-600">
@@ -968,8 +1099,11 @@ export default function StagesPage() {
               <AlertDialogDescription className="text-gray-600">
                 <div className="space-y-2">
                   <p>
-                    스테이지 <span className="font-mono bg-gray-100 px-2 py-1 rounded">{selectedStage.name}</span>의
-                    현재 배포를 회수하시겠습니까?
+                    스테이지{' '}
+                    <span className="font-mono bg-gray-100 px-2 py-1 rounded">
+                      {selectedStage.name}
+                    </span>
+                    의 현재 배포를 회수하시겠습니까?
                   </p>
                   <p className="text-sm text-orange-600">
                     • 현재 활성화된 배포가 중단됩니다
@@ -991,5 +1125,5 @@ export default function StagesPage() {
         </AlertDialog>
       </div>
     </AppLayout>
-  )
+  );
 }

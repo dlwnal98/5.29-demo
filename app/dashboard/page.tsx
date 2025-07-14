@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Server,
   ExternalLink,
@@ -12,8 +12,8 @@ import {
   AlertCircle,
   CheckCircle2,
   XCircle,
-} from "lucide-react";
-import { useEffect, useState } from "react";
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 import {
   AreaChart,
   Area,
@@ -24,21 +24,18 @@ import {
   CartesianGrid,
   ResponsiveContainer,
   Tooltip,
-} from "recharts";
+} from 'recharts';
 import {
   Tooltip as UITooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  dashboardApps,
-  tooltipDescriptions,
-  eventData,
-} from "@/constants/dashboardData";
-import { LogViewerModal } from "@/app/LogViewerModal";
-import { useRouter } from "next/navigation";
-import { AppLayout } from "@/components/layout/AppLayout";
+} from '@/components/ui/tooltip';
+import { dashboardApps, tooltipDescriptions, eventData } from '@/constants/dashboardData';
+import { LogViewerModal } from '@/app/LogViewerModal';
+import { useRouter } from 'next/navigation';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { fetchWithAuth } from '@/hooks/fetchWithAuth';
 
 // 로그 뷰어 모달 컴포넌트
 
@@ -46,9 +43,9 @@ import { AppLayout } from "@/components/layout/AppLayout";
 function RealTimeAreaChart({
   title,
   dataKey,
-  color = "#3b82f6",
+  color = '#3b82f6',
   maxValue = 100,
-  unit = "%",
+  unit = '%',
   tooltipDescription,
 }: {
   title: string;
@@ -58,16 +55,32 @@ function RealTimeAreaChart({
   unit?: string;
   tooltipDescription: string;
 }) {
+  const [userData, setUserData] = useState<any>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const res = await fetchWithAuth('/api/protected');
+        const json = await res.json();
+        setUserData(json);
+      } catch (e) {
+        console.error('로그인 세션이 만료되었습니다.');
+      }
+    };
+
+    loadData();
+  }, []);
+
   const [data, setData] = useState(() => {
     const initialData = [];
     const now = new Date();
     for (let i = 19; i >= 0; i--) {
       const time = new Date(now.getTime() - i * 30000);
       initialData.push({
-        time: time.toLocaleTimeString("ko-KR", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
+        time: time.toLocaleTimeString('ko-KR', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
         }),
         [dataKey]: Math.random() * (maxValue / 3) + 5, // 초기값은 낮게 설정
       });
@@ -92,10 +105,10 @@ function RealTimeAreaChart({
         newValue = Math.max(0, Math.min(maxValue, newValue));
 
         newData.push({
-          time: now.toLocaleTimeString("ko-KR", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
+          time: now.toLocaleTimeString('ko-KR', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
           }),
           [dataKey]: newValue,
         });
@@ -151,13 +164,7 @@ function RealTimeAreaChart({
               margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
             >
               <defs>
-                <linearGradient
-                  id={`gradient-${dataKey}`}
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
+                <linearGradient id={`gradient-${dataKey}`} x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor={color} stopOpacity={0.3} />
                   <stop offset="95%" stopColor={color} stopOpacity={0.1} />
                 </linearGradient>
@@ -167,7 +174,7 @@ function RealTimeAreaChart({
                 dataKey="time"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 10, fill: "#6b7280" }}
+                tick={{ fontSize: 10, fill: '#6b7280' }}
                 tickMargin={10}
                 // interval="preserveStartEnd"
                 interval={2}
@@ -180,7 +187,7 @@ function RealTimeAreaChart({
                 tickLine={false}
                 tickMargin={8}
                 width={40}
-                tick={{ fontSize: 10, fill: "#6b7280" }}
+                tick={{ fontSize: 10, fill: '#6b7280' }}
                 tickFormatter={(value) => `${value}${unit}`}
                 allowDataOverflow={true}
               />
@@ -209,10 +216,10 @@ function NetworkChart() {
     for (let i = 19; i >= 0; i--) {
       const time = new Date(now.getTime() - i * 30000);
       initialData.push({
-        time: time.toLocaleTimeString("ko-KR", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
+        time: time.toLocaleTimeString('ko-KR', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
         }),
         // PPS 데이터
         vnet40_in_pps: Math.random() * 150 + 100,
@@ -231,7 +238,7 @@ function NetworkChart() {
     return initialData;
   });
 
-  const [activeTab, setActiveTab] = useState("PPS");
+  const [activeTab, setActiveTab] = useState('PPS');
   const [isCollecting, setIsCollecting] = useState(true);
 
   useEffect(() => {
@@ -245,10 +252,10 @@ function NetworkChart() {
 
         // 이전 값에 약간의 변동을 주어 자연스러운 변화 만들기
         const newPoint: any = {
-          time: now.toLocaleTimeString("ko-KR", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
+          time: now.toLocaleTimeString('ko-KR', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
           }),
         };
 
@@ -310,18 +317,18 @@ function NetworkChart() {
 
   const networkLines = {
     PPS: [
-      { key: "vnet40_in_pps", color: "#10b981", name: "vnet40 In" },
-      { key: "vnet36_in_pps", color: "#06b6d4", name: "vnet36 In" },
-      { key: "vnet6_in_pps", color: "#f59e0b", name: "vnet6 In" },
-      { key: "nfbr0_in_pps", color: "#8b5cf6", name: "nfbr0 In" },
-      { key: "vnet40_out_pps", color: "#ef4444", name: "vnet40 Out" },
+      { key: 'vnet40_in_pps', color: '#10b981', name: 'vnet40 In' },
+      { key: 'vnet36_in_pps', color: '#06b6d4', name: 'vnet36 In' },
+      { key: 'vnet6_in_pps', color: '#f59e0b', name: 'vnet6 In' },
+      { key: 'nfbr0_in_pps', color: '#8b5cf6', name: 'nfbr0 In' },
+      { key: 'vnet40_out_pps', color: '#ef4444', name: 'vnet40 Out' },
     ],
     BPS: [
-      { key: "vnet40_in_bps", color: "#10b981", name: "vnet40 In" },
-      { key: "vnet36_in_bps", color: "#06b6d4", name: "vnet36 In" },
-      { key: "vnet6_in_bps", color: "#f59e0b", name: "vnet6 In" },
-      { key: "nfbr0_in_bps", color: "#8b5cf6", name: "nfbr0 In" },
-      { key: "vnet40_out_bps", color: "#ef4444", name: "vnet40 Out" },
+      { key: 'vnet40_in_bps', color: '#10b981', name: 'vnet40 In' },
+      { key: 'vnet36_in_bps', color: '#06b6d4', name: 'vnet36 In' },
+      { key: 'vnet6_in_bps', color: '#f59e0b', name: 'vnet6 In' },
+      { key: 'nfbr0_in_bps', color: '#8b5cf6', name: 'nfbr0 In' },
+      { key: 'vnet40_out_bps', color: '#ef4444', name: 'vnet40 Out' },
     ],
   };
 
@@ -332,9 +339,7 @@ function NetworkChart() {
           <p className="text-sm font-medium mb-2">{`시간: ${label}`}</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {`${entry.name}: ${entry.value.toFixed(0)} ${
-                activeTab === "PPS" ? "pps" : "Mbps"
-              }`}
+              {`${entry.name}: ${entry.value.toFixed(0)} ${activeTab === 'PPS' ? 'pps' : 'Mbps'}`}
             </p>
           ))}
         </div>
@@ -364,18 +369,18 @@ function NetworkChart() {
 
         <div className="flex space-x-2 mb-4">
           <Button
-            variant={activeTab === "BPS" ? "default" : "outline"}
+            variant={activeTab === 'BPS' ? 'default' : 'outline'}
             size="sm"
             className="text-xs"
-            onClick={() => setActiveTab("BPS")}
+            onClick={() => setActiveTab('BPS')}
           >
             BPS
           </Button>
           <Button
-            variant={activeTab === "PPS" ? "default" : "outline"}
+            variant={activeTab === 'PPS' ? 'default' : 'outline'}
             size="sm"
             className="text-xs"
-            onClick={() => setActiveTab("PPS")}
+            onClick={() => setActiveTab('PPS')}
           >
             PPS
           </Button>
@@ -383,16 +388,13 @@ function NetworkChart() {
 
         <div className="h-48">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={data}
-              margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
-            >
+            <LineChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis
                 dataKey="time"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 10, fill: "#6b7280" }}
+                tick={{ fontSize: 10, fill: '#6b7280' }}
                 tickFormatter={(value) => value.slice(0, 5)}
                 tickMargin={8}
                 // interval="preserveStartEnd"
@@ -400,31 +402,27 @@ function NetworkChart() {
                 padding={{ left: 20, right: 0 }}
               />
               <YAxis
-                domain={activeTab === "PPS" ? [0, 500] : [0, 600]}
+                domain={activeTab === 'PPS' ? [0, 500] : [0, 600]}
                 axisLine={false}
                 tickLine={false}
                 tickMargin={8}
-                tick={{ fontSize: 10, fill: "#6b7280" }}
-                tickFormatter={(value) =>
-                  `${value} ${activeTab === "PPS" ? "pps" : "Mbps"}`
-                }
+                tick={{ fontSize: 10, fill: '#6b7280' }}
+                tickFormatter={(value) => `${value} ${activeTab === 'PPS' ? 'pps' : 'Mbps'}`}
                 allowDataOverflow={true}
               />
               <Tooltip content={<CustomTooltip />} />
-              {networkLines[activeTab as keyof typeof networkLines].map(
-                (line) => (
-                  <Line
-                    key={line.key}
-                    type="monotone"
-                    dataKey={line.key}
-                    stroke={line.color}
-                    strokeWidth={2}
-                    dot={false}
-                    name={line.name}
-                    isAnimationActive={false}
-                  />
-                )
-              )}
+              {networkLines[activeTab as keyof typeof networkLines].map((line) => (
+                <Line
+                  key={line.key}
+                  type="monotone"
+                  dataKey={line.key}
+                  stroke={line.color}
+                  strokeWidth={2}
+                  dot={false}
+                  name={line.name}
+                  isAnimationActive={false}
+                />
+              ))}
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -433,10 +431,7 @@ function NetworkChart() {
         <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
           {networkLines[activeTab as keyof typeof networkLines].map((line) => (
             <div key={line.key} className="flex items-center space-x-2">
-              <div
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: line.color }}
-              ></div>
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: line.color }}></div>
               <span>{line.name}</span>
             </div>
           ))}
@@ -487,7 +482,7 @@ function DiskUsage() {
               <div
                 className="h-3 rounded-full transition-all animate-stripe"
                 style={{
-                  width: "3.16%",
+                  width: '3.16%',
                   backgroundImage: `
           repeating-linear-gradient(
             45deg,
@@ -500,9 +495,7 @@ function DiskUsage() {
                 }}
               ></div>
             </div>
-            <div className="text-right text-xs text-green-600 font-medium">
-              3.16%
-            </div>
+            <div className="text-right text-xs text-green-600 font-medium">3.16%</div>
           </div>
 
           <div>
@@ -517,7 +510,7 @@ function DiskUsage() {
               <div
                 className="h-3 rounded-full transition-all animate-stripe"
                 style={{
-                  width: "45.55%",
+                  width: '45.55%',
                   backgroundImage: `
           repeating-linear-gradient(
             45deg,
@@ -530,9 +523,7 @@ function DiskUsage() {
                 }}
               ></div>
             </div>
-            <div className="text-right text-xs text-blue-600 font-medium">
-              45.55%
-            </div>
+            <div className="text-right text-xs text-blue-600 font-medium">45.55%</div>
           </div>
         </div>
       </CardContent>
@@ -543,16 +534,12 @@ function DiskUsage() {
 // 이벤트 컴포넌트
 function EventsSection() {
   const [events, setEvents] = useState(eventData);
-  const [activeTab, setActiveTab] = useState("기본정보");
+  const [activeTab, setActiveTab] = useState('기본정보');
 
   const handleAddEvent = (newEvent: any) => {
     setEvents((prev) => {
       const tabKey =
-        activeTab === "기본정보"
-          ? "basic"
-          : activeTab === "서비스"
-          ? "service"
-          : "log";
+        activeTab === '기본정보' ? 'basic' : activeTab === '서비스' ? 'service' : 'log';
       return {
         ...prev,
         [tabKey]: [newEvent, ...prev[tabKey as keyof typeof prev]],
@@ -562,27 +549,23 @@ function EventsSection() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "error":
+      case 'error':
         return <XCircle className="h-4 w-4 text-red-500 dark:text-red-100" />;
-      case "warning":
-        return (
-          <AlertCircle className="h-4 w-4 text-yellow-500 dark:text-yellow-100" />
-        );
+      case 'warning':
+        return <AlertCircle className="h-4 w-4 text-yellow-500 dark:text-yellow-100" />;
       default:
-        return (
-          <CheckCircle2 className="h-4 w-4 text-green-500 dark:text-green-100" />
-        );
+        return <CheckCircle2 className="h-4 w-4 text-green-500 dark:text-green-100" />;
     }
   };
 
   const getStatusClass = (status: string) => {
     switch (status) {
-      case "error":
-        return "text-red-600 bg-red-50 border-red-200 dark:text-red-100 dark:bg-red-700";
-      case "warning":
-        return "text-yellow-600 bg-yellow-50 border-yellow-200 dark:bg-yellow-700 dark:text-yellow-100";
+      case 'error':
+        return 'text-red-600 bg-red-50 border-red-200 dark:text-red-100 dark:bg-red-700';
+      case 'warning':
+        return 'text-yellow-600 bg-yellow-50 border-yellow-200 dark:bg-yellow-700 dark:text-yellow-100';
       default:
-        return "text-green-600 bg-green-50 border-green-200 dark:bg-green-700 dark:text-green-100";
+        return 'text-green-600 bg-green-50 border-green-200 dark:bg-green-700 dark:text-green-100';
     }
   };
 
@@ -626,9 +609,7 @@ function EventsSection() {
                   <div className="flex items-center justify-center">
                     {getStatusIcon(event.status)}
                   </div>
-                  <span className="col-span-3 text-center">
-                    {event.content}
-                  </span>
+                  <span className="col-span-3 text-center">{event.content}</span>
                   <span className="col-span-2">{event.startTime}</span>
                   <span className="col-span-2">{event.endTime}</span>
                   <span className="col-span-2 text-center">{event.state}</span>
@@ -636,9 +617,7 @@ function EventsSection() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-4 text-sm text-gray-400">
-              로그 이벤트가 없습니다.
-            </div>
+            <div className="text-center py-4 text-sm text-gray-400">로그 이벤트가 없습니다.</div>
           )}
         </div>
       </CardContent>
@@ -650,23 +629,23 @@ export default function Page() {
   const router = useRouter();
 
   const handleAppClick = (url: string) => {
-    if (!url.includes("http")) {
+    if (!url.includes('http')) {
       router.push(url);
     } else {
-      window.open(url, "_blank", "noopener,noreferrer");
+      window.open(url, '_blank', 'noopener,noreferrer');
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "running":
-        return "bg-green-100 text-green-700 border-green-200 dark:bg-green-700 dark:text-green-100";
-      case "stopped":
-        return "bg-red-100 text-red-700 border-red-200 dark:bg-red-700 dark:text-red-100";
-      case "warning":
-        return "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-700 dark:text-yellow-100";
+      case 'running':
+        return 'bg-green-100 text-green-700 border-green-200 dark:bg-green-700 dark:text-green-100';
+      case 'stopped':
+        return 'bg-red-100 text-red-700 border-red-200 dark:bg-red-700 dark:text-red-100';
+      case 'warning':
+        return 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-700 dark:text-yellow-100';
       default:
-        return "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-100";
+        return 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-700 dark:text-gray-100';
     }
   };
 
@@ -697,9 +676,7 @@ export default function Page() {
                       </div>
 
                       {/* App Name */}
-                      <h3 className="font-semibold text-sm mb-2 truncate">
-                        {app.name}
-                      </h3>
+                      <h3 className="font-semibold text-sm mb-2 truncate">{app.name}</h3>
 
                       {/* Status Badge */}
                       <Badge

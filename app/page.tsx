@@ -1,7 +1,6 @@
 'use client';
 
 import type React from 'react';
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, Eye, EyeOff, Waves, User, Lock } from 'lucide-react';
 import Link from 'next/link';
+import axios from 'axios';
 
 export default function LoginPage() {
   const [userId, setUserId] = useState('');
@@ -21,19 +21,27 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setIsLoading(true);
+  };
 
-    try {
-      // 여기서 실제 로그인 API 호출
-      await new Promise((resolve) => setTimeout(resolve, 2000)); // 시뮬레이션
+  const handleLogin = async () => {
+    const REDIRECT_URI = process.env.NEXT_PUBLIC_AUTH_REDIRECT_URI;
 
-      // 로그인 성공 시 대시보드로 리다이렉트
-      window.location.href = '/dashboard';
-    } catch (err) {
-      setError('아이디와 비밀번호를 확인해주세요.');
-    } finally {
-      setIsLoading(false);
+    const res = await axios.post('/api/v1/code', {
+      userId: 'user01',
+      userPassword: '1234',
+      redirectUri: REDIRECT_URI,
+    });
+
+    console.log(res);
+
+    if (res.status == 302) {
+      console.log(1);
+    } else if (res.status == 400) {
+      console.log(2);
+    } else if (res.status == 401) {
+      console.log(3);
+    } else {
+      console.log(4);
     }
   };
 
@@ -143,8 +151,9 @@ export default function LoginPage() {
 
             {/* Login 버튼 */}
             <Button
-              type="submit"
+              type="button"
               disabled={isLoading}
+              onClick={handleLogin}
               className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
             >
               {isLoading ? (
@@ -160,7 +169,7 @@ export default function LoginPage() {
             {/* 회원가입 링크 */}
             <div className="text-center">
               <p className="text-sm text-gray-600">
-                계��이 없으신가요?
+                계정이 없으신가요?
                 <Link
                   href="/signup"
                   className="ml-[5px] text-blue-600 hover:text-blue-700 font-medium hover:underline"
