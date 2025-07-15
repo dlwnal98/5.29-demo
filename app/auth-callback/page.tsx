@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import axios from 'axios';
+import { Loader2 } from 'lucide-react';
 
 export default function AuthCallback() {
   const router = useRouter();
@@ -38,5 +39,13 @@ export default function AuthCallback() {
     }
   }, [code]);
 
-  return <p>로그인 처리 중입니다...</p>;
+  return (
+    <div className="h-screen w-full flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900">
+      <h1 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
+        로그인 중입니다...
+      </h1>
+      <p className="text-gray-500 dark:text-gray-400 mb-4">잠시만 기다려 주세요.</p>
+      <Loader2 className="animate-spin h-6 w-6 text-indigo-500" />
+    </div>
+  );
 }

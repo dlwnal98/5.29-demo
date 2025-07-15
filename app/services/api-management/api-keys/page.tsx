@@ -60,7 +60,9 @@ import {
   EyeOff,
 } from 'lucide-react';
 import { useState } from 'react';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
+import Pagination from '@/components/Pagination';
+import { useCreateAPIKey } from '@/hooks/use-apimanagement';
 
 interface ApiKey {
   id: string;
@@ -162,6 +164,29 @@ export default function ApiKeysPage() {
     }
   };
 
+  // 브랜치 생성
+  const { mutate: createAPIKeyMutate } = useCreateAPIKey('user01', 'test', 'rnd2', 'ddd');
+
+  const handleCreateApiKey2 = () => {
+    if (newApiKey.name.trim()) {
+      createAPIKeyMutate(
+        {
+          keyName: newApiKey.name.trim(),
+          description: newApiKey.description.trim(),
+        },
+        {
+          onSuccess: (data) => {
+            console.log('브랜치 생성 성공:', data);
+            // setNewApiKey({name:''});
+          },
+          onError: (error) => {
+            console.error('브랜치 생성 실패:', error);
+          },
+        }
+      );
+    }
+  };
+
   const handleCreateApiKey = () => {
     if (!newApiKey.name.trim()) {
       toast.error('API Key 이름을 입력해주세요.');
@@ -256,6 +281,8 @@ export default function ApiKeysPage() {
 
   return (
     <AppLayout>
+      <Toaster position="top-center" richColors expand={true} />
+
       <div className="container mx-auto px-4 py-6">
         {/* Breadcrumb */}
         <Breadcrumb className="mb-6">
@@ -562,25 +589,7 @@ export default function ApiKeysPage() {
         </div>
 
         {/* Pagination */}
-        <div className="flex justify-center mt-6">
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" disabled>
-              {'<<'}
-            </Button>
-            <Button variant="outline" size="sm" disabled>
-              {'<'}
-            </Button>
-            <Button size="sm" className="bg-blue-600 text-white">
-              1
-            </Button>
-            <Button variant="outline" size="sm" disabled>
-              {'>'}
-            </Button>
-            <Button variant="outline" size="sm" disabled>
-              {'>>'}
-            </Button>
-          </div>
-        </div>
+        <Pagination />
 
         {/* Edit API Key Modal */}
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
