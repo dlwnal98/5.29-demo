@@ -1,172 +1,160 @@
-'use client';
+"use client"
 
-import { useState } from 'react';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useState } from "react"
+import { AppLayout } from "@/components/layout/AppLayout"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
-  Search,
-  User,
-  CheckCircle,
-  XCircle,
-  ChevronDown,
-  ChevronRight,
-  Users,
-  Shield,
-  Calendar,
-  Phone,
-  MapPin,
-} from 'lucide-react';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
+import { Shield, Users, Building, Plus, Edit, Trash2 } from "lucide-react"
 
-// Mock data
-const mockUserSearchResult = {
-  id: 1,
-  name: 'John Doe',
-  email: 'john.doe@example.com',
-  status: 'active',
-  role: 'Admin',
-  lastLogin: '2024-01-20',
-  phone: '+1 (555) 123-4567',
-  location: 'New York, NY',
-  createdAt: '2024-01-15',
-};
+export default function SettingsPage() {
+  const [activeTab, setActiveTab] = useState("permissions")
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [dialogType, setDialogType] = useState<"permission" | "role" | "tenant">("permission")
 
-const mockTenantPermissions = [
-  {
-    tenantId: 1,
-    tenantName: 'Acme Corporation',
-    companyInitials: 'AC',
-    users: [
-      {
-        id: 1,
-        name: 'John Doe',
-        email: 'john.doe@acme.com',
-        permissions: ['Admin', 'Write', 'Read'],
+  // Mock data
+  const mockPermissions = [
+    {
+      id: 1,
+      name: "user.read",
+      description: "Read user information",
+      resource: "Users",
+      action: "read",
+      createdAt: "2024-01-15",
+    },
+    {
+      id: 2,
+      name: "user.write",
+      description: "Create and update users",
+      resource: "Users",
+      action: "write",
+      createdAt: "2024-01-15",
+    },
+    {
+      id: 3,
+      name: "project.admin",
+      description: "Full project administration",
+      resource: "Projects",
+      action: "admin",
+      createdAt: "2024-01-16",
+    },
+  ]
+
+  const mockRoles = [
+    {
+      id: 1,
+      name: "Super Admin",
+      description: "Full system access with all permissions",
+      permissions: ["user.read", "user.write", "project.admin", "system.admin"],
+      userCount: 2,
+      createdAt: "2024-01-10",
+      isActive: true,
+    },
+    {
+      id: 2,
+      name: "Project Manager",
+      description: "Manage projects and team members",
+      permissions: ["user.read", "project.admin"],
+      userCount: 5,
+      createdAt: "2024-01-12",
+      isActive: true,
+    },
+    {
+      id: 3,
+      name: "Developer",
+      description: "Access to development resources",
+      permissions: ["user.read", "project.read"],
+      userCount: 12,
+      createdAt: "2024-01-14",
+      isActive: true,
+    },
+  ]
+
+  const mockTenants = [
+    {
+      id: 1,
+      name: "acme-corp",
+      displayName: "ACME Corporation",
+      description: "Main corporate tenant",
+      domain: "acme-corp.com",
+      userCount: 45,
+      isActive: true,
+      createdAt: "2024-01-01",
+      settings: {
+        maxUsers: 100,
+        features: ["sso", "audit-logs", "custom-branding"],
       },
-      { id: 2, name: 'Jane Smith', email: 'jane.smith@acme.com', permissions: ['Write', 'Read'] },
-      { id: 3, name: 'Mike Johnson', email: 'mike.johnson@acme.com', permissions: ['Read'] },
-    ],
-  },
-  {
-    tenantId: 2,
-    tenantName: 'TechStart Inc',
-    companyInitials: 'TS',
-    users: [
-      {
-        id: 4,
-        name: 'Sarah Wilson',
-        email: 'sarah.wilson@techstart.com',
-        permissions: ['Admin', 'Write', 'Read'],
+    },
+    {
+      id: 2,
+      name: "tech-solutions",
+      displayName: "Tech Solutions Inc.",
+      description: "Technology consulting tenant",
+      domain: "techsolutions.com",
+      userCount: 23,
+      isActive: true,
+      createdAt: "2024-01-05",
+      settings: {
+        maxUsers: 50,
+        features: ["sso", "audit-logs"],
       },
-      {
-        id: 5,
-        name: 'David Brown',
-        email: 'david.brown@techstart.com',
-        permissions: ['Write', 'Read'],
+    },
+    {
+      id: 3,
+      name: "startup-demo",
+      displayName: "Startup Demo",
+      description: "Demo tenant for startups",
+      domain: "startup-demo.com",
+      userCount: 8,
+      isActive: false,
+      createdAt: "2024-01-10",
+      settings: {
+        maxUsers: 25,
+        features: ["basic"],
       },
-    ],
-  },
-  {
-    tenantId: 3,
-    tenantName: 'Global Solutions Ltd',
-    companyInitials: 'GS',
-    users: [
-      {
-        id: 6,
-        name: 'Emily Davis',
-        email: 'emily.davis@globalsolutions.com',
-        permissions: ['Admin', 'Write', 'Read'],
-      },
-      {
-        id: 7,
-        name: 'Robert Miller',
-        email: 'robert.miller@globalsolutions.com',
-        permissions: ['Read'],
-      },
-      {
-        id: 8,
-        name: 'Lisa Anderson',
-        email: 'lisa.anderson@globalsolutions.com',
-        permissions: ['Write', 'Read'],
-      },
-    ],
-  },
-];
+    },
+  ]
 
-export default function UserToolsPage() {
-  const [emailSearch, setEmailSearch] = useState('');
-  const [usernameCheck, setUsernameCheck] = useState('');
-  const [searchResult, setSearchResult] = useState<typeof mockUserSearchResult | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchError, setSearchError] = useState('');
-  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
-  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
-  const [expandedTenants, setExpandedTenants] = useState<number[]>([]);
+  const handleCreate = (type: "permission" | "role" | "tenant") => {
+    setDialogType(type)
+    setIsCreateDialogOpen(true)
+  }
 
-  const handleEmailSearch = async () => {
-    if (!emailSearch.trim()) return;
+  const handleEdit = (type: string, id: number) => {
+    console.log(`Edit ${type} with id:`, id)
+  }
 
-    setIsSearching(true);
-    setSearchError('');
-    setSearchResult(null);
+  const handleDelete = (type: string, id: number) => {
+    console.log(`Delete ${type} with id:`, id)
+  }
 
-    // Simulate API call
-    setTimeout(() => {
-      if (emailSearch.toLowerCase() === 'john.doe@example.com') {
-        setSearchResult(mockUserSearchResult);
-      } else {
-        setSearchError('User not found');
-      }
-      setIsSearching(false);
-    }, 1000);
-  };
-
-  const handleUsernameCheck = async (username: string) => {
-    if (!username.trim()) {
-      setUsernameAvailable(null);
-      return;
+  const getPermissionBadge = (action: string) => {
+    const actionColors = {
+      read: "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 border-green-200 dark:border-green-800",
+      write:
+        "bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400 border-amber-200 dark:border-amber-800",
+      admin: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400 border-red-200 dark:border-red-800",
     }
+    return <Badge className={actionColors[action as keyof typeof actionColors] || actionColors.read}>{action}</Badge>
+  }
 
-    setIsCheckingUsername(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      // Mock logic: usernames starting with 'a' are taken
-      setUsernameAvailable(!username.toLowerCase().startsWith('a'));
-      setIsCheckingUsername(false);
-    }, 500);
-  };
-
-  const toggleTenant = (tenantId: number) => {
-    setExpandedTenants((prev) =>
-      prev.includes(tenantId) ? prev.filter((id) => id !== tenantId) : [...prev, tenantId]
-    );
-  };
-
-  const getPermissionBadge = (permission: string) => {
-    const permissionColors = {
-      Admin:
-        'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400 border-red-200 dark:border-red-800',
-      Write:
-        'bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400 border-amber-200 dark:border-amber-800',
-      Read: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 border-green-200 dark:border-green-800',
-    };
-    return (
-      <Badge
-        className={
-          permissionColors[permission as keyof typeof permissionColors] || permissionColors.Read
-        }
-      >
-        {permission}
-      </Badge>
-    );
-  };
-
-  const getStatusBadge = (status: string) => {
-    return status === 'active' ? (
+  const getStatusBadge = (isActive: boolean) => {
+    return isActive ? (
       <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
         Active
       </Badge>
@@ -174,24 +162,8 @@ export default function UserToolsPage() {
       <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700">
         Inactive
       </Badge>
-    );
-  };
-
-  const getRoleBadge = (role: string) => {
-    const roleColors = {
-      Admin:
-        'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400 border-red-200 dark:border-red-800',
-      Editor:
-        'bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400 border-amber-200 dark:border-amber-800',
-      Viewer:
-        'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 border-blue-200 dark:border-blue-800',
-    };
-    return (
-      <Badge className={roleColors[role as keyof typeof roleColors] || roleColors.Viewer}>
-        {role}
-      </Badge>
-    );
-  };
+    )
+  }
 
   return (
     <AppLayout>
@@ -199,235 +171,392 @@ export default function UserToolsPage() {
         <div className="container mx-auto px-6 py-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">User Utility Tools</h1>
-            <p className="text-muted-foreground">
-              Search users, check availability, and manage permissions
-            </p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Settings</h1>
+            <p className="text-muted-foreground">Manage permissions, roles, and tenant configurations</p>
           </div>
 
-          <div className="space-y-8">
-            {/* Section 1: Find User by Email */}
-            <Card className="glass border-border">
-              <CardHeader className="border-b border-border">
-                <CardTitle className="text-xl font-semibold text-foreground flex items-center">
-                  <Search className="h-5 w-5 mr-2 text-primary" />
-                  Find User by Email
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                  <div className="flex-1">
-                    <Input
-                      placeholder="Enter email address..."
-                      value={emailSearch}
-                      onChange={(e) => setEmailSearch(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleEmailSearch()}
-                      className="border-input focus:border-primary"
-                    />
-                  </div>
-                  <Button
-                    onClick={handleEmailSearch}
-                    disabled={isSearching || !emailSearch.trim()}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
-                  >
-                    {isSearching ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Searching...
-                      </>
-                    ) : (
-                      <>
-                        <Search className="h-4 w-4 mr-2" />
-                        Search
-                      </>
-                    )}
-                  </Button>
-                </div>
-
-                {/* Search Results */}
-                {searchResult && (
-                  <Card className="border-border bg-muted/50">
-                    <CardContent className="p-4">
-                      <div className="flex items-start space-x-4">
-                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                          <span className="text-lg font-semibold text-primary">
-                            {searchResult.name
-                              .split(' ')
-                              .map((n) => n[0])
-                              .join('')}
-                          </span>
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-foreground mb-1">
-                            {searchResult.name}
-                          </h3>
-                          <p className="text-muted-foreground mb-2">{searchResult.email}</p>
-                          <div className="flex flex-wrap items-center gap-2 mb-3">
-                            {getStatusBadge(searchResult.status)}
-                            {getRoleBadge(searchResult.role)}
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                            <div className="flex items-center space-x-2">
-                              <Phone className="h-4 w-4 text-muted-foreground" />
-                              <span className="text-muted-foreground">{searchResult.phone}</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <MapPin className="h-4 w-4 text-muted-foreground" />
-                              <span className="text-muted-foreground">{searchResult.location}</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Calendar className="h-4 w-4 text-muted-foreground" />
-                              <span className="text-muted-foreground">
-                                Last login: {new Date(searchResult.lastLogin).toLocaleDateString()}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {searchError && (
-                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                    <div className="flex items-center">
-                      <XCircle className="h-5 w-5 text-red-600 dark:text-red-400 mr-2" />
-                      <span className="text-red-700 dark:text-red-300">{searchError}</span>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Section 2: Check Username Availability */}
-            <Card className="glass border-border">
-              <CardHeader className="border-b border-border">
-                <CardTitle className="text-xl font-semibold text-foreground flex items-center">
-                  <User className="h-5 w-5 mr-2 text-primary" />
-                  Check Username Availability
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="flex flex-col sm:flex-row gap-4 items-start">
-                  <div className="flex-1">
-                    <Input
-                      placeholder="Enter username..."
-                      value={usernameCheck}
-                      onChange={(e) => {
-                        setUsernameCheck(e.target.value);
-                        handleUsernameCheck(e.target.value);
-                      }}
-                      className="border-input focus:border-primary"
-                    />
-                  </div>
-                  <div className="flex items-center">
-                    {isCheckingUsername ? (
-                      <div className="flex items-center">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
-                        <span className="text-muted-foreground">Checking...</span>
-                      </div>
-                    ) : usernameAvailable !== null && usernameCheck.trim() ? (
-                      usernameAvailable ? (
-                        <Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 border-green-200 dark:border-green-800">
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          Available
-                        </Badge>
-                      ) : (
-                        <Badge className="bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400 border-red-200 dark:border-red-800">
-                          <XCircle className="h-4 w-4 mr-1" />
-                          Taken
-                        </Badge>
-                      )
-                    ) : null}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Section 3: Tenant-wide User Permissions */}
-            <Card className="glass border-border">
-              <CardHeader className="border-b border-border">
-                <CardTitle className="text-xl font-semibold text-foreground flex items-center">
-                  <Shield className="h-5 w-5 mr-2 text-primary" />
-                  Tenant-wide User Permissions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  {mockTenantPermissions.map((tenant) => (
-                    <Collapsible
-                      key={tenant.tenantId}
-                      open={expandedTenants.includes(tenant.tenantId)}
-                      onOpenChange={() => toggleTenant(tenant.tenantId)}
+          {/* Main Content */}
+          <Card className="glass border-border">
+            <CardContent className="p-0">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <div className="border-b border-border px-6 pt-6">
+                  <TabsList className="grid w-full grid-cols-3 bg-muted">
+                    <TabsTrigger
+                      value="permissions"
+                      className="data-[state=active]:bg-background data-[state=active]:text-foreground"
                     >
-                      <CollapsibleTrigger asChild>
-                        <Card className="cursor-pointer hover:bg-muted/50 transition-colors border-border">
-                          <CardContent className="p-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-3">
-                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                  <span className="text-sm font-semibold text-primary">
-                                    {tenant.companyInitials}
-                                  </span>
-                                </div>
-                                <div>
-                                  <h3 className="font-semibold text-foreground">
-                                    {tenant.tenantName}
-                                  </h3>
-                                  <p className="text-sm text-muted-foreground flex items-center">
-                                    <Users className="h-4 w-4 mr-1" />
-                                    {tenant.users.length} users
-                                  </p>
-                                </div>
+                      <Shield className="h-4 w-4 mr-2" />
+                      Permissions
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="roles"
+                      className="data-[state=active]:bg-background data-[state=active]:text-foreground"
+                    >
+                      <Users className="h-4 w-4 mr-2" />
+                      Roles
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="tenants"
+                      className="data-[state=active]:bg-background data-[state=active]:text-foreground"
+                    >
+                      <Building className="h-4 w-4 mr-2" />
+                      Tenants
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+
+                {/* Permissions Tab */}
+                <TabsContent value="permissions" className="p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <div>
+                      <h2 className="text-xl font-semibold text-foreground">Permission Management</h2>
+                      <p className="text-muted-foreground">Define and manage system permissions</p>
+                    </div>
+                    <Button onClick={() => handleCreate("permission")} className="bg-primary hover:bg-primary/90">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Permission
+                    </Button>
+                  </div>
+
+                  <div className="border border-border rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="border-border">
+                          <TableHead className="font-semibold">Name</TableHead>
+                          <TableHead className="font-semibold">Description</TableHead>
+                          <TableHead className="font-semibold">Resource</TableHead>
+                          <TableHead className="font-semibold">Action</TableHead>
+                          <TableHead className="font-semibold">Created</TableHead>
+                          <TableHead className="font-semibold text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {mockPermissions.map((permission) => (
+                          <TableRow key={permission.id} className="border-border">
+                            <TableCell className="font-medium">{permission.name}</TableCell>
+                            <TableCell className="text-muted-foreground">{permission.description}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline">{permission.resource}</Badge>
+                            </TableCell>
+                            <TableCell>{getPermissionBadge(permission.action)}</TableCell>
+                            <TableCell className="text-muted-foreground">
+                              {new Date(permission.createdAt).toLocaleDateString()}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center justify-end space-x-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleEdit("permission", permission.id)}
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDelete("permission", permission.id)}
+                                  className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/20"
+                                >
+                                  <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
+                                </Button>
                               </div>
-                              {expandedTenants.includes(tenant.tenantId) ? (
-                                <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                              ) : (
-                                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </TabsContent>
+
+                {/* Roles Tab */}
+                <TabsContent value="roles" className="p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <div>
+                      <h2 className="text-xl font-semibold text-foreground">Role Management</h2>
+                      <p className="text-muted-foreground">Create and manage user roles with permission sets</p>
+                    </div>
+                    <Button onClick={() => handleCreate("role")} className="bg-primary hover:bg-primary/90">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Role
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {mockRoles.map((role) => (
+                      <Card key={role.id} className="border-border">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <CardTitle className="text-lg font-semibold text-foreground">{role.name}</CardTitle>
+                              <p className="text-sm text-muted-foreground mt-1">{role.description}</p>
+                            </div>
+                            {getStatusBadge(role.isActive)}
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div>
+                            <Label className="text-sm font-medium text-muted-foreground">
+                              Permissions ({role.permissions.length})
+                            </Label>
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {role.permissions.slice(0, 3).map((permission) => (
+                                <Badge key={permission} variant="outline" className="text-xs">
+                                  {permission}
+                                </Badge>
+                              ))}
+                              {role.permissions.length > 3 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{role.permissions.length - 3} more
+                                </Badge>
                               )}
                             </div>
-                          </CardContent>
-                        </Card>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="mt-2">
-                        <div className="ml-4 space-y-2">
-                          {tenant.users.map((user) => (
-                            <Card key={user.id} className="border-border bg-muted/30">
-                              <CardContent className="p-4">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center space-x-3">
-                                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                                      <span className="text-xs font-medium text-primary">
-                                        {user.name
-                                          .split(' ')
-                                          .map((n) => n[0])
-                                          .join('')}
-                                      </span>
-                                    </div>
-                                    <div>
-                                      <p className="font-medium text-foreground">{user.name}</p>
-                                      <p className="text-sm text-muted-foreground">{user.email}</p>
-                                    </div>
-                                  </div>
-                                  <div className="flex flex-wrap gap-1">
-                                    {user.permissions.map((permission) => (
-                                      <span key={permission}>{getPermissionBadge(permission)}</span>
-                                    ))}
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                        </div>
-                      </CollapsibleContent>
-                    </Collapsible>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                          </div>
+
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Users assigned:</span>
+                            <span className="font-medium text-foreground">{role.userCount}</span>
+                          </div>
+
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Created:</span>
+                            <span className="text-foreground">{new Date(role.createdAt).toLocaleDateString()}</span>
+                          </div>
+
+                          <div className="flex space-x-2 pt-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEdit("role", role.id)}
+                              className="flex-1"
+                            >
+                              <Edit className="h-4 w-4 mr-1" />
+                              Edit
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDelete("role", role.id)}
+                              className="border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-900/20"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </TabsContent>
+
+                {/* Tenants Tab */}
+                <TabsContent value="tenants" className="p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <div>
+                      <h2 className="text-xl font-semibold text-foreground">Tenant Management</h2>
+                      <p className="text-muted-foreground">Manage tenant organizations and their configurations</p>
+                    </div>
+                    <Button onClick={() => handleCreate("tenant")} className="bg-primary hover:bg-primary/90">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Tenant
+                    </Button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {mockTenants.map((tenant) => (
+                      <Card key={tenant.id} className="border-border">
+                        <CardContent className="p-6">
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-start space-x-4">
+                              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                                <Building className="h-6 w-6 text-primary" />
+                              </div>
+                              <div>
+                                <h3 className="text-lg font-semibold text-foreground">{tenant.displayName}</h3>
+                                <p className="text-sm text-muted-foreground">{tenant.name}</p>
+                                <p className="text-sm text-muted-foreground mt-1">{tenant.description}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              {getStatusBadge(tenant.isActive)}
+                              <Button variant="ghost" size="sm" onClick={() => handleEdit("tenant", tenant.id)}>
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDelete("tenant", tenant.id)}
+                                className="hover:bg-red-100 dark:hover:bg-red-900/20"
+                              >
+                                <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Domain</Label>
+                              <p className="text-foreground">{tenant.domain}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Users</Label>
+                              <p className="text-foreground">
+                                {tenant.userCount} / {tenant.settings.maxUsers}
+                              </p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Created</Label>
+                              <p className="text-foreground">{new Date(tenant.createdAt).toLocaleDateString()}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-muted-foreground">Features</Label>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {tenant.settings.features.map((feature) => (
+                                  <Badge key={feature} variant="outline" className="text-xs">
+                                    {feature}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
         </div>
       </div>
+
+      {/* Create Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Create New {dialogType.charAt(0).toUpperCase() + dialogType.slice(1)}</DialogTitle>
+            <DialogDescription>
+              {dialogType === "permission" && "Define a new system permission"}
+              {dialogType === "role" && "Create a new user role with permission sets"}
+              {dialogType === "tenant" && "Set up a new tenant organization"}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4">
+            {dialogType === "permission" && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="permission-name">Permission Name</Label>
+                    <Input id="permission-name" placeholder="e.g., user.read" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="permission-resource">Resource</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select resource" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="users">Users</SelectItem>
+                        <SelectItem value="projects">Projects</SelectItem>
+                        <SelectItem value="settings">Settings</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="permission-description">Description</Label>
+                  <Textarea id="permission-description" placeholder="Describe what this permission allows" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="permission-action">Action Type</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select action" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="read">Read</SelectItem>
+                      <SelectItem value="write">Write</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
+
+            {dialogType === "role" && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="role-name">Role Name</Label>
+                  <Input id="role-name" placeholder="e.g., Project Manager" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="role-description">Description</Label>
+                  <Textarea id="role-description" placeholder="Describe the role responsibilities" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Permissions</Label>
+                  <div className="border border-border rounded-lg p-4 max-h-40 overflow-y-auto">
+                    {mockPermissions.map((permission) => (
+                      <div key={permission.id} className="flex items-center space-x-2 py-1">
+                        <input type="checkbox" id={`perm-${permission.id}`} />
+                        <Label htmlFor={`perm-${permission.id}`} className="text-sm">
+                          {permission.name} - {permission.description}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch id="role-active" defaultChecked />
+                  <Label htmlFor="role-active">Active</Label>
+                </div>
+              </>
+            )}
+
+            {dialogType === "tenant" && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="tenant-name">Tenant ID</Label>
+                    <Input id="tenant-name" placeholder="e.g., acme-corp" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tenant-display">Display Name</Label>
+                    <Input id="tenant-display" placeholder="e.g., ACME Corporation" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tenant-description">Description</Label>
+                  <Textarea id="tenant-description" placeholder="Brief description of the tenant" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="tenant-domain">Domain</Label>
+                    <Input id="tenant-domain" placeholder="e.g., acme-corp.com" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tenant-max-users">Max Users</Label>
+                    <Input id="tenant-max-users" type="number" placeholder="100" />
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch id="tenant-active" defaultChecked />
+                  <Label htmlFor="tenant-active">Active</Label>
+                </div>
+              </>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => setIsCreateDialogOpen(false)}>
+              Create {dialogType.charAt(0).toUpperCase() + dialogType.slice(1)}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
-  );
+  )
 }
