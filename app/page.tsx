@@ -10,7 +10,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { AlertCircle, Eye, EyeOff, Waves, User, Lock } from 'lucide-react';
 import Link from 'next/link';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [userId, setUserId] = useState('');
@@ -20,29 +19,45 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const router = useRouter();
+  // 아이디 저장
+  const handleSaveId = (checked: boolean) => {
+    setRememberMe(checked);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    if (checked) {
+      localStorage.setItem('userId', userId);
+    } else {
+      localStorage.removeItem('userId');
+    }
   };
 
+  // 로그인 API
   const handleLogin = async () => {
+    setIsLoading(true); // 요청 시작할 때 로딩 활성화
+
     try {
       const REDIRECT_URI = process.env.NEXT_PUBLIC_AUTH_REDIRECT_URI;
 
       const res = await axios.post('/api/v1/code', {
-        userId: 'user01',
-        userPassword: '1234',
+        userId: userId,
+        userPassword: password,
         redirectUri: REDIRECT_URI,
       });
 
-      if (res.status == 200) {
+      if (res?.data?.success === undefined) {
         window.location.href = res.request.responseURL;
+      } else if (!res?.data?.success) {
+        setError(res?.data?.message);
       }
     } catch (e) {
-      console.log(e);
-      throw e;
+      setError('로그인 중 오류가 발생했습니다.');
+    } finally {
+      setIsLoading(false); // 요청 끝나면 로딩 비활성화 (성공/실패와 무관하게)
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    handleLogin();
   };
 
   return (
@@ -126,19 +141,21 @@ export default function LoginPage() {
                 <Checkbox
                   id="remember"
                   checked={rememberMe}
-                  onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                  onCheckedChange={(checked) => handleSaveId(checked as boolean)}
                   className="border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                 />
                 <Label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer">
                   아이디 저장
                 </Label>
               </div>
-              <Link
+
+              {/* 비밀번호 찾기 나중에 */}
+              {/* <Link
                 href="/forgot-password"
                 className="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium"
               >
                 비밀번호를 잊었나요?
-              </Link>
+              </Link> */}
             </div>
 
             {/* 에러 메시지 */}
@@ -151,9 +168,8 @@ export default function LoginPage() {
 
             {/* Login 버튼 */}
             <Button
-              type="button"
+              type="submit"
               disabled={isLoading}
-              onClick={handleLogin}
               className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
             >
               {isLoading ? (

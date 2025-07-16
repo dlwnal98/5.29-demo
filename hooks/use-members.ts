@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 
 interface UserList {
   tenantId: string;
@@ -28,5 +28,42 @@ export function useGetUserList() {
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
+  });
+}
+
+// 유저 생성
+const createUser = async (
+  tenantId: string,
+  userId: string,
+  password: string,
+  name: string,
+  email: string,
+  roleIds: number[]
+) => {
+  const { data } = await axios.post(`/api/v1/users`, {
+    tenantId: tenantId,
+    userId: userId,
+    password: password,
+    name: name,
+    email: email,
+    roleIds: roleIds,
+  });
+
+  return data;
+};
+
+export function useCreateBranch(
+  tenantId: string,
+  userId: string,
+  password: string,
+  name: string,
+  email: string,
+  roleIds: number[]
+) {
+  return useMutation({
+    mutationFn: () => createUser(tenantId, userId, password, name, email, roleIds),
+    onSuccess: () => {
+      console.log('hi');
+    },
   });
 }
