@@ -13,12 +13,11 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem('access_token')) {
-      setLoading(false);
-    } else {
-      router.replace('/'); // 인증 실패 → 로그인 페이지로 이동
-    }
-
+    // if (localStorage.getItem('access_token')) {
+    //   setLoading(false);
+    // } else {
+    //   router.replace('/'); // 인증 실패 → 로그인 페이지로 이동
+    // }
     // axios
     //   .get('/api/me') // 로그인 상태 확인용 API
     //   .then(() => {
