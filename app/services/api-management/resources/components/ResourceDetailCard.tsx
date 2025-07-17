@@ -73,6 +73,7 @@ export function ResourceDetailCard({
                 size="sm"
                 onClick={() => setIsMethodDeleteDialogOpen(true)}
                 className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                title="삭제"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -81,6 +82,7 @@ export function ResourceDetailCard({
                 size="sm"
                 onClick={handleCorsButtonClick}
                 className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 border-gray-200"
+                title="리소스 수정"
               >
                 <Settings className="h-4 w-4 text-gray-500" />
               </Button>

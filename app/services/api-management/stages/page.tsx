@@ -59,6 +59,7 @@ import {
   SquarePlus,
   SquareMinus,
   X,
+  Settings,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -699,35 +700,29 @@ export default function StagesPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => setIsEditModalOpen(true)}
+                          className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 border-gray-200"
+                          title="스테이지 수정"
                         >
-                          <Edit className="h-4 w-4 mr-1" />
-                          편집
+                          <Settings className="h-4 w-4" />
                         </Button>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              스테이지 작업
-                              <ChevronDown className="h-4 w-4 ml-1" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={handleExportApi}>
-                              <Download className="h-4 w-4 mr-2" />
-                              API 내보내기
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setIsRevokeDeploymentDialogOpen(true)}>
-                              <RotateCcw className="h-4 w-4 mr-2" />
-                              배포 회수
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => setIsDeleteStageDialogOpen(true)}
-                              className="text-red-600 focus:text-red-600"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              스테이지 삭제
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleExportApi}
+                          className="text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200"
+                          title="API 내보내기"
+                        >
+                          <Download className="h-4 w-4 " />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsDeleteStageDialogOpen(true)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                          title="스테이지 삭제"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -782,7 +777,6 @@ export default function StagesPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>스테이지 이름</TableHead>
                         <TableHead className="text-center">배포 날짜</TableHead>
                         <TableHead>활성 상태</TableHead>
                         <TableHead className="text-center">설명</TableHead>
@@ -793,11 +787,6 @@ export default function StagesPage() {
                     <TableBody>
                       {mockDeployments.map((deployment) => (
                         <TableRow key={deployment.id}>
-                          <TableCell>
-                            <Badge variant="outline" className="font-mono">
-                              {deployment.stageName}
-                            </Badge>
-                          </TableCell>
                           <TableCell className="text-sm">{deployment.date}</TableCell>
                           <TableCell>
                             {deployment.status === 'active' ? (
@@ -857,6 +846,7 @@ export default function StagesPage() {
                     value={editForm.name}
                     onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
                     className="mt-1"
+                    disabled
                   />
                 </div>
                 <div>
@@ -938,15 +928,13 @@ export default function StagesPage() {
                 />
               </div>
               <div>
-                <Label className="text-sm text-gray-600">배포 여부</Label>
-                <div>
-                  <span className="text-xs mr-3 text-gray-600">기본값으로 설정 여부</span>
+                <div className="flex items-center gap-2">
+                  <Label className="text-sm text-gray-600">배포 기록 선택 여부</Label>
                   <Switch checked={isDirectUrlInput} onCheckedChange={setIsDirectUrlInput} />
                 </div>
               </div>
               {isDirectUrlInput && (
                 <div>
-                  <Label htmlFor="deployment-record">배포 기록 선택</Label>
                   <Select
                     value={selectedDeploymentRecord}
                     onValueChange={setSelectedDeploymentRecord}
