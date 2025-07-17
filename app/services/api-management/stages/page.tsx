@@ -5,15 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
@@ -33,12 +24,6 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -46,11 +31,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { Checkbox } from '@/components/ui/checkbox';
+
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   ArrowLeft,
   ChevronRight,
   ChevronDown,
-  Edit,
   Copy,
   Download,
   RotateCcw,
@@ -60,6 +47,8 @@ import {
   SquareMinus,
   X,
   Settings,
+  Search,
+  ChevronLeft,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -108,6 +97,7 @@ interface DeploymentRecord {
   status: 'active' | 'inactive' | 'failed';
   description: string;
   deploymentId: string;
+  resources?: ApiResource[];
 }
 
 interface SelectedMethod {
@@ -129,33 +119,151 @@ export default function StagesPage() {
     {
       id: '1',
       stageName: 'hello',
-      date: 'July 03, 2025, 08:26 (UTC+09:00)',
+      date: 'July 16, 2025, 16:16 (UTC+09:00)',
       status: 'inactive',
-      description: 'Initial deployment',
-      deploymentId: 'eemowu',
+      description: '',
+      deploymentId: 'fbzwb8',
+      resources: [
+        {
+          id: 'root',
+          path: '/',
+          name: '/',
+          methods: [],
+          children: [
+            {
+              id: 'rnd',
+              path: '/rnd',
+              name: '/rnd',
+              methods: [
+                {
+                  id: 'get-rnd',
+                  type: 'GET',
+                  path: '/rnd',
+                  endpointUrl: 'https://example.com/hello/rnd',
+                  description: 'Get random data',
+                },
+              ],
+            },
+            {
+              id: 'users',
+              path: '/users',
+              name: '/users',
+              methods: [
+                {
+                  id: 'get-users',
+                  type: 'GET',
+                  path: '/users',
+                  endpointUrl: 'https://example.com/hello/users',
+                  description: 'Get all users',
+                },
+              ],
+            },
+          ],
+        },
+      ],
     },
     {
       id: '2',
-      stageName: 'nexfron',
-      date: 'July 03, 2025, 08:26 (UTC+09:00)',
-      status: 'inactive',
-      description: 'Production update',
-      deploymentId: 'jje6x',
+      stageName: 'hello',
+      date: 'July 08, 2025, 17:43 (UTC+09:00)',
+      status: 'active',
+      description: '',
+      deploymentId: 'jrdv3n',
+      resources: [
+        {
+          id: 'root',
+          path: '/',
+          name: '/',
+          methods: [],
+          children: [
+            {
+              id: 'rnd',
+              path: '/rnd',
+              name: '/rnd',
+              methods: [
+                {
+                  id: 'get-rnd',
+                  type: 'GET',
+                  path: '/rnd',
+                  endpointUrl: 'https://example.com/hello/rnd',
+                  description: 'Get random data',
+                },
+              ],
+            },
+          ],
+        },
+      ],
     },
     {
       id: '3',
       stageName: 'hello',
-      date: 'July 02, 2025, 17:44 (UTC+09:00)',
-      status: 'active',
-      description: 'Bug fix deployment',
-      deploymentId: 'xf40pg',
+      date: 'July 08, 2025, 17:34 (UTC+09:00)',
+      status: 'inactive',
+      description: '',
+      deploymentId: 'pbrpcg',
     },
     {
       id: '4',
+      stageName: 'hello',
+      date: 'July 08, 2025, 17:10 (UTC+09:00)',
+      status: 'inactive',
+      description: '',
+      deploymentId: '4v6m5i',
+    },
+    {
+      id: '5',
+      stageName: 'hello',
+      date: 'July 08, 2025, 17:00 (UTC+09:00)',
+      status: 'inactive',
+      description: '',
+      deploymentId: 'h7kft4',
+    },
+    {
+      id: '6',
+      stageName: 'hello',
+      date: 'July 08, 2025, 16:26 (UTC+09:00)',
+      status: 'inactive',
+      description: '',
+      deploymentId: 'x371br',
+    },
+    {
+      id: '7',
+      stageName: 'hello',
+      date: 'July 04, 2025, 11:02 (UTC+09:00)',
+      status: 'inactive',
+      description: 'test',
+      deploymentId: 'l7u5is',
+    },
+    {
+      id: '8',
+      stageName: 'hello',
+      date: 'July 03, 2025, 08:26 (UTC+09:00)',
+      status: 'inactive',
+      description: '',
+      deploymentId: 'eemowu',
+    },
+    {
+      id: '9',
+      stageName: 'nexfron',
+      date: 'July 03, 2025, 08:26 (UTC+09:00)',
+      status: 'inactive',
+      description: '',
+      deploymentId: 'jjes6x',
+    },
+    {
+      id: '10',
+      stageName: 'hello',
+      date: 'July 02, 2025, 17:44 (UTC+09:00)',
+      status: 'inactive',
+      description: '',
+      deploymentId: 'xfd0pg',
+    },
+    {
+      id: '11',
       stageName: 'nexfron',
       date: 'July 02, 2025, 17:42 (UTC+09:00)',
       status: 'inactive',
-      description: 'Feature rollback',
+      description: '',
       deploymentId: 'ussiri',
     },
   ];
@@ -276,6 +384,14 @@ export default function StagesPage() {
   const [isRollbackModalOpen, setIsRollbackModalOpen] = useState(false);
   const [selectedRollbackDeployment, setSelectedRollbackDeployment] =
     useState<DeploymentRecord | null>(null);
+
+  // 새로운 배포 기록 관련 상태
+  const [selectedDeployment, setSelectedDeployment] = useState<string | null>(null);
+  const [expandedDeployments, setExpandedDeployments] = useState<Set<string>>(new Set());
+  const [deploymentSearchTerm, setDeploymentSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isActiveDeploymentModalOpen, setIsActiveDeploymentModalOpen] = useState(false);
+  const itemsPerPage = 10;
 
   const [editForm, setEditForm] = useState({
     name: selectedStage.name,
@@ -405,6 +521,45 @@ export default function StagesPage() {
     }
   };
 
+  // 배포 기록 관련 함수들
+  const filteredDeployments = mockDeployments.filter(
+    (deployment) =>
+      deployment.deploymentId.toLowerCase().includes(deploymentSearchTerm.toLowerCase()) ||
+      deployment.description.toLowerCase().includes(deploymentSearchTerm.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredDeployments.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedDeployments = filteredDeployments.slice(startIndex, startIndex + itemsPerPage);
+
+  const handleDeploymentSelect = (deploymentId: string) => {
+    setSelectedDeployment(deploymentId);
+  };
+
+  const toggleDeploymentExpansion = (deploymentId: string) => {
+    const newExpanded = new Set(expandedDeployments);
+    if (newExpanded.has(deploymentId)) {
+      newExpanded.delete(deploymentId);
+    } else {
+      newExpanded.add(deploymentId);
+    }
+    setExpandedDeployments(newExpanded);
+  };
+
+  const handleActiveDeploymentChange = () => {
+    if (!selectedDeployment) return;
+    setIsActiveDeploymentModalOpen(true);
+  };
+
+  const confirmActiveDeploymentChange = () => {
+    if (selectedDeployment) {
+      const deployment = mockDeployments.find((d) => d.id === selectedDeployment);
+      toast.success(`배포 ${deployment?.deploymentId}로 활성 배포가 변경되었습니다.`);
+      setIsActiveDeploymentModalOpen(false);
+      setSelectedDeployment(null);
+    }
+  };
+
   const renderResourceTree = (resource: ApiResource, level = 0, parentPath = '') => {
     const resourceKey = getResourceKey(resource, parentPath);
     const isExpanded = expandedPaths.has(resourceKey);
@@ -484,6 +639,46 @@ export default function StagesPage() {
       </div>
     );
   };
+
+  const renderDeploymentResourceTree = (resource: ApiResource, level = 0) => {
+    const hasChildren =
+      (resource.children && resource.children.length > 0) ||
+      (resource.methods && resource.methods.length > 0);
+
+    return (
+      <div key={resource.id} className="ml-4">
+        <div className="flex items-center gap-2 py-1 text-sm">
+          <span className="text-gray-600">{resource.path}</span>
+        </div>
+        {resource.methods && resource.methods.length > 0 && (
+          <div className="ml-4 space-y-1">
+            {resource.methods.map((method) => (
+              <div key={method.id} className="flex items-center gap-2 py-1">
+                <span
+                  className={`px-2 py-1 rounded text-xs font-mono ${
+                    method.type === 'GET'
+                      ? 'bg-green-100 text-green-800'
+                      : method.type === 'POST'
+                        ? 'bg-blue-100 text-blue-800'
+                        : method.type === 'PUT'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : method.type === 'DELETE'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-gray-100 text-gray-800'
+                  }`}
+                >
+                  {method.type}
+                </span>
+                <span className="text-sm text-gray-600">{method.description}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        {resource.children?.map((child) => renderDeploymentResourceTree(child, level + 1))}
+      </div>
+    );
+  };
+
   const [selectedDeploymentRecord, setSelectedDeploymentRecord] = useState('');
 
   // Mock deployment records from stages page
@@ -524,6 +719,9 @@ export default function StagesPage() {
 
   // Get current active deployment
   const currentActiveDeployment = mockDeployments.find((d) => d.status === 'active');
+  const selectedDeploymentData = selectedDeployment
+    ? mockDeployments.find((d) => d.id === selectedDeployment)
+    : null;
 
   return (
     <AppLayout>
@@ -709,7 +907,7 @@ export default function StagesPage() {
                           variant="outline"
                           size="sm"
                           onClick={handleExportApi}
-                          className="text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200"
+                          className="text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200 bg-transparent"
                           title="API 내보내기"
                         >
                           <Download className="h-4 w-4 " />
@@ -763,62 +961,230 @@ export default function StagesPage() {
                 </div>
               )}
 
-              {/* Deployment Records - Always visible */}
+              {/* New Deployment Records Section */}
               <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div className="border-b border-gray-200 dark:border-gray-700 p-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      배포 기록 ({mockDeployments.length})
+                      배포 ({filteredDeployments.length})
                     </h2>
+                    <Button
+                      onClick={handleActiveDeploymentChange}
+                      className="bg-blue-500 hover:bg-blue-600 text-white"
+                    >
+                      활성 배포 변경
+                    </Button>
+                  </div>
+
+                  {/* Search */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input
+                      placeholder="배포 찾기"
+                      value={deploymentSearchTerm}
+                      onChange={(e) => setDeploymentSearchTerm(e.target.value)}
+                      className="pl-10"
+                    />
                   </div>
                 </div>
 
                 <div className="p-4 pt-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="text-center">배포 날짜</TableHead>
-                        <TableHead>활성 상태</TableHead>
-                        <TableHead className="text-center">설명</TableHead>
-                        <TableHead>배포 ID</TableHead>
-                        <TableHead className="w-[100px] text-center">작업</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {mockDeployments.map((deployment) => (
-                        <TableRow key={deployment.id}>
-                          <TableCell className="text-sm">{deployment.date}</TableCell>
-                          <TableCell>
+                  {/* Table Header */}
+                  <div className="grid grid-cols-12 gap-4 py-3 border-b border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <div className="col-span-1"></div>
+                    <div className="col-span-3">
+                      배포 날짜
+                      <ChevronDown className="inline h-4 w-4 ml-1" />
+                    </div>
+                    <div className="col-span-2">
+                      상태
+                      <ChevronDown className="inline h-4 w-4 ml-1" />
+                    </div>
+                    <div className="col-span-2">
+                      설명
+                      <ChevronDown className="inline h-4 w-4 ml-1" />
+                    </div>
+                    <div className="col-span-3">
+                      배포 ID
+                      <ChevronDown className="inline h-4 w-4 ml-1" />
+                    </div>
+                    <div className="col-span-1"></div>
+                  </div>
+
+                  {/* Deployment Rows */}
+                  <div className="space-y-0">
+                    {paginatedDeployments.map((deployment) => (
+                      <Collapsible
+                        key={deployment.id}
+                        open={expandedDeployments.has(deployment.id)}
+                        onOpenChange={() => toggleDeploymentExpansion(deployment.id)}
+                      >
+                        <div
+                          className={
+                            selectedDeployment === deployment.id
+                              ? 'grid grid-cols-12 gap-4 py-3 px-3  cursor-pointer bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500'
+                              : 'grid grid-cols-12 gap-4 py-3 px-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer'
+                          }
+                        >
+                          <div className="col-span-1 flex items-center">
+                            <input
+                              type="radio"
+                              name="deployment"
+                              checked={selectedDeployment === deployment.id}
+                              onChange={() => handleDeploymentSelect(deployment.id)}
+                              className="h-4 w-4 hover:cursor-pointer ext-blue-600 focus:ring-blue-500 border-gray-300"
+                            />
+                          </div>
+                          <div className="col-span-3 text-sm text-gray-900 dark:text-white">
+                            {deployment.date}
+                          </div>
+                          <div className="col-span-2">
                             {deployment.status === 'active' ? (
-                              <Badge className={getDeploymentStatusColor(deployment.status)}>
-                                활성
-                              </Badge>
+                              <div className="flex items-center gap-1">
+                                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <span className="text-sm text-green-700">활성</span>
+                              </div>
                             ) : (
                               <span className="text-sm text-gray-500">-</span>
                             )}
-                          </TableCell>
-                          <TableCell className="text-sm">{deployment.description}</TableCell>
-                          <TableCell className="font-mono text-sm">
+                          </div>
+                          <div className="col-span-2 text-sm text-gray-600 dark:text-gray-400">
+                            {deployment.description || '-'}
+                          </div>
+                          <div className="col-span-3 text-sm font-mono text-gray-900 dark:text-white">
                             {deployment.deploymentId}
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="outline"
-                              onClick={() => handleRollbackClick(deployment)}
-                            >
-                              <RotateCcw className="h-4 w-4 mr-1" />
-                              롤백
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                          </div>
+                          <div className="col-span-1 flex items-center justify-end">
+                            <CollapsibleTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                <ChevronDown
+                                  className={`h-4 w-4 transition-transform ${
+                                    expandedDeployments.has(deployment.id) ? 'rotate-180' : ''
+                                  }`}
+                                />
+                              </Button>
+                            </CollapsibleTrigger>
+                          </div>
+                        </div>
+
+                        <CollapsibleContent>
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-4 border-b border-gray-100 dark:border-gray-700">
+                            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                              배포 상세 설명
+                            </h4>
+                            <div className="space-y-2">
+                              {deployment.description && (
+                                <div className="text-sm">
+                                  <span className="ml-2">{deployment.description}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            {deployment.resources && deployment.resources.length > 0 && (
+                              <div className="mt-4">
+                                <h5 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                                  리소스 목록
+                                </h5>
+                                <div className="bg-white dark:bg-gray-800 rounded border p-3">
+                                  {deployment.resources.map((resource) =>
+                                    renderDeploymentResourceTree(resource)
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    ))}
+                  </div>
+
+                  {/* Pagination */}
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      {startIndex + 1}-
+                      {Math.min(startIndex + itemsPerPage, filteredDeployments.length)} of{' '}
+                      {filteredDeployments.length}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <span className="text-sm font-medium">{currentPage}</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                        disabled={currentPage === totalPages}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Active Deployment Change Modal */}
+        <Dialog open={isActiveDeploymentModalOpen} onOpenChange={setIsActiveDeploymentModalOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <div className="flex items-center justify-between">
+                <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+                  활성 배포 변경
+                </DialogTitle>
+              </div>
+            </DialogHeader>
+
+            <div className="space-y-4 py-4">
+              <div className="text-sm text-gray-700 dark:text-gray-300">
+                '{selectedStage.name}' 스테이지의 활성 배포를 업데이트하시겠습니까?
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <div className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                    현재 활성 배포
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {currentActiveDeployment?.deploymentId} - {currentActiveDeployment?.date}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                    새 활성 배포
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {selectedDeploymentData?.deploymentId} - {selectedDeploymentData?.date}
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                현재 활성 배포가 즉시 새 배포로 교체됩니다.
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setIsActiveDeploymentModalOpen(false)}>
+                취소
+              </Button>
+              <Button
+                onClick={confirmActiveDeploymentChange}
+                className="bg-orange-500 hover:bg-orange-600 text-white"
+              >
+                활성 배포 변경
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Edit Stage Modal */}
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
