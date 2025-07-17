@@ -167,7 +167,7 @@ export default function ApiKeysPage() {
   // 브랜치 생성
   const { mutate: createAPIKeyMutate } = useCreateAPIKey('user01', 'test', 'rnd2', 'ddd');
 
-  const handleCreateApiKey2 = () => {
+  const handleCreateApiKey = () => {
     if (newApiKey.name.trim()) {
       createAPIKeyMutate(
         {
@@ -187,7 +187,7 @@ export default function ApiKeysPage() {
     }
   };
 
-  const handleCreateApiKey = () => {
+  const handleCreateApiKey2 = () => {
     if (!newApiKey.name.trim()) {
       toast.error('API Key 이름을 입력해주세요.');
       return;

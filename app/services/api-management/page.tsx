@@ -23,7 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, Search, Settings, RefreshCw } from 'lucide-react';
+import { Plus, Search, Settings, RefreshCw, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast, Toaster } from 'sonner';
 import { setSelectedApiInfo } from '@/constants/app-layout-data';
@@ -31,6 +31,7 @@ import { Suspense } from 'react';
 import Pagination from '@/components/Pagination';
 import ApiCreateModal from './components/ApiCreateModal';
 import ApiModifyModal from './components/ApiModifyModal';
+import { ApiDeleteModal } from './components/ApiDeleteModal';
 
 interface ApiItem {
   id: string;
@@ -43,7 +44,7 @@ interface ApiItem {
   selected: boolean;
 }
 
-interface ApiPlan {
+export interface Apis {
   id: string;
   name: string;
   planId: string;
@@ -52,7 +53,7 @@ interface ApiPlan {
   status: 'active' | 'inactive' | 'draft';
 }
 
-const mockApiPlans: ApiPlan[] = [
+const mockApiPlans: Apis[] = [
   {
     id: '1',
     name: 'User Management API',
@@ -92,7 +93,8 @@ export default function ApiManagementPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
-
+  const [isMethodDeleteDialogOpen, setIsDeleteModalOpen] = useState(false);
+  const [apiToDelete, setApiToDelete] = useState<Apis | null>(null);
   // Create API Modal State
   const [createApiForm, setCreateApiForm] = useState({
     type: 'new',
@@ -223,11 +225,19 @@ export default function ApiManagementPage() {
     toast.success(`API '${newApi.name}'이(가) 수정되었습니다.`);
   };
 
-  const handleApiClick = (api: ApiPlan) => {
+  const handleApiClick = (api: Apis) => {
     // API 정보를 localStorage에 저장하고 사이드바에 설정
     setSelectedApiInfo(api.name, api.planId);
     // Navigate to API resource creation page
     router.push(`/services/api-management/resources?apiId=${api.planId}&apiName=${api.name}`);
+  };
+
+  const handleDeleteApi = () => {
+    if (apiToDelete) {
+      toast.success(` '${apiToDelete.name} Api' 가 삭제되었습니다.`);
+      setApiToDelete(null);
+      setIsDeleteModalOpen(false);
+    }
   };
 
   return (
@@ -326,6 +336,14 @@ export default function ApiManagementPage() {
                             >
                               <Settings className="h-4 w-4" />
                             </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 bg-transparent"
+                              onClick={() => setIsDeleteModalOpen(true)}
+                            >
+                              <Trash2 />
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -358,6 +376,13 @@ export default function ApiManagementPage() {
             onOpenChange={setIsModifyModalOpen}
             initialValue={{ name: modifyApiForm.name, description: modifyApiForm.description }}
             onSuccess={handleModifyApi}
+          />
+
+          <ApiDeleteModal
+            open={isMethodDeleteDialogOpen}
+            onOpenChange={setIsDeleteModalOpen}
+            apiToDelete={apiToDelete}
+            handleDeleteApi={handleDeleteApi}
           />
         </div>
       </AppLayout>

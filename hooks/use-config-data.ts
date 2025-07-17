@@ -1,35 +1,25 @@
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import {
   ConfigFileListProps,
   BranchListProps,
   OriginFileDetailProps,
   ConfigFileInfoProps,
   FileCommitListProps,
-} from "@/types/config";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+} from '@/types/config';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 // config 파일 목록 조회
-const fetchConfigFileList = async (
-  owner: string,
-  repo: string,
-  branch?: string,
-  dir?: string
-) => {
+const fetchConfigFileList = async (owner: string, repo: string, branch?: string, dir?: string) => {
   const { data } = await axios.get(
     `/v1/api/git/file/list?owner=${owner}&repo=${repo}&branch=${branch}&dir=${dir}`
   );
   return data;
 };
 
-export function useFetchConfigFileList(
-  owner: string,
-  repo: string,
-  branch?: string,
-  dir?: string
-) {
+export function useFetchConfigFileList(owner: string, repo: string, branch?: string, dir?: string) {
   return useQuery<ConfigFileListProps[]>({
-    queryKey: ["fetchConfigFileList", owner, repo, branch, dir],
+    queryKey: ['fetchConfigFileList', owner, repo, branch, dir],
     queryFn: () => fetchConfigFileList(owner, repo, branch, dir),
     // enabled: !!instanceId, // instanceId가 있을 때만 실행
     staleTime: Infinity,
@@ -40,26 +30,16 @@ export function useFetchConfigFileList(
 }
 
 // config 파일 단건 조회
-const fetchConfigFileInfo = async (
-  owner: string,
-  repo: string,
-  branch: string,
-  path: string
-) => {
+const fetchConfigFileInfo = async (owner: string, repo: string, branch: string, path: string) => {
   const { data } = await axios.get(
     `/v1/api/git/file/info?owner=${owner}&repo=${repo}&branch=${branch}&path=${path}`
   );
   return data;
 };
 
-export function useFetchConfigFileInfo(
-  owner: string,
-  repo: string,
-  branch?: string,
-  dir?: string
-) {
+export function useFetchConfigFileInfo(owner: string, repo: string, branch?: string, dir?: string) {
   return useQuery<ConfigFileInfoProps>({
-    queryKey: ["fetchConfigFileInfo", owner, repo, branch, dir],
+    queryKey: ['fetchConfigFileInfo', owner, repo, branch, dir],
     queryFn: () => fetchConfigFileInfo(owner, repo, branch, dir),
     // enabled: !!instanceId, // instanceId가 있을 때만 실행
     staleTime: Infinity,
@@ -71,16 +51,14 @@ export function useFetchConfigFileInfo(
 
 // config 레포 브랜치 목록 조회
 const fetchBranchList = async (owner: string, repo: string) => {
-  const { data } = await axios.get(
-    `/v1/api/git/seach/branches?owner=${owner}&repo=${repo}`
-  );
+  const { data } = await axios.get(`/v1/api/git/seach/branches?owner=${owner}&repo=${repo}`);
 
   return data;
 };
 
 export function useFetchBranchList(owner: string, repo: string) {
   return useQuery<BranchListProps[]>({
-    queryKey: ["fetchBranchList", owner, repo],
+    queryKey: ['fetchBranchList', owner, repo],
     queryFn: () => fetchBranchList(owner, repo),
     // enabled: !!instanceId, // instanceId가 있을 때만 실행
     staleTime: Infinity,
@@ -95,7 +73,7 @@ const createBranch = async (
   owner: string,
   repo: string,
   newBranchName: string,
-  fromBranchOrSha = "main"
+  fromBranchOrSha = 'main'
 ) => {
   const { data } = await axios.post(
     `/v1/api/git/branch/info`,
@@ -122,18 +100,14 @@ export function useCreateBranch(owner: string, repo: string) {
     onSuccess: () => {
       // 브랜치 생성 성공 시 목록 invalidate
       queryClient.invalidateQueries({
-        queryKey: ["fetchBranchList", owner, repo],
+        queryKey: ['fetchBranchList', owner, repo],
       });
     },
   });
 }
 
-//config 레포 브랜치 생성 + 실시간 목록 생성
-const deleteBranch = async (
-  owner: string,
-  repo: string,
-  branchName: string
-) => {
+//config 레포 브랜치 삭제 + 실시간 목록 생성
+const deleteBranch = async (owner: string, repo: string, branchName: string) => {
   const { data } = await axios.delete(`/v1/api/git/branch`, {
     params: {
       owner,
@@ -149,25 +123,19 @@ export function useDeleteBranch(owner: string, repo: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ branchName }: { branchName: string }) =>
-      deleteBranch(owner, repo, branchName),
+    mutationFn: ({ branchName }: { branchName: string }) => deleteBranch(owner, repo, branchName),
     onSuccess: () => {
       // 브랜치 생성 성공 시 목록 invalidate
       // queryClient.invalidateQueries({
       //   queryKey: ["fetchBranchList", owner, repo],
       // });
-      window.location.href = "/infra-packages/config/projects?branch=main";
+      window.location.href = '/infra-packages/config/projects?branch=main';
     },
   });
 }
 
 // 원본 파일 상세 조회
-const fetchOriginFileDetail = async (
-  owner: string,
-  repo: string,
-  ref: string,
-  path: string
-) => {
+const fetchOriginFileDetail = async (owner: string, repo: string, ref: string, path: string) => {
   const { data } = await axios.get(
     `/v1/api/git/file/content/detail?owner=${owner}&repo=${repo}&ref=${ref}&path=${path}`
   );
@@ -175,14 +143,9 @@ const fetchOriginFileDetail = async (
   return data;
 };
 
-export function useFetchOriginFileDetail(
-  owner: string,
-  repo: string,
-  ref: string,
-  path: string
-) {
+export function useFetchOriginFileDetail(owner: string, repo: string, ref: string, path: string) {
   return useQuery<OriginFileDetailProps>({
-    queryKey: ["fetchOriginFileDetail", owner, repo, ref, path],
+    queryKey: ['fetchOriginFileDetail', owner, repo, ref, path],
     queryFn: () => fetchOriginFileDetail(owner, repo, ref, path),
     // enabled: !!instanceId, // instanceId가 있을 때만 실행
     staleTime: Infinity,
@@ -309,39 +272,28 @@ export function useModifyFile(
   }
 ) {
   return useMutation({
-    mutationFn: () =>
-      modifyFile(owner, repo, branch, path, sha, message, content),
+    mutationFn: () => modifyFile(owner, repo, branch, path, sha, message, content),
     onSuccess: () => {
       // ✅ 외부 콜백 실행
       options?.onSuccess?.();
 
       // ✅ 기본 동작: 이전 페이지로 이동
-       window.history.back();
+      window.history.back();
     },
   });
 }
 
 // 파일 별 커밋 이력 조회
-const fetchFileCommitList = async (
-  owner: string,
-  repo: string,
-  branch: string,
-  path: string
-) => {
+const fetchFileCommitList = async (owner: string, repo: string, branch: string, path: string) => {
   const { data } = await axios.get(
     `/v1/api/git/file/commit/history?owner=${owner}&repo=${repo}&branch=${branch}&path=${path}`
   );
   return data;
 };
 
-export function useFetchFileCommitList(
-  owner: string,
-  repo: string,
-  branch: string,
-  path: string
-) {
+export function useFetchFileCommitList(owner: string, repo: string, branch: string, path: string) {
   return useQuery<FileCommitListProps[]>({
-    queryKey: ["fetchFileCommitList", owner, repo, branch, path],
+    queryKey: ['fetchFileCommitList', owner, repo, branch, path],
     queryFn: () => fetchFileCommitList(owner, repo, branch, path),
     // enabled: !!instanceId, // instanceId가 있을 때만 실행
     staleTime: Infinity,
@@ -352,24 +304,16 @@ export function useFetchFileCommitList(
 }
 
 // 특정 파일 커밋 상세 내용 조회
-const fetchFileCommitDetail = async (
-  owner: string,
-  repo: string,
-  sha: string
-) => {
+const fetchFileCommitDetail = async (owner: string, repo: string, sha: string) => {
   const { data } = await axios.get(
     `/v1/api/git/commit/info?owner=${owner}&repo=${repo}&sha=${sha}`
   );
   return data;
 };
 
-export function useFetchFileCommitDetail(
-  owner: string,
-  repo: string,
-  sha: string
-) {
+export function useFetchFileCommitDetail(owner: string, repo: string, sha: string) {
   return useQuery<any>({
-    queryKey: ["fetchFileCommitDetail", owner, repo, sha],
+    queryKey: ['fetchFileCommitDetail', owner, repo, sha],
     queryFn: () => fetchFileCommitDetail(owner, repo, sha),
     // enabled: !!instanceId, // instanceId가 있을 때만 실행
     staleTime: Infinity,
@@ -404,8 +348,7 @@ export function useRollbackCommit(
   message: string
 ) {
   return useMutation({
-    mutationFn: () =>
-      rollbackCommit(owner, repo, branch, path, commitSha, message),
+    mutationFn: () => rollbackCommit(owner, repo, branch, path, commitSha, message),
     onSuccess: () => {
       // 브랜치 생성 성공 시 목록 invalidate
       window.history.back();
@@ -435,7 +378,7 @@ export function useFetchFileDiff(
   newSha: string
 ) {
   return useQuery<any>({
-    queryKey: ["fetchFileDiff", owner, repo, path, oldSha, newSha],
+    queryKey: ['fetchFileDiff', owner, repo, path, oldSha, newSha],
     queryFn: () => fetchFileDiff(owner, repo, path, oldSha, newSha),
     // enabled: !!instanceId, // instanceId가 있을 때만 실행
     staleTime: Infinity,
@@ -448,14 +391,14 @@ export function useFetchFileDiff(
 //Vault Key
 // config 시크릿 키 값 조회
 const fetchVaultKey = async () => {
-  const { data } = await axios.get("/api/vault/key");
+  const { data } = await axios.get('/api/vault/key');
 
   return data;
 };
 
 export function useFetchVaultKey() {
   return useQuery<string>({
-    queryKey: ["fetchVaultKey"],
+    queryKey: ['fetchVaultKey'],
     queryFn: () => fetchVaultKey(),
     // enabled: !!instanceId, // instanceId가 있을 때만 실행
     staleTime: Infinity,

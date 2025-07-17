@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 
-//config 레포 브랜치 생성 + 실시간 목록 생성
+//api 키 생성 + 실시간 목록 생성
 const createAPIKey = async (
   userId: string,
   tenantId: string,
@@ -27,7 +27,7 @@ export function useCreateAPIKey(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ keyName }: { keyName: string }) =>
+    mutationFn: ({ keyName, description }: { keyName: string; description: string }) =>
       createAPIKey(userId, tenantId, keyName, description),
     onSuccess: () => {
       // 브랜치 생성 성공 시 목록 invalidate
