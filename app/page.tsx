@@ -35,12 +35,12 @@ export default function LoginPage() {
     setIsLoading(true); // 요청 시작할 때 로딩 활성화
 
     try {
-      const REDIRECT_URI = process.env.NEXT_PUBLIC_AUTH_REDIRECT_URI;
+      // const REDIRECT_URI = process.env.API_BASE_URL;
 
       const res = await axios.post('/api/v1/code', {
         userId: userId,
         userPassword: password,
-        redirectUri: REDIRECT_URI,
+        redirectUri: `/auth-callback`,
       });
 
       if (res?.data?.success === undefined) {
