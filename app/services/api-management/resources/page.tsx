@@ -1147,6 +1147,7 @@ export default function ApiResourcesPage() {
                 <ResourceDetailCard
                   mockData2={mockData2}
                   selectedResource={selectedResource}
+                  setSelectedResource={setSelectedResource}
                   handleCorsClick={handleCorsClick}
                   handleCreateMethod={handleCreateMethod}
                   handleMethodClick={handleMethodClick}
@@ -1286,48 +1287,6 @@ export default function ApiResourcesPage() {
                 placeholder="배포에 대한 설명을 입력하세요"
                 className="mt-1"
               />
-            </div>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={isDirectUrlInput}
-                  onCheckedChange={(checked) => {
-                    setIsDirectUrlInput(checked);
-                    if (!checked) {
-                      setSelectedDeploymentRecord('');
-                    }
-                  }}
-                />
-                <Label>배포 여부</Label>
-              </div>
-
-              {isDirectUrlInput && (
-                <div>
-                  <Label htmlFor="deployment-record">배포 기록 선택</Label>
-                  <Select
-                    value={selectedDeploymentRecord}
-                    onValueChange={setSelectedDeploymentRecord}
-                  >
-                    <SelectTrigger className="mt-2">
-                      <SelectValue placeholder="배포 기록을 선택하세요" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {mockDeploymentRecords.map((record) => (
-                        <SelectItem key={record.id} value={record.deploymentId}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">
-                              {record.stageName} - {record.deploymentId}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {record.date} ({record.status})
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
             </div>
           </div>
           <DialogFooter className="flex space-x-2">

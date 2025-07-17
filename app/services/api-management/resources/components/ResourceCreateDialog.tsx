@@ -56,6 +56,7 @@ export function ResourceCreateDialog({
       });
     }
   };
+
   const removeCreateFormCorsMethod = (method: string) => {
     setCreateResourceForm({
       ...createResourceForm,
@@ -65,6 +66,7 @@ export function ResourceCreateDialog({
       },
     });
   };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-scroll">

@@ -16,6 +16,7 @@ import { CorsSettingsDialog } from './CorsSettingsDialog';
 interface ResourceDetailCardProps {
   mockData2: any;
   selectedResource: Resource;
+  setSelectedResource: (resource: Resource) => void;
   handleCorsClick: () => void;
   handleCreateMethod: () => void;
   handleMethodClick: (method: Method, resource: Resource) => void;
@@ -34,6 +35,7 @@ interface ResourceDetailCardProps {
 export function ResourceDetailCard({
   mockData2,
   selectedResource,
+  setSelectedResource,
   handleCorsClick,
   handleCreateMethod,
   handleMethodClick,
@@ -72,8 +74,15 @@ export function ResourceDetailCard({
                 onClick={() => setIsMethodDeleteDialogOpen(true)}
                 className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
               >
-                <Trash2 className="h-4 w-4 mr-1" />
-                리소스 삭제
+                <Trash2 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCorsButtonClick}
+                className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 border-gray-200"
+              >
+                <Settings className="h-4 w-4 text-gray-500" />
               </Button>
             </div>
           </div>
@@ -98,13 +107,9 @@ export function ResourceDetailCard({
               </Label>
               <div className="mt-1 text-sm font-mono text-gray-600 dark:text-gray-400">
                 {!selectedResource.corsEnabled ? (
-                  <div
-                    className="flex items-center gap-2 cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 p-2 rounded transition-colors"
-                    onClick={handleCorsButtonClick}
-                  >
+                  <div className="flex items-center gap-2 cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 p-2 rounded transition-colors">
                     <CheckCircle className="h-5 w-5 text-green-500" />
                     <span className="text-sm text-green-600 font-medium">active</span>
-                    <Settings className="h-4 w-4 text-green-500 ml-1" />
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
@@ -200,6 +205,8 @@ export function ResourceDetailCard({
       <CorsSettingsDialog
         open={isCorsModalOpen}
         onOpenChange={setIsCorsModalOpen}
+        selectedResource={selectedResource}
+        setSelectedResource={setSelectedResource}
         corsForm={corsForm}
         setCorsForm={setCorsForm}
         handleCorsUpdate={handleCorsUpdate}
