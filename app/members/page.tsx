@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Dialog,
   DialogContent,
@@ -56,15 +56,20 @@ import {
   issueTempPassword,
   useDeleteUser,
 } from '@/hooks/use-members';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 export default function UsersPage() {
-  // Mock user data with extended details
-
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState('tenant');
-  // const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
-  // userListData를 실제 데이터로 사용
 
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
@@ -72,16 +77,7 @@ export default function UsersPage() {
   const { data: userListData, refetch: allUserRefetch } = useGetUserList();
   const { data: tenantUserListData, refetch } = useGetUserByTenantList(searchTerm);
 
-  const basedData = userListData?.filter((user) => {
-    const searchValue = searchType === 'email' ? user.email : user.tenantId;
-    const matchesSearch = searchValue.toLowerCase().includes(searchTerm.toLowerCase());
-    // const matchesStatus =
-    //   statusFilter === 'all' || (statusFilter === 'active' ? user.active : !user.active);
-    // return matchesSearch && matchesStatus;
-  });
-
-  // Filter users based on search term and status
-  const filteredUsers = tenantUserListData ? tenantUserListData : userListData;
+  const filteredUsers = searchTerm === '' ? userListData : tenantUserListData;
 
   // Pagination logic
   const totalPages = Math.ceil(filteredUsers?.length / usersPerPage);
@@ -117,11 +113,6 @@ export default function UsersPage() {
     },
   });
 
-  const handleUserEdit = (user: (typeof userListData)[0]) => {
-    setEditingUser(user);
-    setIsEditDialogOpen(true);
-  };
-
   const handleAction = (action: string, userId: string, userName: string) => {
     if (action === 'resetPassword') {
       setIsResetPasswordModalOpen(true);
@@ -153,7 +144,7 @@ export default function UsersPage() {
         Active
       </Badge>
     ) : (
-      <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700">
+      <Badge className="bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200 border-red-200 dark:border-red-700">
         Inactive
       </Badge>
     );
@@ -218,195 +209,218 @@ export default function UsersPage() {
                 </Select> */}
 
                 {/* Create User Button */}
-                <Button
+                {/* <Button
                   className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
                   onClick={() => handleAction('create', '', '')}
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Create User
-                </Button>
+                </Button> */}
               </div>
             </CardHeader>
 
             <CardContent className="p-0">
-              {/* Users Table with Collapsible Details */}
-              <div className="space-y-0">
-                {currentUsers?.map((user) => (
-                  <Collapsible
-                    key={user.userId}
-                    open={expandedUser === user.userId}
-                    onOpenChange={(open) => setExpandedUser(open ? user.userId : null)}
-                  >
-                    <CollapsibleTrigger asChild>
-                      <div className="w-full p-4 hover:bg-muted/50 border-b border-border cursor-pointer transition-colors">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4 flex-1">
-                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                              <span className="text-sm font-medium text-primary">
-                                {user.name
-                                  .split(' ')
-                                  .map((n: string) => n[0])
-                                  .join('')}
-                              </span>
-                            </div>
-                            <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
-                              <div>
-                                <div className="font-medium text-foreground">{user.name}</div>
-                                <div className="text-sm text-muted-foreground">{user.email}</div>
+              {/* Users Table UI */}
+              {currentUsers ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12"></TableHead>
+                      <TableHead>이름</TableHead>
+                      <TableHead>이메일</TableHead>
+                      <TableHead>테넌트</TableHead>
+                      <TableHead className="w-3">상태</TableHead>
+                      <TableHead>생성일</TableHead>
+                      <TableHead className="text-right">작업</TableHead>
+                      <TableHead className="w-12"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {currentUsers.length > 0 ? (
+                      currentUsers.map((user) => (
+                        <>
+                          <TableRow
+                            key={user.userId}
+                            className={`transition-colors ${
+                              expandedUser === user.userId
+                                ? 'bg-blue-50 border-l-4 border-b-0 border-blue-500'
+                                : 'hover:bg-muted/50'
+                            }`}
+                            onClick={() =>
+                              setExpandedUser(expandedUser === user.userId ? null : user.userId)
+                            }
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <TableCell></TableCell>
+                            <TableCell className="flex items-center gap-3">
+                              <Avatar className="h-7 w-7 ring-3 ring-blue-100 dark:ring-blue-900/50">
+                                <AvatarImage src="/placeholder-user.jpg" />
+                                <AvatarFallback className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold">
+                                  {user.name.slice(0, 1)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="font-medium text-blue-600">{user.name}</span>
+                            </TableCell>
+                            <TableCell>{user.email}</TableCell>
+                            <TableCell>{user.tenantId}</TableCell>
+                            <TableCell>{getStatusBadge(user.active)}</TableCell>
+                            <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                            <TableCell>
+                              <div className="flex items-center justify-end space-x-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAction('resetPassword', user.userId, user.name);
+                                  }}
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <RotateCcw className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAction('deleteAccount', user.userId, user.name);
+                                  }}
+                                  className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
                               </div>
-                              <div>
-                                <div className="text-sm text-muted-foreground">Tenant</div>
-                                <div className="font-medium text-foreground">{user.tenantId}</div>
-                              </div>
-                              <div>{getStatusBadge(user.active)}</div>
-                              <div className="text-sm text-muted-foreground">
-                                {new Date(user.createdAt).toLocaleDateString()}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            {expandedUser === user.userId ? (
-                              <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                            ) : (
-                              <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </CollapsibleTrigger>
-
-                    <CollapsibleContent>
-                      <div className="border-b border-border bg-muted/20 p-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                          {/* User Details */}
-                          <Card className="border-border">
-                            <CardHeader className="pb-3">
-                              <CardTitle className="text-lg font-semibold text-foreground flex items-center">
-                                <User className="h-5 w-5 mr-2" />
-                                User Details
-                              </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <Label className="text-sm font-medium text-muted-foreground">
-                                    Email
-                                  </Label>
-                                  <p className="text-foreground">{user.email}</p>
-                                </div>
-                                <div>
-                                  <Label className="text-sm font-medium text-muted-foreground">
-                                    Phone
-                                  </Label>
-                                  <p className="text-foreground">-</p>
-                                </div>
-                                <div>
-                                  <Label className="text-sm font-medium text-muted-foreground">
-                                    Location
-                                  </Label>
-                                  <p className="text-foreground">-</p>
-                                </div>
-                                <div>
-                                  <Label className="text-sm font-medium text-muted-foreground">
-                                    Last Update
-                                  </Label>
-                                  <p className="text-foreground">
-                                    {new Date(user.updatedAt).toLocaleDateString()}
-                                  </p>
-                                </div>
-                              </div>
-
-                              {/* Status Toggle */}
-                              <div className="flex items-center justify-between pt-4 border-t border-border">
-                                <div className="flex items-center space-x-2">
-                                  <UserCheck className="h-4 w-4 text-muted-foreground" />
-                                  <Label className="text-sm font-medium">Account Status</Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  <span className="text-sm text-muted-foreground">Inactive</span>
-                                  <Switch
-                                    checked={user.active}
-                                    onCheckedChange={(checked) =>
-                                      handleStatusToggle(user.userId, checked, user.active)
-                                    }
-                                  />
-                                  <span className="text-sm text-muted-foreground">Active</span>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-
-                          {/* Actions */}
-                          <Card className="border-border">
-                            <CardHeader className="pb-3">
-                              <CardTitle className="text-lg font-semibold text-foreground flex items-center">
-                                <Settings className="h-5 w-5 mr-2" />
-                                Actions
-                              </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
-                              {/* <Button
-                                variant="outline"
-                                className="w-full justify-start bg-transparent"
-                                onClick={() => handleUserEdit(user)}
-                              >
-                                <Edit className="h-4 w-4 mr-2" />
-                                Edit User Information
-                              </Button> */}
-
+                            </TableCell>
+                            <TableCell>
                               <Button
-                                variant="outline"
-                                className="w-full justify-start border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-900/20 bg-transparent"
-                                onClick={() =>
-                                  handleAction('resetPassword', user.userId, user.name)
-                                }
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setExpandedUser(
+                                    expandedUser === user.userId ? null : user.userId
+                                  );
+                                }}
+                                className="h-8 w-8 p-0"
                               >
-                                <RotateCcw className="h-4 w-4 mr-2" />
-                                Reset Password
+                                {expandedUser === user.userId ? (
+                                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                                ) : (
+                                  <ChevronRight className="h-4 w-4 text-gray-400" />
+                                )}
                               </Button>
+                            </TableCell>
+                          </TableRow>
+                          {/* 확장 상세 정보 */}
+                          <TableRow
+                            className={expandedUser === user.userId ? 'table-row' : 'hidden'}
+                          >
+                            <TableCell colSpan={8} className="p-0">
+                              <div className="bg-muted/20 border-t p-6">
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                  {/* User Details */}
+                                  <Card className="border-border">
+                                    <CardHeader className="flex-row items-center justify-between pb-3 ">
+                                      <CardTitle className="text-lg font-semibold text-foreground flex items-center">
+                                        <User className="h-5 w-5 mr-2" />
+                                        유저 상세정보
+                                      </CardTitle>
+                                      <div className="flex items-center space-x-2">
+                                        <span className="text-sm text-muted-foreground">
+                                          Status
+                                        </span>
+                                        <Switch
+                                          checked={user.active}
+                                          onCheckedChange={(checked) =>
+                                            handleStatusToggle(user.userId, checked, user.active)
+                                          }
+                                          className="data-[state=checked]:bg-emerald-300 data-[state=unchecked]:bg-red-300"
+                                        />
+                                        {/* <span className="text-sm text-muted-foreground">
+                                          Active
+                                        </span> */}
+                                      </div>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                      <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                          <Label className="text-sm font-medium text-muted-foreground">
+                                            ID
+                                          </Label>
+                                          <p className="text-foreground">{user.userId}</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-sm font-medium text-muted-foreground">
+                                            Email
+                                          </Label>
+                                          <p className="text-foreground">{user.email}</p>
+                                        </div>
 
-                              {/* <Button
-                                variant="outline"
-                                className="w-full justify-start border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-800 dark:text-amber-300 dark:hover:bg-amber-900/20 bg-transparent"
-                                onClick={() =>
-                                  handleAction('changePassword', user.userId, user.name)
-                                }
-                              >
-                                <Key className="h-4 w-4 mr-2" />
-                                Change Password
-                              </Button> */}
-
-                              <Button
-                                variant="outline"
-                                className="w-full justify-start border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-900/20 bg-transparent"
-                                onClick={() =>
-                                  handleAction('deleteAccount', user.userId, user.name)
-                                }
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Delete Account
-                              </Button>
-                            </CardContent>
-                          </Card>
-                        </div>
-
-                        {/* Permissions - userListData에는 없으므로 대체 */}
-                        <Card className="border-border mt-6">
-                          <CardHeader className="pb-3">
-                            <CardTitle className="text-lg font-semibold text-foreground flex items-center">
-                              <Shield className="h-5 w-5 mr-2" />
-                              Permissions
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="space-y-3 text-muted-foreground">권한 정보 없음</div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
-                ))}
-              </div>
+                                        <div>
+                                          <Label className="text-sm font-medium text-muted-foreground">
+                                            Tenant
+                                          </Label>
+                                          <p className="text-foreground">{user.tenantId}</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-sm font-medium text-muted-foreground">
+                                            Last Update
+                                          </Label>
+                                          <p className="text-foreground">
+                                            {new Date(user.updatedAt).toLocaleDateString()}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                  {/* Actions */}
+                                  <Card className="border-border">
+                                    <CardHeader className="pb-3">
+                                      <CardTitle className="text-lg font-semibold text-foreground flex items-center">
+                                        <Shield className="h-5 w-5 mr-2" />
+                                        권한
+                                      </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-3">권한 정보 없음</CardContent>
+                                  </Card>
+                                </div>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        </>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                          검색 결과가 없습니다.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12"></TableHead>
+                      <TableHead>이름</TableHead>
+                      <TableHead>이메일</TableHead>
+                      <TableHead>테넌트</TableHead>
+                      <TableHead>상태</TableHead>
+                      <TableHead>생성일</TableHead>
+                      <TableHead className="text-right">작업</TableHead>
+                      <TableHead className="w-12"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                        사용자 데이터를 불러오는 중입니다.
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              )}
 
               {/* Empty State */}
               {currentUsers?.length === 0 && (
