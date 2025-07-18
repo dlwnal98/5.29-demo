@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { act, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -94,7 +94,14 @@ export default function UsersPage() {
   };
 
   // 편집 상태 타입도 users[0]으로 변경
-  const [editingUser, setEditingUser] = useState<(typeof userListData)[0] | null>(null);
+  const [editingUser, setEditingUser] = useState({
+    name: '',
+    email: '',
+    tenantId: '',
+    active: false,
+    createdAt: '',
+    updatedAt: '',
+  });
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   // Reset Password Modal States
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
@@ -120,13 +127,15 @@ export default function UsersPage() {
     } else if (action === 'deleteAccount') {
       setIsDeleteAccountModalOpen(true);
       setDeleteAccountUser(userId);
+    } else if (action === 'create') {
+      setIsEditDialogOpen(true);
     }
   };
 
   const handleSaveUser = () => {
     console.log('Saving user:', editingUser);
     setIsEditDialogOpen(false);
-    setEditingUser(null);
+    // setEditingUser(null);
   };
 
   const handleResetPassword = () => {
@@ -209,13 +218,13 @@ export default function UsersPage() {
                 </Select> */}
 
                 {/* Create User Button */}
-                {/* <Button
+                <Button
                   className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
                   onClick={() => handleAction('create', '', '')}
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Create User
-                </Button> */}
+                </Button>
               </div>
             </CardHeader>
 
@@ -505,54 +514,50 @@ export default function UsersPage() {
             <DialogDescription>Update user details and account information.</DialogDescription>
           </DialogHeader>
 
-          {editingUser && (
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input
-                    id="name"
-                    value={editingUser.name}
-                    onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={editingUser.email}
-                    onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="tenant">Tenant</Label>
-                  <Input
-                    id="tenant"
-                    value={editingUser.tenantId}
-                    onChange={(e) => setEditingUser({ ...editingUser, tenantId: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="active">Active</Label>
-                  <Switch
-                    checked={editingUser.active}
-                    onCheckedChange={(checked) =>
-                      setEditingUser({ ...editingUser, active: checked })
-                    }
-                  />
-                </div>
-              </div>
-
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="createdAt">Created At</Label>
-                <Input id="createdAt" value={editingUser.createdAt} disabled />
+                <Label htmlFor="name">Full Name</Label>
+                <Input
+                  id="name"
+                  value={editingUser.name}
+                  onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={editingUser.email}
+                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                />
               </div>
             </div>
-          )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="tenant">Tenant</Label>
+                <Input
+                  id="tenant"
+                  value={editingUser.tenantId}
+                  onChange={(e) => setEditingUser({ ...editingUser, tenantId: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="active">Active</Label>
+                <Switch
+                  checked={editingUser.active}
+                  onCheckedChange={(checked) => setEditingUser({ ...editingUser, active: checked })}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="createdAt">Created At</Label>
+              <Input id="createdAt" value={editingUser.createdAt} disabled />
+            </div>
+          </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>

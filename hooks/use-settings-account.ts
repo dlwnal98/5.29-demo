@@ -38,17 +38,15 @@ export function useDeleteUser(userId: string, options?: UseMutationOptions<any, 
 //유저 정보 수정
 export const modifyUserInfo = async (
   userId: string,
+  name: string,
   email: string,
-  active: boolean,
   options?: () => void
 ) => {
   const { data } = await axios.put(`/api/v1/users/edit`, {
     userId: userId,
     email: email,
-    active: active,
+    name: name,
   });
-
-  console.log(data);
 
   if (data?.success === undefined) {
     alert('유저정보 수정 성공하였습니다.');
