@@ -75,7 +75,7 @@ export default function UsersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
 
-  const { data: userListData, refetch: allUserRefetch } = useGetUserList();
+  const { data: userListData, refetch: allUserRefetch, isLoading, isError } = useGetUserList();
   const { data: tenantUserListData, refetch } = useGetUserByTenantList(searchTerm);
 
   const filteredUsers = searchTerm === '' ? userListData : tenantUserListData;
@@ -159,7 +159,8 @@ export default function UsersPage() {
       </Badge>
     );
   };
-
+  if (isLoading) return <div> 로딩중</div>;
+  if (isError || !userListData) return <div>에러확인</div>;
   return (
     <AppLayout>
       <div className="min-h-screen">

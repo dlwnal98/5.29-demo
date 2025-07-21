@@ -31,6 +31,7 @@ import {
 import { toast } from 'sonner';
 import { useChangePassword, useGetUserData } from '@/hooks/use-settings-account';
 import { useDeleteUser, modifyUserInfo } from '@/hooks/use-settings-account';
+import { Toaster } from '@/components/ui/toaster';
 
 export default function AccountPage() {
   const [userId, setUserId] = useState('user11');
@@ -38,7 +39,7 @@ export default function AccountPage() {
   const [userEmail, setUserEmail] = useState('');
   const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
 
-  const { data: userData, refetch } = useGetUserData(userId);
+  const { data: userData, refetch, isLoading, isError } = useGetUserData(userId);
 
   const { mutate: userDelete } = useDeleteUser(userId, {
     onSuccess: () => {
@@ -127,8 +128,12 @@ export default function AccountPage() {
 
   const passwordStrength = getPasswordStrength(newPw);
 
+  if (isLoading) return <div> 로딩중</div>;
+  if (isError || !userData) return <div>에러확인</div>;
   return (
     <AppLayout>
+      <Toaster position="top-center" richColors expand={true} />
+
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/20">
         <div className="container mx-auto px-6 py-8 max-w-4xl">
           {/* Header */}

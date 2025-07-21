@@ -11,7 +11,7 @@ const getUserData = async (userId: string) => {
 
 export function useGetUserData(userId: string) {
   return useQuery<UserList>({
-    queryKey: ['getUserList'],
+    queryKey: ['getUserData'],
     queryFn: () => getUserData(userId),
     // enabled: !!instanceId, // instanceId가 있을 때만 실행
     staleTime: Infinity,
