@@ -40,6 +40,7 @@ import {
   Settings,
   UserCheck,
   AlertTriangle,
+  Wrench,
 } from 'lucide-react';
 import {
   Pagination,
@@ -238,9 +239,9 @@ export default function UsersPage() {
                       <TableHead>이름</TableHead>
                       <TableHead>이메일</TableHead>
                       <TableHead>테넌트</TableHead>
-                      <TableHead className="w-3">상태</TableHead>
+                      <TableHead className="w-4">상태</TableHead>
                       <TableHead>생성일</TableHead>
-                      <TableHead className="text-right">작업</TableHead>
+
                       <TableHead className="w-12"></TableHead>
                     </TableRow>
                   </TableHeader>
@@ -274,32 +275,7 @@ export default function UsersPage() {
                             <TableCell>{user.tenantId}</TableCell>
                             <TableCell>{getStatusBadge(user.active)}</TableCell>
                             <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
-                            <TableCell>
-                              <div className="flex items-center justify-end space-x-1">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleAction('resetPassword', user.userId, user.name);
-                                  }}
-                                  className="h-8 w-8 p-0"
-                                >
-                                  <RotateCcw className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleAction('deleteAccount', user.userId, user.name);
-                                  }}
-                                  className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </TableCell>
+
                             <TableCell>
                               <Button
                                 variant="ghost"
@@ -335,9 +311,7 @@ export default function UsersPage() {
                                         유저 상세정보
                                       </CardTitle>
                                       <div className="flex items-center space-x-2">
-                                        <span className="text-sm text-muted-foreground">
-                                          Status
-                                        </span>
+                                        {/* <span className="text-sm font-medium">활성화</span> */}
                                         <Switch
                                           checked={user.active}
                                           onCheckedChange={(checked) =>
@@ -345,9 +319,6 @@ export default function UsersPage() {
                                           }
                                           className="data-[state=checked]:bg-emerald-300 data-[state=unchecked]:bg-red-300"
                                         />
-                                        {/* <span className="text-sm text-muted-foreground">
-                                          Active
-                                        </span> */}
                                       </div>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
@@ -379,10 +350,51 @@ export default function UsersPage() {
                                             {new Date(user.updatedAt).toLocaleDateString()}
                                           </p>
                                         </div>
+                                        <div className="col-span-2 border-t border-t-gray-300">
+                                          <div className="py-2 tracking-tight text-lg font-semibold text-foreground flex items-center">
+                                            <Wrench className="h-4 w-4 mr-2" />
+                                            작업
+                                          </div>
+                                          <div className="flex items-center space-x-2">
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleAction(
+                                                  'resetPassword',
+                                                  user.userId,
+                                                  user.name
+                                                );
+                                              }}
+                                              // className="h-8 w-8 p-0"
+                                              className="border rounded-2 hover:text-blue-700 hover:bg-blue-50 hover:border-blue-300"
+                                            >
+                                              <RotateCcw className="h-4 w-4" />
+                                              임시 비밀번호 발급
+                                            </Button>
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleAction(
+                                                  'deleteAccount',
+                                                  user.userId,
+                                                  user.name
+                                                );
+                                              }}
+                                              className="border border-red-300 rounded-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                            >
+                                              <Trash2 className="h-4 w-4" />
+                                              유저 삭제
+                                            </Button>
+                                          </div>
+                                        </div>
                                       </div>
                                     </CardContent>
                                   </Card>
-                                  {/* Actions */}
+
                                   <Card className="border-border">
                                     <CardHeader className="pb-3">
                                       <CardTitle className="text-lg font-semibold text-foreground flex items-center">
