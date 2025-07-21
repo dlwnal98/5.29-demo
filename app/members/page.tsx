@@ -104,6 +104,7 @@ export default function UsersPage() {
     updatedAt: '',
   });
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
   // Reset Password Modal States
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
   const [resetPasswordUser, setResetPasswordUser] = useState<(typeof userListData)[0] | null>(null);
@@ -173,7 +174,7 @@ export default function UsersPage() {
 
           {/* Main Content Card */}
           <Card className="glass border-border">
-            <CardHeader className="border-b border-border">
+            <CardHeader className="border-b border-border space-y-3">
               <CardTitle className="text-xl font-semibold text-foreground">
                 Users ({filteredUsers?.length})
               </CardTitle>

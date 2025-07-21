@@ -62,9 +62,19 @@ export default function AccountPage() {
   const [confirmNewPw, setConfirmNewPw] = useState('');
 
   const { mutate: changePassword } = useChangePassword(userId, currentPw, newPw, {
-    onSuccess: () => {
-      alert('비밀번호가 변경되었습니다.');
-      setIsChangePasswordModalOpen(false); // 모달 닫기
+    onError: (error) => {
+      console.error('실패!', error);
+    },
+    onSuccess: (data) => {
+      if (!data.success) {
+        toast.error(data.message);
+        alert('실패');
+      } else {
+        toast.success('비밀번호가 변경되었습니다');
+        alert('성공');
+      }
+
+      // alert('비밀번호가 변경되었습니다.');
       // 필요하다면 alert 등 추가
     },
   });
@@ -108,6 +118,7 @@ export default function AccountPage() {
     if (!validatePassword()) return;
 
     // setIsPasswordSaving(true);
+    // setIsChangePasswordModalOpen(true); // 모달 닫기
 
     changePassword();
 
@@ -139,9 +150,9 @@ export default function AccountPage() {
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
+              {/* <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
                 <User className="h-5 w-5 text-white" />
-              </div>
+              </div> */}
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
                   계정 설정
