@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, Eye, EyeOff, Waves, User, Lock } from 'lucide-react';
 import Link from 'next/link';
 import axios from 'axios';
@@ -35,8 +35,6 @@ export default function LoginPage() {
     setIsLoading(true); // 요청 시작할 때 로딩 활성화
 
     try {
-      // const REDIRECT_URI = process.env.API_BASE_URL;
-
       const res = await axios.post('/api/v1/code', {
         userId: userId,
         userPassword: password,
