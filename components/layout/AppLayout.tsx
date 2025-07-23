@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { AppHeader } from './AppHeader';
 import { AppSidebar } from './AppSidebar';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import ProtectedRoute from '../ProtectedRoute';
 
@@ -31,18 +31,23 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
     setSidebarCollapsed(shouldCollapse);
   }, [pathname]);
 
+  // useCallback으로 핸들러 고정
+  const handleSidebarCollapsed = useCallback(() => {
+    setSidebarCollapsed((prev) => !prev);
+  }, []);
+
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <ProtectedRoute>
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
           <AppHeader
             sidebarCollapsed={sidebarCollapsed}
-            setSidebarCollapsed={setSidebarCollapsed}
+            setSidebarCollapsed={handleSidebarCollapsed}
           />
           <div className="flex">
             <AppSidebar
               sidebarCollapsed={sidebarCollapsed}
-              setSidebarCollapsed={setSidebarCollapsed}
+              setSidebarCollapsed={handleSidebarCollapsed}
               projectSlug={projectSlug}
             />
             <main

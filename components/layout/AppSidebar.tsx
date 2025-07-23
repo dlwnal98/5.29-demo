@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Settings } from 'lucide-react';
+import { ChartNoAxesColumnDecreasingIcon, Settings } from 'lucide-react';
 import {
   projectsData,
   getNavItems,
@@ -22,11 +22,12 @@ import {
   selectedApiName,
 } from '@/constants/app-layout-data';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useState, type Dispatch, type SetStateAction, useEffect } from 'react';
+import { useState, type Dispatch, type SetStateAction, useEffect, useCallback } from 'react';
 import type { NavButtonProps, SubNavItem } from '@/types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronRight } from 'lucide-react';
+import axios from 'axios';
 
 interface AppSidebarProps {
   sidebarCollapsed: boolean;
@@ -44,7 +45,6 @@ const SubNavButton = ({
   sidebarCollapsed: boolean;
   pathname: string;
 }) => {
-  const SubIcon = subItem.icon;
   const router = useRouter();
   const searchParams = useSearchParams();
   const isApiManagementPath = pathname.startsWith('/services/api-management');
@@ -166,7 +166,6 @@ const SubNavButton = ({
                 );
               }
 
-              const SubSubIcon = subSubItem.icon;
               const normalizePath = (path: string) => path.replace(/\/$/, '').split('?')[0];
 
               const isSubSubActive = normalizePath(pathname) === normalizePath(subSubItem.href!);
@@ -430,11 +429,7 @@ export function AppSidebar({
   const [navItems, setNavItems] = useState(getNavItems());
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setNavItems(getNavItems());
-    }, 100);
-
-    return () => clearInterval(interval);
+    setNavItems(getNavItems());
   }, []);
 
   // resource 페이지가 아닐 때 selectedApiInfo를 초기화
@@ -449,24 +444,40 @@ export function AppSidebar({
     }
   }, [pathname]);
 
+  //예시 코드
+  const handleLogout = async () => {
+    localStorage.clear();
+
+    window.location.replace('/');
+  };
+
   const handleUserMenuClick = (action: string) => {
     switch (action) {
-      case 'profile':
-        router.push('/profile');
-        break;
       case 'account':
         router.push('/settings/account');
         break;
-      case 'settings':
-        router.push('/settings');
-        break;
       case 'logout':
-        router.push('/login');
+        handleLogout();
         break;
       default:
         break;
     }
   };
+
+  // // 사이드바 하단에 유저 정보
+  const [userInfo, setUserInfo] = useState({});
+
+  const getUserInfo = async () => {
+    const userId = localStorage.getItem('userId');
+    const res = await axios.get(`/api/v1/users/${userId}`);
+    if (res) {
+      setUserInfo(res.data);
+    }
+  };
+
+  useEffect(() => {
+    getUserInfo();
+  }, []);
 
   return (
     <aside
@@ -519,11 +530,11 @@ export function AppSidebar({
               <>
                 <div className="flex items-center space-x-3 w-full">
                   <Avatar className="h-10 w-10 flex items-center justify-center bg-gradient-to-br shadow-lg from-blue-600 to-indigo-600 text-white text-sm font-bold">
-                    JD
+                    {userInfo?.name?.slice(0, 1)}
                   </Avatar>
                   <div className="flex-1 min-w-0 text-left">
-                    <h3 className="text-sm font-semibold truncate">John Doe</h3>
-                    <p className="text-xs text-muted-foreground">john@example.com</p>
+                    <h3 className="text-sm font-semibold truncate">{userInfo?.name}</h3>
+                    <p className="text-xs text-muted-foreground">{userInfo?.email}</p>
                   </div>
                 </div>
                 <DropdownMenu>
@@ -538,8 +549,10 @@ export function AppSidebar({
                   <DropdownMenuContent className="w-56" align="start" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">John Doe</p>
-                        <p className="text-xs leading-none text-muted-foreground">userID</p>
+                        <p className="text-sm font-medium leading-none">{userInfo?.name}</p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          @{userInfo?.userId}
+                        </p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
@@ -547,6 +560,7 @@ export function AppSidebar({
                       <DropdownMenuItem
                         key={item.action}
                         onClick={() => handleUserMenuClick(item.action)}
+                        className="hover:cursor-pointer"
                       >
                         {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                         <span>{item.label}</span>
@@ -565,15 +579,17 @@ export function AppSidebar({
                       className="w-full justify-center p-2 hover:bg-blue-50 dark:hover:bg-gray-800"
                     >
                       <Avatar className="h-8 w-8 flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-xs font-bold">
-                        JD
+                        {userInfo?.name?.slice(0, 1)}
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="start" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">John Doe</p>
-                        <p className="text-xs leading-none text-muted-foreground">userID</p>
+                        <p className="text-sm font-medium leading-none">{userInfo?.name}</p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {userInfo?.userId}
+                        </p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />

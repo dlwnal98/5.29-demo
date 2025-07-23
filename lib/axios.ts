@@ -1,7 +1,48 @@
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
 
-// 토큰 만료 감지해서 재발급
+// 요청 전 인터셉터
+axios.interceptors.request.use(
+  async (config) => {
+    const accessToken = localStorage.getItem('access_token');
+    const refreshToken = localStorage.getItem('refresh_token');
+    const expiresAt = localStorage.getItem('expires_at');
+
+    if (accessToken && expiresAt) {
+      const currentTime = Date.now();
+
+      if (parseInt(expiresAt) - currentTime < 60 * 1000) {
+        try {
+          const res = await axios.post('/api/v1/access-token/reissue', {
+            accessToken,
+            refreshToken,
+          });
+
+          const newAccessToken = res.data.accessToken;
+          const newRefreshToken = res.data.newRefreshToken;
+          const EXPIRES_IN = 3600;
+          const newExpiresAt = Date.now() + EXPIRES_IN * 1000;
+
+          localStorage.setItem('access_token', newAccessToken);
+          localStorage.setItem('refresh_token', newRefreshToken);
+          localStorage.setItem('expires_at', String(newExpiresAt));
+
+          config.headers.Authorization = `Bearer ${newAccessToken}`;
+        } catch (err) {
+          localStorage.clear();
+          window.location.replace('/'); // ✅ 수정된 부분
+          return Promise.reject(err);
+        }
+      } else {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      }
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// 요청 후 토큰 만료 감지해서 재발급
 axios.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -20,16 +61,18 @@ axios.interceptors.response.use(
 
         const newAccessToken = refreshRes.data.accessToken;
         const newRefreshToken = refreshRes.data.newRefreshToken;
+        const EXPIRES_IN = 3600;
+        const newExpiresAt = Date.now() + EXPIRES_IN * 1000;
+
         localStorage.setItem('access_token', newAccessToken);
         localStorage.setItem('refresh_token', newRefreshToken);
+        localStorage.setItem('expires_at', String(newExpiresAt));
 
-        // 기존 요청에 새로운 토큰 설정 후 재시도
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return axios(originalRequest);
       } catch (refreshError) {
-        // refresh 실패 → 로그인 페이지로 이동
-        const router = useRouter();
-        router.replace('/');
+        localStorage.clear();
+        window.location.replace('/'); // ✅ 수정된 부분
         return Promise.reject(refreshError);
       }
     }

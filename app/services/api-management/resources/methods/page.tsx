@@ -799,10 +799,12 @@ export default function CreateMethodPage() {
                         <SelectContent>
                           <SelectItem value="없음">없음</SelectItem>
                           <SelectItem value="본문 검증">본문 검증</SelectItem>
+                          <SelectItem value="헤더 검증">헤더 검증</SelectItem>
                           <SelectItem value="파라미터 검증">파라미터 검증</SelectItem>
                           <SelectItem value="본문 및 파라미터 검증">
                             본문 및 파라미터 검증
                           </SelectItem>
+                          <SelectItem value="전체 검증">전체 검증</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

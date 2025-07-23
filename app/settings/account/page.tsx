@@ -28,71 +28,51 @@ import {
   CheckCircle,
   XCircle,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 import { useChangePassword, useGetUserData } from '@/hooks/use-settings-account';
 import { useDeleteUser, modifyUserInfo } from '@/hooks/use-settings-account';
-import { Toaster } from '@/components/ui/toaster';
 
 export default function AccountPage() {
-  const [userId, setUserId] = useState('user11');
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
-  const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [currentPw, setCurrentPw] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [confirmNewPw, setConfirmNewPw] = useState('');
+  const [isProfileSaving, setIsProfileSaving] = useState(false);
+  const [isPasswordSaving, setIsPasswordSaving] = useState(false);
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
+
+  const userId = localStorage.getItem('userId') as string;
 
   const { data: userData, refetch, isLoading, isError } = useGetUserData(userId);
 
   const { mutate: userDelete } = useDeleteUser(userId, {
     onSuccess: () => {
-      alert('유저가 삭제되었습니다.');
-      setIsDeleteAccountModalOpen(false); // 모달 닫기
-      refetch(); // 유저 목록 새로고침
-      // 필요하다면 alert 등 추가
+      setIsDeleteDialogOpen(false);
+      toast.error('유저가 삭제되었습니다.');
+      refetch();
     },
   });
-  const handleDeleteAccount = () => {
-    userDelete();
-  };
-
-  const handleModifyUser = () => {
-    modifyUserInfo(userId, userName, userEmail);
-  };
-
-  const [currentPw, setCurrentPw] = useState('');
-  const [newPw, setNewPw] = useState('');
-  const [confirmNewPw, setConfirmNewPw] = useState('');
 
   const { mutate: changePassword } = useChangePassword(userId, currentPw, newPw, {
     onError: (error) => {
       console.error('실패!', error);
     },
     onSuccess: (data) => {
-      if (!data.success) {
-        toast.error(data.message);
-        alert('실패');
+      if (data) {
+        if (data.success === false) {
+          toast.error(data.message);
+        }
       } else {
-        toast.success('비밀번호가 변경되었습니다');
-        alert('성공');
+        toast.success('비밀번호가 성공적으로 변경되었습니다');
       }
-
-      // alert('비밀번호가 변경되었습니다.');
-      // 필요하다면 alert 등 추가
     },
   });
-
-  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
-
-  const [isProfileSaving, setIsProfileSaving] = useState(false);
-
-  const [showPasswords, setShowPasswords] = useState({
-    current: false,
-    new: false,
-    confirm: false,
-  });
-  const [isPasswordSaving, setIsPasswordSaving] = useState(false);
-
-  // Delete account state
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   const togglePasswordVisibility = (field: string) => {
     setShowPasswords((prev) => ({ ...prev, [field]: !prev[field as keyof typeof prev] }));
@@ -114,45 +94,31 @@ export default function AccountPage() {
     return true;
   };
 
-  const handleChangePassword = async () => {
+  const handleDeleteAccount = () => {
+    userDelete();
+  };
+
+  const handleModifyUser = () => {
+    modifyUserInfo(userId, userName, userEmail, () => {
+      toast.success('유저정보가 수정되었습니다.');
+    });
+  };
+
+  const handleChangePassword = () => {
     if (!validatePassword()) return;
-
-    // setIsPasswordSaving(true);
-    // setIsChangePasswordModalOpen(true); // 모달 닫기
-
     changePassword();
-
-    // setIsPasswordSaving(false);
-    // setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    // toast.success('비밀번호가 성공적으로 변경되었습니다.', {
-    //   description: '새로운 비밀번호로 로그인해주세요.',
-    //   duration: 3000,
-    // });
   };
-
-  const getPasswordStrength = (password: string) => {
-    if (password.length === 0) return { strength: 0, text: '', color: '' };
-    if (password.length < 6) return { strength: 1, text: '약함', color: 'text-red-500' };
-    if (password.length < 10) return { strength: 2, text: '보통', color: 'text-yellow-500' };
-    return { strength: 3, text: '강함', color: 'text-green-500' };
-  };
-
-  const passwordStrength = getPasswordStrength(newPw);
 
   if (isLoading) return <div> 로딩중</div>;
   if (isError || !userData) return <div>에러확인</div>;
   return (
     <AppLayout>
-      <Toaster position="top-center" richColors expand={true} />
-
+      <Toaster position="bottom-center" richColors expand={true} />
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/20">
         <div className="container mx-auto px-6 py-8 max-w-4xl">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center space-x-3 mb-4">
-              {/* <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
-                <User className="h-5 w-5 text-white" />
-              </div> */}
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
                   계정 설정
@@ -195,10 +161,10 @@ export default function AccountPage() {
                     <h3 className="font-semibold text-gray-900 dark:text-white">
                       {userData?.name}
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{userData?.email}</p>
+                    <p className=" text-sm text-gray-600 dark:text-gray-400">{userData?.email}</p>
                     <Badge
                       variant="outline"
-                      className="text-xs bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800"
+                      className="!mt-2 text-xs bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800"
                     >
                       {userData?.tenantId}
                     </Badge>
@@ -238,7 +204,7 @@ export default function AccountPage() {
                       <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <Input
                         id="name"
-                        value={userData?.name}
+                        value={userName ? userName : userData?.name}
                         onChange={(e) => setUserName(e.target.value)}
                         className="pl-10 border-gray-200 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800"
                         placeholder="이름을 입력하세요"
@@ -258,7 +224,7 @@ export default function AccountPage() {
                       <Input
                         id="email"
                         type="email"
-                        value={userData?.email}
+                        value={userEmail ? userEmail : userData?.email}
                         onChange={(e) => setUserEmail(e.target.value)}
                         className="pl-10 border-gray-200 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800"
                         placeholder="이메일을 입력하세요"
@@ -372,26 +338,6 @@ export default function AccountPage() {
                         )}
                       </Button>
                     </div>
-                    {newPw && (
-                      <div className="flex items-center space-x-2 mt-2">
-                        <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                          <div
-                            className={`h-2 rounded-full transition-all duration-300 ${
-                              passwordStrength.strength === 1
-                                ? 'w-1/3 bg-red-500'
-                                : passwordStrength.strength === 2
-                                  ? 'w-2/3 bg-yellow-500'
-                                  : passwordStrength.strength === 3
-                                    ? 'w-full bg-green-500'
-                                    : 'w-0'
-                            }`}
-                          />
-                        </div>
-                        <span className={`text-xs font-medium ${passwordStrength.color}`}>
-                          {passwordStrength.text}
-                        </span>
-                      </div>
-                    )}
                   </div>
 
                   {/* Confirm Password */}
@@ -538,22 +484,6 @@ export default function AccountPage() {
                 <li>• 계정 기록 및 활동 로그</li>
               </ul>
             </div>
-
-            <div className="space-y-2">
-              <Label
-                htmlFor="deleteConfirm"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                계속하려면 <span className="font-bold text-red-600">'DELETE'</span>를 입력하세요:
-              </Label>
-              <Input
-                id="deleteConfirm"
-                value={deleteConfirmText}
-                onChange={(e) => setDeleteConfirmText(e.target.value)}
-                placeholder="DELETE"
-                className="border-red-200 dark:border-red-800 focus:border-red-500 dark:focus:border-red-400"
-              />
-            </div>
           </div>
 
           <DialogFooter className="space-x-2">
@@ -561,7 +491,6 @@ export default function AccountPage() {
               variant="outline"
               onClick={() => {
                 setIsDeleteDialogOpen(false);
-                setDeleteConfirmText('');
               }}
               className="border-gray-300 dark:border-gray-600"
             >
@@ -570,7 +499,6 @@ export default function AccountPage() {
             <Button
               variant="destructive"
               onClick={handleDeleteAccount}
-              disabled={deleteConfirmText !== 'DELETE'}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
               <AlertTriangle className="h-4 w-4 mr-2" />

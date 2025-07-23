@@ -49,7 +49,6 @@ export const modifyUserInfo = async (
   });
 
   if (data?.success === undefined) {
-    alert('유저정보 수정 성공하였습니다.');
     if (options) options();
   } else {
     alert(data?.message);

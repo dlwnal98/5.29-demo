@@ -43,7 +43,10 @@ export default function LoginPage() {
         redirectUri: `/auth-callback`,
       });
 
+      console.log(res);
+
       if (res?.data?.success === undefined) {
+        localStorage.setItem('userId', userId);
         window.location.href = res.request.responseURL;
       } else if (!res?.data?.success) {
         setError(res?.data?.message);
@@ -66,8 +69,8 @@ export default function LoginPage() {
         <CardHeader className="space-y-6 pb-6">
           {/* 회사 로고 */}
           <div className="flex justify-center">
-            <div className="h-16 w-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-              <Waves className="h-8 w-8 text-white" />
+            <div className="h-12 w-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <Waves className="h-7 w-7 text-white" />
             </div>
           </div>
 
@@ -76,9 +79,9 @@ export default function LoginPage() {
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Login to Clalink APIM
             </CardTitle>
-            <CardDescription className="text-gray-600">
+            {/* <CardDescription className="text-gray-600">
               Welcome back! Please sign in to your account
-            </CardDescription>
+            </CardDescription> */}
           </div>
         </CardHeader>
 

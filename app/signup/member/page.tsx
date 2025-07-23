@@ -6,17 +6,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, Eye, EyeOff, Waves, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useCreateUser } from '@/hooks/use-signup';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
-export default function SignupPage() {
+export default function SignupMemberPage() {
   const [formData, setFormData] = useState({
-    organization: 'test', // 아직 정해진 거 없음
     name: '',
-    id: '',
+    id: 'random',
     email: '',
     password: '',
     confirmPassword: '',
@@ -37,7 +37,9 @@ export default function SignupPage() {
     });
   };
 
-  const { name, id, email, password, confirmPassword, organization } = formData;
+  const router = useRouter();
+
+  const { name, id, email, password, confirmPassword } = formData;
 
   // 정규식은 나중에 정책 정해서
   // const usernameRegex = /^[a-z][a-z0-9_]{3,15}$/;
@@ -57,7 +59,7 @@ export default function SignupPage() {
 
   //등록 성공하면 유저 아이디 반환
   const { mutate: createUserMutate } = useCreateUser(
-    organization, // organization 아직 정해진 거 없음
+    '', // organization 아직 정해진 거 없음
     id, // userId
     password, //password
     name, // name
@@ -67,6 +69,7 @@ export default function SignupPage() {
       onSuccess: (data) => {
         console.log('✅ 유저 생성 성공:', data);
         setSignUpSuccess(true);
+        router.push('/');
         // 또는 router.push('/login') 등도 여기서 가능
       },
       onError: (error) => {
@@ -176,31 +179,11 @@ export default function SignupPage() {
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Join Clalink APIM
             </CardTitle>
-            {/* <CardDescription className="text-gray-600">
-              Create your account to get started
-            </CardDescription> */}
           </div>
         </CardHeader>
 
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* 조직 입력 */}
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-                조직
-              </Label>
-              <Input
-                id="organization"
-                name="organization"
-                type="text"
-                value={formData.organization}
-                onChange={handleInputChange}
-                placeholder="이름을 입력해주세요."
-                required
-                className="h-10 border-gray-200 focus:border-blue-400 focus:ring-blue-400 rounded-lg"
-              />
-            </div>
-
             {/* 이름 입력 */}
             <div className="space-y-2">
               <Label htmlFor="name" className="text-sm font-medium text-gray-700">
@@ -223,37 +206,15 @@ export default function SignupPage() {
               <Label htmlFor="id" className="text-sm font-medium text-gray-700">
                 아이디
               </Label>
-              <div className="grid grid-cols-3 gap-4">
-                <Input
-                  id="id"
-                  name="id"
-                  type="text"
-                  value={formData.id}
-                  onChange={handleInputChange}
-                  placeholder="아이디를 입력해주세요."
-                  required
-                  className="col-span-2 h-10 border-gray-200 focus:border-blue-400 focus:ring-blue-400 rounded-lg"
-                />
-                <Button
-                  className="h-10"
-                  onClick={() => handleIdCheck('test', formData.id)}
-                  disabled={formData.id.length === 0}
-                >
-                  중복 확인
-                </Button>
-              </div>
-
-              {nonOverlap ? (
-                <div className="flex items-center space-x-2 text-green-600 bg-green-50 p-2 rounded-lg border border-green-200">
-                  <CheckCircle className="h-4 w-4 flex-shrink-0" />
-                  <span className="text-xs">올바른 아이디 입니다.</span>
-                </div>
-              ) : (
-                <div className="flex items-center space-x-2 text-red-600 bg-red-50 p-2 rounded-lg border border-red-200">
-                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                  <span className="text-xs">{overlapMsg}</span>
-                </div>
-              )}
+              <Input
+                id="id"
+                name="id"
+                type="text"
+                value={formData.id}
+                placeholder="아이디를 입력해주세요."
+                disabled
+                className="h-10 border-gray-200 focus:border-blue-400 focus:ring-blue-400 rounded-lg"
+              />
             </div>
 
             {/* 이메일 입력 */}
@@ -276,7 +237,7 @@ export default function SignupPage() {
             {/* 비밀번호 입력 */}
             <div className="space-y-2">
               <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-                비밀번호
+                새로운 비밀번호
               </Label>
               <div className="relative">
                 <Input
@@ -380,19 +341,6 @@ export default function SignupPage() {
                 '회원가입'
               )}
             </Button>
-
-            {/* 로그인 링크 */}
-            <div className="text-center">
-              <p className="text-sm text-gray-600">
-                이미 계정이 있으신가요?
-                <Link
-                  href="/"
-                  className="ml-[5px] text-blue-600 hover:text-blue-700 font-medium hover:underline"
-                >
-                  로그인하세요!
-                </Link>
-              </p>
-            </div>
           </form>
         </CardContent>
       </Card>

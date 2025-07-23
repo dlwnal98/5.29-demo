@@ -9,25 +9,28 @@ export default function AuthCallbackClient() {
   const searchParams = useSearchParams();
   const code = searchParams.get('code');
   const router = useRouter();
+  const userId = localStorage.getItem('userId');
 
   const getJWTToken = async () => {
+    const EXPIRES_IN = 3600;
+
     const res = await axios.post('/api/v1/access-token/issue', {
       code: code,
 
       // 아래는 고정값
-      userId: 'user01',
+      userId: userId,
       tenantId: 'test',
       clientId: 'test',
-      expiresIn: 3600,
+      expiresIn: EXPIRES_IN,
     });
 
-    if (res.status == 200) {
+    if (res?.data?.success === undefined) {
       console.log(res);
-      if (res) {
-        localStorage.setItem('access_token', res.data.accessToken);
-        localStorage.setItem('refresh_token', res.data.refreshToken);
-        router.push('/dashboard');
-      }
+      const expiresAt = Date.now() + EXPIRES_IN * 1000;
+      localStorage.setItem('access_token', res.data.accessToken);
+      localStorage.setItem('refresh_token', res.data.refreshToken);
+      localStorage.setItem('expires_at', String(expiresAt));
+      router.push('/dashboard');
     }
   };
 
