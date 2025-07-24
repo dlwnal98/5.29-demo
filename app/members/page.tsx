@@ -50,12 +50,11 @@ import {
 } from '@/components/ui/pagination';
 import {
   UserList,
-  useUserActivate,
-  useUserInactivate,
   useGetUserList,
-  useGetUserByTenantList,
+  useGetMemberByOrganizationList,
   issueTempPassword,
-  useDeleteUser,
+  useDeleteMember,
+  useMemberHandleStatus,
 } from '@/hooks/use-members';
 import {
   Table,
@@ -69,41 +68,37 @@ import {
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState('organzation');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState<boolean | 'all'>('all');
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [memberId, setMemberId] = useState('');
+  // const [active, setActive] = useState('all');
 
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
 
-  const { data: userListData, refetch: allUserRefetch, isLoading, isError } = useGetUserList(true);
-  const { data: tenantUserListData, refetch } = useGetUserByTenantList(searchTerm);
+  const {
+    data: userListData,
+    refetch: allUserRefetch,
+    isLoading,
+    isError,
+  } = useGetUserList(statusFilter);
 
-  const filteredUsers = searchTerm === '' ? userListData : tenantUserListData;
+  const { data: memberByOrganizationListData, refetch } =
+    useGetMemberByOrganizationList('hCo3MyDKAAAx'); //넥스프론 조직id
 
+  console.log(memberByOrganizationListData);
+
+  const filteredUsers = userListData;
   // Pagination logic
   const totalPages = Math.ceil(filteredUsers?.length / usersPerPage);
   const startIndex = (currentPage - 1) * usersPerPage;
   const endIndex = startIndex + usersPerPage;
   const currentUsers = filteredUsers?.slice(startIndex, endIndex);
 
-  const { mutate: userActivate } = useUserActivate();
-  const { mutate: userInactivate } = useUserInactivate();
-
-  const handleStatusToggle = (userId: string, newStatus: boolean, userActive: boolean) => {
-    if (!userActive) userActivate(userId);
-    else userInactivate(userId);
+  const handleStatusToggle = (userId: string, userKey: string, active: boolean) => {
+    useMemberHandleStatus(userId, userKey, active);
   };
 
-  // 편집 상태 타입도 users[0]으로 변경
-  const [editingUser, setEditingUser] = useState({
-    name: '',
-    email: '',
-    tenantId: '',
-    active: false,
-    createdAt: '',
-    updatedAt: '',
-  });
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   // Reset Password Modal States
@@ -114,7 +109,7 @@ export default function UsersPage() {
   const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
   const [deleteAccountUser, setDeleteAccountUser] = useState<string>('');
 
-  const { mutate: userDelete } = useDeleteUser(deleteAccountUser, {
+  const { mutate: userDelete } = useDeleteMember(deleteAccountUser, 'fsdf', {
     onSuccess: () => {
       alert('유저가 삭제되었습니다.');
       setIsDeleteAccountModalOpen(false); // 모달 닫기
@@ -136,9 +131,7 @@ export default function UsersPage() {
   };
 
   const handleSaveUser = () => {
-    console.log('Saving user:', editingUser);
     setIsEditDialogOpen(false);
-    // setEditingUser(null);
   };
 
   const handleResetPassword = () => {
@@ -203,7 +196,7 @@ export default function UsersPage() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     onKeyUp={(e) => {
                       if (e.key === 'Enter') {
-                        refetch(e.target.value);
+                        // refetch(e.target.value);
                       }
                     }}
                     className="pl-10 border-input focus:border-primary"
@@ -242,7 +235,8 @@ export default function UsersPage() {
                       <TableHead className="w-12"></TableHead>
                       <TableHead>이름</TableHead>
                       <TableHead>이메일</TableHead>
-                      <TableHead>테넌트</TableHead>
+                      <TableHead>ID</TableHead>
+                      <TableHead>유저키</TableHead>
                       <TableHead className="w-4">상태</TableHead>
                       <TableHead>생성일</TableHead>
 
@@ -270,14 +264,15 @@ export default function UsersPage() {
                               <Avatar className="h-7 w-7 ring-3 ring-blue-100 dark:ring-blue-900/50">
                                 <AvatarImage src="/placeholder-user.jpg" />
                                 <AvatarFallback className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold">
-                                  {user.name.slice(0, 1)}
+                                  {user.fullName.slice(0, 1)}
                                 </AvatarFallback>
                               </Avatar>
-                              <span className="font-medium text-blue-600">{user.name}</span>
+                              <span className="font-medium text-blue-600">{user.fullName}</span>
                             </TableCell>
                             <TableCell>{user.email}</TableCell>
-                            <TableCell>{user.tenantId}</TableCell>
-                            <TableCell>{getStatusBadge(user.active)}</TableCell>
+                            <TableCell>{user.userId}</TableCell>
+                            <TableCell>{user.userKey}</TableCell>
+                            <TableCell>{getStatusBadge(user.enabled)}</TableCell>
                             <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
 
                             <TableCell>
@@ -317,9 +312,13 @@ export default function UsersPage() {
                                       <div className="flex items-center space-x-2">
                                         {/* <span className="text-sm font-medium">활성화</span> */}
                                         <Switch
-                                          checked={user.active}
+                                          checked={user.enabled}
                                           onCheckedChange={(checked) =>
-                                            handleStatusToggle(user.userId, checked, user.active)
+                                            handleStatusToggle(
+                                              user.userId,
+                                              user.userKey,
+                                              user.enabled
+                                            )
                                           }
                                           className="data-[state=checked]:bg-emerald-300 data-[state=unchecked]:bg-red-300"
                                         />
@@ -342,9 +341,9 @@ export default function UsersPage() {
 
                                         <div>
                                           <Label className="text-sm font-medium text-muted-foreground">
-                                            Organization
+                                            userKey
                                           </Label>
-                                          <p className="text-foreground">{user.tenantId}</p>
+                                          <p className="text-foreground">{user.userKey}</p>
                                         </div>
                                         <div>
                                           <Label className="text-sm font-medium text-muted-foreground">
@@ -368,7 +367,7 @@ export default function UsersPage() {
                                                 handleAction(
                                                   'resetPassword',
                                                   user.userId,
-                                                  user.name
+                                                  user.fullName
                                                 );
                                               }}
                                               // className="h-8 w-8 p-0"
@@ -385,7 +384,7 @@ export default function UsersPage() {
                                                 handleAction(
                                                   'deleteAccount',
                                                   user.userId,
-                                                  user.name
+                                                  user.fullName
                                                 );
                                               }}
                                               className="border border-red-300 rounded-2 text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -430,7 +429,7 @@ export default function UsersPage() {
                       <TableHead className="w-12"></TableHead>
                       <TableHead>이름</TableHead>
                       <TableHead>이메일</TableHead>
-                      <TableHead>테넌트</TableHead>
+                      <TableHead>ID</TableHead>
                       <TableHead>상태</TableHead>
                       <TableHead>생성일</TableHead>
                       <TableHead className="text-right">작업</TableHead>
