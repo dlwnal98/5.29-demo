@@ -68,14 +68,15 @@ import {
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchType, setSearchType] = useState('tenant');
+  const [searchType, setSearchType] = useState('organzation');
   const [statusFilter, setStatusFilter] = useState('all');
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
+  const [memberId, setMemberId] = useState('');
 
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
 
-  const { data: userListData, refetch: allUserRefetch, isLoading, isError } = useGetUserList();
+  const { data: userListData, refetch: allUserRefetch, isLoading, isError } = useGetUserList(true);
   const { data: tenantUserListData, refetch } = useGetUserByTenantList(searchTerm);
 
   const filteredUsers = searchTerm === '' ? userListData : tenantUserListData;
@@ -160,6 +161,7 @@ export default function UsersPage() {
       </Badge>
     );
   };
+
   if (isLoading) return <div> 로딩중</div>;
   if (isError || !userListData) return <div>에러확인</div>;
   return (
@@ -187,7 +189,7 @@ export default function UsersPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="tenant">Tenant</SelectItem>
+                    <SelectItem value="organization">organization</SelectItem>
                     <SelectItem value="email">Email</SelectItem>
                   </SelectContent>
                 </Select>
@@ -209,7 +211,7 @@ export default function UsersPage() {
                 </div>
 
                 {/* Status Filter */}
-                {/* <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger className="w-full sm:w-[180px] border-input">
                     <SelectValue placeholder="Filter by status" />
                   </SelectTrigger>
@@ -218,7 +220,7 @@ export default function UsersPage() {
                     <SelectItem value="true">Active Only</SelectItem>
                     <SelectItem value="false">Inactive Only</SelectItem>
                   </SelectContent>
-                </Select> */}
+                </Select>
 
                 {/* Create User Button */}
                 <Button
@@ -340,7 +342,7 @@ export default function UsersPage() {
 
                                         <div>
                                           <Label className="text-sm font-medium text-muted-foreground">
-                                            Tenant
+                                            Organization
                                           </Label>
                                           <p className="text-foreground">{user.tenantId}</p>
                                         </div>
@@ -524,60 +526,28 @@ export default function UsersPage() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Edit User Information</DialogTitle>
-            <DialogDescription>Update user details and account information.</DialogDescription>
+            <DialogTitle>Add Member</DialogTitle>
+            <DialogDescription>Create organization member information.</DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name">Member ID</Label>
                 <Input
-                  id="name"
-                  value={editingUser.name}
-                  onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                  id="memberId"
+                  value={memberId}
+                  onChange={(e) => setMemberId(e.target.value)}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={editingUser.email}
-                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="tenant">Tenant</Label>
-                <Input
-                  id="tenant"
-                  value={editingUser.tenantId}
-                  onChange={(e) => setEditingUser({ ...editingUser, tenantId: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="active">Active</Label>
-                <Switch
-                  checked={editingUser.active}
-                  onCheckedChange={(checked) => setEditingUser({ ...editingUser, active: checked })}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="createdAt">Created At</Label>
-              <Input id="createdAt" value={editingUser.createdAt} disabled />
             </div>
           </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancel
+              취소
             </Button>
-            <Button onClick={handleSaveUser}>Save Changes</Button>
+            <Button onClick={handleSaveUser}>생성</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

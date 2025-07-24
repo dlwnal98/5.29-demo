@@ -13,16 +13,16 @@ export interface UserList {
 }
 
 // 전체 유저 목록 조회
-const getUserList = async () => {
-  const { data } = await axios.get('/api/v1/users');
+const getUserList = async (active: boolean) => {
+  const { data } = await axios.get(`/api/v1/users?active=${active}`);
 
   return data;
 };
 
-export function useGetUserList() {
+export function useGetUserList(active: boolean) {
   return useQuery<UserList[]>({
     queryKey: ['getUserList'],
-    queryFn: () => getUserList(),
+    queryFn: () => getUserList(active),
     // enabled: !!instanceId, // instanceId가 있을 때만 실행
     staleTime: Infinity,
     refetchOnWindowFocus: false,

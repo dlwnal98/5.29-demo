@@ -1,4 +1,4 @@
-import type { Project, NavItem } from "@/types"
+import type { Project, NavItem } from '@/types';
 import {
   LogOut,
   Users,
@@ -18,162 +18,165 @@ import {
   Globe,
   Box,
   Target,
-} from "lucide-react"
+} from 'lucide-react';
 
 // 사이드 바
 
 export const projectsData: Project[] = [
   {
-    slug: "my-project",
-    name: "my-project",
-    avatar: "MP",
-    visibility: "Public",
+    slug: 'my-project',
+    name: 'my-project',
+    avatar: 'MP',
+    visibility: 'Public',
     stars: 24,
     forks: 8,
-    status: "Active",
-    lastCommit: "2 hours ago",
+    status: 'Active',
+    lastCommit: '2 hours ago',
     contributors: 5,
   },
   {
-    slug: "another-project",
-    name: "another-project",
-    avatar: "AP",
-    visibility: "Private",
+    slug: 'another-project',
+    name: 'another-project',
+    avatar: 'AP',
+    visibility: 'Private',
     stars: 12,
     forks: 4,
-    status: "Active",
-    lastCommit: "1 day ago",
+    status: 'Active',
+    lastCommit: '1 day ago',
     contributors: 3,
   },
-]
+];
 
 // localStorage에서 API 정보 가져오기
 const getStoredApiInfo = () => {
-  if (typeof window !== "undefined") {
-    const storedName = localStorage.getItem("selectedApiName")
-    const storedId = localStorage.getItem("selectedApiId")
-    return { name: storedName, id: storedId }
+  if (typeof window !== 'undefined') {
+    const storedName = localStorage.getItem('selectedApiName');
+    const storedId = localStorage.getItem('selectedApiId');
+    return { name: storedName, id: storedId };
   }
-  return { name: null, id: null }
-}
+  return { name: null, id: null };
+};
 
 // localStorage에 API 정보 저장하기
 const setStoredApiInfo = (name: string | null, id: string | null) => {
-  if (typeof window !== "undefined") {
+  if (typeof window !== 'undefined') {
     if (name && id) {
-      localStorage.setItem("selectedApiName", name)
-      localStorage.setItem("selectedApiId", id)
+      localStorage.setItem('selectedApiName', name);
+      localStorage.setItem('selectedApiId', id);
     } else {
-      localStorage.removeItem("selectedApiName")
-      localStorage.removeItem("selectedApiId")
+      localStorage.removeItem('selectedApiName');
+      localStorage.removeItem('selectedApiId');
     }
   }
-}
+};
 
 // 초기값을 localStorage에서 가져오기
-const initialApiInfo = getStoredApiInfo()
-export let selectedApiName: string | null = initialApiInfo.name
-export let selectedApiId: string | null = initialApiInfo.id
+const initialApiInfo = getStoredApiInfo();
+export let selectedApiName: string | null = initialApiInfo.name;
+export let selectedApiId: string | null = initialApiInfo.id;
 
 export const setSelectedApiName = (name: string | null) => {
-  selectedApiName = name
-  setStoredApiInfo(name, selectedApiId)
-}
+  selectedApiName = name;
+  setStoredApiInfo(name, selectedApiId);
+};
 
 export const setSelectedApiId = (id: string | null) => {
-  selectedApiId = id
-  setStoredApiInfo(selectedApiName, id)
-}
+  selectedApiId = id;
+  setStoredApiInfo(selectedApiName, id);
+};
 
 // API 정보를 함께 설정하는 함수
 export const setSelectedApiInfo = (name: string | null, id: string | null) => {
-  selectedApiName = name
-  selectedApiId = id
-  setStoredApiInfo(name, id)
-}
+  selectedApiName = name;
+  selectedApiId = id;
+  setStoredApiInfo(name, id);
+};
 
 // API 정보 초기화 함수
 export const clearSelectedApiInfo = () => {
-  selectedApiName = null
-  selectedApiId = null
-  setStoredApiInfo(null, null)
-}
+  selectedApiName = null;
+  selectedApiId = null;
+  setStoredApiInfo(null, null);
+};
 
 export const getNavItems = (): NavItem[] => [
   {
     icon: BarChart3,
-    label: "Dashboard",
-    href: "/dashboard",
+    label: 'Dashboard',
+    href: '/dashboard',
     isActive: true,
+    access: ['super'],
   },
   {
     icon: Zap,
-    label: "Infra Packages",
-    href: "/infra-packages",
+    label: 'Infra Packages',
+    href: '/infra-packages',
+    access: ['super'],
     subItems: [
       {
         icon: Gateway,
-        label: "Gateway",
-        href: "/infra-packages/gateway",
+        label: 'Gateway',
+        href: '/infra-packages/gateway',
       },
       {
         icon: Cog,
-        label: "Config",
-        href: "/infra-packages/config",
+        label: 'Config',
+        href: '/infra-packages/config',
         subItems: [
           {
             icon: FolderOpen,
-            label: "Projects",
-            href: "/infra-packages/config/projects?branch=main",
+            label: 'Projects',
+            href: '/infra-packages/config/projects?branch=main',
           },
           {
             icon: Key,
-            label: "Secret Key",
-            href: "/infra-packages/config/secret-key",
+            label: 'Secret Key',
+            href: '/infra-packages/config/secret-key',
           },
         ],
       },
       {
         icon: Server,
-        label: "Eureka",
-        href: "/infra-packages/eureka",
+        label: 'Eureka',
+        href: '/infra-packages/eureka',
       },
       {
         icon: Lock,
-        label: "Auth",
-        href: "/infra-packages/auth",
+        label: 'Auth',
+        href: '/infra-packages/auth',
         subItems: [
           {
             icon: FolderOpen,
-            label: "OAuth",
-            href: "/infra-packages/auth/ouath",
+            label: 'OAuth',
+            href: '/infra-packages/auth/ouath',
           },
           {
             icon: Key,
-            label: "Key",
-            href: "/infra-packages/auth/key",
+            label: 'Key',
+            href: '/infra-packages/auth/key',
           },
         ],
       },
       {
         icon: Package,
-        label: "Instance Module",
-        href: "/infra-packages/instance-module",
+        label: 'Instance Module',
+        href: '/infra-packages/instance-module',
       },
     ],
   },
   {
-    label: "Services",
+    label: 'Services',
     icon: Server,
+    access: ['admin', 'member'],
     subItems: [
       {
-        label: "API Management",
-        href: "/services/api-management",
+        label: 'API Management',
+        href: '/services/api-management',
         icon: Shield,
         subItems: [
           {
-            label: "APIs",
-            href: "/services/api-management",
+            label: 'APIs',
+            href: '/services/api-management',
             icon: Globe,
           },
           ...(selectedApiName
@@ -185,12 +188,12 @@ export const getNavItems = (): NavItem[] => [
                   icon: Globe,
                 },
                 {
-                  label: "Stages",
+                  label: 'Stages',
                   href: `/services/api-management/stages?apiId=${selectedApiId}&apiName=${selectedApiName}`,
                   icon: Layers,
                 },
                 {
-                  label: "Models",
+                  label: 'Models',
                   href: `/services/api-management/models?apiId=${selectedApiId}&apiName=${selectedApiName}`,
                   icon: Box,
                 },
@@ -198,13 +201,13 @@ export const getNavItems = (): NavItem[] => [
               ]
             : []),
           {
-            label: "Target Endpoints",
-            href: "/services/api-management/target-endpoints",
+            label: 'Target Endpoints',
+            href: '/services/api-management/target-endpoints',
             icon: Target,
           },
           {
-            label: "API Keys",
-            href: "/services/api-management/api-keys",
+            label: 'API Keys',
+            href: '/services/api-management/api-keys',
             icon: Key,
           },
         ],
@@ -213,25 +216,27 @@ export const getNavItems = (): NavItem[] => [
   },
   {
     icon: Users,
-    label: "Members",
-    href: "/members",
+    label: 'Members',
+    href: '/members',
+    access: ['super', 'admin'],
   },
   {
     icon: Settings,
-    label: "Settings",
-    href: "/settings",
+    label: 'Settings',
+    href: '/settings',
+    access: ['super', 'admin'],
   },
-]
+];
 
 export const userMenuItems = [
   {
     icon: UserCog,
-    label: "계정 설정",
-    action: "account",
+    label: '계정 설정',
+    action: 'account',
   },
   {
     icon: LogOut,
-    label: "로그아웃",
-    action: "logout",
+    label: '로그아웃',
+    action: 'logout',
   },
-]
+];

@@ -28,6 +28,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import axios from 'axios';
+import { decodeJWT } from '@/hooks/decodeToken';
 
 interface AppSidebarProps {
   sidebarCollapsed: boolean;
@@ -467,18 +468,18 @@ export function AppSidebar({
   // // 사이드바 하단에 유저 정보
   const [userInfo, setUserInfo] = useState({});
 
-  const getUserInfo = async () => {
-    const userId = localStorage.getItem('userId');
-    const res = await axios.get(`/api/v1/users/${userId}`);
-    if (res) {
-      setUserInfo(res.data);
-    }
-  };
-
   useEffect(() => {
-    getUserInfo();
+    const token = localStorage.getItem('access_token') as string;
+    if (!token) return;
+
+    const decoded = decodeJWT(token);
+    console.log(token, decoded);
+    if (decoded) {
+      setUserInfo(decoded);
+    }
   }, []);
 
+  console.log(userInfo);
   return (
     <aside
       className={`fixed top-14 z-40 h-[calc(100vh-3.5rem)] border-r border-blue-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60 transition-all duration-500 ease-in-out transform ${

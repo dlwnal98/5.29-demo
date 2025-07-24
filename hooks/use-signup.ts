@@ -3,36 +3,33 @@ import { UseMutationOptions, useMutation } from '@tanstack/react-query';
 
 // 유저 생성
 const createUser = async (
-  tenantId: string,
+  organizationName: string,
   userId: string,
   password: string,
-  name: string,
-  email: string,
-  roleIds: number[]
+  fullName: string,
+  email: string
 ) => {
   const { data } = await axios.post(`/api/v1/users`, {
-    tenantId: tenantId,
+    organizationName: organizationName,
     userId: userId,
     password: password,
-    name: name,
+    fullName: fullName,
     email: email,
-    roleIds: roleIds,
   });
 
   return data;
 };
 
 export function useCreateUser(
-  tenantId: string,
+  organizationName: string,
   userId: string,
   password: string,
-  name: string,
+  fullName: string,
   email: string,
-  roleIds: number[],
   options?: UseMutationOptions<any, Error>
 ) {
   return useMutation({
-    mutationFn: () => createUser(tenantId, userId, password, name, email, roleIds),
+    mutationFn: () => createUser(organizationName, userId, password, fullName, email),
     ...options,
   });
 }

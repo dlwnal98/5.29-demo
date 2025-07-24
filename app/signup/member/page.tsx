@@ -64,7 +64,6 @@ export default function SignupMemberPage() {
     password, //password
     name, // name
     email, //email
-    [5], // roleIds, 아직 정해진 거 없음
     {
       onSuccess: (data) => {
         console.log('✅ 유저 생성 성공:', data);

@@ -14,9 +14,9 @@ import axios from 'axios';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
-    organization: 'test', // 아직 정해진 거 없음
-    name: '',
-    id: '',
+    organizationName: '', // 아직 정해진 거 없음
+    fullName: '',
+    userId: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -37,14 +37,14 @@ export default function SignupPage() {
     });
   };
 
-  const { name, id, email, password, confirmPassword, organization } = formData;
+  const { fullName, userId, email, password, confirmPassword, organizationName } = formData;
 
   // 정규식은 나중에 정책 정해서
   // const usernameRegex = /^[a-z][a-z0-9_]{3,15}$/;
   // const passwordRegex = /^(?=\S{8,20}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+=-])/;
 
-  const handleIdCheck = async (tenantId: string, userId: string) => {
-    const res = await axios.post(`/api/v1/users/exists?tenantId=${tenantId}&userId=${userId}`);
+  const handleIdCheck = async (userId: string) => {
+    const res = await axios.get(`/api/v1/users/exists?userId=${userId}`);
     console.log(res);
     if (res.data) {
       setNonOverlap(false);
@@ -57,12 +57,11 @@ export default function SignupPage() {
 
   //등록 성공하면 유저 아이디 반환
   const { mutate: createUserMutate } = useCreateUser(
-    organization, // organization 아직 정해진 거 없음
-    id, // userId
+    organizationName, // organization 아직 정해진 거 없음
+    userId, // userId
     password, //password
-    name, // name
+    fullName, // name
     email, //email
-    [5], // roleIds, 아직 정해진 거 없음
     {
       onSuccess: (data) => {
         console.log('✅ 유저 생성 성공:', data);
@@ -120,8 +119,8 @@ export default function SignupPage() {
   };
 
   const signUpCondition =
-    name.length > 0 &&
-    id.length > 0 &&
+    fullName.length > 0 &&
+    userId.length > 0 &&
     nonOverlap &&
     email.length > 0 &&
     password.length > 0 &&
@@ -190,10 +189,10 @@ export default function SignupPage() {
                 조직
               </Label>
               <Input
-                id="organization"
-                name="organization"
+                id="organizationName"
+                name="organizationName"
                 type="text"
-                value={formData.organization}
+                value={formData.organizationName}
                 onChange={handleInputChange}
                 placeholder="이름을 입력해주세요."
                 required
@@ -207,10 +206,10 @@ export default function SignupPage() {
                 이름
               </Label>
               <Input
-                id="name"
-                name="name"
+                id="fullName"
+                name="fullName"
                 type="text"
-                value={formData.name}
+                value={formData.fullName}
                 onChange={handleInputChange}
                 placeholder="이름을 입력해주세요."
                 required
@@ -225,10 +224,10 @@ export default function SignupPage() {
               </Label>
               <div className="grid grid-cols-3 gap-4">
                 <Input
-                  id="id"
-                  name="id"
+                  id="userId"
+                  name="userId"
                   type="text"
-                  value={formData.id}
+                  value={formData.userId}
                   onChange={handleInputChange}
                   placeholder="아이디를 입력해주세요."
                   required
@@ -236,8 +235,8 @@ export default function SignupPage() {
                 />
                 <Button
                   className="h-10"
-                  onClick={() => handleIdCheck('test', formData.id)}
-                  disabled={formData.id.length === 0}
+                  onClick={() => handleIdCheck(formData.userId)}
+                  disabled={formData.userId.length === 0}
                 >
                   중복 확인
                 </Button>
