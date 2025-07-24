@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select';
 import { Upload } from 'lucide-react';
 import { toast } from 'sonner';
+import { sampleApiData } from '@/constants/sample-api-data';
 
 // 예시 API 목록 (실제 환경에서는 props로 받아도 됨)
 const mockApiPlans = [
@@ -109,25 +110,11 @@ const ApiCreateModal = ({ open, onOpenChange, onSuccess }: ApiCreateModalProps) 
       toast.error('Swagger 내용을 입력하거나 파일을 업로드해주세요.');
       return;
     }
-    if (createApiForm.type === 'example' && !createApiForm.selectedExample) {
-      toast.error('API 예제를 선택해주세요.');
-      return;
-    }
-    const newApi = {
-      id: Date.now().toString(),
-      name: createApiForm.name,
-      description: createApiForm.description,
-      apiId: Math.random().toString(36).substring(2, 12),
-      protocol: 'REST',
-      endpointType: '지역',
-      createdDate: new Date().toISOString().split('T')[0],
-      selected: false,
-    };
-    if (onSuccess) onSuccess(newApi);
+
     onOpenChange(false);
     setCreateApiForm({ ...initialForm });
     setSwaggerFile(null);
-    toast.success(`API '${newApi.name}'이(가) 생성되었습니다.`);
+    toast.success(`API '${createApiForm.name}'이(가) 생성되었습니다.`);
   };
 
   // 타입별 입력 UI
@@ -167,10 +154,6 @@ const ApiCreateModal = ({ open, onOpenChange, onSuccess }: ApiCreateModalProps) 
         return (
           <div className="space-y-4">
             <Tabs defaultValue="swagger" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="swagger">Swagger</TabsTrigger>
-                <TabsTrigger value="preview">미리보기</TabsTrigger>
-              </TabsList>
               <TabsContent value="swagger" className="space-y-4">
                 <input
                   type="file"
@@ -179,40 +162,46 @@ const ApiCreateModal = ({ open, onOpenChange, onSuccess }: ApiCreateModalProps) 
                   className="hidden"
                   id="swagger-upload"
                 />
-                <div
-                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                    isDragOver ? 'border-blue-500 bg-blue-100' : 'border-blue-300 bg-blue-50'
-                  }`}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                >
-                  <div className="space-y-3">
-                    <Upload className="h-8 w-8 text-blue-600 mx-auto" />
-                    <p className="text-gray-600">
-                      파일을 여기로 드래그하거나 클릭하여 업로드하세요
-                    </p>
+                {!swaggerFile ? (
+                  <div
+                    className={`border-2 border-dashed rounded-lg text-center transition-colors ${
+                      isDragOver ? 'border-blue-500 bg-blue-100' : 'border-blue-300 bg-blue-50'
+                    }`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
                     <label
                       htmlFor="swagger-upload"
-                      className="inline-block cursor-pointer text-blue-600 hover:text-blue-700 px-4 py-2 border border-blue-300 rounded-md hover:bg-blue-50 transition-colors"
+                      className="flex flex-col items-center space-y-3 w-full h-full cursor-pointer mb-2 text-blue-600 p-8 "
                     >
-                      파일 선택
+                      <Upload className="h-8 w-8 text-blue-600 mx-auto" />
+                      <p className="text-gray-600">
+                        파일을 여기로 드래그하거나 클릭하여 업로드하세요
+                      </p>
                     </label>
                   </div>
-                  {swaggerFile && (
-                    <p className="mt-3 text-sm text-green-600 font-medium">
-                      선택된 파일: {swaggerFile.name}
+                ) : (
+                  <div className="flex items-center">
+                    <label
+                      htmlFor="swagger-upload"
+                      className="flex items-center text-[12px] font-medium cursor-pointer text-blue-600 hover:text-blue-700 px-4 py-2 border border-blue-300 rounded-md hover:bg-blue-50 transition-colors"
+                    >
+                      <Upload className="h-4 w-4 text-blue-600 mx-auto mr-2" /> 파일 선택
+                    </label>
+                    <p className="ml-3 text-sm text-green-600 font-medium">
+                      선택된 파일: {swaggerFile?.name}
                     </p>
-                  )}
-                </div>
+                  </div>
+                )}
                 <div className="grid grid-cols-4 gap-4">
                   <div className="col-span-4">
                     <Textarea
                       placeholder="Swagger JSON 또는 YAML 내용을 입력하세요..."
                       value={createApiForm.swaggerContent}
-                      onChange={(e) =>
-                        setCreateApiForm((prev) => ({ ...prev, swaggerContent: e.target.value }))
-                      }
+                      onChange={(e) => {
+                        setCreateApiForm((prev) => ({ ...prev, swaggerContent: e.target.value }));
+                      }}
                       className="min-h-[300px] font-mono text-sm resize-none"
                     />
                   </div>
@@ -242,24 +231,14 @@ const ApiCreateModal = ({ open, onOpenChange, onSuccess }: ApiCreateModalProps) 
         );
       case 'example':
         return (
-          <div className="space-y-4">
-            <Label className="text-sm font-medium text-gray-700 mb-2 block">
-              예제 선택 <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              value={createApiForm.selectedExample}
-              onValueChange={(value) =>
-                setCreateApiForm((prev) => ({ ...prev, selectedExample: value }))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="예제를 선택하세요" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="example1">예제 1</SelectItem>
-                <SelectItem value="example2">예제 2</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-4 gap-4">
+            <div className="col-span-4">
+              <Textarea
+                value={sampleApiData}
+                disabled
+                className="min-h-[300px] font-mono text-sm resize-none"
+              />
+            </div>
           </div>
         );
       default:
@@ -285,7 +264,18 @@ const ApiCreateModal = ({ open, onOpenChange, onSuccess }: ApiCreateModalProps) 
             </Label>
             <RadioGroup
               value={createApiForm.type}
-              onValueChange={(value) => setCreateApiForm((prev) => ({ ...prev, type: value }))}
+              onValueChange={(value) => {
+                setCreateApiForm((prev) => ({
+                  ...prev,
+                  type: value,
+                  name: '',
+                  description: '',
+                  sourceApiId: '',
+                  swaggerContent: '',
+                  selectedExample: '',
+                }));
+                setSwaggerFile(null);
+              }}
               className="grid grid-cols-2 gap-4"
             >
               <div className="flex items-center space-x-2">
@@ -364,7 +354,7 @@ const ApiCreateModal = ({ open, onOpenChange, onSuccess }: ApiCreateModalProps) 
             취소
           </Button>
           <Button onClick={handleCreateApi} className="bg-blue-500 hover:bg-blue-600 text-white">
-            API 생성
+            생성
           </Button>
         </DialogFooter>
       </DialogContent>
