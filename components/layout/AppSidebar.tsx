@@ -12,7 +12,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChartNoAxesColumnDecreasingIcon, Settings } from 'lucide-react';
+import {
+  ChartNoAxesColumnDecreasingIcon,
+  Minus,
+  Plus,
+  Settings,
+  SquareMinus,
+  SquarePlus,
+} from 'lucide-react';
 import {
   projectsData,
   getNavItems,
@@ -49,17 +56,22 @@ const SubNavButton = ({
   const router = useRouter();
   const searchParams = useSearchParams();
   const isApiManagementPath = pathname.startsWith('/services/api-management');
-
+  const isConfigPath =
+    pathname.startsWith('/infra-packages/config/projects') ||
+    pathname.startsWith('/infra-packages/config/secret-key');
   // API Management는 항상 열린 상태로 유지
   const [isSubOpen, setIsSubOpen] = useState(() => {
     return subItem.label === 'API Management' ? isApiManagementPath : false;
   });
 
   useEffect(() => {
-    if (subItem.label === 'API Management' && isApiManagementPath && !isSubOpen) {
+    if (
+      (subItem.label === 'API Management' && isApiManagementPath && !isSubOpen) ||
+      (subItem.label === 'Config' && isConfigPath && !isSubOpen)
+    ) {
       setIsSubOpen(true);
     }
-  }, [pathname, subItem.label, isApiManagementPath, isSubOpen]);
+  }, [pathname, subItem.label, isApiManagementPath, isConfigPath, isSubOpen]);
 
   // URL에서 API 정보 복원
   useEffect(() => {
@@ -90,10 +102,12 @@ const SubNavButton = ({
   const handleSubClick = () => {
     if (subItem.subItems) {
       // API Management인 경우 API Management 경로에서는 닫지 않음
-      if (subItem.label === 'API Management' && isApiManagementPath) {
+      if (
+        (subItem.label === 'API Management' && isApiManagementPath) ||
+        (subItem.label === 'Config' && isConfigPath)
+      ) {
         return;
       }
-
       setIsSubOpen(!isSubOpen);
     } else if (subItem.href) {
       router.push(subItem.href);
@@ -141,22 +155,29 @@ const SubNavButton = ({
             variant="ghost"
             size="sm"
             className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-1 ${
-              isSubActive ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : ''
+              isSubActive
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:bg-blue-600 hover:text-white dark:bg-blue-900 rounded-full text-white dark:text-blue-300'
+                : ''
             }`}
             onClick={handleSubClick}
           >
             <span className="ml-2 text-sm flex-1 text-left">{subItem.label}</span>
             <div className="flex items-center space-x-1">
-              {isSubOpen ? (
+              {/* {isSubOpen ? (
                 <ChevronDown className="h-3 w-3" />
               ) : (
                 <ChevronRight className="h-3 w-3" />
+              )} */}
+              {isSubOpen ? (
+                <Minus className="!h-[14px] !w-[14px]" />
+              ) : (
+                <Plus className="!h-[14px] !w-[14px]" />
               )}
             </div>
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="collapsible-content overflow-hidden transition-all duration-100 ease-in-out">
-          <div className="ml-4 space-y-1 py-1">
+          <div className="ml-2 space-y-1 py-1">
             {subItem.subItems.map((subSubItem, index) => {
               // separator 처리
               if (subSubItem.separator) {
@@ -177,7 +198,7 @@ const SubNavButton = ({
                   size="sm"
                   className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-2 ${
                     isSubSubActive
-                      ? 'bg-blue-50 dark:bg-blue-800 text-blue-600 dark:text-blue-400'
+                      ? 'bg-blue-100 hover:bg-blue-100 rounded-full hover:text-blue-700 dark:bg-blue-800 text-blue-700 dark:text-blue-400'
                       : ''
                   }`}
                   onClick={() => handleSubSubItemClick(subSubItem.label, subSubItem.href!)}
@@ -197,7 +218,9 @@ const SubNavButton = ({
       variant="ghost"
       size="sm"
       className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-1 ${
-        isSubActive ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : ''
+        isSubActive
+          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full hover:text-white dark:bg-blue-900 text-white dark:text-blue-300'
+          : ''
       }`}
       onClick={handleSubClick}
     >
@@ -243,6 +266,8 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
           (subItem.subItems && subItem.subItems.some((subSubItem) => pathname === subSubItem.href))
       ));
 
+  console.log(isActive, pathname, item.href, item.subItems);
+
   const handleClick = () => {
     if (item.subItems) {
       // Services 메뉴가 API Management 경로에 있을 때는 토글하지 않음
@@ -286,7 +311,7 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
                     sidebarCollapsed ? 'justify-center px-2' : 'justify-start'
                   } hover:bg-blue-50 dark:hover:bg-gray-800 ${
                     isActive
-                      ? 'bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 text-blue-700 dark:text-blue-300 border-l-4 border-blue-600'
+                      ? ' bg-gradient-to-r from-blue-900 to-indigo-900 rounded-full hover:text-white dark:from-blue-900 dark:to-indigo-900 text-white dark:text-blue-300'
                       : ''
                   }`}
                   size="sm"
@@ -295,7 +320,7 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
                   <Icon className="h-4 w-4" />
                   {!sidebarCollapsed && (
                     <>
-                      <span className="ml-2 flex-1 text-left">{item.label}</span>
+                      <span className="ml-1 flex-1 text-left">{item.label}</span>
                       <div className="flex items-center space-x-1">
                         {isOpen ? (
                           <ChevronDown className="h-4 w-4" />
@@ -375,7 +400,7 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
           </Tooltip>
           {!sidebarCollapsed && (
             <CollapsibleContent className="collapsible-content overflow-hidden transition-all duration-100 ease-in-out">
-              <div className="ml-6 space-y-1 py-1">
+              <div className="ml-5 pl-[5px] space-y-1 py-1 border-l-2 border-blue-300">
                 {item.subItems.map((subItem, index) => (
                   <SubNavButton
                     key={subItem.label || `sub-${index}`}
@@ -402,14 +427,14 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
               sidebarCollapsed ? 'justify-center px-2' : 'justify-start'
             } hover:bg-blue-50 dark:hover:bg-gray-800 ${
               isActive
-                ? 'bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 text-blue-700 dark:text-blue-300 border-l-4 border-blue-600'
+                ? 'bg-gradient-to-r from-blue-900 to-indigo-900 rounded-full text-white hover:text-white dark:from-blue-900 dark:to-indigo-900  dark:text-blue-300 '
                 : ''
             }`}
             size="sm"
             onClick={handleClick}
           >
             <Icon className="h-4 w-4" />
-            {!sidebarCollapsed && <span className="ml-2">{item.label}</span>}
+            {!sidebarCollapsed && <span className="ml-1">{item.label}</span>}
           </Button>
         </TooltipTrigger>
         {sidebarCollapsed && <TooltipContent side="right">{item.label}</TooltipContent>}

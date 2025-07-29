@@ -1,6 +1,6 @@
 'use client';
 
-import { act, useState } from 'react';
+import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,20 +27,18 @@ import { Switch } from '@/components/ui/switch';
 import {
   Search,
   Plus,
-  Edit,
   RotateCcw,
   Trash2,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
-  ChevronUp,
   User,
   Shield,
-  Key,
-  Settings,
-  UserCheck,
   AlertTriangle,
   Wrench,
+  LockKeyholeIcon,
+  LockKeyholeOpenIcon,
+  Copy,
 } from 'lucide-react';
 import {
   Pagination,
@@ -55,6 +53,7 @@ import {
   issueTempPassword,
   useDeleteMember,
   useMemberHandleStatus,
+  useAddMember,
 } from '@/hooks/use-members';
 import {
   Table,
@@ -64,6 +63,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Toaster, toast } from 'sonner';
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -71,75 +71,131 @@ export default function UsersPage() {
   const [statusFilter, setStatusFilter] = useState<boolean | 'all'>('all');
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [memberId, setMemberId] = useState('');
+  const [firstMemberPw, setFirstMemberPw] = useState('123jkhsdfskjdf23fdzs');
+  const [adminPw, setAdminPw] = useState('');
+  const [passwordOpenAuth, setPasswordOpenAuth] = useState(false);
   // const [active, setActive] = useState('all');
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [passwordOpenDialogOpen, setPasswordOpenDialogOpen] = useState(false);
+  const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
+  const [resetPasswordUser, setResetPasswordUser] = useState<string>('');
+  const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
+  const [deleteAccountUser, setDeleteAccountUser] = useState<string>('');
+  const [nowPw, setNowPw] = useState('');
 
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
+  const organizationId = ''; // 로그인한 유저 정보에 담겨있어야함
 
   const {
     data: userListData,
     refetch: allUserRefetch,
     isLoading,
     isError,
-  } = useGetUserList(statusFilter);
+  } = useGetUserList(statusFilter); // 역할 super 일 때
 
-  const { data: memberByOrganizationListData, refetch } =
-    useGetMemberByOrganizationList('hCo3MyDKAAAx'); //넥스프론 조직id
+  const { data: memberByOrganizationListData, refetch: memberRefetch } =
+    useGetMemberByOrganizationList(organizationId); //넥스프론 조직id
 
-  console.log(memberByOrganizationListData);
+  console.log(userListData, memberByOrganizationListData);
 
-  const filteredUsers = userListData;
+  const filteredUsers = [
+    {
+      userKey: 'hCo3KADKAAAR',
+      userId: 'user1234',
+      password: '$2a$10$fnOJSvvC3xnsB9M5oxFgteal05fXQ.HWKGZgnXWad2fr/aR8ZHpG2',
+      fullName: '김길동',
+      email: 'kkd@nexfron.com',
+      enabled: 1,
+      lastLoginAt: null,
+      createdAt: '2025-07-24T13:29:12',
+      updatedAt: '2025-07-24T13:29:12',
+      role: 'ADMIN',
+      organizationId: 'haBagyDzAAA2',
+    },
+    {
+      userKey: 'HDOs245LLksb',
+      userId: 'super',
+      password: '$2a$10$5MVQ2QUwyOveQzcAnFL0y.hVYHp85Zz5ocUsotJnU5oM9T5QVKH5m',
+      fullName: '갤럭시',
+      email: 'super@email.com',
+      enabled: 1,
+      lastLoginAt: null,
+      createdAt: '2025-07-28T11:10:37',
+      updatedAt: '2025-07-28T16:34:53',
+      role: 'MEMBER',
+      organizationId: 'haBagyDzAAA2',
+    },
+    {
+      userKey: 'hCvORnDKAAAG',
+      userId: 'user1',
+      password: '$2a$10$dyOLmtbON.Qj59Xuxp19EuLg6Wno.O8pT8krV/ffNcf2PF1iLSvH.',
+      fullName: '박기홍',
+      email: 'pkh@nexfron.com',
+      enabled: 1,
+      lastLoginAt: null,
+      createdAt: '2025-07-24T13:54:23',
+      updatedAt: '2025-07-28T11:29:11',
+      role: 'MEMBER',
+      organizationId: 'haBagyDzAAA2',
+    },
+  ];
+  // const filteredUsers = memberByOrganizationListData;
   // Pagination logic
   const totalPages = Math.ceil(filteredUsers?.length / usersPerPage);
   const startIndex = (currentPage - 1) * usersPerPage;
   const endIndex = startIndex + usersPerPage;
   const currentUsers = filteredUsers?.slice(startIndex, endIndex);
 
-  const handleStatusToggle = (userId: string, userKey: string, active: boolean) => {
-    useMemberHandleStatus(userId, userKey, active);
-  };
-
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-
-  // Reset Password Modal States
-  const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
-  const [resetPasswordUser, setResetPasswordUser] = useState<(typeof userListData)[0] | null>(null);
-
-  // Delete Account Modal States
-  const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
-  const [deleteAccountUser, setDeleteAccountUser] = useState<string>('');
-
-  const { mutate: userDelete } = useDeleteMember(deleteAccountUser, 'fsdf', {
+  const { mutate: handleStatus } = useMemberHandleStatus({
     onSuccess: () => {
-      alert('유저가 삭제되었습니다.');
-      setIsDeleteAccountModalOpen(false); // 모달 닫기
-      allUserRefetch(); // 유저 목록 새로고침
-      // 필요하다면 alert 등 추가
+      toast.success('상태가 변경되었습니다.');
     },
   });
 
-  const handleAction = (action: string, userId: string, userName: string) => {
+  const handleStatusToggle = (userKey: string, active?: boolean | 'all') => {
+    handleStatus({ userKey, active });
+  };
+
+  const { mutate: userDelete } = useDeleteMember({
+    onSuccess: () => {
+      toast.success('유저가 삭제되었습니다.');
+      setIsDeleteAccountModalOpen(false); // 모달 닫기
+      allUserRefetch(); // 유저 목록 새로고침
+    },
+  });
+
+  const handleAction = (action: string, userkey: string, userName: string) => {
     if (action === 'resetPassword') {
       setIsResetPasswordModalOpen(true);
-      setResetPasswordUser(userId);
+      setResetPasswordUser(userkey);
     } else if (action === 'deleteAccount') {
       setIsDeleteAccountModalOpen(true);
-      setDeleteAccountUser(userId);
+      setDeleteAccountUser(userkey);
     } else if (action === 'create') {
-      setIsEditDialogOpen(true);
+      setIsAddDialogOpen(true);
     }
   };
 
-  const handleSaveUser = () => {
-    setIsEditDialogOpen(false);
+  const { mutate: addMember } = useAddMember({
+    onSuccess: (data) => {
+      toast.success('멤버 계정이 생성되었습니다.');
+      // setIsAddDialogOpen(false); // 모달 닫기
+      // memberRefetch(); // 유저 목록 새로고침
+      setFirstMemberPw(data);
+    },
+  });
+
+  const handleAddMember = (organizationId: string, userId: string) => {
+    addMember({ organizationId, userId });
   };
 
-  const handleResetPassword = () => {
-    issueTempPassword(resetPasswordUser, 'temp1234!', () => setIsResetPasswordModalOpen(false));
+  const handleResetPassword = (resetPasswordUser: any) => {
+    issueTempPassword(resetPasswordUser, () => setIsResetPasswordModalOpen(false));
   };
 
-  const handleDeleteAccount = () => {
-    userDelete();
+  const handleDeleteAccount = (organizationId: string, userKey: string) => {
+    userDelete({ organizationId, userKey });
   };
 
   // active 필드로 상태 뱃지 표시
@@ -155,10 +211,22 @@ export default function UsersPage() {
     );
   };
 
+  function maskPasswordInResponse(response: any) {
+    const maskedPassword = '*'.repeat(response.length);
+    return maskedPassword;
+  }
+
+  const handleCopyPassword = (password: string) => {
+    navigator.clipboard.writeText(password);
+    // toast.success('ARN이 클립보드에 복사되었습니다.');
+    toast.success('비밀번호가 복사되었습니다.');
+  };
+
   if (isLoading) return <div> 로딩중</div>;
   if (isError || !userListData) return <div>에러확인</div>;
   return (
     <AppLayout>
+      <Toaster position="bottom-center" richColors expand={true} />
       <div className="min-h-screen">
         <div className="container mx-auto px-6 py-8">
           {/* Header */}
@@ -236,10 +304,9 @@ export default function UsersPage() {
                       <TableHead>이름</TableHead>
                       <TableHead>이메일</TableHead>
                       <TableHead>ID</TableHead>
-                      <TableHead>유저키</TableHead>
+                      <TableHead>역할</TableHead>
                       <TableHead className="w-4">상태</TableHead>
                       <TableHead>생성일</TableHead>
-
                       <TableHead className="w-12"></TableHead>
                     </TableRow>
                   </TableHeader>
@@ -251,12 +318,13 @@ export default function UsersPage() {
                             key={user.userId}
                             className={`transition-colors ${
                               expandedUser === user.userId
-                                ? 'bg-blue-50 border-l-4 border-b-0 border-blue-500'
+                                ? 'bg-blue-50 border-l-4 border-b-0 border-blue-50ew0'
                                 : 'hover:bg-muted/50'
                             }`}
-                            onClick={() =>
-                              setExpandedUser(expandedUser === user.userId ? null : user.userId)
-                            }
+                            onClick={() => {
+                              setExpandedUser(expandedUser === user.userId ? null : user.userId);
+                              setPasswordOpenAuth(false);
+                            }}
                             style={{ cursor: 'pointer' }}
                           >
                             <TableCell></TableCell>
@@ -271,7 +339,11 @@ export default function UsersPage() {
                             </TableCell>
                             <TableCell>{user.email}</TableCell>
                             <TableCell>{user.userId}</TableCell>
-                            <TableCell>{user.userKey}</TableCell>
+                            <TableCell>
+                              <Badge variant={'outline'} className="bg-white">
+                                {user.role}
+                              </Badge>
+                            </TableCell>
                             <TableCell>{getStatusBadge(user.enabled)}</TableCell>
                             <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
 
@@ -314,11 +386,7 @@ export default function UsersPage() {
                                         <Switch
                                           checked={user.enabled}
                                           onCheckedChange={(checked) =>
-                                            handleStatusToggle(
-                                              user.userId,
-                                              user.userKey,
-                                              user.enabled
-                                            )
+                                            handleStatusToggle(user.userKey, checked)
                                           }
                                           className="data-[state=checked]:bg-emerald-300 data-[state=unchecked]:bg-red-300"
                                         />
@@ -358,40 +426,56 @@ export default function UsersPage() {
                                             <Wrench className="h-4 w-4 mr-2" />
                                             작업
                                           </div>
-                                          <div className="flex items-center space-x-2">
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleAction(
-                                                  'resetPassword',
-                                                  user.userId,
-                                                  user.fullName
-                                                );
-                                              }}
-                                              // className="h-8 w-8 p-0"
-                                              className="border rounded-2 hover:text-blue-700 hover:bg-blue-50 hover:border-blue-300"
-                                            >
-                                              <RotateCcw className="h-4 w-4" />
-                                              임시 비밀번호 발급
-                                            </Button>
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleAction(
-                                                  'deleteAccount',
-                                                  user.userId,
-                                                  user.fullName
-                                                );
-                                              }}
-                                              className="border border-red-300 rounded-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                                            >
-                                              <Trash2 className="h-4 w-4" />
-                                              유저 삭제
-                                            </Button>
+                                          <div className="flex items-end justify-between space-x-2 w-[100%]">
+                                            <div className="space-x-2">
+                                              <Button
+                                                variant="secondary"
+                                                size="sm"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  setNowPw(user.password);
+                                                  setPasswordOpenAuth(false);
+                                                  setPasswordOpenDialogOpen(true);
+                                                }}
+                                              >
+                                                <LockKeyholeIcon className="h-4 w-4" />
+                                                비밀번호 확인
+                                              </Button>
+                                              <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  handleAction(
+                                                    'resetPassword',
+                                                    user.userkey,
+                                                    user.fullName
+                                                  );
+                                                }}
+                                                className="border rounded-2 hover:text-blue-700 hover:bg-blue-50 hover:border-blue-300"
+                                              >
+                                                <RotateCcw className="h-4 w-4" />
+                                                임시 비밀번호 발급
+                                              </Button>
+                                            </div>
+                                            <div>
+                                              <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  handleAction(
+                                                    'deleteAccount',
+                                                    user.userkey,
+                                                    user.fullName
+                                                  );
+                                                }}
+                                                className="border border-red-300 rounded-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                              >
+                                                <Trash2 className="h-4 w-4" />
+                                                유저 삭제
+                                              </Button>
+                                            </div>
                                           </div>
                                         </div>
                                       </div>
@@ -521,34 +605,61 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {/* Edit User Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Add Member</DialogTitle>
-            <DialogDescription>Create organization member information.</DialogDescription>
-          </DialogHeader>
-
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-1 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Member ID</Label>
-                <Input
-                  id="memberId"
-                  value={memberId}
-                  onChange={(e) => setMemberId(e.target.value)}
-                />
+      {/* Add Member Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        {firstMemberPw?.length === 0 ? (
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Add Member</DialogTitle>
+              <DialogDescription>Create organization member information.</DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Member ID</Label>
+                  <Input
+                    id="memberId"
+                    value={memberId}
+                    onChange={(e) => setMemberId(e.target.value)}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              취소
-            </Button>
-            <Button onClick={handleSaveUser}>생성</Button>
-          </DialogFooter>
-        </DialogContent>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                취소
+              </Button>
+              <Button onClick={() => handleAddMember(organizationId, memberId)}>생성</Button>
+            </DialogFooter>
+          </DialogContent>
+        ) : (
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>멤버 임시 비밀번호</DialogTitle>
+              <DialogDescription>
+                임의로 발급된 비밀번호를 복사하여 다시 로그인해주세요.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-2">
+                  <button
+                    className="flex items-center hover:underline"
+                    onClick={() => handleCopyPassword(firstMemberPw)}
+                  >
+                    <span>{firstMemberPw}</span>
+                    <Copy className="h-4 w-4 ml-2" />
+                  </button>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="default" onClick={() => setIsAddDialogOpen(false)}>
+                확인
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        )}
       </Dialog>
 
       {/* Reset Password Modal */}
@@ -578,7 +689,10 @@ export default function UsersPage() {
             <Button variant="outline" onClick={() => setIsResetPasswordModalOpen(false)}>
               취소
             </Button>
-            <Button onClick={handleResetPassword} className="bg-blue-600 hover:bg-blue-700">
+            <Button
+              onClick={() => handleResetPassword(resetPasswordUser)}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
               <RotateCcw className="h-4 w-4 mr-2" />
               임시 비밀번호 발급
             </Button>
@@ -618,11 +732,76 @@ export default function UsersPage() {
             </Button>
             <Button
               variant="destructive"
-              onClick={handleDeleteAccount}
+              onClick={() => handleDeleteAccount(organizationId, deleteAccountUser)}
               className="bg-red-600 hover:bg-red-700"
             >
               <Trash2 className="h-4 w-4 mr-2" />
               계정 삭제
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Password Open Dialog */}
+      <Dialog open={passwordOpenDialogOpen} onOpenChange={setPasswordOpenDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Password Auth</DialogTitle>
+            <DialogDescription>Create organization member information.</DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <Label className="text-sm font-medium text-muted-foreground">Password</Label>
+                <div className="text-foreground flex items-center text-sm">
+                  {passwordOpenAuth ? (
+                    <>
+                      {nowPw}
+                      <button onClick={() => handleCopyPassword(nowPw)} className="ml-2">
+                        <Copy className="h-4 w-4 " />
+                      </button>
+                    </>
+                  ) : (
+                    <>{maskPasswordInResponse(nowPw)}</>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-sm font-medium text-muted-foreground">
+                  Auth
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    id="adminPw"
+                    type="password"
+                    value={adminPw}
+                    onChange={(e) => setAdminPw(e.target.value)}
+                  />
+                  <Button
+                    onClick={() => {
+                      // setPasswordOpenDialogOpen(false);
+
+                      //api 호출해서 성공하면 true로 변경
+                      setPasswordOpenAuth(true);
+                    }}
+                  >
+                    인증
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="flex !justify-center">
+            <Button
+              variant="default"
+              onClick={() => {
+                setPasswordOpenAuth(false);
+                setPasswordOpenDialogOpen(false);
+              }}
+            >
+              닫기
             </Button>
           </DialogFooter>
         </DialogContent>

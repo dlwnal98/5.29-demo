@@ -18,6 +18,10 @@ import {
   Globe,
   Box,
   Target,
+  Boxes,
+  NotebookText,
+  Blocks,
+  ChartSpline,
 } from 'lucide-react';
 
 // 사이드 바
@@ -101,14 +105,14 @@ export const clearSelectedApiInfo = () => {
 
 export const getNavItems = (): NavItem[] => [
   {
-    icon: BarChart3,
+    icon: ChartSpline,
     label: 'Dashboard',
     href: '/dashboard',
     isActive: true,
     access: ['super'],
   },
   {
-    icon: Zap,
+    icon: Blocks,
     label: 'Infra Packages',
     href: '/infra-packages',
     access: ['super'],
@@ -166,6 +170,7 @@ export const getNavItems = (): NavItem[] => [
   },
   {
     label: 'Services',
+    href: '/services',
     icon: Server,
     access: ['admin', 'member'],
     subItems: [
@@ -221,10 +226,16 @@ export const getNavItems = (): NavItem[] => [
     access: ['super', 'admin'],
   },
   {
+    icon: NotebookText,
+    label: 'Organization Manage',
+    href: '/settings',
+    access: ['super'],
+  },
+  {
     icon: Settings,
     label: 'Settings',
     href: '/settings',
-    access: ['super', 'admin'],
+    access: ['super'],
   },
 ];
 

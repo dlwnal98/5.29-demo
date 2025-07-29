@@ -19,7 +19,7 @@ export default function AuthCallbackClient() {
 
       // 아래는 고정값
       userId: userId,
-      tenantId: 'test',
+      // tenantId: 'test',
       clientId: 'test',
       expiresIn: EXPIRES_IN,
     });

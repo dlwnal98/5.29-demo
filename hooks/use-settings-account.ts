@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useQuery, useMutation, useQueryClient, UseMutationOptions } from '@tanstack/react-query';
+import { useQuery, useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { UserList } from './use-members';
 
 // 단일 유저 조회
