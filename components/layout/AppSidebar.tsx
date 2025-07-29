@@ -154,7 +154,7 @@ const SubNavButton = ({
           <Button
             variant="ghost"
             size="sm"
-            className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-1 ${
+            className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-full ${
               isSubActive
                 ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:bg-blue-600 hover:text-white dark:bg-blue-900 rounded-full text-white dark:text-blue-300'
                 : ''
@@ -196,14 +196,14 @@ const SubNavButton = ({
                   key={subSubItem.href || `item-${index}`}
                   variant="ghost"
                   size="sm"
-                  className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-2 ${
+                  className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-full ${
                     isSubSubActive
                       ? 'bg-blue-100 hover:bg-blue-100 rounded-full hover:text-blue-700 dark:bg-blue-800 text-blue-700 dark:text-blue-400'
                       : ''
                   }`}
                   onClick={() => handleSubSubItemClick(subSubItem.label, subSubItem.href!)}
                 >
-                  <span className="ml-2 text-xs">{subSubItem.label}</span>
+                  <span className="ml-3 text-xs">{subSubItem.label}</span>
                 </Button>
               );
             })}
@@ -217,7 +217,7 @@ const SubNavButton = ({
     <Button
       variant="ghost"
       size="sm"
-      className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-100 transform hover:translate-x-1 ${
+      className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-full ${
         isSubActive
           ? 'bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full hover:text-white dark:bg-blue-900 text-white dark:text-blue-300'
           : ''
@@ -309,7 +309,7 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
                   variant="ghost"
                   className={`w-full ${
                     sidebarCollapsed ? 'justify-center px-2' : 'justify-start'
-                  } hover:bg-blue-50 dark:hover:bg-gray-800 ${
+                  } hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-full${
                     isActive
                       ? ' bg-gradient-to-r from-blue-900 to-indigo-900 rounded-full hover:text-white dark:from-blue-900 dark:to-indigo-900 text-white dark:text-blue-300'
                       : ''
@@ -371,7 +371,7 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
                                   return (
                                     <button
                                       key={subSubItem.href || `sub-item-${subIndex}`}
-                                      className="w-full flex items-center space-x-2 px-2 py-1 text-xs hover:bg-blue-50 dark:hover:bg-gray-700 rounded"
+                                      className="w-full flex items-center space-x-2 px-2 py-1 text-xs hover:bg-blue-50 dark:hover:bg-gray-700 rounded-full hover:rounded-full"
                                       onClick={() => handleSubItemClick(subSubItem.href!)}
                                     >
                                       <SubSubIcon className="h-3 w-3" />
@@ -383,7 +383,7 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
                             </div>
                           ) : (
                             <button
-                              className="w-full flex items-center space-x-2 px-3 py-2 text-sm hover:bg-blue-50 dark:hover:bg-gray-700 rounded"
+                              className="w-full flex items-center space-x-2 px-3 py-2 text-sm hover:bg-blue-50 dark:hover:bg-gray-700 rounded-full hover:rounded-full"
                               onClick={() => handleSubItemClick(subItem.href!)}
                             >
                               <SubIcon className="h-3 w-3" />
@@ -425,7 +425,7 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
             variant="ghost"
             className={`w-full ${
               sidebarCollapsed ? 'justify-center px-2' : 'justify-start'
-            } hover:bg-blue-50 dark:hover:bg-gray-800 ${
+            } hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-full ${
               isActive
                 ? 'bg-gradient-to-r from-blue-900 to-indigo-900 rounded-full text-white hover:text-white dark:from-blue-900 dark:to-indigo-900  dark:text-blue-300 '
                 : ''
