@@ -296,7 +296,7 @@ export default function SignupPage() {
                   value={formData.password}
                   onChange={handleInputChange}
                   onKeyUp={(e) => validatePassword(e)}
-                  placeholder="영어 소문자+숫자+특수문자, 8~20자를 입력하세요"
+                  placeholder="영어 소문자+숫자, 5~20자를 입력하세요"
                   // required
                   className="h-10 border-gray-200 focus:border-blue-400 focus:ring-blue-400 rounded-lg pr-12"
                 />
@@ -328,7 +328,7 @@ export default function SignupPage() {
                   onChange={handleInputChange}
                   onKeyUp={(e) => {
                     if (formData.password !== e.target.value) {
-                      setPasswordValidMsg('비밀번호가 일치하지 않습니다.');
+                      setPasswordValidMsg('');
                     } else {
                       setPasswordValidMsg('비밀번호가 일치합니다.');
                     }
@@ -355,7 +355,25 @@ export default function SignupPage() {
             {/* 에러/성공 메시지 */}
             {passwordValidMsg && (
               <>
-                {password === confirmPassword ? (
+                {passwordValid ? (
+                  <div className="flex items-center space-x-2 text-green-600 bg-green-50 p-2 rounded-lg border border-green-200">
+                    <CheckCircle className="h-4 w-4 flex-shrink-0" />
+                    <span className="text-xs">{passwordValidMsg}</span>
+                  </div>
+                ) : (
+                  password !== confirmPassword && (
+                    <div className="flex items-center space-x-2 text-red-600 bg-red-50 p-3 rounded-lg border border-red-200">
+                      <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                      <span className="text-xs">{passwordValidMsg}</span>
+                    </div>
+                  )
+                )}
+              </>
+            )}
+
+            {/* {passwordValidMsg && (
+              <>
+                {passwordValid || password === confirmPassword ? (
                   <div className="flex items-center space-x-2 text-green-600 bg-green-50 p-2 rounded-lg border border-green-200">
                     <CheckCircle className="h-4 w-4 flex-shrink-0" />
                     <span className="text-xs">{passwordValidMsg}</span>
@@ -367,7 +385,8 @@ export default function SignupPage() {
                   </div>
                 )}
               </>
-            )}
+            )} */}
+
             {/* 약관 동의 */}
             <div className="flex items-start space-x-2">
               <Checkbox

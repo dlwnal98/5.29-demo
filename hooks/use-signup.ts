@@ -23,12 +23,12 @@ export const createUser = async (
 export const createMemberInit = async (
   userId: string,
   password: string,
-  fullName: string,
+  name: string,
   email: string
 ) => {
   const { data } = await axios.patch(`/api/v1/users/${userId}/init`, {
     password: password,
-    fullName: fullName,
+    name: name,
     email: email,
   });
 

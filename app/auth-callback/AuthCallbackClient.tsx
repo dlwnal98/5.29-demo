@@ -10,10 +10,7 @@ export default function AuthCallbackClient() {
   const searchParams = useSearchParams();
   const code = searchParams.get('code');
   const router = useRouter();
-  // const userId = localStorage.getItem('userId');
-  if (typeof window !== 'undefined') {
-    const userId = localStorage.getItem('userId');
-  }
+  const userId = localStorage.getItem('userId');
 
   const getJWTToken = async () => {
     const EXPIRES_IN = 3600;
