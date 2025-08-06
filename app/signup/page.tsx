@@ -355,7 +355,7 @@ export default function SignupPage() {
             {/* 에러/성공 메시지 */}
             {passwordValidMsg && (
               <>
-                {passwordValid ? (
+                {password === confirmPassword ? (
                   <div className="flex items-center space-x-2 text-green-600 bg-green-50 p-2 rounded-lg border border-green-200">
                     <CheckCircle className="h-4 w-4 flex-shrink-0" />
                     <span className="text-xs">{passwordValidMsg}</span>
