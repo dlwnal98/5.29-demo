@@ -12,7 +12,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Minus, Plus, Settings } from 'lucide-react';
+import {
+  Menu,
+  Minus,
+  Plus,
+  Settings,
+  X,
+  Waves,
+  PanelLeftClose,
+  PanelLeftOpen,
+  PanelLeft,
+} from 'lucide-react';
 import {
   projectsData,
   getNavItems,
@@ -148,25 +158,31 @@ const SubNavButton = ({
           <Button
             variant="ghost"
             size="sm"
-            className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-full ${
+            // className={`w-full font-semibold justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
+            //   isSubActive
+            //     ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:bg-blue-600 hover:text-[#4A4A4A] dark:bg-blue-900 rounded-[8px] text-[#4A4A4A] dark:text-blue-300'
+            //     : 'text-[#8c8c8c]'
+            // }`}
+
+            className={`w-full !h-10  text-[13px] justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
               isSubActive
-                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:bg-blue-600 hover:text-white dark:bg-blue-900 rounded-full text-white dark:text-blue-300'
-                : ''
+                ? 'bg-blue-50 font-bold hover:bg-blue-50 rounded-[8px] dark:bg-blue-800 dark:text-blue-400'
+                : 'text-[#8c8c8c]'
             }`}
             onClick={handleSubClick}
           >
-            <span className="ml-2 text-sm flex-1 text-left">{subItem.label}</span>
+            <span className="flex-1 text-left">{subItem.label}</span>
             <div className="flex items-center space-x-1">
               {isSubOpen ? (
-                <Minus className="!h-[14px] !w-[14px]" />
+                <ChevronDown className="!h-[14px] !w-[14px]" strokeWidth={2.5} />
               ) : (
-                <Plus className="!h-[14px] !w-[14px]" />
+                <ChevronRight className="!h-[14px] !w-[14px]" strokeWidth={2.5} />
               )}
             </div>
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="collapsible-content overflow-hidden transition-all duration-100 ease-in-out">
-          <div className="ml-2 space-y-1 py-1">
+          <div className="ml-3 space-y-1 py-1">
             {subItem.subItems.map((subSubItem, index) => {
               // separator 처리
               if (subSubItem.separator) {
@@ -185,14 +201,19 @@ const SubNavButton = ({
                   key={subSubItem.href || `item-${index}`}
                   variant="ghost"
                   size="sm"
-                  className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-full ${
+                  // className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
+                  //   isSubSubActive
+                  //     ? 'bg-blue-100 hover:bg-blue-100 rounded-[8px] hover:text-blue-700 dark:bg-blue-800 text-blue-700 dark:text-blue-400'
+                  //     : ''
+                  // }`}
+                  className={`w-full !h-10  text-[13px] justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
                     isSubSubActive
-                      ? 'bg-blue-100 hover:bg-blue-100 rounded-full hover:text-blue-700 dark:bg-blue-800 text-blue-700 dark:text-blue-400'
-                      : ''
+                      ? 'bg-blue-50 font-bold hover:bg-blue-50 rounded-[8px] dark:bg-blue-800 dark:text-blue-400'
+                      : 'text-[#8c8c8c]'
                   }`}
                   onClick={() => handleSubSubItemClick(subSubItem.label, subSubItem.href!)}
                 >
-                  <span className="ml-3 text-xs">{subSubItem.label}</span>
+                  <span className="text-xs">{subSubItem.label}</span>
                 </Button>
               );
             })}
@@ -224,14 +245,24 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
   const router = useRouter();
   const isApiManagementPath = pathname.startsWith('/services/api-management');
 
+  // // Services는 API Management 경로에서 항상 열린 상태로 유지
+  // const [isOpen, setIsOpen] = useState(() => {
+  //   if (item.label === 'Services' && isApiManagementPath) return true;
+  //   return item.label === 'Infra Packages' || item.label === 'Services';
+  // });
+
   // Services는 API Management 경로에서 항상 열린 상태로 유지
   const [isOpen, setIsOpen] = useState(() => {
-    if (item.label === 'Services' && isApiManagementPath) return true;
-    return item.label === 'Infra Packages' || item.label === 'Services';
+    if (isApiManagementPath) return true;
+    return item.label === 'Infra Packages';
   });
 
   useEffect(() => {
-    if (item.label === 'Services' && isApiManagementPath && !isOpen) {
+    // if (item.label === 'Services' && isApiManagementPath && !isOpen) {
+    //   setIsOpen(true);
+    // }
+
+    if (isApiManagementPath && !isOpen) {
       setIsOpen(true);
     }
   }, [pathname, item.label, isApiManagementPath, isOpen]);
@@ -296,25 +327,30 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
               <CollapsibleTrigger asChild>
                 <Button
                   variant="ghost"
-                  className={`w-full ${
-                    sidebarCollapsed ? 'justify-center px-2' : 'justify-start'
-                  } hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-full${
+                  // className={`w-full px-3 ${
+                  //   sidebarCollapsed ? 'justify-center px-2' : 'justify-start'
+                  // } hover:bg-white dark:hover:bg-gray-800 hover:rounded-[8px]  hover:font-semibold ${
+                  //   isActive
+                  //     ? ' bg-gradient-to-r from-blue-900 to-indigo-900 rounded-[8px]  font-bold hover:text-[#4A4A4A] dark:from-blue-900 dark:to-indigo-900 text-[#4A4A4A] dark:text-blue-300'
+                  //     : 'text-[#8c8c8c]'
+                  // }`}
+                  className={`w-full !h-10  text-[13px] justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
                     isActive
-                      ? ' bg-gradient-to-r from-blue-900 to-indigo-900 rounded-full hover:text-white dark:from-blue-900 dark:to-indigo-900 text-white dark:text-blue-300'
-                      : ''
+                      ? 'bg-blue-50 font-bold hover:bg-blue-50 rounded-[8px] dark:bg-blue-800 dark:text-blue-400'
+                      : 'text-[#8c8c8c]'
                   }`}
                   size="sm"
                   onClick={handleClick}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-4 w-4" strokeWidth={2.5} />
                   {!sidebarCollapsed && (
                     <>
-                      <span className="ml-1 flex-1 text-left">{item.label}</span>
-                      <div className="flex items-center space-x-1">
+                      <span className=" flex-1 text-left">{item.label}</span>
+                      <div>
                         {isOpen ? (
-                          <ChevronDown className="h-4 w-4" />
+                          <ChevronDown className="h-4 w-4" strokeWidth={2.5} />
                         ) : (
-                          <ChevronRight className="h-4 w-4" />
+                          <ChevronRight className="h-4 w-4" strokeWidth={2.5} />
                         )}
                       </div>
                     </>
@@ -418,17 +454,22 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
         <TooltipTrigger asChild>
           <Button
             variant="ghost"
-            className={`w-full ${
-              sidebarCollapsed ? 'justify-center px-2' : 'justify-start'
-            } hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-full ${
+            // className={`w-full ${
+            //   sidebarCollapsed ? 'justify-center px-2' : 'justify-start'
+            // } hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-full ${
+            //   isActive
+            //     ? 'bg-gradient-to-r from-blue-900 to-indigo-900 rounded-full text-white hover:text-white dark:from-blue-900 dark:to-indigo-900  dark:text-blue-300 '
+            //     : ''
+            // }`}
+            className={`w-full !h-10  text-[13px] justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
               isActive
-                ? 'bg-gradient-to-r from-blue-900 to-indigo-900 rounded-full text-white hover:text-white dark:from-blue-900 dark:to-indigo-900  dark:text-blue-300 '
-                : ''
+                ? 'bg-blue-50 font-bold hover:bg-blue-50 rounded-[8px] dark:bg-blue-800 dark:text-blue-400'
+                : 'text-[#8c8c8c]'
             }`}
             size="sm"
             onClick={handleClick}
           >
-            <Icon className="h-4 w-4" />
+            <Icon className="h-4 w-4" strokeWidth={2.5} />
             {!sidebarCollapsed && <span className="ml-1">{item.label}</span>}
           </Button>
         </TooltipTrigger>
@@ -531,7 +572,7 @@ export function AppSidebar({
 
   return (
     <aside
-      className={`fixed top-14 z-40 h-[calc(100vh-3.5rem)] border-r border-blue-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60 transition-all duration-500 ease-in-out transform ${
+      className={`fixed top-0 z-40 h-[100vh] border-r border-blue-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60 transition-all duration-500 ease-in-out transform ${
         sidebarCollapsed ? 'w-16' : 'w-[250px]'
       }`}
     >
@@ -562,7 +603,51 @@ export function AppSidebar({
         )}
 
         {/* Navigation */}
-        <nav className="scrollbar-none flex-1 overflow-y-auto p-2 space-y-1">
+        <nav className="scrollbar-none flex-1 overflow-y-auto p-4 space-y-1">
+          {!sidebarCollapsed ? (
+            <div className="flex justify-center items-center  px-1 pt-4 pb-4">
+              <a className="flex items-center space-x-2" href="/dashboard">
+                <div className="h-6 w-6 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg">
+                  <Waves className="h-4 w-4 text-white" />
+                </div>
+                <span className="hidden font-bold  text-[18px] sm:inline-block bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  Clalink APIM
+                </span>
+              </a>
+              {/* <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)}>
+                <PanelLeft className="h-5 w-5" stroke={'#7E8796'} />
+              </button> */}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center px-1 pt-4 pb-4">
+              <a className="flex items-center space-x-2" href="/dashboard">
+                <div className="h-6 w-6 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg">
+                  <Waves className="h-4 w-4 text-white" />
+                </div>
+              </a>
+            </div>
+          )}
+
+          {/* <a className="mr-6 flex items-center space-x-2" href="/dashboard">
+            <div className="h-7 w-7">
+              <img src={"/nexfron_favicon.png"} alt="NEXFRON" />
+            </div>
+            <span className="hidden font-extrabold text-[20px] sm:inline-block text-black dark:text-white">
+              NEXFRON
+            </span>
+          </a> */}
+
+          {/* <p className="text-[#3e4e61] font-semibold text-[14px] py-2 !mb-1 border-b border-[#e2e8f0]">
+            MENU
+          </p> */}
+
+          {/* {!sidebarCollapsed && (
+            <Badge variant={'outline'} className="bg-white">
+              MENU
+            </Badge>
+          )} */}
+          {/* <div className="h-px bg-[#e2e8f0] dark:bg-gray-700 mx-2" /> */}
+
           {navItems.map((item) => {
             if (item?.access?.includes(userInfo?.role)) {
               return (

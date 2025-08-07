@@ -109,13 +109,13 @@ export const getNavItems = (): NavItem[] => [
     label: 'Dashboard',
     href: '/dashboard',
     isActive: true,
-    access: ['super'],
+    access: ['SUPER'],
   },
   {
     icon: Blocks,
     label: 'Infra Packages',
     href: '/infra-packages',
-    access: ['super'],
+    access: ['SUPER'],
     subItems: [
       {
         icon: Gateway,
@@ -172,7 +172,7 @@ export const getNavItems = (): NavItem[] => [
     label: 'Services',
     href: '/services',
     icon: Server,
-    access: ['admin', 'member'],
+    access: ['ADMIN', 'MEMBER'],
     subItems: [
       {
         label: 'API Management',
@@ -223,19 +223,19 @@ export const getNavItems = (): NavItem[] => [
     icon: Users,
     label: 'Members',
     href: '/members',
-    access: ['super', 'admin'],
+    access: ['SUPER', 'ADMIN'],
   },
   {
     icon: NotebookText,
     label: 'Organization Manage',
     href: '/organization-manage',
-    access: ['super'],
+    access: ['SUPER'],
   },
   {
     icon: Settings,
     label: 'Settings',
     href: '/settings',
-    access: ['super'],
+    access: ['SUPER'],
   },
 ];
 

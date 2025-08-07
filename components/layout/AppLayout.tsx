@@ -1,8 +1,10 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { AppHeader } from './AppHeader';
-import { AppSidebar } from './AppSidebar';
+// import { AppHeader } from './AppHeader';
+// import { AppSidebar } from './AppSidebar';
+import { AppHeader } from './AppHeader copy';
+import { AppSidebar } from './AppSidebar copy';
 import { useState, useEffect, Suspense, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import ProtectedRoute from '../ProtectedRoute';
@@ -40,10 +42,6 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
     <Suspense fallback={<div>Loading...</div>}>
       <ProtectedRoute>
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-          <AppHeader
-            sidebarCollapsed={sidebarCollapsed}
-            setSidebarCollapsed={handleSidebarCollapsed}
-          />
           <div className="flex">
             <AppSidebar
               sidebarCollapsed={sidebarCollapsed}
@@ -55,6 +53,10 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
                 sidebarCollapsed ? 'ml-16' : 'ml-[250px]'
               }`}
             >
+              <AppHeader
+                sidebarCollapsed={sidebarCollapsed}
+                setSidebarCollapsed={handleSidebarCollapsed}
+              />
               {children}
             </main>
           </div>

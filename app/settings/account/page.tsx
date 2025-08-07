@@ -448,7 +448,7 @@ export default function AccountPage() {
                 <div className="flex justify-end pt-4">
                   <Button
                     onClick={handleChangePassword}
-                    disabled={passwordValid || confirmNewPw !== newPw}
+                    disabled={!passwordValid || confirmNewPw !== newPw}
                     className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6"
                   >
                     {isPasswordSaving ? (

@@ -1,28 +1,26 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import { useTheme } from "next-themes"
-import { Sun, Moon } from "lucide-react"
+import * as React from 'react';
+import { useTheme } from 'next-themes';
+import { Sun, Moon } from 'lucide-react';
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = React.useState(false)
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   if (!mounted) {
-    return (
-      <div className="w-[64px] h-[32px] bg-neutral-200 rounded-full animate-pulse" />
-    )
+    return <div className="w-[64px] h-[32px] bg-neutral-200 rounded-full animate-pulse" />;
   }
 
-  const isDark = theme === "dark"
+  const isDark = theme === 'dark';
 
   const handleToggle = () => {
-    setTheme(isDark ? "light" : "dark")
-  }
+    setTheme(isDark ? 'light' : 'dark');
+  };
 
   return (
     <button
@@ -42,32 +40,30 @@ export function ThemeToggle() {
       {/* 토글 원 */}
       <div
         className={`absolute top-0.5 left-1 w-[50%] h-7 bg-white z-10 rounded-full shadow transition-transform duration-300 ${
-          isDark ? "translate-x-[99%]" : "translate-x-0"
+          isDark ? 'translate-x-[99%]' : 'translate-x-0'
         }`}
       />
     </button>
-  )
+  );
 }
 
 export function CollapseThemeToggle() {
-  const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = React.useState(false)
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   if (!mounted) {
-    return (
-      <div className="w-[64px] h-[32px] bg-neutral-200 rounded-full animate-pulse" />
-    )
+    return <div className="w-[64px] h-[32px] bg-neutral-200 rounded-full animate-pulse" />;
   }
 
-  const isDark = theme === "dark"
+  const isDark = theme === 'dark';
 
   const handleToggle = () => {
-    setTheme(isDark ? "light" : "dark")
-  }
+    setTheme(isDark ? 'light' : 'dark');
+  };
 
   return (
     <button
@@ -87,9 +83,9 @@ export function CollapseThemeToggle() {
       {/* 토글 원 */}
       <div
         className={`absolute top-0.5 left-0.5 w-7 h-7 bg-white z-10 rounded-full shadow transition-transform duration-300 ${
-          isDark ? "translate-y-[99%]" : "translate-y-0"
+          isDark ? 'translate-y-[99%]' : 'translate-y-0'
         }`}
       />
     </button>
-  )
+  );
 }

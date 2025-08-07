@@ -114,6 +114,7 @@ export default function UsersPage() {
 
   // 페이지네이션
   const safeFilteredUsers = filteredUsers ?? [];
+  console.log(filteredUsers);
 
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
@@ -232,6 +233,8 @@ export default function UsersPage() {
       setIdValidMsg('아이디 형식이 맞지 않습니다.');
     }
   };
+
+  console.log(currentUsers);
   return (
     <AppLayout>
       <Toaster position="bottom-center" richColors expand={true} />
@@ -343,7 +346,7 @@ export default function UsersPage() {
                             <TableCell>{user.userId}</TableCell>
                             <TableCell>
                               <Badge variant={'outline'} className="bg-white">
-                                {user?.role}
+                                {user.role}
                               </Badge>
                             </TableCell>
                             <TableCell>{getStatusBadge(user?.enabled)}</TableCell>

@@ -21,9 +21,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 export default function SignupMemberPage() {
+  const userId = localStorage.getItem('userId');
+
   const [formData, setFormData] = useState({
     name: '',
-    id: '',
+    id: userId,
     email: '',
     password: '',
     confirmPassword: '',
@@ -103,8 +105,8 @@ export default function SignupMemberPage() {
     id.length > 0 &&
     email.length > 0 &&
     passwordValid &&
-    password === confirmPassword;
-
+    password === confirmPassword &&
+    agreeTerms;
   if (signUpSuccess) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">

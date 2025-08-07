@@ -62,6 +62,7 @@ const getMemberByOrganizationList = async (organizationId: string) => {
 
   return data;
 };
+
 export function useGetMemberByOrganizationList(organizationId: string, enabled: boolean) {
   return useQuery<MemberList[]>({
     queryKey: ['getMemberByOrganizationList', organizationId],
@@ -73,6 +74,7 @@ export function useGetMemberByOrganizationList(organizationId: string, enabled: 
     refetchOnReconnect: false,
   });
 }
+
 interface handleStatusVariables {
   userKey: string;
   active: boolean;
