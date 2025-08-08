@@ -182,8 +182,16 @@ export default function UsersPage() {
 
   // 비밀번호 복사 함수
   const handleCopyPassword = (password: string) => {
-    navigator.clipboard.writeText(password);
-    toast.success('비밀번호가 복사되었습니다.');
+    if (typeof navigator !== 'undefined' && navigator?.clipboard?.writeText) {
+      navigator.clipboard
+        .writeText(password)
+        .then(() => {
+          toast.success('비밀번호가 복사되었습니다.');
+        })
+        .catch(() => {
+          toast.error('비밀번호 복사에 실패했습니다.');
+        });
+    }
   };
 
   // 액션 별 함수

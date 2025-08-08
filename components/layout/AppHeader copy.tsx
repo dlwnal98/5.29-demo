@@ -1,9 +1,7 @@
 import { Dispatch, SetStateAction } from 'react';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NotificationDropdown } from '../notification-dropdown';
-import { Menu, X, Waves, PanelLeft } from 'lucide-react';
-import { TooltipProvider } from '@/components/ui/tooltip';
+import { PanelLeft } from 'lucide-react';
 
 interface AppHeaderProps {
   sidebarCollapsed: boolean;
