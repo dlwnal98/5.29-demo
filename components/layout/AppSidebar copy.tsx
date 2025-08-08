@@ -565,7 +565,7 @@ export function AppSidebar({
         {/* Navigation */}
         <nav className="scrollbar-none flex-1 overflow-y-auto p-4 space-y-1">
           {!sidebarCollapsed ? (
-            <div className="flex justify-center items-center  px-1 pt-4 pb-4">
+            <div className="flex justify-center items-center  px-1 pt-0 pb-3">
               <a className="flex items-center space-x-2" href="/dashboard">
                 <div className="h-6 w-6 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg">
                   <Waves className="h-4 w-4 text-white" />
@@ -579,7 +579,7 @@ export function AppSidebar({
               </button> */}
             </div>
           ) : (
-            <div className="flex flex-col items-center px-1 pt-4 pb-4">
+            <div className="flex flex-col items-center px-1 pt-0 pb-3">
               <a className="flex items-center space-x-2" href="/dashboard">
                 <div className="h-6 w-6 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg">
                   <Waves className="h-4 w-4 text-white" />
