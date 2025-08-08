@@ -21,11 +21,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 export default function SignupMemberPage() {
-  const userId = localStorage.getItem('userId');
+  const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
 
   const [formData, setFormData] = useState({
     name: '',
-    id: userId,
+    userId: userId,
     email: '',
     password: '',
     confirmPassword: '',
@@ -49,7 +49,7 @@ export default function SignupMemberPage() {
 
   const router = useRouter();
 
-  const { name, id, email, password, confirmPassword } = formData;
+  const { name, userId, email, password, confirmPassword } = formData;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,7 +64,7 @@ export default function SignupMemberPage() {
     try {
       // 회원가입 API 호출
       const res = await createMemberInit(
-        id, // userId
+        userId, // userId
         password, //password
         name, // name
         email //email
@@ -102,7 +102,7 @@ export default function SignupMemberPage() {
 
   const signUpCondition =
     name.length > 0 &&
-    id.length > 0 &&
+    userId.length > 0 &&
     email.length > 0 &&
     passwordValid &&
     password === confirmPassword &&
@@ -180,14 +180,14 @@ export default function SignupMemberPage() {
 
             {/* 아이디 입력 */}
             <div className="space-y-2">
-              <Label htmlFor="id" className="text-sm font-medium text-gray-700">
+              <Label htmlFor="userId" className="text-sm font-medium text-gray-700">
                 아이디
               </Label>
               <Input
-                id="id"
-                name="id"
+                id="userId"
+                name="userId"
                 type="text"
-                value={formData.id}
+                value={formData.userId}
                 placeholder="아이디를 입력해주세요."
                 disabled
                 className="h-10 border-gray-200 focus:border-blue-400 focus:ring-blue-400 rounded-lg"

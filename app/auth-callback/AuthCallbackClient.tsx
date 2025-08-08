@@ -40,11 +40,11 @@ export default function AuthCallbackClient() {
   };
 
   useEffect(() => {
-    if (code) {
+    if (code || userId) {
       console.log(code);
       getJWTToken();
     }
-  }, [code]);
+  }, [code, userId]);
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
