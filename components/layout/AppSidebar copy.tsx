@@ -216,14 +216,14 @@ const SubNavButton = ({
     <Button
       variant="ghost"
       size="sm"
-      className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-full ${
+      className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
         isSubActive
-          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full hover:text-white dark:bg-blue-900 text-white dark:text-blue-300'
-          : ''
+          ? 'bg-blue-50 font-bold rounded-[8px] dark:bg-blue-900 dark:text-blue-300'
+          : 'text-[#8c8c8c]'
       }`}
       onClick={handleSubClick}
     >
-      <span className="ml-2 text-sm">{subItem.label}</span>
+      <span className="text-[13px]">{subItem.label}</span>
     </Button>
   );
 };
@@ -412,7 +412,7 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
               <div
                 className={
                   userInfo?.role === 'SUPER'
-                    ? 'ml-5 pl-[5px] space-y-1 py-1 border-l-2 border-blue-300'
+                    ? 'ml-5 pl-[5px] space-y-1 py-1'
                     : 'ml-5 pl-[5px] space-y-1 py-1'
                 }
               >
