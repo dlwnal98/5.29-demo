@@ -67,6 +67,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { useClipboard } from 'use-clipboard-copy';
 
 export default function ApiResourcesPage() {
   const router = useRouter();
@@ -289,6 +290,8 @@ export default function ApiResourcesPage() {
   const [testResponse, setTestResponse] = useState<TestResponse | null>(null);
   const [isTestLoading, setIsTestLoading] = useState(false);
 
+  const clipboard = useClipboard();
+
   // Available HTTP methods for CORS
   const httpMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
 
@@ -477,7 +480,7 @@ export default function ApiResourcesPage() {
 
   const handleCopyArn = () => {
     const arn = `arn:aws:execute-api:ap-northeast-2:446785114695:yr5g5hoch/*/${selectedMethod?.type}${selectedMethod?.resourcePath}`;
-    navigator.clipboard.writeText(arn);
+    clipboard.copy(arn);
     toast.success('ARN이 클립보드에 복사되었습니다.');
   };
 

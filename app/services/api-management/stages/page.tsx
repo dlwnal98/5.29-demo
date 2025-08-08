@@ -61,6 +61,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useClipboard } from 'use-clipboard-copy';
 
 interface ApiResource {
   id: string;
@@ -408,6 +409,8 @@ export default function StagesPage() {
     description: '',
   });
 
+  const clipboard = useClipboard();
+
   const getResourceKey = (resource: ApiResource, parentPath = '') => {
     // 부모 경로와 현재 리소스의 id를 조합하여 고유한 키 생성
     return `${parentPath}${resource.id}`;
@@ -429,12 +432,12 @@ export default function StagesPage() {
   };
 
   const handleCopyUrl = () => {
-    navigator.clipboard.writeText(selectedStage.url);
+    clipboard.copy(selectedStage.url);
     toast.success('URL이 클립보드에 복사되었습니다.');
   };
 
   const handleCopyMethodUrl = (url: string) => {
-    navigator.clipboard.writeText(url);
+    clipboard.copy(url);
     toast.success('메서드 URL이 클립보드에 복사되었습니다.');
   };
 

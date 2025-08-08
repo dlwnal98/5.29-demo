@@ -66,6 +66,7 @@ import { Toaster, toast } from 'sonner';
 import { useAuthStore } from '@/store/store';
 import { Skeleton } from '@/components/ui/skeleton';
 import { userIdRegex } from '@/lib/etc';
+import { useClipboard } from 'use-clipboard-copy';
 
 interface selectMemberInfo {
   userId: string;
@@ -180,18 +181,12 @@ export default function UsersPage() {
     userDelete({ organizationId, userKey });
   };
 
+  const clipboard = useClipboard();
+
   // 비밀번호 복사 함수
   const handleCopyPassword = (password: string) => {
-    if (typeof navigator !== 'undefined' && navigator?.clipboard?.writeText) {
-      navigator.clipboard
-        .writeText(password)
-        .then(() => {
-          toast.success('비밀번호가 복사되었습니다.');
-        })
-        .catch(() => {
-          toast.error('비밀번호 복사에 실패했습니다.');
-        });
-    }
+    clipboard.copy(password);
+    toast.success('비밀번호가 복사되었습니다.');
   };
 
   // 액션 별 함수

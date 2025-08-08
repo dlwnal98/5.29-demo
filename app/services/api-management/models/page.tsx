@@ -44,6 +44,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
+import { useClipboard } from 'use-clipboard-copy';
 
 interface Model {
   id: string;
@@ -160,6 +161,8 @@ export default function ModelsPage() {
   }
 }`,
   });
+
+  const clipboard = useClipboard();
 
   const filteredModels = models.filter(
     (model) =>
@@ -337,7 +340,7 @@ export default function ModelsPage() {
   };
 
   const copySchema = (schema: string) => {
-    navigator.clipboard.writeText(schema);
+    clipboard.copy(schema);
     toast.success('스키마가 클립보드에 복사되었습니다.');
   };
 

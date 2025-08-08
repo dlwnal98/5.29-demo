@@ -65,6 +65,7 @@ import { useState } from 'react';
 import { toast, Toaster } from 'sonner';
 import Pagination from '@/components/Pagination';
 import { useCreateAPIKey } from '@/hooks/use-apimanagement';
+import { useClipboard } from 'use-clipboard-copy';
 
 interface ApiKey {
   id: string;
@@ -127,6 +128,8 @@ export default function ApiKeysPage() {
     keyGeneration: 'auto',
     customKey: '',
   });
+
+  const clipboard = useClipboard();
 
   const generateRandomKey = (prefix: string) => {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -545,7 +548,7 @@ export default function ApiKeysPage() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => {
-                                    navigator.clipboard.writeText(apiKey.primaryKey);
+                                    clipboard.copy(apiKey.primaryKey);
                                     toast.success('API 키가 복사되었습니다.');
                                   }}
                                   className="text-blue-600 hover:text-blue-800 p-1 h-auto"

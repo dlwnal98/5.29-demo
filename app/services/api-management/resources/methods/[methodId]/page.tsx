@@ -25,6 +25,7 @@ import { ArrowLeft, ChevronLeft, ChevronRight, Copy, Edit, Monitor, Play } from 
 import { useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useClipboard } from 'use-clipboard-copy';
 
 interface ResponseHeader {
   id: string;
@@ -69,6 +70,8 @@ export default function MethodDetailPage() {
     clientCertificate: 'No client certificates have been generated.',
   });
 
+  const clipboard = useClipboard();
+
   const handleBack = () => {
     router.push(
       `/services/api-management/resources?resourceId=${resourceId}&resourcePath=${resourcePath}`
@@ -77,7 +80,7 @@ export default function MethodDetailPage() {
 
   const handleCopyArn = () => {
     const arn = 'arn:aws:execute-api:ap-northeast-2:446785114695:yr5g5hoch/*/GET/rmd';
-    navigator.clipboard.writeText(arn);
+    clipboard.copy(arn);
     toast.success('ARN이 클립보드에 복사되었습니다.');
   };
 
