@@ -3,25 +3,6 @@ import { useQuery, useMutation, UseMutationOptions } from '@tanstack/react-query
 import { UserList } from './use-members';
 import { useAuthStore } from '@/store/store';
 
-// 단일 유저 조회
-// export const getUserData = async (userKey: string) => {
-//   const { data } = await axios.get(`/api/v1/users/${userKey}`);
-
-//   return data;
-// };
-
-// export function useGetUserData(userKey: string) {
-//   return useQuery<UserList>({
-//     queryKey: ['getUserData'],
-//     queryFn: () => getUserData(userKey),
-//     // enabled: !!instanceId, // instanceId가 있을 때만 실행
-//     staleTime: Infinity,
-//     refetchOnWindowFocus: false,
-//     refetchOnMount: false,
-//     refetchOnReconnect: false,
-//   });
-// }
-
 //유저 삭제
 export const deleteUser = async (userKey: string) => {
   const { data } = await axios.delete(`/api/v1/users/${userKey}`);
@@ -45,6 +26,7 @@ export const getReJWTToken = async () => {
     localStorage.setItem('access_token', res.data.accessToken);
     localStorage.setItem('refresh_token', res.data.refreshToken);
     localStorage.setItem('expires_at', String(expiresAt));
+    window.location.reload();
   }
 };
 

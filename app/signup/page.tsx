@@ -76,9 +76,9 @@ export default function SignupPage() {
   };
 
   const validatePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value.length < 8) {
+    if (e.target.value.length < 4) {
       setPasswordValid(false);
-      setPasswordValidMsg('최소 8자 이상 입력해주세요.');
+      setPasswordValidMsg('최소 4자 이상 입력해주세요.');
     }
     console.log(passwordRegex.test(e.target.value));
     if (passwordRegex.test(e.target.value)) {
@@ -236,7 +236,7 @@ export default function SignupPage() {
                   value={formData.userId}
                   onChange={handleInputChange}
                   onKeyUp={(e) => validateUserId(e)}
-                  placeholder="영어 소문자+숫자 4~12자를 입력해주세요."
+                  placeholder="아이디 4자 이상을 입력해주세요."
                   // required
                   className="col-span-2 h-10 border-gray-200 focus:border-blue-400 focus:ring-blue-400 rounded-lg"
                 />
@@ -296,7 +296,7 @@ export default function SignupPage() {
                   value={formData.password}
                   onChange={handleInputChange}
                   onKeyUp={(e) => validatePassword(e)}
-                  placeholder="영어 소문자+숫자, 5~20자를 입력하세요"
+                  placeholder="비밀번호 4자 이상 입력하세요"
                   // required
                   className="h-10 border-gray-200 focus:border-blue-400 focus:ring-blue-400 rounded-lg pr-12"
                 />

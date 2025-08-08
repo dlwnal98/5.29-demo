@@ -107,9 +107,9 @@ export function getMethodStyle(method: HttpMethod): string {
 
 // 정규식은 나중에 정책 정해서
 
-export const userIdRegex = /^[a-z][a-z0-9_]{3,11}$/; // 영문 소문자로 시작 + 4~12자
-// 영문 소문자, 숫자, 특수문자 중 2종이상 포함 + 8~20자 + 공백 불가
-export const passwordRegex = /^(?=.*[a-z])(?=.*\d)[a-z\d!@#$%^&*]{5,20}$/;
+// 아무문자 가능 + 4글자
+export const userIdRegex = /^.{4,}$/;
+export const passwordRegex = /^.{4,}$/;
 // // 아이디 유효성 검사
 // export function validateUsername(username: string) {
 //   // 영문 소문자로 시작 + 5~20자

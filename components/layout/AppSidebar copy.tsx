@@ -343,8 +343,8 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
               </CollapsibleTrigger>
             </TooltipTrigger>
             {sidebarCollapsed && (
-              <TooltipContent side="right" className="p-0">
-                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg">
+              <TooltipContent side="right" className="p-0 relative top-[60px]">
+                <div className="  bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg">
                   <div className="p-1">
                     {item.subItems.map((subItem, index) => {
                       // separator 처리
@@ -360,12 +360,12 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
                       return (
                         <div key={subItem.label || `item-${index}`}>
                           {subItem.subItems ? (
-                            <div className="px-3 py-2">
+                            <div className="p-2 space-y-1">
                               <div className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 <SubIcon className="h-3 w-3" />
                                 <span>{subItem.label}</span>
                               </div>
-                              <div className="ml-5 space-y-1">
+                              <div className="ml-2 pl-2 space-y-1 border-l border-gray-300 ">
                                 {subItem.subItems.map((subSubItem, subIndex) => {
                                   // separator 처리
                                   if (subSubItem.separator) {
@@ -380,10 +380,10 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
                                   return (
                                     <button
                                       key={subSubItem.href || `sub-item-${subIndex}`}
-                                      className="w-full flex items-center space-x-2 px-2 py-1 text-xs hover:bg-blue-50 dark:hover:bg-gray-700 rounded-full hover:rounded-full"
+                                      className="w-full flex items-center space-x-2 p-2 text-xs hover:bg-blue-50 dark:hover:bg-gray-700 rounded-[8px] hover:rounded-[8px]"
                                       onClick={() => handleSubItemClick(subSubItem.href!)}
                                     >
-                                      <SubSubIcon className="h-3 w-3" />
+                                      {/* <SubSubIcon className="h-3 w-3" /> */}
                                       <span>{subSubItem.label}</span>
                                     </button>
                                   );
@@ -392,7 +392,7 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
                             </div>
                           ) : (
                             <button
-                              className="w-full flex items-center space-x-2 px-3 py-2 text-sm hover:bg-blue-50 dark:hover:bg-gray-700 rounded-full hover:rounded-full"
+                              className="w-full flex items-center space-x-2 p-2 text-sm hover:bg-blue-50 dark:hover:bg-gray-700 rounded-[8px] hover:rounded-[8px]"
                               onClick={() => handleSubItemClick(subItem.href!)}
                             >
                               <SubIcon className="h-3 w-3" />
@@ -588,15 +588,6 @@ export function AppSidebar({
             </div>
           )}
 
-          {/* <p className="text-[#3e4e61] font-semibold text-[14px] py-2 !mb-1 border-b border-[#e2e8f0]">
-            MENU
-          </p> */}
-
-          {/* {!sidebarCollapsed && (
-            <Badge variant={'outline'} className="bg-white">
-              MENU
-            </Badge>
-          )} */}
           <div className="h-px bg-[#e2e8f0] dark:bg-gray-700 mx-2" />
 
           {navItems.map((item) => {
@@ -622,25 +613,31 @@ export function AppSidebar({
                   <Avatar className="h-10 w-10 flex items-center justify-center bg-gradient-to-br shadow-lg from-blue-600 to-indigo-600 text-white text-sm font-bold">
                     {userInfo?.name?.slice(0, 1)}
                   </Avatar>
-                  <div className="flex-1 min-w-0 text-left">
-                    <h3 className="text-sm font-semibold truncate">{userInfo?.name}</h3>
-                    <p className="text-xs text-muted-foreground">{userInfo?.email}</p>
+                  <div className="flex-1 min-w-0 text-left space-y-1">
+                    <Badge
+                      variant="outline"
+                      className="!mt-2 text-xs bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800"
+                    >
+                      {userInfo?.organizationName || 'NEXFRON'}
+                    </Badge>
+                    <h3 className="text-sm font-semibold truncate ml-2">{userInfo?.name}</h3>
+                    <p className="text-xs text-muted-foreground ml-2">{userInfo?.email}</p>
                   </div>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="w-auto justify-end p-3 h-auto hover:bg-blue-50 dark:hover:bg-gray-800"
+                      className="w-auto justify-end p-2 h-auto hover:bg-blue-50 dark:hover:bg-gray-800"
                     >
                       <Settings />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="start" forceMount>
+                  <DropdownMenuContent className="w-56 p-2" align="start" forceMount>
                     <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{userInfo?.name}</p>
-                        <p className="text-xs leading-none text-muted-foreground">
+                      <div className="flex flex-col space-y-2">
+                        {/* <p className="text-sm font-medium leading-none">{userInfo?.name}</p> */}
+                        <p className="text-[14px] leading-none text-muted-foreground">
                           @{userInfo?.userId}
                         </p>
                       </div>
@@ -674,13 +671,19 @@ export function AppSidebar({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="start" forceMount>
-                    <DropdownMenuLabel className="font-normal">
+                    <DropdownMenuLabel className="font-normal flex items-center justify-between">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">{userInfo?.name}</p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {userInfo?.userId}
+                        <p className="text-[14px] leading-none text-muted-foreground">
+                          @{userInfo?.userId}
                         </p>
                       </div>
+                      <Badge
+                        variant="outline"
+                        className="!mt-2 text-xs bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800"
+                      >
+                        {userInfo?.organizationName || 'NEXFRON'}
+                      </Badge>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {userMenuItems.map((item) => (

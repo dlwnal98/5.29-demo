@@ -84,37 +84,20 @@ export default function AccountPage() {
     setShowPasswords((prev) => ({ ...prev, [field]: !prev[field as keyof typeof prev] }));
   };
 
-  const validatePassword = () => {
-    if (!currentPw) {
-      toast.error('현재 비밀번호를 입력해주세요.');
-      return false;
-    }
-    if (newPw.length < 8) {
-      toast.error('새 비밀번호는 8자 이상이어야 합니다.');
-      return false;
-    }
-    if (!passwordRegex.test(newPw)) {
-      toast.error('비밀번호 형식이 맞지 않습니다.');
+  const validatePassword = (value: string) => {
+    if (!passwordRegex.test(value)) {
       setPasswordValid(false);
     } else {
       setPasswordValid(true);
     }
-    if (newPw !== confirmNewPw) {
-      toast.error('새 비밀번호가 일치하지 않습니다.');
-      return false;
-    }
-    return true;
   };
 
   const handleDeleteAccount = async () => {
     try {
-      const res = await deleteUser(userData?.userKey);
+      await deleteUser(userData?.userKey);
 
       localStorage.clear();
-      // toast.success('계정이 삭제되었습니다.');
-      // window.location.replace('/');
       window.scrollTo({ top: 0, behavior: 'smooth' });
-
       setShowCompleteDeleted(true);
     } catch (e) {
       console.log(e);
@@ -126,25 +109,16 @@ export default function AccountPage() {
     const email = userEmail ? userEmail : userData?.email;
 
     try {
-      const res = await modifyUserInfo(userData?.userKey, name, email);
+      await modifyUserInfo(userData?.userKey, name, email);
 
-      // if (res) {
-      toast.success('유저정보가 수정되었습니다.');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       getReJWTToken();
-
-      // 새로고침 시키는 거는 액세스 토큰이 교체되었을 때
-      // 사이드바에서 useEffect로 정보가 바뀌지 않으면 하는걸로
-      // window.location.reload();
-      // }
     } catch (e) {
       console.log(e);
     }
   };
 
   const handleChangePassword = async () => {
-    if (!validatePassword()) return;
-
     try {
       const res = await changePassword(userData?.userKey, currentPw, newPw);
 
@@ -164,8 +138,6 @@ export default function AccountPage() {
       console.error('실패!', e);
     }
   };
-
-  console.log(newPw, confirmNewPw, passwordValid);
 
   return (
     <AppLayout>
@@ -206,7 +178,7 @@ export default function AccountPage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Profile Picture */}
-                <div className="flex items-center space-x-6">
+                <div className="flex items-center space-x-4">
                   <Avatar className="h-20 w-20 ring-4 ring-blue-100 dark:ring-blue-900/50">
                     <AvatarImage src="/placeholder-user.jpg" />
                     <AvatarFallback className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xl font-semibold">
@@ -214,16 +186,18 @@ export default function AccountPage() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="space-y-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-white">
-                      {userData?.name}
-                    </h3>
-                    <p className=" text-sm text-gray-600 dark:text-gray-400">{userData?.email}</p>
                     <Badge
                       variant="outline"
                       className="!mt-2 text-xs bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800"
                     >
-                      {userData?.organizationId}
+                      {userData?.organizationName || 'NEXFRON'}
                     </Badge>
+                    <h3 className="font-semibold text-gray-900 dark:text-white ml-2">
+                      {userData?.name}
+                    </h3>
+                    <p className=" text-sm text-gray-600 dark:text-gray-400 ml-2">
+                      {userData?.email}
+                    </p>
                   </div>
                 </div>
 
@@ -377,6 +351,7 @@ export default function AccountPage() {
                         type={showPasswords.new ? 'text' : 'password'}
                         value={newPw}
                         onChange={(e) => setNewPw(e.target.value)}
+                        onKeyUp={(e) => validatePassword(e.target.value)}
                         className="pr-10 border-gray-200 dark:border-gray-700 focus:border-green-500 dark:focus:border-green-400 bg-white dark:bg-gray-800"
                         placeholder="새 비밀번호를 입력하세요"
                       />
@@ -448,7 +423,7 @@ export default function AccountPage() {
                 <div className="flex justify-end pt-4">
                   <Button
                     onClick={handleChangePassword}
-                    disabled={!passwordValid || confirmNewPw !== newPw}
+                    disabled={!passwordValid || confirmNewPw !== newPw || currentPw.length === 0}
                     className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6"
                   >
                     {isPasswordSaving ? (

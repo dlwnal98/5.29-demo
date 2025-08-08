@@ -172,7 +172,7 @@ export const getNavItems = (): NavItem[] => [
     label: 'Services',
     href: '/services',
     icon: Server,
-    access: ['ADMIN', 'MEMBER'],
+    access: ['SUPER', 'ADMIN', 'MEMBER'],
     subItems: [
       {
         label: 'API Management',

@@ -50,21 +50,19 @@ export default function LoginPage() {
   };
 
   const validatePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // if (e.target.value.length < 8) {
-    //   setPasswordValid(false);
-    //   setPasswordValidMsg('최소 8자 이상 입력해주세요.');
-    //   return;
-    // }
+    if (e.target.value.length < 4) {
+      setPasswordValid(false);
+      setPasswordValidMsg('최소 4자 이상 입력해주세요.');
+      return;
+    }
 
-    // if (passwordRegex.test(e.target.value)) {
-    //   setPasswordValid(true);
-    //   setPasswordValidMsg('유효한 비밀번호입니다.');
-    // } else {
-    //   setPasswordValid(false);
-    //   setPasswordValidMsg('비밀번호 형식이 맞지 않습니다.');
-    // }
-
-    setPasswordValid(true);
+    if (passwordRegex.test(e.target.value)) {
+      setPasswordValid(true);
+      setPasswordValidMsg('유효한 비밀번호입니다.');
+    } else {
+      setPasswordValid(false);
+      setPasswordValidMsg('비밀번호 형식이 맞지 않습니다.');
+    }
   };
 
   // 로그인 API
@@ -145,7 +143,6 @@ export default function LoginPage() {
                   onChange={(e) => setUserId(e.target.value.replace(/\s+/g, ''))}
                   onKeyUp={(e) => validateUserId(e)}
                   placeholder="아이디를 입력해주세요."
-                  required
                   className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400 rounded-lg pl-10"
                 />
               </div>
@@ -179,8 +176,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value.replace(/\s+/g, ''))}
                   onKeyUp={(e) => validatePassword(e)}
-                  placeholder="영어 소문자+숫자, 5~20자를 입력하세요"
-                  required
+                  placeholder="비밀번호 4자 이상 입력하세요"
                   className="h-12 border-gray-200 focus:border-blue-400 focus:ring-blue-400 rounded-lg pl-10 pr-12"
                 />
                 <Button

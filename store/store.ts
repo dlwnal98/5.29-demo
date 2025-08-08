@@ -10,6 +10,7 @@ interface DecodedUser {
   role: string;
   userId: string;
   organizationId?: string;
+  organizationName?: string;
   // JWT에서 추출하는 필드에 따라 자유롭게 추가
 }
 
@@ -59,6 +60,7 @@ function parseJwt(token: string): any {
       name: decoded?.name,
       role: decoded?.role,
       organizationId: decoded?.organizationId,
+      organizationName: decoded?.organizationName,
     };
     return decodedUserObj;
   } catch (e) {

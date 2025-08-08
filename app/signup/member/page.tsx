@@ -224,7 +224,7 @@ export default function SignupMemberPage() {
                   value={formData.password}
                   onChange={handleInputChange}
                   onKeyUp={(e) => validatePassword(e)}
-                  placeholder="영어 소문자+숫자, 5~20자를 입력하세요"
+                  placeholder="비밀번호 4자 이상 입력하세요"
                   required
                   className="h-10 border-gray-200 focus:border-blue-400 focus:ring-blue-400 rounded-lg pr-12"
                 />
