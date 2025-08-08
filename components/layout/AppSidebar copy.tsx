@@ -158,12 +158,6 @@ const SubNavButton = ({
           <Button
             variant="ghost"
             size="sm"
-            // className={`w-full font-semibold justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
-            //   isSubActive
-            //     ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:bg-blue-600 hover:text-[#4A4A4A] dark:bg-blue-900 rounded-[8px] text-[#4A4A4A] dark:text-blue-300'
-            //     : 'text-[#8c8c8c]'
-            // }`}
-
             className={`w-full !h-10  text-[13px] justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
               isSubActive
                 ? 'bg-blue-50 font-bold hover:bg-blue-50 rounded-[8px] dark:bg-blue-800 dark:text-blue-400'
@@ -201,11 +195,6 @@ const SubNavButton = ({
                   key={subSubItem.href || `item-${index}`}
                   variant="ghost"
                   size="sm"
-                  // className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
-                  //   isSubSubActive
-                  //     ? 'bg-blue-100 hover:bg-blue-100 rounded-[8px] hover:text-blue-700 dark:bg-blue-800 text-blue-700 dark:text-blue-400'
-                  //     : ''
-                  // }`}
                   className={`w-full !h-10  text-[13px] justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
                     isSubSubActive
                       ? 'bg-blue-50 font-bold hover:bg-blue-50 rounded-[8px] dark:bg-blue-800 dark:text-blue-400'
@@ -327,14 +316,9 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
               <CollapsibleTrigger asChild>
                 <Button
                   variant="ghost"
-                  // className={`w-full px-3 ${
-                  //   sidebarCollapsed ? 'justify-center px-2' : 'justify-start'
-                  // } hover:bg-white dark:hover:bg-gray-800 hover:rounded-[8px]  hover:font-semibold ${
-                  //   isActive
-                  //     ? ' bg-gradient-to-r from-blue-900 to-indigo-900 rounded-[8px]  font-bold hover:text-[#4A4A4A] dark:from-blue-900 dark:to-indigo-900 text-[#4A4A4A] dark:text-blue-300'
-                  //     : 'text-[#8c8c8c]'
-                  // }`}
-                  className={`w-full !h-10  text-[13px] justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
+                  className={`w-full !h-10  text-[13px]  ${
+                    sidebarCollapsed ? 'justify-center px-2' : 'justify-start'
+                  }  hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
                     isActive
                       ? 'bg-blue-50 font-bold hover:bg-blue-50 rounded-[8px] dark:bg-blue-800 dark:text-blue-400'
                       : 'text-[#8c8c8c]'
@@ -454,14 +438,9 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
         <TooltipTrigger asChild>
           <Button
             variant="ghost"
-            // className={`w-full ${
-            //   sidebarCollapsed ? 'justify-center px-2' : 'justify-start'
-            // } hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-full ${
-            //   isActive
-            //     ? 'bg-gradient-to-r from-blue-900 to-indigo-900 rounded-full text-white hover:text-white dark:from-blue-900 dark:to-indigo-900  dark:text-blue-300 '
-            //     : ''
-            // }`}
-            className={`w-full !h-10  text-[13px] justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
+            className={`w-full !h-10 text-[13px]  ${
+              sidebarCollapsed ? 'justify-center px-2' : 'justify-start'
+            } hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
               isActive
                 ? 'bg-blue-50 font-bold hover:bg-blue-50 rounded-[8px] dark:bg-blue-800 dark:text-blue-400'
                 : 'text-[#8c8c8c]'
@@ -470,7 +449,7 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
             onClick={handleClick}
           >
             <Icon className="h-4 w-4" strokeWidth={2.5} />
-            {!sidebarCollapsed && <span className="ml-1">{item.label}</span>}
+            {!sidebarCollapsed && <span>{item.label}</span>}
           </Button>
         </TooltipTrigger>
         {sidebarCollapsed && <TooltipContent side="right">{item.label}</TooltipContent>}
@@ -525,25 +504,6 @@ export function AppSidebar({
         break;
     }
   };
-
-  // // 사이드바 하단에 유저 정보
-
-  // const [userInfo, setUserInfo] = useState({});
-
-  // useEffect(() => {
-  //   const token = localStorage.getItem('access_token') as string;
-  //   if (!token) return;
-
-  //   const decoded = decodeJWT(token);
-  //   console.log(token, decoded);
-  //   if (decoded) {
-  //     setUserInfo(decoded);
-  //   }
-  // }, []);
-
-  // console.log(userInfo);
-
-  // console.log(userInfo);
 
   const getStoredTokenInfo = () => {
     if (typeof window !== 'undefined') {
@@ -628,15 +588,6 @@ export function AppSidebar({
             </div>
           )}
 
-          {/* <a className="mr-6 flex items-center space-x-2" href="/dashboard">
-            <div className="h-7 w-7">
-              <img src={"/nexfron_favicon.png"} alt="NEXFRON" />
-            </div>
-            <span className="hidden font-extrabold text-[20px] sm:inline-block text-black dark:text-white">
-              NEXFRON
-            </span>
-          </a> */}
-
           {/* <p className="text-[#3e4e61] font-semibold text-[14px] py-2 !mb-1 border-b border-[#e2e8f0]">
             MENU
           </p> */}
@@ -646,7 +597,7 @@ export function AppSidebar({
               MENU
             </Badge>
           )} */}
-          {/* <div className="h-px bg-[#e2e8f0] dark:bg-gray-700 mx-2" /> */}
+          <div className="h-px bg-[#e2e8f0] dark:bg-gray-700 mx-2" />
 
           {navItems.map((item) => {
             if (item?.access?.includes(userInfo?.role)) {
