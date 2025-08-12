@@ -79,16 +79,6 @@ export default function LoginPage() {
 
       console.log(res);
 
-      //멤버 최초 로그인 성공해서 비밀번호 설정해야할 때
-      if (res.data.code === 3005) {
-        localStorage.setItem('userId', userId);
-        window.location.href = '/signup/member';
-      }
-
-      if (res.data.code === 3006) {
-        toast.error(res.data.message);
-      }
-
       // 로그인 성공했을 때
       if (res?.data?.success === undefined) {
         localStorage.setItem('userId', userId);
@@ -96,7 +86,13 @@ export default function LoginPage() {
 
         // 로그인 실패했을 때
       } else if (!res?.data?.success) {
-        setError(res?.data?.message);
+        toast.error(res.data.message);
+
+        // 멤버 최초 로그인 성공해서 비밀번호 설정해야할 때
+        if (res.data.code === 3005) {
+          localStorage.setItem('userId', userId);
+          window.location.href = '/signup/member';
+        }
       }
     } catch (e) {
       setError('로그인 중 오류가 발생했습니다.');

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useQuery, useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
+import { requestDelete, requestGet, requestPatch, requestPost } from '@/lib/apiClient';
 
 export interface ApiKey {
   keyId: string;
@@ -18,9 +19,9 @@ export interface ApiKey {
 
 // 전체 API Key 조회
 const getAPIKeyList = async (organizationId: string) => {
-  const res = await axios.get(`/api/v1/apikey/${organizationId}`);
-  if (res.data.code === 200) {
-    return res.data.data;
+  const res = await requestGet(`/api/v1/apikey/${organizationId}`);
+  if (res.success) {
+    return res.data;
   }
 };
 export function useGetAPIKeyList(organizationId: string) {
@@ -47,15 +48,17 @@ const createAPIKey = async ({
   description,
   organizationId,
 }: CreateAPIKeyVariables) => {
-  const res = await axios.post(`/api/v1/apiKey`, {
-    userKey,
-    keyName,
-    description,
-    organizationId,
+  const res = await requestPost(`/api/v1/apiKey`, {
+    body: {
+      userKey,
+      keyName,
+      description,
+      organizationId,
+    },
   });
 
-  if (res.data.code === 200) {
-    return res.data.data;
+  if (res.success) {
+    return res.data;
   }
 };
 
@@ -80,13 +83,15 @@ type ModifyAPIKeyVariables = {
 
 // API Key 수정
 const modifyAPIKey = async ({ keyId, keyName, description }: ModifyAPIKeyVariables) => {
-  const res = await axios.patch(`/api/v1/apiKey/${keyId}`, {
-    keyName,
-    description,
+  const res = await requestPatch(`/api/v1/apiKey/${keyId}`, {
+    body: {
+      keyName,
+      description,
+    },
   });
 
-  if (res.data.code === 200) {
-    return res.data.data;
+  if (res.success) {
+    return res.data;
   }
 };
 
@@ -105,10 +110,10 @@ export function useModifyAPIKey(options?: UseMutationOptions<any, Error, ModifyA
 
 // API Key 삭제
 const deleteAPIKey = async (keyId: string) => {
-  const res = await axios.delete(`/api/v1/apiKey/${keyId}`);
+  const res = await requestDelete(`/api/v1/apiKey/${keyId}`);
 
-  if (res.data.code === 200) {
-    return res.data.data;
+  if (res.success) {
+    return res.data;
   }
 };
 

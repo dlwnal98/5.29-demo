@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { requestPost, requestPatch } from '../lib/apiClient';
 
 // 유저 생성
 export const createUser = async (
@@ -8,15 +8,18 @@ export const createUser = async (
   fullName: string,
   email: string
 ) => {
-  const { data } = await axios.post(`/api/v1/users`, {
-    organizationName: organizationName,
-    userId: userId,
-    password: password,
-    fullName: fullName,
-    email: email,
+  const res = await requestPost(`/api/v1/users`, {
+    body: {
+      organizationName,
+      userId,
+      password,
+      fullName,
+      email,
+    },
   });
 
-  return data;
+  console.log(res);
+  return res;
 };
 
 // 멤버 생성 + 회원가입
@@ -26,11 +29,13 @@ export const createMemberInit = async (
   name: string,
   email: string
 ) => {
-  const { data } = await axios.patch(`/api/v1/users/${userId}/init`, {
-    password: password,
-    name: name,
-    email: email,
+  const res = await requestPatch(`/api/v1/users/${userId}/init`, {
+    body: {
+      password,
+      name,
+      email,
+    },
   });
-
-  return data;
+  console.log(res);
+  return res;
 };

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useQuery, useMutation, useQueryClient, UseMutationOptions } from '@tanstack/react-query';
+import { requestDelete, requestGet, requestPatch, requestPost } from '@/lib/apiClient';
 
 export interface UserList {
   userKey: string;
@@ -31,7 +32,6 @@ interface MemberList {
 
 // 전체 유저 목록 조회 (super)
 const getUserList = async (active: boolean | null) => {
-  console.log(active, typeof active);
   let requestUrl = '';
 
   if (active === null) {
@@ -40,9 +40,11 @@ const getUserList = async (active: boolean | null) => {
     requestUrl = `/api/v1/users?active=${active}`;
   }
 
-  const { data } = await axios.get(requestUrl);
+  const res = await requestGet(requestUrl);
 
-  return data;
+  if (res.success == true) {
+    return res.data;
+  } else throw new Error(res.message ?? '전체 유저 목록 조회 실패');
 };
 export function useGetUserList(active: boolean | null, enabled: boolean) {
   return useQuery<UserList[]>({
@@ -58,9 +60,10 @@ export function useGetUserList(active: boolean | null, enabled: boolean) {
 
 // 조직 멤버 조회 (admin)
 const getMemberByOrganizationList = async (organizationId: string) => {
-  const { data } = await axios.get(`/api/v1/organizations/${organizationId}/members`);
-
-  return data;
+  const res = await requestGet(`/api/v1/organizations/${organizationId}/members`);
+  if (res.success == true) {
+    return res.data;
+  } else throw new Error(res.message ?? '조직 멤버 목록 조회 실패');
 };
 
 export function useGetMemberByOrganizationList(organizationId: string, enabled: boolean) {
@@ -82,9 +85,9 @@ interface handleStatusVariables {
 
 //조직 멤버 활성화 or 비활성화
 const memberHandleStatus = async (userKey: string, active: boolean) => {
-  const { data } = await axios.patch(`/api/v1/users/${userKey}?active=${active}`);
+  const res = await requestPatch(`/api/v1/users/${userKey}?active=${active}`);
 
-  return data;
+  return res;
 };
 
 export function useMemberHandleStatus(
@@ -115,9 +118,9 @@ interface DeleteMemberVariables {
 
 //조직 멤버 삭제
 const deleteMember = async (organizationId: string, userKey: string) => {
-  const { data } = await axios.delete(`/api/v1/organizations/${organizationId}/members/${userKey}`);
+  const res = await requestDelete(`/api/v1/organizations/${organizationId}/members/${userKey}`);
 
-  return data;
+  return res;
 };
 
 export function useDeleteMember(options?: UseMutationOptions<any, Error, DeleteMemberVariables>) {
@@ -148,11 +151,13 @@ interface AddMemberVariables {
 
 //조직 멤버 추가
 const AddMember = async (organizationId: string, userId: string) => {
-  const { data } = await axios.post(`/api/v1/organizations/${organizationId}/members`, {
-    userId,
+  const res = await requestPost(`/api/v1/organizations/${organizationId}/members`, {
+    body: {
+      userId,
+    },
   });
 
-  return data;
+  return res;
 };
 
 export function useAddMember(options?: UseMutationOptions<any, Error, AddMemberVariables>) {
@@ -171,10 +176,3 @@ export function useAddMember(options?: UseMutationOptions<any, Error, AddMemberV
     },
   });
 }
-
-//조직 멤버 임시 비밀번호 발급
-export const issueTempPassword = async (userKey: string) => {
-  const { data } = await axios.post(`/api/v1/users/${userKey}/password/reset`);
-
-  return data;
-};

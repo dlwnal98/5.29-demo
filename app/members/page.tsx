@@ -66,6 +66,7 @@ import { useAuthStore } from '@/store/store';
 import { Skeleton } from '@/components/ui/skeleton';
 import { userIdRegex } from '@/lib/etc';
 import { useClipboard } from 'use-clipboard-copy';
+import { requestPost } from '@/lib/apiClient';
 
 interface selectMemberInfo {
   userId: string;
@@ -143,14 +144,14 @@ export default function UsersPage() {
   // 조직 내 멤버 생성 mutate
   const { mutate: addMember } = useAddMember({
     onSuccess: (data) => {
-      if (data.code === 3001) {
+      if (!data.success) {
         toast.error(data.message);
         setMemberId('');
         setIdValid(false);
         setIdValidMsg('');
       } else {
         toast.success('멤버 계정이 생성되었습니다.');
-        setFirstMemberPw(data.password);
+        setFirstMemberPw(data.data.password);
       }
     },
   });
@@ -167,11 +168,11 @@ export default function UsersPage() {
 
   // 임시 비밀번호 발급 함수
   const handleResetPassword = async (resetPasswordUser: any) => {
-    const res = await issueTempPassword(resetPasswordUser);
-
-    if (res) {
+    const res = await requestPost(`/api/v1/users/${resetPasswordUser}/password/reset`);
+    console.log(res);
+    if (res.success) {
       toast.success('임시 비밀번호가 재발급되었습니다.');
-      setTempPassword(res);
+      setTempPassword(res.data);
     }
   };
 

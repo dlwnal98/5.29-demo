@@ -29,14 +29,10 @@ import {
   XCircle,
 } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
-import {
-  changePassword,
-  modifyUserInfo,
-  deleteUser,
-  getReJWTToken,
-} from '@/hooks/use-settings-account';
+import { changePassword, modifyUserInfo, getReJWTToken } from '@/hooks/use-settings-account';
 import { useAuthStore } from '@/store/store';
 import { passwordRegex } from '@/lib/etc';
+import { requestDelete, requestPut, requestPost } from '@/lib/apiClient';
 
 function AccountDeletedModal() {
   useEffect(() => {
@@ -94,11 +90,13 @@ export default function AccountPage() {
 
   const handleDeleteAccount = async () => {
     try {
-      await deleteUser(userData?.userKey);
+      const res = await requestDelete(`/api/v1/users/${userData?.userKey}`);
 
-      localStorage.clear();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setShowCompleteDeleted(true);
+      if (res.success) {
+        localStorage.clear();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setShowCompleteDeleted(true);
+      }
     } catch (e) {
       console.log(e);
     }
@@ -109,10 +107,17 @@ export default function AccountPage() {
     const email = userEmail ? userEmail : userData?.email;
 
     try {
-      await modifyUserInfo(userData?.userKey, name, email);
+      const res = await requestPut(`/api/v1/users/${userData?.userKey}`, {
+        body: {
+          email: email,
+          fullName: name,
+        },
+      });
 
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      getReJWTToken();
+      if (res.success) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        getReJWTToken();
+      }
     } catch (e) {
       console.log(e);
     }
@@ -120,19 +125,22 @@ export default function AccountPage() {
 
   const handleChangePassword = async () => {
     try {
-      const res = await changePassword(userData?.userKey, currentPw, newPw);
+      const res = await requestPost(`/api/v1/users/${userData?.userKey}/password/change`, {
+        body: {
+          currentPassword: currentPw,
+          newPassword: newPw,
+        },
+      });
 
-      if (res) {
-        if (res.success === false) {
-          toast.error(res.message);
-        }
-      } else {
+      if (res.success) {
         toast.success('비밀번호가 성공적으로 변경되었습니다');
         setCurrentPw('');
         setNewPw('');
         setConfirmNewPw('');
         setPasswordValid(false);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        toast.error(res.message);
       }
     } catch (e) {
       console.error('실패!', e);

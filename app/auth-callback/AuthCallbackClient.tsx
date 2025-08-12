@@ -2,9 +2,8 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
-import axios from 'axios';
 import { LogIn, Shield, CheckCircle } from 'lucide-react';
-import { useAuthStore } from '@/store/store';
+import { requestPost } from '@/lib/apiClient';
 
 export default function AuthCallbackClient() {
   const searchParams = useSearchParams();
@@ -15,23 +14,20 @@ export default function AuthCallbackClient() {
   const getJWTToken = async () => {
     const EXPIRES_IN = 3600;
 
-    const res = await axios.post('/api/v1/access-token/issue', {
-      code: code,
+    const res = await requestPost('/api/v1/access-token/issue', {
+      body: {
+        code: code,
 
-      // 아래는 고정값
-      userId: userId,
-      // tenantId: 'test',
-      clientId: 'test',
-      expiresIn: EXPIRES_IN,
+        // 아래는 고정값
+        userId: userId,
+        clientId: 'test',
+        expiresIn: EXPIRES_IN,
+      },
     });
 
-    if (res?.data?.success === undefined) {
-      console.log(res);
+    if (res?.success === true) {
       const expiresAt = Date.now() + EXPIRES_IN * 1000; // Date.now()랑 expires의 시간 단위가 달라서 *1000 적용
 
-      // useAuthStore
-      //   .getState()
-      //   .setTokens(res.data.accessToken, res.data.refreshToken, String(expiresAt));
       localStorage.setItem('access_token', res.data.accessToken);
       localStorage.setItem('refresh_token', res.data.refreshToken);
       localStorage.setItem('expires_at', String(expiresAt));

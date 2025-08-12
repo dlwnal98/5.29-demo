@@ -20,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { requestGet } from '@/lib/apiClient';
 export default function SignupPage() {
   const [formData, setFormData] = useState({
     organizationName: '', // 아직 정해진 거 없음
@@ -53,9 +54,11 @@ export default function SignupPage() {
   const { fullName, userId, email, password, confirmPassword, organizationName } = formData;
 
   const handleIdCheck = async (userId: string) => {
-    const res = await axios.get(`/api/v1/users/exists?userId=${userId}`);
+    const res = await requestGet(`/api/v1/users/exists?userId=${userId}`);
 
-    if (res.data == false) {
+    console.log(res);
+
+    if (res.data === false) {
       setIdValid(true);
       setIdValidMsg('사용가능한 아이디입니다.');
     } else {
@@ -112,9 +115,12 @@ export default function SignupPage() {
         email //email
       );
 
-      console.log(res);
-
-      setSignUpSuccess(true);
+      if (res.success === true) {
+        setSignUpSuccess(true);
+      } else {
+        setError('계정 생성에 실패했습니다. 다시 시도해주세요.');
+        setSignUpSuccess(false);
+      }
     } catch (err) {
       setError('계정 생성에 실패했습니다. 다시 시도해주세요.');
       setSignUpSuccess(false);
