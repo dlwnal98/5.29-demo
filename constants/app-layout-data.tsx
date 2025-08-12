@@ -2,9 +2,7 @@ import type { Project, NavItem } from '@/types';
 import {
   LogOut,
   Users,
-  BarChart3,
   Package,
-  Zap,
   Shield,
   Settings,
   UserCog,
@@ -18,8 +16,6 @@ import {
   Globe,
   Box,
   Target,
-  Boxes,
-  NotebookText,
   Blocks,
   ChartSpline,
 } from 'lucide-react';
@@ -224,12 +220,6 @@ export const getNavItems = (): NavItem[] => [
     label: 'Members',
     href: '/members',
     access: ['SUPER', 'ADMIN'],
-  },
-  {
-    icon: NotebookText,
-    label: 'Organization Manage',
-    href: '/organization-manage',
-    access: ['SUPER'],
   },
   {
     icon: Settings,

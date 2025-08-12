@@ -12,6 +12,7 @@ import Link from 'next/link';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { userIdRegex, passwordRegex } from '@/lib/etc';
+import { Toaster, toast } from 'sonner';
 
 export default function LoginPage() {
   const [userId, setUserId] = useState('');
@@ -84,6 +85,10 @@ export default function LoginPage() {
         window.location.href = '/signup/member';
       }
 
+      if (res.data.code === 3006) {
+        toast.error(res.data.message);
+      }
+
       // 로그인 성공했을 때
       if (res?.data?.success === undefined) {
         localStorage.setItem('userId', userId);
@@ -107,6 +112,8 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
+      <Toaster position="bottom-center" richColors expand={true} />
+
       <Card className="w-full max-w-md bg-white shadow-[8px_8px_24px_rgba(0,0,0,0.1)] border-0 rounded-2xl">
         <CardHeader className="space-y-6 pb-6">
           {/* 회사 로고 */}

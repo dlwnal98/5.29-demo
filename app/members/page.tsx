@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Dialog,
@@ -33,7 +33,6 @@ import {
   ChevronRight,
   ChevronDown,
   User,
-  Shield,
   AlertTriangle,
   Wrench,
   Copy,
@@ -124,7 +123,7 @@ export default function UsersPage() {
 
   const startIndex = (currentPage - 1) * usersPerPage;
   const endIndex = startIndex + usersPerPage;
-  const currentUsers = safeFilteredUsers.slice(startIndex, endIndex);
+  const currentUsers = safeFilteredUsers?.slice(startIndex, endIndex);
 
   // 상태 변경 mutate
   const { mutate: handleStatus } = useMemberHandleStatus({
@@ -237,7 +236,6 @@ export default function UsersPage() {
     }
   };
 
-  console.log(currentUsers);
   return (
     <AppLayout>
       <Toaster position="bottom-center" richColors expand={true} />
@@ -247,9 +245,6 @@ export default function UsersPage() {
           {/* Top Bar Controls */}
           <div className="flex justify-between sm:flex-row gap-4 mt-4">
             {!loadingUsers || currentUsers.length !== 0 ? (
-              // <h1 className="text-xl font-semibold text-foreground">
-              //   Users ({filteredUsers?.length})
-              // </h1>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
                   Members ({filteredUsers?.length})
@@ -384,101 +379,101 @@ export default function UsersPage() {
                           >
                             <TableCell colSpan={8} className="p-0">
                               <div className="bg-muted/20 border-t p-6">
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                  {/* User Details */}
-                                  <Card className="border-border">
-                                    <CardHeader className="flex-row items-center justify-between pb-3 ">
-                                      <CardTitle className="text-lg font-semibold text-foreground flex items-center">
-                                        <User className="h-5 w-5 mr-2" />
-                                        유저 상세정보
-                                      </CardTitle>
-                                      <div className="flex items-center space-x-2">
-                                        {/* <span className="text-sm font-medium">활성화</span> */}
-                                        <Switch
-                                          checked={user.enabled === 1}
-                                          onCheckedChange={(checked) => {
-                                            handleStatusToggle(user.userKey, checked);
-                                          }}
-                                          className="data-[state=checked]:bg-emerald-300 data-[state=unchecked]:bg-red-300"
-                                        />
-                                      </div>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                      <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                          <Label className="text-sm font-medium text-muted-foreground">
-                                            ID
-                                          </Label>
-                                          <p className="text-foreground">{user.userId}</p>
-                                        </div>
-                                        <div>
-                                          <Label className="text-sm font-medium text-muted-foreground">
-                                            Email
-                                          </Label>
-                                          <p className="text-foreground">{user.email}</p>
-                                        </div>
-
-                                        <div>
-                                          <Label className="text-sm font-medium text-muted-foreground">
-                                            userKey
-                                          </Label>
-                                          <p className="text-foreground">{user.userKey}</p>
-                                        </div>
-                                        <div>
-                                          <Label className="text-sm font-medium text-muted-foreground">
-                                            Last Update
-                                          </Label>
-                                          <p className="text-foreground">
-                                            {new Date(user.updatedAt).toLocaleDateString()}
-                                          </p>
-                                        </div>
-                                        <div className="flex items-center justify-between col-span-2 border-t border-t-gray-300 pt-3">
-                                          <div className="py-2 tracking-tight text-lg font-semibold text-foreground flex items-center">
-                                            <Wrench className="h-4 w-4 mr-2" />
-                                            작업
+                                {/* User Details */}
+                                <Card className="border-border">
+                                  <CardContent className="space-y-4 pt-6">
+                                    <div className="grid xl:grid-cols-5 grid-cols-1 gap-4 ">
+                                      <div className="col-span-3 xl:border-r xl:border-gray-300 border-b xl:border-b-0 pb-4 xl:pb-0">
+                                        <div className="mb-3 tracking-tight text-lg font-semibold text-foreground flex items-center">
+                                          <User className="h-5 w-5 mr-2" />
+                                          유저 상세정보
+                                          <div className="flex items-center space-x-2">
+                                            <Switch
+                                              checked={user.enabled === 1}
+                                              onCheckedChange={(checked) => {
+                                                handleStatusToggle(user.userKey, checked);
+                                              }}
+                                              className="ml-2 data-[state=checked]:bg-emerald-300 data-[state=unchecked]:bg-red-300"
+                                            />
                                           </div>
-                                          <div className="flex items-center justify-between space-x-2">
-                                            <div className="space-x-2">
-                                              <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  handleAction(
-                                                    'resetPassword',
-                                                    user?.userKey,
-                                                    user?.userId
-                                                  );
-                                                }}
-                                                className="border rounded-2 text-blue-700 hover:text-blue-700 hover:bg-blue-50 border-blue-300"
-                                              >
-                                                <RotateCcw className="h-4 w-4" />
-                                                임시 비밀번호 발급
-                                              </Button>
-                                              <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={(e) => {
-                                                  e.stopPropagation();
-                                                  handleAction(
-                                                    'deleteAccount',
-                                                    user?.userKey,
-                                                    user?.userId
-                                                  );
-                                                }}
-                                                className="border border-red-300 rounded-2 text-red-600 hover:text-red-600 hover:bg-red-50"
-                                              >
-                                                <Trash2 className="h-4 w-4" />
-                                                멤버 제외
-                                              </Button>
-                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-4 gap-4">
+                                          <div>
+                                            <Label className="text-sm font-semibold text-muted-foreground">
+                                              ID
+                                            </Label>
+                                            <p className="text-foreground">{user.userId}</p>
+                                          </div>
+                                          <div>
+                                            <Label className="text-sm font-semibold text-muted-foreground">
+                                              Email
+                                            </Label>
+                                            <p className="text-foreground">{user.email}</p>
+                                          </div>
+
+                                          <div>
+                                            <Label className="text-sm font-semibold text-muted-foreground">
+                                              userKey
+                                            </Label>
+                                            <p className="text-foreground">{user.userKey}</p>
+                                          </div>
+                                          <div>
+                                            <Label className="text-sm font-semibold text-muted-foreground">
+                                              Last Update
+                                            </Label>
+                                            <p className="text-foreground">
+                                              {new Date(user.updatedAt).toLocaleDateString()}
+                                            </p>
                                           </div>
                                         </div>
                                       </div>
-                                    </CardContent>
-                                  </Card>
+                                      <div className="pl-15">
+                                        <div className="mb-3 tracking-tight text-lg font-semibold text-foreground flex items-center">
+                                          <Wrench className="h-4 w-4 mr-2" />
+                                          작업
+                                        </div>
+                                        <div className="flex items-center justify-between space-x-2 sm:justify-start">
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleAction(
+                                                'resetPassword',
+                                                user?.userKey,
+                                                user?.userId
+                                              );
+                                            }}
+                                            className="border rounded-2 text-blue-700 hover:text-blue-700 hover:bg-blue-50 border-blue-300"
+                                          >
+                                            <RotateCcw className="h-4 w-4" />
+                                            임시 비밀번호 발급
+                                          </Button>
+                                          {!isSuper && (
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleAction(
+                                                  'deleteAccount',
+                                                  user?.userKey,
+                                                  user?.userId
+                                                );
+                                              }}
+                                              className="border border-red-300 rounded-2 text-red-600 hover:text-red-600 hover:bg-red-50"
+                                            >
+                                              <Trash2 className="h-4 w-4" />
+                                              멤버 제외
+                                            </Button>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
 
-                                  <Card className="border-border">
+                                {/* <Card className="border-border">
                                     <CardHeader className="pb-3">
                                       <CardTitle className="text-lg font-semibold text-foreground flex items-center">
                                         <Shield className="h-5 w-5 mr-2" />
@@ -486,8 +481,8 @@ export default function UsersPage() {
                                       </CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-3">권한 정보 없음</CardContent>
-                                  </Card>
-                                </div>
+                                  </Card> */}
+                                {/* </div> */}
                               </div>
                             </TableCell>
                           </TableRow>
@@ -730,7 +725,7 @@ export default function UsersPage() {
               조직 멤버 삭제
             </DialogTitle>
             <DialogDescription className="text-left space-y-3">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <p className="font-semibold text-red-800 mb-2">
                   ⚠️ 이 작업은 실행 취소할 수 없습니다.
                 </p>
@@ -743,7 +738,7 @@ export default function UsersPage() {
                   <br />
                   <span className="font-semibold">정말로 이 멤버를 삭제하시겠습니까?</span>
                 </p>
-              </div>
+              </p>
             </DialogDescription>
           </DialogHeader>
 

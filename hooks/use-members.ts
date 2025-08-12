@@ -82,10 +82,7 @@ interface handleStatusVariables {
 
 //조직 멤버 활성화 or 비활성화
 const memberHandleStatus = async (userKey: string, active: boolean) => {
-  let requestUrl = '';
-  requestUrl = `/api/v1/users/${userKey}?active=${active}`;
-
-  const { data } = await axios.patch(requestUrl);
+  const { data } = await axios.patch(`/api/v1/users/${userKey}?active=${active}`);
 
   return data;
 };
@@ -137,6 +134,9 @@ export function useDeleteMember(options?: UseMutationOptions<any, Error, DeleteM
       });
       // 외부에서 넘겨준 onSuccess도 실행
       options?.onSuccess?.(data, variables, context);
+    },
+    onError: (err) => {
+      console.log(err);
     },
   });
 }

@@ -24,8 +24,8 @@ const nextConfig = {
         destination: 'http://1.224.162.188:58080/api/vault/key',
       },
       {
-        source: '/api/v1/apikey/issue',
-        destination: 'http://1.224.162.188:58081/api/v1/apikey/issue',
+        source: '/api/v1/apikey/:path*',
+        destination: 'http://1.224.162.188:58081/api/v1/apikey/:path*',
       },
       {
         source: '/api/v1/access-token/:path*',
