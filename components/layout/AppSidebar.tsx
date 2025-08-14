@@ -12,7 +12,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Minus, Plus, Settings } from 'lucide-react';
+import {
+  Menu,
+  Minus,
+  Plus,
+  Settings,
+  X,
+  Waves,
+  PanelLeftClose,
+  PanelLeftOpen,
+  PanelLeft,
+} from 'lucide-react';
 import {
   projectsData,
   getNavItems,
@@ -142,31 +152,29 @@ const SubNavButton = ({
       <Collapsible
         open={isSubOpen}
         onOpenChange={handleSubOpenChange}
-        className="transition-all duration-100 ease-in-out"
-      >
+        className="transition-all duration-100 ease-in-out">
         <CollapsibleTrigger asChild>
           <Button
             variant="ghost"
             size="sm"
-            className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-full ${
+            className={`w-full !h-10  text-[13px] justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
               isSubActive
-                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:bg-blue-600 hover:text-white dark:bg-blue-900 rounded-full text-white dark:text-blue-300'
-                : ''
+                ? 'bg-blue-50 font-bold hover:bg-blue-50 rounded-[8px] dark:bg-blue-800 dark:text-blue-400'
+                : 'text-[#8c8c8c]'
             }`}
-            onClick={handleSubClick}
-          >
-            <span className="ml-2 text-sm flex-1 text-left">{subItem.label}</span>
+            onClick={handleSubClick}>
+            <span className="flex-1 text-left">{subItem.label}</span>
             <div className="flex items-center space-x-1">
               {isSubOpen ? (
-                <Minus className="!h-[14px] !w-[14px]" />
+                <ChevronDown className="!h-[14px] !w-[14px]" strokeWidth={2.5} />
               ) : (
-                <Plus className="!h-[14px] !w-[14px]" />
+                <ChevronRight className="!h-[14px] !w-[14px]" strokeWidth={2.5} />
               )}
             </div>
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="collapsible-content overflow-hidden transition-all duration-100 ease-in-out">
-          <div className="ml-2 space-y-1 py-1">
+          <div className="ml-3 space-y-1 py-1">
             {subItem.subItems.map((subSubItem, index) => {
               // separator 처리
               if (subSubItem.separator) {
@@ -185,14 +193,13 @@ const SubNavButton = ({
                   key={subSubItem.href || `item-${index}`}
                   variant="ghost"
                   size="sm"
-                  className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-full ${
+                  className={`w-full !h-10  text-[13px] justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
                     isSubSubActive
-                      ? 'bg-blue-100 hover:bg-blue-100 rounded-full hover:text-blue-700 dark:bg-blue-800 text-blue-700 dark:text-blue-400'
-                      : ''
+                      ? 'bg-blue-50 font-bold hover:bg-blue-50 rounded-[8px] dark:bg-blue-800 dark:text-blue-400'
+                      : 'text-[#8c8c8c]'
                   }`}
-                  onClick={() => handleSubSubItemClick(subSubItem.label, subSubItem.href!)}
-                >
-                  <span className="ml-3 text-xs">{subSubItem.label}</span>
+                  onClick={() => handleSubSubItemClick(subSubItem.label, subSubItem.href!)}>
+                  <span className="text-xs">{subSubItem.label}</span>
                 </Button>
               );
             })}
@@ -206,14 +213,13 @@ const SubNavButton = ({
     <Button
       variant="ghost"
       size="sm"
-      className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-full ${
+      className={`w-full justify-start hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
         isSubActive
-          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full hover:text-white dark:bg-blue-900 text-white dark:text-blue-300'
-          : ''
+          ? 'bg-blue-50 font-bold rounded-[8px] dark:bg-blue-900 dark:text-blue-300'
+          : 'text-[#8c8c8c]'
       }`}
-      onClick={handleSubClick}
-    >
-      <span className="ml-2 text-sm">{subItem.label}</span>
+      onClick={handleSubClick}>
+      <span className="text-[13px]">{subItem.label}</span>
     </Button>
   );
 };
@@ -224,14 +230,24 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
   const router = useRouter();
   const isApiManagementPath = pathname.startsWith('/services/api-management');
 
+  // // Services는 API Management 경로에서 항상 열린 상태로 유지
+  // const [isOpen, setIsOpen] = useState(() => {
+  //   if (item.label === 'Services' && isApiManagementPath) return true;
+  //   return item.label === 'Infra Packages' || item.label === 'Services';
+  // });
+
   // Services는 API Management 경로에서 항상 열린 상태로 유지
   const [isOpen, setIsOpen] = useState(() => {
-    if (item.label === 'Services' && isApiManagementPath) return true;
-    return item.label === 'Infra Packages' || item.label === 'Services';
+    if (isApiManagementPath) return true;
+    return item.label === 'Infra Packages';
   });
 
   useEffect(() => {
-    if (item.label === 'Services' && isApiManagementPath && !isOpen) {
+    // if (item.label === 'Services' && isApiManagementPath && !isOpen) {
+    //   setIsOpen(true);
+    // }
+
+    if (isApiManagementPath && !isOpen) {
       setIsOpen(true);
     }
   }, [pathname, item.label, isApiManagementPath, isOpen]);
@@ -289,32 +305,30 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
         <Collapsible
           open={isOpen}
           onOpenChange={handleOpenChange}
-          className="transition-all duration-100 ease-in-out"
-        >
+          className="transition-all duration-100 ease-in-out">
           <Tooltip>
             <TooltipTrigger asChild>
               <CollapsibleTrigger asChild>
                 <Button
                   variant="ghost"
-                  className={`w-full ${
+                  className={`w-full !h-10  text-[13px]  ${
                     sidebarCollapsed ? 'justify-center px-2' : 'justify-start'
-                  } hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-full${
+                  }  hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
                     isActive
-                      ? ' bg-gradient-to-r from-blue-900 to-indigo-900 rounded-full hover:text-white dark:from-blue-900 dark:to-indigo-900 text-white dark:text-blue-300'
-                      : ''
+                      ? 'bg-blue-50 font-bold hover:bg-blue-50 rounded-[8px] dark:bg-blue-800 dark:text-blue-400'
+                      : 'text-[#8c8c8c]'
                   }`}
                   size="sm"
-                  onClick={handleClick}
-                >
-                  <Icon className="h-4 w-4" />
+                  onClick={handleClick}>
+                  <Icon className="h-4 w-4" strokeWidth={2.5} />
                   {!sidebarCollapsed && (
                     <>
-                      <span className="ml-1 flex-1 text-left">{item.label}</span>
-                      <div className="flex items-center space-x-1">
+                      <span className=" flex-1 text-left">{item.label}</span>
+                      <div>
                         {isOpen ? (
-                          <ChevronDown className="h-4 w-4" />
+                          <ChevronDown className="h-4 w-4" strokeWidth={2.5} />
                         ) : (
-                          <ChevronRight className="h-4 w-4" />
+                          <ChevronRight className="h-4 w-4" strokeWidth={2.5} />
                         )}
                       </div>
                     </>
@@ -323,8 +337,8 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
               </CollapsibleTrigger>
             </TooltipTrigger>
             {sidebarCollapsed && (
-              <TooltipContent side="right" className="p-0">
-                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg">
+              <TooltipContent side="right" className="p-0 relative top-[60px]">
+                <div className="  bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg">
                   <div className="p-1">
                     {item.subItems.map((subItem, index) => {
                       // separator 처리
@@ -340,12 +354,12 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
                       return (
                         <div key={subItem.label || `item-${index}`}>
                           {subItem.subItems ? (
-                            <div className="px-3 py-2">
+                            <div className="p-2 space-y-1">
                               <div className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 <SubIcon className="h-3 w-3" />
                                 <span>{subItem.label}</span>
                               </div>
-                              <div className="ml-5 space-y-1">
+                              <div className="ml-2 pl-2 space-y-1 border-l border-gray-300 ">
                                 {subItem.subItems.map((subSubItem, subIndex) => {
                                   // separator 처리
                                   if (subSubItem.separator) {
@@ -360,10 +374,9 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
                                   return (
                                     <button
                                       key={subSubItem.href || `sub-item-${subIndex}`}
-                                      className="w-full flex items-center space-x-2 px-2 py-1 text-xs hover:bg-blue-50 dark:hover:bg-gray-700 rounded-full hover:rounded-full"
-                                      onClick={() => handleSubItemClick(subSubItem.href!)}
-                                    >
-                                      <SubSubIcon className="h-3 w-3" />
+                                      className="w-full flex items-center space-x-2 p-2 text-xs hover:bg-blue-50 dark:hover:bg-gray-700 rounded-[8px] hover:rounded-[8px]"
+                                      onClick={() => handleSubItemClick(subSubItem.href!)}>
+                                      {/* <SubSubIcon className="h-3 w-3" /> */}
                                       <span>{subSubItem.label}</span>
                                     </button>
                                   );
@@ -372,9 +385,8 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
                             </div>
                           ) : (
                             <button
-                              className="w-full flex items-center space-x-2 px-3 py-2 text-sm hover:bg-blue-50 dark:hover:bg-gray-700 rounded-full hover:rounded-full"
-                              onClick={() => handleSubItemClick(subItem.href!)}
-                            >
+                              className="w-full flex items-center space-x-2 p-2 text-sm hover:bg-blue-50 dark:hover:bg-gray-700 rounded-[8px] hover:rounded-[8px]"
+                              onClick={() => handleSubItemClick(subItem.href!)}>
                               <SubIcon className="h-3 w-3" />
                               <span>{subItem.label}</span>
                             </button>
@@ -392,10 +404,9 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
               <div
                 className={
                   userInfo?.role === 'SUPER'
-                    ? 'ml-5 pl-[5px] space-y-1 py-1 border-l-2 border-blue-300'
+                    ? 'ml-5 pl-[5px] space-y-1 py-1'
                     : 'ml-5 pl-[5px] space-y-1 py-1'
-                }
-              >
+                }>
                 {item.subItems.map((subItem, index) => (
                   <SubNavButton
                     key={subItem.label || `sub-${index}`}
@@ -418,18 +429,17 @@ const NavButton = ({ item, sidebarCollapsed, onClick, pathname }: NavButtonProps
         <TooltipTrigger asChild>
           <Button
             variant="ghost"
-            className={`w-full ${
+            className={`w-full !h-10 text-[13px]  ${
               sidebarCollapsed ? 'justify-center px-2' : 'justify-start'
-            } hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-full ${
+            } hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${
               isActive
-                ? 'bg-gradient-to-r from-blue-900 to-indigo-900 rounded-full text-white hover:text-white dark:from-blue-900 dark:to-indigo-900  dark:text-blue-300 '
-                : ''
+                ? 'bg-blue-50 font-bold hover:bg-blue-50 rounded-[8px] dark:bg-blue-800 dark:text-blue-400'
+                : 'text-[#8c8c8c]'
             }`}
             size="sm"
-            onClick={handleClick}
-          >
-            <Icon className="h-4 w-4" />
-            {!sidebarCollapsed && <span className="ml-1">{item.label}</span>}
+            onClick={handleClick}>
+            <Icon className="h-4 w-4" strokeWidth={2.5} />
+            {!sidebarCollapsed && <span>{item.label}</span>}
           </Button>
         </TooltipTrigger>
         {sidebarCollapsed && <TooltipContent side="right">{item.label}</TooltipContent>}
@@ -485,25 +495,6 @@ export function AppSidebar({
     }
   };
 
-  // // 사이드바 하단에 유저 정보
-
-  // const [userInfo, setUserInfo] = useState({});
-
-  // useEffect(() => {
-  //   const token = localStorage.getItem('access_token') as string;
-  //   if (!token) return;
-
-  //   const decoded = decodeJWT(token);
-  //   console.log(token, decoded);
-  //   if (decoded) {
-  //     setUserInfo(decoded);
-  //   }
-  // }, []);
-
-  // console.log(userInfo);
-
-  // console.log(userInfo);
-
   const getStoredTokenInfo = () => {
     if (typeof window !== 'undefined') {
       const accessToken = localStorage.getItem('access_token');
@@ -531,10 +522,9 @@ export function AppSidebar({
 
   return (
     <aside
-      className={`fixed top-14 z-40 h-[calc(100vh-3.5rem)] border-r border-blue-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60 transition-all duration-500 ease-in-out transform ${
+      className={`fixed top-0 z-40 h-[100vh] border-r border-blue-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60 transition-all duration-500 ease-in-out transform ${
         sidebarCollapsed ? 'w-16' : 'w-[250px]'
-      }`}
-    >
+      }`}>
       <div className="flex h-full flex-col">
         {/* Context Information - Only show for project pages */}
         {isProjectPage && currentProject && !sidebarCollapsed && (
@@ -551,8 +541,7 @@ export function AppSidebar({
                       currentProject.visibility === 'Public'
                         ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
                         : 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300'
-                    }`}
-                  >
+                    }`}>
                     {currentProject.visibility}
                   </Badge>
                 </div>
@@ -562,7 +551,33 @@ export function AppSidebar({
         )}
 
         {/* Navigation */}
-        <nav className="scrollbar-none flex-1 overflow-y-auto p-2 space-y-1">
+        <nav className="scrollbar-none flex-1 overflow-y-auto p-4 space-y-1">
+          {!sidebarCollapsed ? (
+            <div className="flex justify-center items-center  px-1 pt-0 pb-3">
+              <a className="flex items-center space-x-2" href="/dashboard">
+                <div className="h-6 w-6 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg">
+                  <Waves className="h-4 w-4 text-white" />
+                </div>
+                <span className="hidden font-bold  text-[18px] sm:inline-block bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  Clalink APIM
+                </span>
+              </a>
+              {/* <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)}>
+                <PanelLeft className="h-5 w-5" stroke={'#7E8796'} />
+              </button> */}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center px-1 pt-0 pb-3">
+              <a className="flex items-center space-x-2" href="/dashboard">
+                <div className="h-6 w-6 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg">
+                  <Waves className="h-4 w-4 text-white" />
+                </div>
+              </a>
+            </div>
+          )}
+
+          <div className="h-px bg-[#e2e8f0] dark:bg-gray-700 mx-2" />
+
           {navItems.map((item) => {
             if (item?.access?.includes(userInfo?.role)) {
               return (
@@ -582,29 +597,33 @@ export function AppSidebar({
           <div className="flex items-center justify-between">
             {!sidebarCollapsed ? (
               <>
-                <div className="flex items-center space-x-3 w-full">
+                <div className="flex items-center space-x-2 w-full">
                   <Avatar className="h-10 w-10 flex items-center justify-center bg-gradient-to-br shadow-lg from-blue-600 to-indigo-600 text-white text-sm font-bold">
                     {userInfo?.name?.slice(0, 1)}
                   </Avatar>
-                  <div className="flex-1 min-w-0 text-left">
-                    <h3 className="text-sm font-semibold truncate">{userInfo?.name}</h3>
-                    <p className="text-xs text-muted-foreground">{userInfo?.email}</p>
+                  <div className="flex-1 min-w-0 text-left space-y-1">
+                    <Badge
+                      variant="outline"
+                      className="!mt-2 text-xs bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800">
+                      {userInfo?.organizationName || 'NEXFRON'}
+                    </Badge>
+                    <h3 className="text-sm font-semibold truncate ml-2">{userInfo?.name}</h3>
+                    <p className="text-xs text-muted-foreground ml-2">{userInfo?.email}</p>
                   </div>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="w-auto justify-end p-3 h-auto hover:bg-blue-50 dark:hover:bg-gray-800"
-                    >
+                      className="w-auto justify-end p-2 h-auto hover:bg-blue-50 dark:hover:bg-gray-800">
                       <Settings />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="start" forceMount>
+                  <DropdownMenuContent className="w-56 p-2" align="start" forceMount>
                     <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{userInfo?.name}</p>
-                        <p className="text-xs leading-none text-muted-foreground">
+                      <div className="flex flex-col space-y-2">
+                        {/* <p className="text-sm font-medium leading-none">{userInfo?.name}</p> */}
+                        <p className="text-[14px] leading-none text-muted-foreground">
                           @{userInfo?.userId}
                         </p>
                       </div>
@@ -614,8 +633,7 @@ export function AppSidebar({
                       <DropdownMenuItem
                         key={item.action}
                         onClick={() => handleUserMenuClick(item.action)}
-                        className="hover:cursor-pointer"
-                      >
+                        className="hover:cursor-pointer">
                         {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                         <span>{item.label}</span>
                       </DropdownMenuItem>
@@ -630,28 +648,31 @@ export function AppSidebar({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="w-full justify-center p-2 hover:bg-blue-50 dark:hover:bg-gray-800"
-                    >
+                      className="w-full justify-center p-2 hover:bg-blue-50 dark:hover:bg-gray-800">
                       <Avatar className="h-8 w-8 flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-xs font-bold">
                         {userInfo?.name?.slice(0, 1)}
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="start" forceMount>
-                    <DropdownMenuLabel className="font-normal">
+                    <DropdownMenuLabel className="font-normal flex items-center justify-between">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">{userInfo?.name}</p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {userInfo?.userId}
+                        <p className="text-[14px] leading-none text-muted-foreground">
+                          @{userInfo?.userId}
                         </p>
                       </div>
+                      <Badge
+                        variant="outline"
+                        className="!mt-2 text-xs bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800">
+                        {userInfo?.organizationName || 'NEXFRON'}
+                      </Badge>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {userMenuItems.map((item) => (
                       <DropdownMenuItem
                         key={item.action}
-                        onClick={() => handleUserMenuClick(item.action)}
-                      >
+                        onClick={() => handleUserMenuClick(item.action)}>
                         {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                         <span>{item.label}</span>
                       </DropdownMenuItem>

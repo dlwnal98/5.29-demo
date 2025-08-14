@@ -73,8 +73,7 @@ export function ResourceDetailCard({
                 size="sm"
                 onClick={() => setIsMethodDeleteDialogOpen(true)}
                 className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-                title="삭제"
-              >
+                title="삭제">
                 <Trash2 className="h-4 w-4" />
               </Button>
               <Button
@@ -82,8 +81,7 @@ export function ResourceDetailCard({
                 size="sm"
                 onClick={handleCorsButtonClick}
                 className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 border-gray-200"
-                title="리소스 수정"
-              >
+                title="리소스 수정">
                 <Settings className="h-4 w-4 text-gray-500" />
               </Button>
             </div>
@@ -109,7 +107,7 @@ export function ResourceDetailCard({
               </Label>
               <div className="mt-1 text-sm font-mono text-gray-600 dark:text-gray-400">
                 {!selectedResource.corsEnabled ? (
-                  <div className="flex items-center gap-2 cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 p-2 rounded transition-colors">
+                  <div className="flex items-center gap-2">
                     <CheckCircle className="h-5 w-5 text-green-500" />
                     <span className="text-sm text-green-600 font-medium">active</span>
                   </div>
@@ -133,8 +131,7 @@ export function ResourceDetailCard({
               <Button
                 size="sm"
                 onClick={handleCreateMethod}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
-              >
+                className="bg-blue-500 hover:bg-blue-600 text-white">
                 메서드 생성
               </Button>
             </div>
@@ -153,16 +150,13 @@ export function ResourceDetailCard({
                 {selectedResource.methods.map((method) => (
                   <TableRow
                     key={method.id}
-                    className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
-                  >
+                    className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
                     <TableCell
                       onClick={() => {
                         handleMethodClick(method, selectedResource);
-                      }}
-                    >
+                      }}>
                       <span
-                        className={`${getMethodStyle(method.type.toUpperCase())} font-mono text-sm px-2 py-1 rounded`}
-                      >
+                        className={`${getMethodStyle(method.type.toUpperCase())} font-mono text-sm px-2 py-1 rounded`}>
                         {method.type}
                       </span>
                     </TableCell>
@@ -184,8 +178,7 @@ export function ResourceDetailCard({
                           e.stopPropagation();
                           setMethodToDelete(method);
                           setIsMethodDeleteDialogOpen(true);
-                        }}
-                      >
+                        }}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>

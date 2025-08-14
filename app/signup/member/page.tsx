@@ -6,20 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { AlertCircle, Eye, EyeOff, Waves, CheckCircle } from 'lucide-react';
-import Link from 'next/link';
-import { createUser, createMemberInit } from '@/hooks/use-signup';
-import { useRouter } from 'next/navigation';
+import { createMemberInit } from '@/hooks/use-signup';
 import { passwordRegex } from '@/lib/etc';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import PolicyDialog from './components/policyDialog';
 export default function SignupMemberPage() {
   const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
 
@@ -47,8 +38,6 @@ export default function SignupMemberPage() {
     });
   };
 
-  const router = useRouter();
-
   const { name, id, email, password, confirmPassword } = formData;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,22 +52,17 @@ export default function SignupMemberPage() {
 
     try {
       // 회원가입 API 호출
-      const res = await createMemberInit(
+      await createMemberInit(
         id, // userId
         password, //password
         name, // name
         email //email
       );
 
-      // if (res) {
-      console.log('✅ 유저 생성 성공');
       setSignUpSuccess(true);
-      // router.push('/');
-      // }
     } catch (err) {
       setError('계정 생성에 실패했습니다. 다시 시도해주세요.');
       setSignUpSuccess(false);
-      console.error('❌ 유저 생성 실패:', error);
     } finally {
       setIsLoading(false);
     }
@@ -101,12 +85,7 @@ export default function SignupMemberPage() {
   };
 
   const signUpCondition =
-    name.length > 0 &&
-    id.length > 0 &&
-    email.length > 0 &&
-    passwordValid &&
-    password === confirmPassword &&
-    agreeTerms;
+    name.length > 0 && id.length > 0 && email.length > 0 && passwordValid && password === confirmPassword && agreeTerms;
   if (signUpSuccess) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
@@ -130,8 +109,7 @@ export default function SignupMemberPage() {
             {/* 로그인 페이지로 이동 버튼 */}
             <Button
               onClick={() => (window.location.href = '/')}
-              className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-            >
+              className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200">
               로그인 페이지로 이동
             </Button>
           </CardContent>
@@ -156,6 +134,9 @@ export default function SignupMemberPage() {
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Join Clalink APIM
             </CardTitle>
+            <CardDescription className="text-gray-600">
+              멤버 최초 로그인 시, 추가 정보 입력이 필요합니다.
+            </CardDescription>
           </div>
         </CardHeader>
 
@@ -233,8 +214,7 @@ export default function SignupMemberPage() {
                   variant="ghost"
                   size="sm"
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-gray-100"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
+                  onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? (
                     <EyeOff className="h-4 w-4 text-gray-500" />
                   ) : (
@@ -242,10 +222,7 @@ export default function SignupMemberPage() {
                   )}
                 </Button>
               </div>
-              {/* 비밀번호 확인 */}
-              {/* <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
-                비밀번호 확인
-              </Label> */}
+
               <div className="relative">
                 <Input
                   id="confirmPassword"
@@ -271,8 +248,7 @@ export default function SignupMemberPage() {
                   variant="ghost"
                   size="sm"
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-gray-100"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                   {showConfirmPassword ? (
                     <EyeOff className="h-4 w-4 text-gray-500" />
                   ) : (
@@ -307,13 +283,9 @@ export default function SignupMemberPage() {
                 onClick={() => setIsTermAndPolicyModalOpen(true)}
                 className="border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 mt-1"
               />
-              <Label
-                htmlFor="terms"
-                className="hover:underline text-sm text-gray-600 cursor-pointer leading-relaxed"
-              >
+              <Label htmlFor="terms" className="hover:underline text-sm text-gray-600 cursor-pointer leading-relaxed">
                 <span className="text-blue-600 hover:text-blue-700">서비스 약관</span> 및{' '}
-                <span className="text-blue-600 hover:text-blue-700">개인정보처리방침</span>에
-                동의합니다.
+                <span className="text-blue-600 hover:text-blue-700">개인정보처리방침</span>에 동의합니다.
               </Label>
             </div>
 
@@ -321,8 +293,7 @@ export default function SignupMemberPage() {
             <Button
               type="submit"
               disabled={isLoading || !signUpCondition}
-              className="w-full h-10 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-            >
+              className="w-full h-10 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200">
               {isLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -335,53 +306,13 @@ export default function SignupMemberPage() {
           </form>
         </CardContent>
       </Card>
-      <Dialog open={isTermAndPolicyModalOpen} onOpenChange={setIsTermAndPolicyModalOpen}>
-        <DialogContent className="sm:max-w-[500px] sm:max-h-[600px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center  mb-2">
-              서비스 약관 및 개인정보처리방침
-            </DialogTitle>
-            <DialogDescription className="text-left space-y-3">
-              <div className="bg-blue-50 border border-gray-200 rounded-lg p-4">
-                <p className="font-semibold text-gray-800 mb-2">
-                  서비스 약관 및 개인정보 처리 방침
-                </p>
-                <p className="text-gray-700 text-sm">
-                  <span className="font-bold underline">{}</span> 사용자가 조직에서 삭제됩니다.
-                  <br />• 조직 관련한 사용자의 모든 권한이 제거됩니다
-                  <br />• 관련된 모든 활동 기록이 삭제됩니다
-                  <br />
-                  <br />
-                  <span className="font-semibold">정말로 이 멤버를 삭제하시겠습니까?</span>
-                </p>
-              </div>
-            </DialogDescription>
-          </DialogHeader>
 
-          <DialogFooter className="flex !justify-center space-x-2">
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={() => {
-                setIsTermAndPolicyModalOpen(false);
-                setAgreeTerms(false);
-              }}
-            >
-              취소
-            </Button>
-            <Button
-              type="button"
-              variant="default"
-              onClick={() => {
-                setIsTermAndPolicyModalOpen(false);
-                setAgreeTerms(true);
-              }}
-            >
-              동의
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* 개인정보 처리방침, 동의 모달 */}
+      <PolicyDialog
+        isTermAndPolicyModalOpen={isTermAndPolicyModalOpen}
+        setIsTermAndPolicyModalOpen={setIsTermAndPolicyModalOpen}
+        setAgreeTerms={setAgreeTerms}
+      />
     </div>
   );
 }

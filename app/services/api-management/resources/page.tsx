@@ -17,9 +17,6 @@ import {
   Copy,
   ArrowRight,
   Rocket,
-  Plus,
-  ChevronDown,
-  ChevronRight,
   SquarePlus,
   SquareMinus,
 } from 'lucide-react';
@@ -27,7 +24,6 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { mockData2 } from '@/lib/data';
-import { Switch } from '@/components/ui/switch';
 
 import type {
   QueryParameter,
@@ -50,24 +46,8 @@ import { ResourceDetailCard } from './components/ResourceDetailCard';
 import { MethodTestTab } from './components/MethodTestTab';
 import { MethodResponseTab } from './components/MethodResponseTab';
 import { MethodResponseEdit } from './components/MethodResponseEdit';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { useClipboard } from 'use-clipboard-copy';
+import DeployResourceDialog from './components/DeployResourceDialog';
 
 export default function ApiResourcesPage() {
   const router = useRouter();
@@ -476,6 +456,7 @@ export default function ApiResourcesPage() {
   const handleResourceClick = (resource: Resource) => {
     setSelectedResource(resource);
     setSelectedMethod(null); // 메서드 선택 해제
+    toggleResourceExpansion(resource.id);
   };
 
   const handleCopyArn = () => {
@@ -688,12 +669,9 @@ export default function ApiResourcesPage() {
     toast.success('모델이 삭제되었습니다.');
   };
 
-  const [selectedPath, setSelectedPath] = useState<string | null>(null);
-
   const availableResourcePaths = ['/', '/api', '/users', '/products', '/orders'];
 
   const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
-  const [isDirectUrlInput, setIsDirectUrlInput] = useState(false);
 
   const [deploymentData, setDeploymentData] = useState({
     stage: '',
@@ -752,44 +730,6 @@ export default function ApiResourcesPage() {
     });
   };
 
-  const [selectedDeploymentRecord, setSelectedDeploymentRecord] = useState('');
-
-  // Mock deployment records from stages page
-  const mockDeploymentRecords = [
-    {
-      id: '1',
-      stageName: 'hello',
-      date: 'July 03, 2025, 08:26 (UTC+09:00)',
-      status: 'inactive',
-      description: 'Initial deployment',
-      deploymentId: 'eemowu',
-    },
-    {
-      id: '2',
-      stageName: 'nexfron',
-      date: 'July 03, 2025, 08:26 (UTC+09:00)',
-      status: 'inactive',
-      description: 'Production update',
-      deploymentId: 'jje6x',
-    },
-    {
-      id: '3',
-      stageName: 'hello',
-      date: 'July 02, 2025, 17:44 (UTC+09:00)',
-      status: 'active',
-      description: 'Bug fix deployment',
-      deploymentId: 'xf40pg',
-    },
-    {
-      id: '4',
-      stageName: 'nexfron',
-      date: 'July 02, 2025, 17:42 (UTC+09:00)',
-      status: 'inactive',
-      description: 'Feature rollback',
-      deploymentId: 'ussiri',
-    },
-  ];
-
   // 리소스 확장/축소 토글 함수
   const toggleResourceExpansion = (resourceId: string) => {
     const newExpanded = new Set(expandedResources);
@@ -820,19 +760,10 @@ export default function ApiResourcesPage() {
                     ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
                     : ''
                 }`}
-                onClick={() => handleResourceClick(resource)}
-              >
+                onClick={() => handleResourceClick(resource)}>
                 {/* 확장/축소 버튼 */}
                 {hasMethods ? (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-4 w-4 p-0 hover:bg-transparent"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleResourceExpansion(resource.id);
-                    }}
-                  >
+                  <Button variant="ghost" size="sm" className="h-4 w-4 p-0 hover:bg-transparent">
                     {isExpanded ? (
                       <SquareMinus className="h-3 w-3" />
                     ) : (
@@ -858,14 +789,12 @@ export default function ApiResourcesPage() {
                         key={method.id}
                         className={`flex items-center gap-2 py-1 px-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-green-900/20 rounded-md ${
                           isMethodSelected
-                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                            ? 'bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300'
                             : 'text-gray-600 dark:text-gray-400'
                         }`}
-                        onClick={() => handleMethodClick(method, resource)}
-                      >
+                        onClick={() => handleMethodClick(method, resource)}>
                         <span
-                          className={`${getMethodStyle(method.type)} font-mono text-xs px-2 py-1 rounded`}
-                        >
+                          className={`${getMethodStyle(method.type)} font-mono text-xs px-2 py-1 rounded`}>
                           {method.type}
                         </span>
                         <span className="text-[12px]">
@@ -915,8 +844,7 @@ export default function ApiResourcesPage() {
             <Button
               size="sm"
               onClick={() => handleDeploy()}
-              className="bg-orange-500 hover:bg-orange-600 text-white"
-            >
+              className="bg-orange-500 hover:bg-orange-600 text-white">
               API 배포
               <Rocket className="h-4 w-4" />
             </Button>
@@ -929,15 +857,13 @@ export default function ApiResourcesPage() {
           <div className="col-span-3">
             <div
               ref={leftSidebarRef}
-              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 overflow-auto"
-            >
+              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 overflow-auto">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-900 dark:text-white">리소스 목록</h3>
                 <Button
                   size="sm"
                   onClick={() => setIsCreateModalOpen(true)}
-                  className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 h-7"
-                >
+                  className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 h-7">
                   리소스 생성
                 </Button>
               </div>
@@ -965,8 +891,7 @@ export default function ApiResourcesPage() {
                             <Button
                               variant="outline"
                               className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 bg-transparent"
-                              onClick={() => setIsMethodDeleteDialogOpen(true)}
-                            >
+                              onClick={() => setIsMethodDeleteDialogOpen(true)}>
                               삭제
                             </Button>
                           </div>
@@ -1021,8 +946,7 @@ export default function ApiResourcesPage() {
                                 ? 'bg-blue-200 dark:bg-blue-800 '
                                 : ''
                             }`}
-                            onClick={() => handleFlowStepClick('method-request')}
-                          >
+                            onClick={() => handleFlowStepClick('method-request')}>
                             <div className="text-xs font-medium text-blue-700 dark:text-blue-300">
                               메서드 요청
                             </div>
@@ -1034,8 +958,7 @@ export default function ApiResourcesPage() {
                                 ? 'bg-blue-200 dark:bg-blue-800'
                                 : ''
                             }`}
-                            onClick={() => handleFlowStepClick('method-response')}
-                          >
+                            onClick={() => handleFlowStepClick('method-response')}>
                             <div className="text-xs font-medium text-blue-700 dark:text-blue-300">
                               메서드 응답
                             </div>
@@ -1197,115 +1120,13 @@ export default function ApiResourcesPage() {
         handleDeleteMethod={handleDeleteMethod}
       />
 
-      <Dialog open={isDeployModalOpen} onOpenChange={handleDeployModalClose}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center">
-              <Rocket className="h-5 w-5 mr-2 text-orange-500" />
-              API 배포
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="deploy-stage" className="text-sm font-medium">
-                배포 할 스테이지
-              </Label>
-              <Select
-                value={deploymentData.stage}
-                onValueChange={(value) => setDeploymentData({ ...deploymentData, stage: value })}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="스테이지 선택" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="dev">Development</SelectItem>
-                  <SelectItem value="staging">Staging</SelectItem>
-                  <SelectItem value="prod">Production</SelectItem>
-                  <SelectItem value="new">
-                    <div className="flex items-center gap-2">
-                      <Plus className="h-4 w-4" />새 스테이지 생성
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* 새 스테이지 생성 필드들 */}
-            {deploymentData.stage === 'new' && (
-              <div className="space-y-4 p-4 bg-gray-50 rounded-lg border">
-                <div className="flex items-center gap-2 mb-2">
-                  <Plus className="h-4 w-4 text-orange-500" />
-                  <Label className="text-sm font-medium text-gray-700">새 스테이지 정보</Label>
-                </div>
-                <div>
-                  <Label htmlFor="new-stage-name" className="text-sm font-medium">
-                    스테이지 이름 *
-                  </Label>
-                  <Input
-                    id="new-stage-name"
-                    value={deploymentData.newStageName}
-                    onChange={(e) =>
-                      setDeploymentData({
-                        ...deploymentData,
-                        newStageName: e.target.value,
-                      })
-                    }
-                    placeholder="새 스테이지 이름을 입력하세요"
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="new-stage-description" className="text-sm font-medium">
-                    스테이지 설명
-                  </Label>
-                  <Textarea
-                    id="new-stage-description"
-                    value={deploymentData.newStageDescription}
-                    onChange={(e) =>
-                      setDeploymentData({
-                        ...deploymentData,
-                        newStageDescription: e.target.value,
-                      })
-                    }
-                    placeholder="스테이지 설명을 입력하세요 (선택사항)"
-                    className="mt-1"
-                  />
-                </div>
-              </div>
-            )}
-
-            <div>
-              <Label htmlFor="deploy-description" className="text-sm font-medium">
-                배포 설명
-              </Label>
-              <Textarea
-                id="deploy-description"
-                value={deploymentData.description}
-                onChange={(e) =>
-                  setDeploymentData({
-                    ...deploymentData,
-                    description: e.target.value,
-                  })
-                }
-                placeholder="배포에 대한 설명을 입력하세요"
-                className="mt-1"
-              />
-            </div>
-          </div>
-          <DialogFooter className="flex space-x-2">
-            <Button variant="outline" onClick={handleDeployModalClose}>
-              취소
-            </Button>
-            <Button
-              onClick={handleDeploySubmit}
-              className="bg-orange-500 hover:bg-orange-600 text-white"
-            >
-              <Rocket className="h-4 w-4 mr-2" />
-              배포
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DeployResourceDialog
+        isDeployModalOpen={isDeployModalOpen}
+        handleDeployModalClose={handleDeployModalClose}
+        handleDeploySubmit={handleDeploySubmit}
+        deploymentData={deploymentData}
+        setDeploymentData={setDeploymentData}
+      />
     </AppLayout>
   );
 }

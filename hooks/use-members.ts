@@ -31,13 +31,14 @@ interface MemberList {
 }
 
 // 전체 유저 목록 조회 (super)
-const getUserList = async (active: boolean | null) => {
+const getUserList = async (active: string) => {
   let requestUrl = '';
 
-  if (active === null) {
+  if (active === 'all') {
     requestUrl = '/api/v1/users';
   } else {
-    requestUrl = `/api/v1/users?active=${active}`;
+    const activeBoolean = active === 'active';
+    requestUrl = `/api/v1/users?active=${activeBoolean}`;
   }
 
   const res = await requestGet(requestUrl);
@@ -46,7 +47,7 @@ const getUserList = async (active: boolean | null) => {
     return res.data;
   } else throw new Error(res.message ?? '전체 유저 목록 조회 실패');
 };
-export function useGetUserList(active: boolean | null, enabled: boolean) {
+export function useGetUserList(active: string, enabled: boolean) {
   return useQuery<UserList[]>({
     queryKey: ['getUserList', active],
     queryFn: () => getUserList(active),
@@ -97,15 +98,22 @@ export function useMemberHandleStatus(
 
   return useMutation({
     ...options,
-
-    mutationFn: ({ userKey, active }: { userKey: string; active: boolean }) =>
+    mutationFn: ({ userKey, active, role }: { userKey: string; active: boolean; role?: string }) =>
       memberHandleStatus(userKey, active),
+
     onSuccess: (data, variables, context) => {
-      // 브랜치 생성 성공 시 목록 invalidate
-      queryClient.invalidateQueries({
-        queryKey: ['getMemberByOrganizationList'],
-      });
-      // 외부에서 넘겨준 onSuccess도 실행
+      // role이 super인지 체크
+      if (variables.role === 'SUPER') {
+        queryClient.invalidateQueries({
+          queryKey: ['getUserList'], // super용 queryKey
+        });
+      } else {
+        queryClient.invalidateQueries({
+          queryKey: ['getMemberByOrganizationList'], // 일반용 queryKey
+        });
+      }
+
+      // 외부 onSuccess 실행
       options?.onSuccess?.(data, variables, context);
     },
   });

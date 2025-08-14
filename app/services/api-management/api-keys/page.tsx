@@ -13,28 +13,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -42,10 +20,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { Plus, RefreshCw, Search, Edit, Trash2, Copy, AlertTriangle } from 'lucide-react';
+import { Plus, RefreshCw, Search, Edit, Trash2, Copy } from 'lucide-react';
 import { useState } from 'react';
 import { toast, Toaster } from 'sonner';
-import Pagination from '@/components/Pagination';
 import { useClipboard } from 'use-clipboard-copy';
 import { useAuthStore } from '@/store/store';
 import {
@@ -55,6 +32,11 @@ import {
   useModifyAPIKey,
   useDeleteAPIKey,
 } from '@/hooks/use-apiKeys';
+import CommonPagination from '@/components/common-pagination';
+import CreateAPIKeyDialog from './components/createAPIKeyDialog';
+import ModifyAPIKeyDialog from './components/modifyAPIKeyDialog';
+import DeleteAPIKeyDialog from './components/deleteAPIKeyDialog';
+import CopyAPIKeyDialog from './components/copyAPIKeyDialog';
 
 export default function ApiKeysPage() {
   const userData = useAuthStore((state) => state.user);
@@ -145,11 +127,23 @@ export default function ApiKeysPage() {
 
   const clipboard = useClipboard();
 
-  // 비밀번호 복사 함수
+  // // 비밀번호 복사 함수
   const handleCopyApiKey = (apiKey: string) => {
     setCopyApiKey(apiKey);
     setIsCopyModalOpen(true);
   };
+
+  // 페이지네이션
+  const safeFilteredUsers = apiKeyData ?? [];
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
+
+  const totalPages = Math.ceil(safeFilteredUsers.length / usersPerPage);
+
+  const startIndex = (currentPage - 1) * usersPerPage;
+  const endIndex = startIndex + usersPerPage;
+  const currentUsers = safeFilteredUsers?.slice(startIndex, endIndex);
 
   return (
     <AppLayout>
@@ -173,7 +167,7 @@ export default function ApiKeysPage() {
           </BreadcrumbList>
         </Breadcrumb>
 
-        {/* Header */}
+        {/* 페이지 헤더 */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">API Keys</h1>
@@ -195,68 +189,14 @@ export default function ApiKeysPage() {
             <Button variant="outline" onClick={handleRefresh}>
               <RefreshCw className="h-4 w-4 " />
             </Button>
-
-            {/* API KEY 생성 */}
-            <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  API Key 생성
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-lg">
-                <DialogHeader>
-                  <DialogTitle>API Key 생성</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-6">
-                  <div>
-                    <Label htmlFor="keyName" className="text-sm font-medium">
-                      이름
-                    </Label>
-                    <Input
-                      id="keyName"
-                      value={newApiKey.keyName}
-                      onChange={(e) => setNewApiKey({ ...newApiKey, keyName: e.target.value })}
-                      placeholder=""
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="description" className="text-sm font-medium">
-                      설명 - 선택 사항
-                    </Label>
-                    <Textarea
-                      id="description"
-                      value={newApiKey.description}
-                      onChange={(e) =>
-                        setNewApiKey({
-                          ...newApiKey,
-                          description: e.target.value,
-                        })
-                      }
-                      placeholder=""
-                      className="mt-1 min-h-[80px]"
-                    />
-                  </div>
-
-                  <div className="flex justify-end gap-2 pt-4">
-                    <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
-                      취소
-                    </Button>
-                    <Button
-                      onClick={() => handleCreateAPIKey()}
-                      className="bg-orange-500 hover:bg-orange-600 text-white"
-                    >
-                      발급
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <Button onClick={() => setIsCreateModalOpen(!isCreateModalOpen)}>
+              <Plus className="h-4 w-4 mr-2" />
+              API Key 생성
+            </Button>
           </div>
         </div>
 
-        {/* API Keys Table */}
+        {/* API Keys 리스트 */}
         <Card>
           <div className="pt-4"></div>
           <CardContent>
@@ -271,214 +211,102 @@ export default function ApiKeysPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredApiKeys?.map((apiKey, index) => (
+                {filteredApiKeys?.length === 0 ? (
                   <>
-                    <TableRow key={index} className="dark:bg-blue-900/20 ">
-                      <TableCell className="font-medium text-blue-600">{apiKey.keyId}</TableCell>
-                      <TableCell className="font-medium">{apiKey.name}</TableCell>
-                      <TableCell>{apiKey.description}</TableCell>
-                      <TableCell>{apiKey.updatedAt?.split('T')[0]}</TableCell>
-
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            className="text-white hover:text-white bg-amber-500 hover:bg-amber-500"
-                            size="sm"
-                            onClick={() => handleCopyApiKey(apiKey.key)}
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            className="text-white hover:text-white bg-slate-500 hover:bg-slate-500"
-                            size="sm"
-                            onClick={() => handleEditApiKey(apiKey)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => handleDeleteApiKey(apiKey)}
-                            className="hover:bg-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                    <TableRow className="dark:bg-blue-900/20 hover:bg-white">
+                      <TableCell colSpan={5} className="text-center">
+                        생성된 API Key가 존재하지 않습니다.
                       </TableCell>
                     </TableRow>
                   </>
-                ))}
+                ) : (
+                  <>
+                    {filteredApiKeys?.map((apiKey, index) => (
+                      <>
+                        <TableRow key={index} className="dark:bg-blue-900/20 hover:bg-white">
+                          <TableCell className="font-medium text-blue-600">
+                            {apiKey.keyId}
+                          </TableCell>
+                          <TableCell className="font-medium">{apiKey.name}</TableCell>
+                          <TableCell>{apiKey.description}</TableCell>
+                          <TableCell>{apiKey.updatedAt?.split('T')[0]}</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                className="text-white hover:text-white bg-amber-500 hover:bg-amber-500"
+                                size="sm"
+                                onClick={() => handleCopyApiKey(apiKey.key)}>
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                className="text-white hover:text-white bg-slate-500 hover:bg-slate-500"
+                                size="sm"
+                                onClick={() => handleEditApiKey(apiKey)}>
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => handleDeleteApiKey(apiKey)}
+                                className="hover:bg-destructive">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      </>
+                    ))}
+                  </>
+                )}
               </TableBody>
             </Table>
           </CardContent>
         </Card>
-        {/* </div> */}
 
-        {/* Pagination */}
-        <Pagination />
+        {/* 페이지네이션 */}
+        {totalPages > 1 && (
+          <CommonPagination
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPages={totalPages}
+            groupSize={5}
+          />
+        )}
 
-        {/* Edit API Key Modal */}
-        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>API Key 수정</DialogTitle>
-            </DialogHeader>
-            {editingApiKey && (
-              <div className="space-y-6">
-                <div>
-                  <Label htmlFor="edit-id" className="text-sm font-medium">
-                    ID
-                  </Label>
-                  <Input
-                    id="edit-id"
-                    value={editingApiKey.keyId}
-                    readOnly
-                    disabled
-                    className="mt-1 bg-gray-50 dark:bg-gray-800"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit-name" className="text-sm font-medium">
-                    이름
-                  </Label>
-                  <Input
-                    id="edit-name"
-                    value={editingApiKey.name}
-                    onChange={(e) =>
-                      setEditingApiKey({
-                        ...editingApiKey,
-                        name: e.target.value,
-                      })
-                    }
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit-description" className="text-sm font-medium">
-                    설명 - 선택 사항
-                  </Label>
-                  <Textarea
-                    id="edit-description"
-                    value={editingApiKey.description}
-                    onChange={(e) =>
-                      setEditingApiKey({
-                        ...editingApiKey,
-                        description: e.target.value,
-                      })
-                    }
-                    className="mt-1 min-h-[80px]"
-                  />
-                </div>
+        {/* API key 생성 */}
+        <CreateAPIKeyDialog
+          isCreateModalOpen={isCreateModalOpen}
+          setIsCreateModalOpen={setIsCreateModalOpen}
+          keyName={newApiKey.keyName}
+          newApiKey={newApiKey}
+          setNewApiKey={setNewApiKey}
+          description={newApiKey.description}
+          handleCreateAPIKey={handleCreateAPIKey}
+        />
 
-                <div className="flex justify-end gap-2 pt-4">
-                  <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
-                    취소
-                  </Button>
-                  <Button
-                    onClick={() =>
-                      handleUpdateApiKey(
-                        editingApiKey.keyId,
-                        editingApiKey.name,
-                        editingApiKey.description
-                      )
-                    }
-                    className="bg-orange-500 hover:bg-orange-600 text-white"
-                  >
-                    수정
-                  </Button>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
+        {/* API key 수정 */}
+        <ModifyAPIKeyDialog
+          isEditModalOpen={isEditModalOpen}
+          setIsEditModalOpen={setIsEditModalOpen}
+          setEditingApiKey={setEditingApiKey}
+          editingApiKey={editingApiKey}
+          handleUpdateApiKey={handleUpdateApiKey}
+        />
 
-        {/* Individual Delete Confirmation Modal */}
-        <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle className="flex items-center gap-2 text-red-600">
-                <AlertTriangle className="h-5 w-5" />
-                API Key 삭제 확인
-              </AlertDialogTitle>
-              <AlertDialogDescription className="space-y-3">
-                {deletingApiKey && (
-                  <>
-                    <div className="text-gray-700 dark:text-gray-300">
-                      <strong className="text-red-600">경고:</strong> 이 작업은 되돌릴 수 없습니다.
-                    </div>
-                    <div className="text-gray-700 dark:text-gray-300">
-                      API Key <strong className="text-red-600">"{deletingApiKey.name}"</strong>이
-                      영구적으로 삭제됩니다.
-                    </div>
-                    <div className="text-gray-700 dark:text-gray-300">
-                      삭제된 API Key를 사용하는 모든 애플리케이션과 서비스는 즉시 액세스가
-                      차단됩니다.
-                    </div>
-                    <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-md border border-red-200 dark:border-red-800">
-                      <div className="text-sm text-red-800 dark:text-red-200 font-medium">
-                        삭제될 API Key:
-                      </div>
-                      <div className="mt-2 text-sm text-red-700 dark:text-red-300">
-                        <div className="flex items-center gap-2">
-                          <span>•</span>
-                          <span className="font-mono">{deletingApiKey.keyId}</span>
-                          <span>({deletingApiKey.name})</span>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>취소</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => confirmDeleteApiKey(deletingApiKey.keyId)}
-                className="bg-red-600 hover:bg-red-700 text-white"
-              >
-                삭제
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-        <Dialog open={isCopyModalOpen} onOpenChange={setIsCopyModalOpen}>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>발급된 API Key</DialogTitle>
-              <DialogDescription>발급된 API Key를 복사할 수 있습니다.</DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-1 gap-4">
-                <div className="space-y-2">
-                  <button
-                    className=" w-[100%] flex justify-between items-center hover:underline"
-                    onClick={() => {
-                      clipboard.copy(copyApiKey);
-                      toast.success('API Key가 복사되었습니다.');
-                    }}
-                  >
-                    <span className="block w-[90%] whitespace-normal break-words text-left">
-                      {copyApiKey}
-                    </span>
+        {/* API key 삭제 */}
+        <DeleteAPIKeyDialog
+          isDeleteModalOpen={isDeleteModalOpen}
+          setIsDeleteModalOpen={setIsDeleteModalOpen}
+          confirmDeleteApiKey={confirmDeleteApiKey}
+          deletingApiKey={deletingApiKey}
+        />
 
-                    <Copy className="h-4 w-4 ml-2" />
-                  </button>
-                </div>
-              </div>
-            </div>
-            <DialogFooter className="!flex !justify-center">
-              <Button
-                variant="default"
-                className="bg-amber-400 hover:bg-amber-500"
-                onClick={() => {
-                  setIsCopyModalOpen(false);
-                }}
-              >
-                확인
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        {/* API key 복사 */}
+        <CopyAPIKeyDialog
+          isCopyModalOpen={isCopyModalOpen}
+          setIsCopyModalOpen={setIsCopyModalOpen}
+          copyApiKey={copyApiKey}
+        />
       </div>
     </AppLayout>
   );

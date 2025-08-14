@@ -28,10 +28,10 @@ import { useRouter } from 'next/navigation';
 import { toast, Toaster } from 'sonner';
 import { setSelectedApiInfo } from '@/constants/app-layout-data';
 import { Suspense } from 'react';
-import Pagination from '@/components/Pagination';
 import ApiCreateModal from './components/ApiCreateModal';
 import ApiModifyModal from './components/ApiModifyModal';
 import { ApiDeleteModal } from './components/ApiDeleteModal';
+import CommonPagination from '@/components/common-pagination';
 
 interface ApiItem {
   id: string;
@@ -245,6 +245,18 @@ export default function ApiManagementPage() {
     }
   };
 
+  // 페이지네이션
+  const safeFilteredUsers = filteredPlans ?? [];
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
+
+  const totalPages = Math.ceil(safeFilteredUsers.length / usersPerPage);
+
+  const startIndex = (currentPage - 1) * usersPerPage;
+  const endIndex = startIndex + usersPerPage;
+  const currentUsers = safeFilteredUsers?.slice(startIndex, endIndex);
+
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <AppLayout>
@@ -310,8 +322,7 @@ export default function ApiManagementPage() {
                       <TableRow
                         key={plan.id}
                         onClick={() => handleApiClick(plan)}
-                        className="hover:cursor-pointer"
-                      >
+                        className="hover:cursor-pointer">
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <span className="font-medium hover:cursor-pointer">{plan.name}</span>
@@ -339,8 +350,7 @@ export default function ApiManagementPage() {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setIsModifyModalOpen(true);
-                              }}
-                            >
+                              }}>
                               <Settings className="h-4 w-4" />
                             </Button>
                             <Button
@@ -350,8 +360,7 @@ export default function ApiManagementPage() {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setIsDeleteModalOpen(true);
-                              }}
-                            >
+                              }}>
                               <Trash2 />
                             </Button>
                           </div>
@@ -371,7 +380,14 @@ export default function ApiManagementPage() {
           </Card>
 
           {/* Pagination */}
-          <Pagination />
+          {totalPages > 1 && (
+            <CommonPagination
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={totalPages}
+              groupSize={5}
+            />
+          )}
 
           {/* Create API Modal */}
           <ApiCreateModal

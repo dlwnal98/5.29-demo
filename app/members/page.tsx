@@ -1,5 +1,5 @@
 'use client';
-
+import React from 'react';
 import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
@@ -14,14 +14,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -29,26 +21,14 @@ import {
   Plus,
   RotateCcw,
   Trash2,
-  ChevronLeft,
   ChevronRight,
   ChevronDown,
   User,
-  AlertTriangle,
   Wrench,
-  Copy,
-  XCircle,
-  CheckCircle,
 } from 'lucide-react';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-} from '@/components/ui/pagination';
 import {
   useGetUserList,
   useGetMemberByOrganizationList,
-  issueTempPassword,
   useDeleteMember,
   useMemberHandleStatus,
   useAddMember,
@@ -67,6 +47,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { userIdRegex } from '@/lib/etc';
 import { useClipboard } from 'use-clipboard-copy';
 import { requestPost } from '@/lib/apiClient';
+import CommonPagination from '@/components/common-pagination';
+import CreateMemberDialog from './components/createMemberDialog';
+import ResetPasswordDialog from './components/resetPasswordDialog';
+import DeleteMemberDialog from './components/deleteMemberDialog';
 
 interface selectMemberInfo {
   userId: string;
@@ -79,7 +63,7 @@ export default function UsersPage() {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState('organzation');
-  const [statusFilter, setStatusFilter] = useState<boolean | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   const [memberId, setMemberId] = useState('');
   const [firstMemberPw, setFirstMemberPw] = useState('');
@@ -110,21 +94,25 @@ export default function UsersPage() {
   const { data: membersByOrganizationData, isLoading: membersByOrganizationIsLoading } =
     useGetMemberByOrganizationList(orgId, isAdmin);
 
-  const filteredUsers = isSuper ? allUserData : membersByOrganizationData;
+  // 나를 제외한 멤버들만
+  const exceptMeOrganizationData = membersByOrganizationData?.filter(
+    (i) => i.userKey !== userData?.userKey
+  );
+
+  const filteredUsers = isSuper ? allUserData : exceptMeOrganizationData;
   const loadingUsers = isSuper ? allUserIsLoading : membersByOrganizationIsLoading;
 
   // 페이지네이션
-  const safeFilteredUsers = filteredUsers ?? [];
-  console.log(filteredUsers);
+  // const safeFilteredUsers = filteredUsers ?? [];
 
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
 
-  const totalPages = Math.ceil(safeFilteredUsers.length / usersPerPage);
+  const totalPages = Math.ceil((filteredUsers ?? []).length / usersPerPage);
 
   const startIndex = (currentPage - 1) * usersPerPage;
   const endIndex = startIndex + usersPerPage;
-  const currentUsers = safeFilteredUsers?.slice(startIndex, endIndex);
+  const currentUsers = filteredUsers?.slice(startIndex, endIndex);
 
   // 상태 변경 mutate
   const { mutate: handleStatus } = useMemberHandleStatus({
@@ -158,7 +146,7 @@ export default function UsersPage() {
 
   // 멤버 활성화 토글 함수
   const handleStatusToggle = (userKey: string, active: boolean) => {
-    handleStatus({ userKey, active });
+    handleStatus({ userKey, active, role: userData?.role });
   };
 
   // 멤버 추가 함수
@@ -169,7 +157,6 @@ export default function UsersPage() {
   // 임시 비밀번호 발급 함수
   const handleResetPassword = async (resetPasswordUser: any) => {
     const res = await requestPost(`/api/v1/users/${resetPasswordUser}/password/reset`);
-    console.log(res);
     if (res.success) {
       toast.success('임시 비밀번호가 재발급되었습니다.');
       setTempPassword(res.data);
@@ -217,17 +204,16 @@ export default function UsersPage() {
   function getStatusBadge(active: number) {
     return active === 1 ? (
       <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
-        Active
+        ACTIVE
       </Badge>
     ) : (
       <Badge className="bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200 border-red-200 dark:border-red-700">
-        Inactive
+        INACTIVE
       </Badge>
     );
   }
 
   const validateUserId = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);
     if (userIdRegex.test(e.target.value)) {
       setIdValid(true);
       setIdValidMsg('유효한 아이디입니다.');
@@ -242,10 +228,10 @@ export default function UsersPage() {
       <Toaster position="bottom-center" richColors expand={true} />
       <div className="min-h-screen">
         <div className="space-y-6 container mx-auto px-4 py-6">
-          {/* Main Content Card */}
-          {/* Top Bar Controls */}
+          {/* 페이지 헤더 */}
           <div className="flex justify-between sm:flex-row gap-4 mt-4">
-            {!loadingUsers || currentUsers.length !== 0 ? (
+            {/* {!loadingUsers || currentUsers.length !== 0 ? ( */}
+            {currentUsers?.length !== 0 ? (
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
                   Members ({filteredUsers?.length})
@@ -272,33 +258,32 @@ export default function UsersPage() {
                 />
               </div>
 
-              {/* Status Filter */}
+              {/* 필터 */}
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-full sm:w-[120px] border-input">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="true">Active</SelectItem>
-                  <SelectItem value="false">Inactive</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
                 </SelectContent>
               </Select>
 
-              {/* Create User Button */}
+              {/* 멤버 생성 */}
               <Button
                 className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
-                onClick={() => handleAction('create', '', '')}
-              >
+                onClick={() => handleAction('create', '', '')}>
                 <Plus className="h-4 w-4" />
                 Create Member
               </Button>
             </div>
           </div>
+
+          {/* 페이지 본문 테이블 */}
           <Card>
             <div className="pt-4"></div>
-
             <CardContent>
-              {/* Users Table UI */}
               <Table>
                 <TableHeader className="hover:bg-white">
                   <TableRow className="hover:bg-white">
@@ -312,11 +297,11 @@ export default function UsersPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody className="[&_tr:nth-last-child(2)]:border-0">
-                  {!loadingUsers || currentUsers.length !== 0
-                    ? currentUsers.map((user) => (
-                        <>
+                  {/* {!loadingUsers || currentUsers?.length !== 0 */}
+                  {currentUsers?.length !== 0
+                    ? currentUsers?.map((user) => (
+                        <React.Fragment key={user.userId}>
                           <TableRow
-                            key={user.userId}
                             className={`transition-colors ${
                               expandedUser === user.userId
                                 ? 'bg-blue-50 hover:bg-blue-50 border-l-4 border-b-0 border-blue-500'
@@ -326,8 +311,7 @@ export default function UsersPage() {
                               setExpandedUser(expandedUser === user.userId ? null : user.userId);
                               setPasswordOpenAuth(false);
                             }}
-                            style={{ cursor: 'pointer' }}
-                          >
+                            style={{ cursor: 'pointer' }}>
                             <TableCell className="flex items-center gap-3">
                               <Avatar className="h-7 w-7 ring-3 ring-blue-100 dark:ring-blue-900/50">
                                 <AvatarImage src="/placeholder-user.jpg" />
@@ -360,8 +344,7 @@ export default function UsersPage() {
                                     expandedUser === user.userId ? null : user.userId
                                   );
                                 }}
-                                className="h-8 w-8 p-0"
-                              >
+                                className="h-8 w-8 p-0">
                                 {expandedUser === user.userId ? (
                                   <ChevronDown className="h-4 w-4 text-gray-400" />
                                 ) : (
@@ -370,14 +353,14 @@ export default function UsersPage() {
                               </Button>
                             </TableCell>
                           </TableRow>
+
                           {/* 확장 상세 정보 */}
                           <TableRow
                             className={
                               expandedUser === user.userId
                                 ? '!bg-muted/50 table-row'
                                 : '!bg-muted/50 hidden'
-                            }
-                          >
+                            }>
                             <TableCell colSpan={8} className="p-0">
                               <div className="bg-muted/20 border-t p-6">
                                 {/* User Details */}
@@ -445,8 +428,7 @@ export default function UsersPage() {
                                                 user?.userId
                                               );
                                             }}
-                                            className="border rounded-2 text-blue-700 hover:text-blue-700 hover:bg-blue-50 border-blue-300"
-                                          >
+                                            className="border rounded-2 text-blue-700 hover:text-blue-700 hover:bg-blue-50 border-blue-300">
                                             <RotateCcw className="h-4 w-4" />
                                             임시 비밀번호 발급
                                           </Button>
@@ -462,8 +444,7 @@ export default function UsersPage() {
                                                   user?.userId
                                                 );
                                               }}
-                                              className="border border-red-300 rounded-2 text-red-600 hover:text-red-600 hover:bg-red-50"
-                                            >
+                                              className="border border-red-300 rounded-2 text-red-600 hover:text-red-600 hover:bg-red-50">
                                               <Trash2 className="h-4 w-4" />
                                               멤버 제외
                                             </Button>
@@ -473,29 +454,18 @@ export default function UsersPage() {
                                     </div>
                                   </CardContent>
                                 </Card>
-
-                                {/* <Card className="border-border">
-                                    <CardHeader className="pb-3">
-                                      <CardTitle className="text-lg font-semibold text-foreground flex items-center">
-                                        <Shield className="h-5 w-5 mr-2" />
-                                        권한
-                                      </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-3">권한 정보 없음</CardContent>
-                                  </Card> */}
-                                {/* </div> */}
                               </div>
                             </TableCell>
                           </TableRow>
-                        </>
+                        </React.Fragment>
                       ))
                     : Array.from({ length: 5 }).map((_, index) => (
                         <TableRow
                           key={index}
-                          className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
-                        >
+                          className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200">
                           <TableCell className="w-12" colSpan={7}>
-                            <Skeleton className="h-6 w-full bg-gray-200" />
+                            {/* <Skeleton className="h-6 w-full bg-gray-200" /> */}
+                            현재 조직 내에 멤버가 존재하지 않습니다.
                           </TableCell>
                         </TableRow>
                       ))}
@@ -504,262 +474,54 @@ export default function UsersPage() {
             </CardContent>
           </Card>
 
-          {/* Pagination */}
-          {totalPages >= 1 && (
-            <div className="px-6 ">
-              <div className="flex items-center justify-between">
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem className=" hover:cursor-pointer">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                        disabled={currentPage === 1}
-                        className="bg-muted hover:bg-primary hover:cursor-pointer"
-                      >
-                        <ChevronLeft className="h-4 w-4 mr-1" />
-                      </Button>
-                    </PaginationItem>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <PaginationItem key={page}>
-                        <PaginationLink
-                          onClick={() => setCurrentPage(page)}
-                          isActive={currentPage === page}
-                          className={
-                            currentPage === page
-                              ? 'bg-primary hover:bg-primary hover:text-white text-primary-foreground hover:cursor-pointer'
-                              : 'bg-muted hover:cursor-pointer'
-                          }
-                        >
-                          {page}
-                        </PaginationLink>
-                      </PaginationItem>
-                    ))}
-
-                    <PaginationItem className=" hover:cursor-pointer">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                        disabled={currentPage === totalPages}
-                        className="bg-muted hover:bg-primary"
-                      >
-                        <ChevronRight className="h-4 w-4 ml-1" />
-                      </Button>
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </div>
-            </div>
+          {/* 페이지네이션 */}
+          {totalPages > 1 && (
+            <CommonPagination
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={totalPages}
+              groupSize={5}
+            />
           )}
         </div>
       </div>
 
-      {/* Add Member Dialog */}
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        {firstMemberPw?.length === 0 ? (
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>Add Member</DialogTitle>
-              <DialogDescription>Create organization member information.</DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-1 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Member ID</Label>
-                  <Input
-                    id="memberId"
-                    value={memberId}
-                    onChange={(e) => setMemberId(e.target.value.replace(/\s+/g, ''))}
-                    onKeyUp={(e) => validateUserId(e)}
-                  />
-                </div>
-                {idValidMsg && (
-                  <div className="flex items-center space-x-2 mt-1">
-                    {idValid ? (
-                      <div className="flex items-center space-x-1 text-green-600 dark:text-green-400">
-                        <CheckCircle className="h-3 w-3" />
-                        <span className="text-xs">{idValidMsg}</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center space-x-1 text-red-600 dark:text-red-400">
-                        <XCircle className="h-3 w-3" />
-                        <span className="text-xs">{idValidMsg}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                취소
-              </Button>
-              <Button
-                disabled={!idValid}
-                onClick={() => handleAddMember(userData?.organizationId, memberId)}
-              >
-                생성
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        ) : (
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>멤버 임시 비밀번호</DialogTitle>
-              <DialogDescription>
-                임의로 발급된 비밀번호를 복사하여 다시 로그인해주세요.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-1 gap-4">
-                <div className="space-y-2">
-                  <button
-                    className=" w-[100%] flex justify-between items-center hover:underline"
-                    onClick={() => handleCopyPassword(firstMemberPw)}
-                  >
-                    {/* {firstMemberPw} */}
+      {/* 멤버 생성 모달 */}
+      <CreateMemberDialog
+        isAddDialogOpen={isAddDialogOpen}
+        setIsAddDialogOpen={setIsAddDialogOpen}
+        firstMemberPw={firstMemberPw}
+        memberId={memberId}
+        organizationId={userData?.organizationId ?? ''}
+        idValidMsg={idValidMsg}
+        idValid={idValid}
+        setMemberId={setMemberId}
+        setTempPassword={setTempPassword}
+        validateUserId={validateUserId}
+        handleAddMember={handleAddMember}
+        handleCopyPassword={handleCopyPassword}
+      />
 
-                    <span className="block w-[90%] whitespace-normal break-words text-left">
-                      {firstMemberPw}
-                    </span>
-                    <Copy className="h-4 w-4 ml-2" />
-                  </button>
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                variant="default"
-                onClick={() => {
-                  setTempPassword('');
-                  setIsAddDialogOpen(false);
-                }}
-              >
-                확인
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        )}
-      </Dialog>
+      {/* 임시 비밀번호 발급 모달 */}
+      <ResetPasswordDialog
+        isResetPasswordModalOpen={isResetPasswordModalOpen}
+        setIsResetPasswordModalOpen={setIsResetPasswordModalOpen}
+        tempPassword={tempPassword}
+        userId={resetPasswordUser.userId}
+        userKey={resetPasswordUser.userKey}
+        handleResetPassword={handleResetPassword}
+        handleCopyPassword={handleCopyPassword}
+      />
 
-      {/* Reset Password Modal */}
-      <Dialog open={isResetPasswordModalOpen} onOpenChange={setIsResetPasswordModalOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          {tempPassword?.length === 0 ? (
-            <>
-              <DialogHeader>
-                <DialogTitle className="flex items-center text-blue-600 mb-2">
-                  <RotateCcw className="h-5 w-5 mr-2" />
-                  임시 비밀번호 발급
-                </DialogTitle>
-
-                <DialogDescription className="text-left space-y-3">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p className="font-semibold text-blue-800 mb-2">
-                      임시 비밀번호를 발급하시겠습니까?
-                    </p>
-                    <p className="text-blue-700 text-sm">
-                      <span className="font-bold underline">{resetPasswordUser.userId}</span>{' '}
-                      사용자에게 새로운 임시 비밀번호가 부여됩니다.
-                      <br />
-                      사용자는 다음 로그인 시 비밀번호를 변경해야 합니다.
-                    </p>
-                  </div>
-                </DialogDescription>
-              </DialogHeader>
-
-              <DialogFooter className="flex space-x-2">
-                <Button variant="outline" onClick={() => setIsResetPasswordModalOpen(false)}>
-                  취소
-                </Button>
-                <Button
-                  onClick={() => handleResetPassword(resetPasswordUser.userKey)}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                  발급
-                </Button>
-              </DialogFooter>
-            </>
-          ) : (
-            <>
-              <DialogHeader>
-                <DialogTitle className="flex items-center text-blue-600">
-                  <RotateCcw className="h-5 w-5 mr-2" />
-                  임시 비밀번호 재발급
-                </DialogTitle>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="space-y-1">
-                      <button
-                        className=" w-[100%] flex justify-between items-center hover:underline"
-                        onClick={() => handleCopyPassword(tempPassword)}
-                      >
-                        <span className="block w-[90%] whitespace-normal break-words text-left">
-                          {tempPassword}
-                        </span>
-                        <Copy className="h-4 w-4 ml-2" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </DialogHeader>
-
-              <DialogFooter className="!flex !flex-row !justify-center space-x-2">
-                <Button variant="default" onClick={() => setIsResetPasswordModalOpen(false)}>
-                  확인
-                </Button>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Account Modal */}
-      <Dialog open={isDeleteAccountModalOpen} onOpenChange={setIsDeleteAccountModalOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center text-red-600 mb-2">
-              <AlertTriangle className="h-5 w-5 mr-2" />
-              조직 멤버 삭제
-            </DialogTitle>
-            <DialogDescription className="text-left space-y-3">
-              <p className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="font-semibold text-red-800 mb-2">
-                  ⚠️ 이 작업은 실행 취소할 수 없습니다.
-                </p>
-                <p className="text-red-700 text-sm">
-                  <span className="font-bold underline">{deleteAccountUser.userId}</span> 사용자가
-                  조직에서 삭제됩니다.
-                  <br />• 조직 관련한 사용자의 모든 권한이 제거됩니다
-                  <br />• 관련된 모든 활동 기록이 삭제됩니다
-                  <br />
-                  <br />
-                  <span className="font-semibold">정말로 이 멤버를 삭제하시겠습니까?</span>
-                </p>
-              </p>
-            </DialogDescription>
-          </DialogHeader>
-
-          <DialogFooter className="flex space-x-2">
-            <Button variant="outline" onClick={() => setIsDeleteAccountModalOpen(false)}>
-              취소
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() =>
-                handleDeleteAccount(userData?.organizationId, deleteAccountUser.userKey)
-              }
-              className="bg-red-600 hover:bg-red-700"
-            >
-              <Trash2 className="h-4 w-4" />
-              삭제
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* 멤버 삭제 모달 */}
+      <DeleteMemberDialog
+        isDeleteAccountModalOpen={isDeleteAccountModalOpen}
+        setIsDeleteAccountModalOpen={setIsDeleteAccountModalOpen}
+        handleDeleteAccount={handleDeleteAccount}
+        userId={deleteAccountUser.userId}
+        userKey={deleteAccountUser.userKey}
+        organizationId={userData?.organizationId ?? ''}
+      />
     </AppLayout>
   );
 }

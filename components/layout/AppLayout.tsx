@@ -1,10 +1,8 @@
 'use client';
 
 import type { ReactNode } from 'react';
-// import { AppHeader } from './AppHeader';
-// import { AppSidebar } from './AppSidebar';
-import { AppHeader } from './AppHeader copy';
-import { AppSidebar } from './AppSidebar copy';
+import { AppHeader } from './AppHeader';
+import { AppSidebar } from './AppSidebar';
 import { useState, useEffect, Suspense, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import ProtectedRoute from '../ProtectedRoute';
@@ -48,15 +46,8 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
               setSidebarCollapsed={handleSidebarCollapsed}
               projectSlug={projectSlug}
             />
-            <main
-              className={`flex-1 transition-all duration-300 ${
-                sidebarCollapsed ? 'ml-16' : 'ml-[250px]'
-              }`}
-            >
-              <AppHeader
-                sidebarCollapsed={sidebarCollapsed}
-                setSidebarCollapsed={handleSidebarCollapsed}
-              />
+            <main className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-[250px]'}`}>
+              <AppHeader sidebarCollapsed={sidebarCollapsed} setSidebarCollapsed={handleSidebarCollapsed} />
               {children}
             </main>
           </div>

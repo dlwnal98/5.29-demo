@@ -37,7 +37,6 @@ export default function AuthCallbackClient() {
 
   useEffect(() => {
     if (code || userId) {
-      console.log(code);
       getJWTToken();
     }
   }, [code, userId]);
@@ -68,12 +67,8 @@ export default function AuthCallbackClient() {
 
       {/* 로딩 텍스트 */}
       <div className="text-center space-y-4">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white animate-fade-in">
-          로그인 중입니다
-        </h1>
-        <p className="text-gray-600 dark:text-gray-300 animate-fade-in-delay">
-          잠시만 기다려주세요
-        </p>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white animate-fade-in">로그인 중입니다</h1>
+        <p className="text-gray-600 dark:text-gray-300 animate-fade-in-delay">잠시만 기다려주세요</p>
       </div>
 
       {/* 로딩 바 */}

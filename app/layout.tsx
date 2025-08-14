@@ -1,13 +1,13 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { ReactNode } from "react";
-import Providers from "@/components/providers";
+import type { Metadata } from 'next';
+import './globals.css';
+import { ReactNode } from 'react';
+import Providers from '@/components/providers';
 
 export const metadata: Metadata = {
-  title: "Clalink",
-  description: "Created with Nexfron",
-  generator: "Nexfron",
-  icons: "/nexfron_favicon.png",
+  title: 'Clalink',
+  description: 'Created with Nexfron',
+  generator: 'Nexfron',
+  icons: '/nexfron_favicon.png',
 };
 
 export default function RootLayout({
@@ -20,7 +20,7 @@ export default function RootLayout({
       <head>
         <link
           rel="stylesheet"
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
+          href="https://unpkg.com/pretendard@1.3.9/dist/web/static/pretendard.css"
         />
       </head>
       <body>

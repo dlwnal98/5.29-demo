@@ -258,8 +258,7 @@ export function MethodRequestEdit({
             <Label className="text-sm font-medium">요청 검사기</Label>
             <Select
               value={editForm.requestValidator}
-              onValueChange={(value) => setEditForm({ ...editForm, requestValidator: value })}
-            >
+              onValueChange={(value) => setEditForm({ ...editForm, requestValidator: value })}>
               <SelectTrigger className="mt-2">
                 <SelectValue />
               </SelectTrigger>
@@ -282,10 +281,8 @@ export function MethodRequestEdit({
             <Button
               size="sm"
               onClick={addQueryParameter}
-              className="bg-blue-500 hover:bg-blue-600 text-white"
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              추가
+              className="bg-blue-500 hover:bg-blue-600 text-white">
+              <Plus className="h-4 w-4" />
             </Button>
           </CardTitle>
         </CardHeader>
@@ -321,8 +318,7 @@ export function MethodRequestEdit({
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => removeQueryParameter(param.id)}
-                  >
+                    onClick={() => removeQueryParameter(param.id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -344,10 +340,8 @@ export function MethodRequestEdit({
             <Button
               size="sm"
               onClick={addRequestHeader}
-              className="bg-blue-500 hover:bg-blue-600 text-white"
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              추가
+              className="bg-blue-500 hover:bg-blue-600 text-white">
+              <Plus className="h-4 w-4" />
             </Button>
           </CardTitle>
         </CardHeader>
@@ -358,8 +352,7 @@ export function MethodRequestEdit({
                 <div className="col-span-6">
                   <Select
                     value={header.type}
-                    onValueChange={(value) => updateRequestHeader(header.id, 'type', value)}
-                  >
+                    onValueChange={(value) => updateRequestHeader(header.id, 'type', value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -386,8 +379,7 @@ export function MethodRequestEdit({
                     size="sm"
                     variant="outline"
                     onClick={() => removeRequestHeader(header.id)}
-                    disabled={header.name === 'Content-Type'}
-                  >
+                    disabled={header.name === 'Content-Type'}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -404,10 +396,8 @@ export function MethodRequestEdit({
             <Button
               size="sm"
               onClick={addRequestBodyModel}
-              className="bg-blue-500 hover:bg-blue-600 text-white"
-            >
+              className="bg-blue-500 hover:bg-blue-600 text-white">
               <Plus className="h-4 w-4 mr-1" />
-              추가
             </Button>
           </CardTitle>
         </CardHeader>
@@ -431,8 +421,7 @@ export function MethodRequestEdit({
                       if (selectedModel) {
                         updateRequestBodyModel(model.id, 'modelName', selectedModel.name);
                       }
-                    }}
-                  >
+                    }}>
                     <SelectTrigger>
                       <SelectValue placeholder="모델 선택" />
                     </SelectTrigger>
@@ -448,8 +437,7 @@ export function MethodRequestEdit({
                                 e.stopPropagation();
                                 deleteModel(availableModel.id);
                               }}
-                              className="ml-2 h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                            >
+                              className="ml-2 h-6 w-6 p-0 text-red-500 hover:text-red-700">
                               <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
@@ -462,8 +450,7 @@ export function MethodRequestEdit({
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => removeRequestBodyModel(model.id)}
-                  >
+                    onClick={() => removeRequestBodyModel(model.id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -495,8 +482,7 @@ export function MethodRequestEdit({
                 variant={!isCreatingNewApiKey ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setIsCreatingNewApiKey(false)}
-                className="flex items-center gap-2"
-              >
+                className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 기존 API 키 선택
               </Button>
@@ -504,8 +490,7 @@ export function MethodRequestEdit({
                 variant={isCreatingNewApiKey ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setIsCreatingNewApiKey(true)}
-                className="flex items-center gap-2"
-              >
+                className="flex items-center gap-2">
                 <Plus className="h-4 w-4" />새 API 키 생성
               </Button>
             </div>
@@ -527,8 +512,7 @@ export function MethodRequestEdit({
                             ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
                             : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                         }`}
-                        onClick={() => setSelectedApiKeyId(apiKey.id)}
-                      >
+                        onClick={() => setSelectedApiKeyId(apiKey.id)}>
                         <div className="flex items-start gap-3">
                           <input
                             type="radio"
@@ -627,8 +611,7 @@ export function MethodRequestEdit({
                 isCreatingNewApiKey
                   ? !newApiKeyForm.name.trim()
                   : !selectedApiKeyId && apiKeys.length > 0
-              }
-            >
+              }>
               {isCreatingNewApiKey ? '생성 및 선택' : '선택'}
             </Button>
           </DialogFooter>

@@ -5,12 +5,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, Eye, EyeOff, Waves, User, Lock, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import axios from 'axios';
-import { useRouter } from 'next/router';
 import { userIdRegex, passwordRegex } from '@/lib/etc';
 import { Toaster, toast } from 'sonner';
 
@@ -124,9 +122,6 @@ export default function LoginPage() {
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Login to Clalink APIM
             </CardTitle>
-            {/* <CardDescription className="text-gray-600">
-              Welcome back! Please sign in to your account
-            </CardDescription> */}
           </div>
         </CardHeader>
 
@@ -187,8 +182,7 @@ export default function LoginPage() {
                   variant="ghost"
                   size="sm"
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-gray-100"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
+                  onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? (
                     <EyeOff className="h-4 w-4 text-gray-500" />
                   ) : (
@@ -241,8 +235,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={isLoading || !idValid || !passwordValid}
-              className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-            >
+              className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200">
               {isLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -257,10 +250,7 @@ export default function LoginPage() {
             <div className="text-center">
               <p className="text-sm text-gray-600">
                 계정이 없으신가요?
-                <Link
-                  href="/signup"
-                  className="ml-[5px] text-blue-600 hover:text-blue-700 font-medium hover:underline"
-                >
+                <Link href="/signup" className="ml-[5px] text-blue-600 hover:text-blue-700 font-medium hover:underline">
                   가입하세요!
                 </Link>
               </p>
