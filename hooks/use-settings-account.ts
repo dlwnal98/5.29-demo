@@ -20,7 +20,7 @@ export const getReJWTToken = async () => {
     localStorage.setItem('access_token', res.data.accessToken);
     localStorage.setItem('refresh_token', res.data.refreshToken);
     localStorage.setItem('expires_at', String(expiresAt));
-    window.location.reload();
+    // window.location.reload();
   }
 };
 
