@@ -157,7 +157,8 @@ export default function UsersPage() {
   // 임시 비밀번호 발급 함수
   const handleResetPassword = async (resetPasswordUser: any) => {
     const res = await requestPost(`/api/v1/users/${resetPasswordUser}/password/reset`);
-    if (res.success) {
+
+    if (res.code == 200) {
       toast.success('임시 비밀번호가 재발급되었습니다.');
       setTempPassword(res.data);
     }

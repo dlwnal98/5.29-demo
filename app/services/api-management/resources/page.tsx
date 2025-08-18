@@ -459,9 +459,8 @@ export default function ApiResourcesPage() {
     toggleResourceExpansion(resource.id);
   };
 
-  const handleCopyArn = () => {
-    const arn = `arn:aws:execute-api:ap-northeast-2:446785114695:yr5g5hoch/*/${selectedMethod?.type}${selectedMethod?.resourcePath}`;
-    clipboard.copy(arn);
+  const handleCopyEndpoint = () => {
+    clipboard.copy(selectedMethod.endpointUrl);
     toast.success('ARN이 클립보드에 복사되었습니다.');
   };
 
@@ -911,7 +910,7 @@ export default function ApiResourcesPage() {
                               <code className="text-sm font-mono">
                                 {selectedMethod.endpointUrl}
                               </code>
-                              <Button size="sm" variant="ghost" onClick={handleCopyArn}>
+                              <Button size="sm" variant="ghost" onClick={handleCopyEndpoint}>
                                 <Copy className="h-3 w-3" />
                               </Button>
                             </div>

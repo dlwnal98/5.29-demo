@@ -54,11 +54,11 @@ export function CorsSettingsDialog({
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-blue-600 flex items-center gap-2">
             <Globe className="h-5 w-5" />
-            리소스 편집
+            CORS 활성화 설정
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-4">
+        {/* <div className="grid grid-cols-2 gap-4">
           <div>
             <Label htmlFor="resource-path" className="text-sm font-medium text-gray-700 mb-2 block">
               리소스 경로
@@ -90,14 +90,14 @@ export function CorsSettingsDialog({
               onChange={(e) => setSelectedResource({ ...selectedResource, name: e.target.value })}
             />
           </div>
-        </div>
+        </div> */}
+
         {/* CORS Toggle */}
         <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
           <div>
             <Label
               htmlFor="cors-toggle"
-              className="text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
+              className="text-sm font-medium text-gray-700 dark:text-gray-300">
               원본에서 CORS
             </Label>
             <p className="text-xs text-gray-500 mt-1">
@@ -135,8 +135,7 @@ export function CorsSettingsDialog({
                           ? 'bg-purple-100 text-purple-800 hover:bg-purple-100'
                           : 'bg-gray-100 text-gray-800 hover:bg-gray-100'
                   } cursor-pointer`}
-                      onClick={() => removeCorsMethod(method)}
-                    >
+                      onClick={() => removeCorsMethod(method)}>
                       {method}
                       <X className="h-3 w-3 ml-1" />
                     </Badge>

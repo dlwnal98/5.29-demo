@@ -43,10 +43,11 @@ const getUserList = async (active: string) => {
 
   const res = await requestGet(requestUrl);
 
-  if (res.success == true) {
+  if (res.code == 200) {
     return res.data;
   } else throw new Error(res.message ?? '전체 유저 목록 조회 실패');
 };
+
 export function useGetUserList(active: string, enabled: boolean) {
   return useQuery<UserList[]>({
     queryKey: ['getUserList', active],
@@ -62,7 +63,7 @@ export function useGetUserList(active: string, enabled: boolean) {
 // 조직 멤버 조회 (admin)
 const getMemberByOrganizationList = async (organizationId: string) => {
   const res = await requestGet(`/api/v1/organizations/${organizationId}/members`);
-  if (res.success == true) {
+  if (res.code == 200) {
     return res.data;
   } else throw new Error(res.message ?? '조직 멤버 목록 조회 실패');
 };

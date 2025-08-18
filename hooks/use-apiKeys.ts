@@ -20,7 +20,7 @@ export interface ApiKey {
 // 전체 API Key 조회
 const getAPIKeyList = async (organizationId: string) => {
   const res = await requestGet(`/api/v1/apikey/${organizationId}`);
-  if (res.success) {
+  if (res.code == 200) {
     return res.data;
   }
 };
@@ -57,7 +57,7 @@ const createAPIKey = async ({
     },
   });
 
-  if (res.success) {
+  if (res.code == 200) {
     return res.data;
   }
 };
@@ -90,7 +90,7 @@ const modifyAPIKey = async ({ keyId, keyName, description }: ModifyAPIKeyVariabl
     },
   });
 
-  if (res.success) {
+  if (res.code == 200) {
     return res.data;
   }
 };
@@ -112,7 +112,7 @@ export function useModifyAPIKey(options?: UseMutationOptions<any, Error, ModifyA
 const deleteAPIKey = async (keyId: string) => {
   const res = await requestDelete(`/api/v1/apiKey/${keyId}`);
 
-  if (res.success) {
+  if (res.code == 200) {
     return res.data;
   }
 };

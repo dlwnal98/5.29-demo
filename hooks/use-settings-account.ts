@@ -15,7 +15,7 @@ export const getReJWTToken = async () => {
     },
   });
 
-  if (res.success) {
+  if (res.code == 200) {
     const expiresAt = Date.now() + EXPIRES_IN * 1000; // Date.now()랑 expires의 시간 단위가 달라서 *1000 적용
     localStorage.setItem('access_token', res.data.accessToken);
     localStorage.setItem('refresh_token', res.data.refreshToken);

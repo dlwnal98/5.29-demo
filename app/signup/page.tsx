@@ -115,7 +115,7 @@ export default function SignupPage() {
         email //email
       );
 
-      if (res.success === true) {
+      if (res.code == 200) {
         setSignUpSuccess(true);
       } else {
         setError('계정 생성에 실패했습니다. 다시 시도해주세요.');
@@ -161,8 +161,7 @@ export default function SignupPage() {
             <Button
               type="button"
               onClick={() => (window.location.href = '/')}
-              className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-            >
+              className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200">
               로그인 페이지로 이동
             </Button>
           </CardContent>
@@ -250,8 +249,7 @@ export default function SignupPage() {
                   type="button"
                   className="h-10"
                   onClick={() => handleIdCheck(formData.userId)}
-                  disabled={!idValid}
-                >
+                  disabled={!idValid}>
                   중복 확인
                 </Button>
               </div>
@@ -311,8 +309,7 @@ export default function SignupPage() {
                   variant="ghost"
                   size="sm"
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-gray-100"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
+                  onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? (
                     <EyeOff className="h-4 w-4 text-gray-500" />
                   ) : (
@@ -347,8 +344,7 @@ export default function SignupPage() {
                   variant="ghost"
                   size="sm"
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-gray-100"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                   {showConfirmPassword ? (
                     <EyeOff className="h-4 w-4 text-gray-500" />
                   ) : (
@@ -406,8 +402,7 @@ export default function SignupPage() {
               />
               <Label
                 htmlFor="terms"
-                className="hover:underline text-sm text-gray-600 cursor-pointer leading-relaxed"
-              >
+                className="hover:underline text-sm text-gray-600 cursor-pointer leading-relaxed">
                 <span className="text-blue-600 hover:text-blue-700">서비스 약관</span> 및{' '}
                 <span className="text-blue-600 hover:text-blue-700">개인정보처리방침</span>에
                 동의합니다.
@@ -418,8 +413,7 @@ export default function SignupPage() {
             <Button
               type="submit"
               disabled={isLoading || !signUpCondition}
-              className="w-full h-10 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-            >
+              className="w-full h-10 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200">
               {isLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -436,8 +430,7 @@ export default function SignupPage() {
                 이미 계정이 있으신가요?
                 <Link
                   href="/"
-                  className="ml-[5px] text-blue-600 hover:text-blue-700 font-medium hover:underline"
-                >
+                  className="ml-[5px] text-blue-600 hover:text-blue-700 font-medium hover:underline">
                   로그인하세요!
                 </Link>
               </p>
@@ -475,8 +468,7 @@ export default function SignupPage() {
               onClick={() => {
                 setIsTermAndPolicyModalOpen(false);
                 setAgreeTerms(false);
-              }}
-            >
+              }}>
               취소
             </Button>
             <Button
@@ -485,8 +477,7 @@ export default function SignupPage() {
               onClick={() => {
                 setIsTermAndPolicyModalOpen(false);
                 setAgreeTerms(true);
-              }}
-            >
+              }}>
               동의
             </Button>
           </DialogFooter>

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+
 import {
   Table,
   TableHeader,
@@ -60,6 +62,17 @@ export function ResourceDetailCard({
     setIsCorsModalOpen(true);
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'bg-green-100 text-green-700 border-green-200';
+      case 'inactive':
+        return 'bg-gray-100 text-gray-700 border-gray-200';
+      default:
+        return 'bg-amber-100 text-amber-700 border-amber-200';
+    }
+  };
+
   return (
     <>
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -75,14 +88,6 @@ export function ResourceDetailCard({
                 className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                 title="삭제">
                 <Trash2 className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCorsButtonClick}
-                className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 border-gray-200"
-                title="리소스 수정">
-                <Settings className="h-4 w-4 text-gray-500" />
               </Button>
             </div>
           </div>
@@ -107,14 +112,32 @@ export function ResourceDetailCard({
               </Label>
               <div className="mt-1 text-sm font-mono text-gray-600 dark:text-gray-400">
                 {!selectedResource.corsEnabled ? (
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                    <span className="text-sm text-green-600 font-medium">active</span>
+                  <div className="flex items-center">
+                    <Badge variant="outline" className={getStatusColor('active')}>
+                      active
+                    </Badge>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCorsButtonClick}
+                      className="border-0 text-gray-600 hover:text-gray-700 hover:bg-transparent"
+                      title="리소스 수정">
+                      <Settings className="h-4 w-4 text-gray-500" />
+                    </Button>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2">
-                    <XCircle className="h-5 w-5 text-red-500" />
-                    <span className="text-sm text-red-600 font-medium">disabled</span>
+                  <div className="flex items-center">
+                    <Badge variant="outline" className={getStatusColor('inactive')}>
+                      inactive
+                    </Badge>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCorsButtonClick}
+                      className="border-0 text-gray-600 hover:text-gray-700 hover:bg-transparent"
+                      title="리소스 수정">
+                      <Settings className="h-4 w-4 text-gray-500" />
+                    </Button>
                   </div>
                 )}
               </div>
