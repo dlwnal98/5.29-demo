@@ -60,7 +60,7 @@ export default function AccountPage() {
     try {
       const res = await requestDelete(`/api/v1/users/${userData?.userKey}`);
 
-      if (res.success) {
+      if (res.code == 200) {
         localStorage.clear();
         window.scrollTo({ top: 0, behavior: 'smooth' });
         setShowCompleteDeleted(true);
@@ -82,7 +82,7 @@ export default function AccountPage() {
         },
       });
 
-      if (res.success) {
+      if (res.code == 200) {
         // window.scrollTo({ top: 0, behavior: 'smooth' });
         toast.success('유저 정보가 성공적으로 수정되었습니다.');
         getReJWTToken();
@@ -101,7 +101,7 @@ export default function AccountPage() {
         },
       });
 
-      if (res.success) {
+      if (res.code == 200) {
         toast.success('비밀번호가 성공적으로 변경되었습니다');
         setCurrentPw('');
         setNewPw('');

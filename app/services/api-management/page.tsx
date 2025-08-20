@@ -25,108 +25,106 @@ import {
 } from '@/components/ui/table';
 import { Plus, Search, Settings, RefreshCw, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { toast, Toaster } from 'sonner';
+import { Toaster } from 'sonner';
 import { setSelectedApiInfo } from '@/constants/app-layout-data';
 import { Suspense } from 'react';
 import ApiCreateModal from './components/ApiCreateModal';
 import ApiModifyModal from './components/ApiModifyModal';
 import { ApiDeleteModal } from './components/ApiDeleteModal';
 import CommonPagination from '@/components/common-pagination';
-
-interface ApiItem {
-  id: string;
-  name: string;
-  description: string;
-  apiId: string;
-  protocol: string;
-  endpointType: string;
-  createdDate: string;
-  selected: boolean;
-}
+import { format } from 'date-fns';
+import { useAuthStore } from '@/store/store';
 
 export interface Apis {
-  id: string;
+  apiId: string;
+  organizationId: string;
+  ownerUserKey: string;
   name: string;
-  planId: string;
   description: string;
+  version: string;
+  status: string;
+  enabled: boolean;
+  draftDocId: string;
   createdAt: string;
-  status: 'active' | 'inactive' | 'draft';
+  updatedAt: string;
+  createdBy: string;
 }
 
-const mockApiPlans: Apis[] = [
+const apisData: Apis[] = [
   {
-    id: '1',
-    name: 'User Management API',
-    planId: 'plan-001',
-    description: '사용자 관리를 위한 REST API',
-    createdAt: '2024-01-15 14:44:23',
-    status: 'active',
+    apiId: 'API123456789',
+    organizationId: 'ORG123456789',
+    ownerUserKey: 'USR123456789',
+    name: '사용자 관리 API',
+    description: '사용자 정보 관리를 위한 RESTful API',
+    version: '1.0.0',
+    status: 'DRAFT', // DRAFT, PUBLISHED, DEPRECATED, ARCHIVED
+    enabled: true,
+    draftDocId: 'draft_API123456789',
+    createdAt: '2025-01-15T10:30:00Z',
+    updatedAt: '2025-01-15T14:30:00Z',
+    createdBy: 'admin',
   },
   {
-    id: '2',
-    name: 'Product Catalog API',
-    planId: 'plan-002',
-    description: '상품 카탈로그 조회 및 관리 API',
-    createdAt: '2024-01-20 14:44:23',
-    status: 'active',
+    apiId: 'API1234567890',
+    organizationId: 'ORG123456789',
+    ownerUserKey: 'USR123456789',
+    name: '사용자 관리 API',
+    description: '사용자 정보 관리를 위한 RESTful API',
+    version: '1.0.0',
+    status: 'PUBLISHED',
+    enabled: true,
+    draftDocId: 'draft_API123456789',
+    createdAt: '2025-01-15T10:30:00Z',
+    updatedAt: '2025-01-15T14:30:00Z',
+    createdBy: 'admin',
   },
   {
-    id: '3',
-    name: 'Payment Processing API',
-    planId: 'plan-003',
-    description: '결제 처리를 위한 보안 API',
-    createdAt: '2024-01-25 14:44:23',
-    status: 'draft',
-  },
-  {
-    id: '4',
-    name: 'Analytics API',
-    planId: 'plan-004',
-    description: '데이터 분석 및 리포팅 API',
-    createdAt: '2024-01-30 14:44:23',
-    status: 'inactive',
+    apiId: 'API12345678901',
+    organizationId: 'ORG123456789',
+    ownerUserKey: 'USR123456789',
+    name: '사용자 관리 API',
+    description: '사용자 정보 관리를 위한 RESTful API',
+    version: '1.0.0',
+    status: 'DEPRECATED',
+    enabled: true,
+    draftDocId: 'draft_API123456789',
+    createdAt: '2025-01-15T10:30:00Z',
+    updatedAt: '2025-01-15T14:30:00Z',
+    createdBy: 'admin',
   },
 ];
 
 export default function ApiManagementPage() {
-  // const [apiPlans, setApiPlans] = useState();
+  // 유저 토큰 내 정보
+  const userData = useAuthStore((state) => state.user);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
   const [isMethodDeleteDialogOpen, setIsDeleteModalOpen] = useState(false);
-  const [apiToDelete, setApiToDelete] = useState<Apis | null>(null);
-  // Create API Modal State
-  const [createApiForm, setCreateApiForm] = useState({
-    type: 'new',
-    name: '',
-    description: '',
-    sourceApiId: '',
-    swaggerContent: '',
-    selectedExample: '',
-  });
-
+  const [selectedAPIId, setSelectedAPIId] = useState('');
   // Modify API Modal State
   const [modifyApiForm, setModifyApiForm] = useState({
-    type: 'new',
+    // type: 'new', // 이거 데이터에 있어야함
     name: '',
     description: '',
   });
 
-  // Swagger states
-  const [swaggerFile, setSwaggerFile] = useState<File | null>(null);
+  // const { data: apisData } = useGetAPIList(userData?.organizationId);
 
-  const filteredPlans = mockApiPlans.filter(
+  const filteredPlans = apisData.filter(
     (plan) =>
       plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      plan.planId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      plan.apiId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       plan.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active':
+      case 'PUBLISHED':
         return 'bg-green-100 text-green-700 border-green-200';
-      case 'inactive':
+      case 'DEPRECATED':
         return 'bg-gray-100 text-gray-700 border-gray-200';
       default:
         return 'bg-amber-100 text-amber-700 border-amber-200';
@@ -135,114 +133,17 @@ export default function ApiManagementPage() {
 
   const router = useRouter();
 
-  const [apis, setApis] = useState<ApiItem[]>([
-    {
-      id: '1',
-      name: 'test',
-      description: '테스트용',
-      apiId: 'yrr5q5hoch',
-      protocol: 'REST',
-      endpointType: '지역',
-      createdDate: '2025-05-21',
-      selected: false,
-    },
-  ]);
-
   const handleRefresh = () => {
-    toast.success('API 목록이 새로고침되었습니다.');
-    // Simulate refresh
-    setApis([...apis]);
-  };
-
-  const handleCreateApi = () => {
-    if (!createApiForm.name.trim()) {
-      toast.error('API 이름을 입력해주세요.');
-      return;
-    }
-
-    // 타입별 추가 검증
-    if (createApiForm.type === 'copy' && !createApiForm.sourceApiId) {
-      toast.error('복사할 API를 선택해주세요.');
-      return;
-    }
-
-    if (createApiForm.type === 'swagger' && !createApiForm.swaggerContent.trim()) {
-      toast.error('Swagger 내용을 입력하거나 파일을 업로드해주세요.');
-      return;
-    }
-
-    if (createApiForm.type === 'example' && !createApiForm.selectedExample) {
-      toast.error('API 예제를 선택해주세요.');
-      return;
-    }
-
-    const newApi: ApiItem = {
-      id: Date.now().toString(),
-      name: createApiForm.name,
-      description: createApiForm.description,
-      apiId: Math.random().toString(36).substring(2, 12),
-      protocol: 'REST',
-      endpointType: '지역',
-      createdDate: new Date().toISOString().split('T')[0],
-      selected: false,
-    };
-
-    setApis([...apis, newApi]);
-    setIsCreateModalOpen(false);
-    setCreateApiForm({
-      type: 'new',
-      name: '',
-      description: '',
-      sourceApiId: '',
-      swaggerContent: '',
-      selectedExample: '',
-    });
-    78;
-    setSwaggerFile(null);
-    toast.success(`API '${newApi.name}'이(가) 생성되었습니다.`);
-
-    // api 생성 요청이 성공했을 때
-    // const planId = newApi.apiId;
-    // const name = newApi.name;
-    // router.push(`/services/api-management/resources?apiId=${planId}&apiName=${name}`);
-  };
-
-  const handleModifyApi = () => {
-    if (!modifyApiForm.name.trim()) {
-      toast.error('API 이름을 입력해주세요.');
-      return;
-    }
-
-    const newApi: ApiItem = {
-      id: Date.now().toString(),
-      name: modifyApiForm.name,
-      description: modifyApiForm.description,
-      apiId: Math.random().toString(36).substring(2, 12),
-      protocol: 'REST',
-      endpointType: '지역',
-      createdDate: new Date().toISOString().split('T')[0],
-      selected: false,
-    };
-
-    setApis([...apis, newApi]);
-    setIsModifyModalOpen(false);
-    setModifyApiForm({ type: 'new', name: '', description: '' });
-    toast.success(`API '${newApi.name}'이(가) 수정되었습니다.`);
+    window.location.reload();
   };
 
   const handleApiClick = (api: Apis) => {
     // API 정보를 localStorage에 저장하고 사이드바에 설정
-    setSelectedApiInfo(api.name, api.planId);
-    // Navigate to API resource creation page
-    router.push(`/services/api-management/resources?apiId=${api.planId}&apiName=${api.name}`);
-  };
+    setSelectedApiInfo(api.name, api.apiId);
 
-  const handleDeleteApi = () => {
-    if (apiToDelete) {
-      toast.success(` '${apiToDelete.name} Api' 가 삭제되었습니다.`);
-      setApiToDelete(null);
-      setIsDeleteModalOpen(false);
-    }
+    setSelectedAPIId(api.apiId);
+    // Navigate to API resource creation page
+    router.push(`/services/api-management/resources?apiId=${api.apiId}&apiName=${api.name}`);
   };
 
   // 페이지네이션
@@ -320,7 +221,7 @@ export default function ApiManagementPage() {
                   {filteredPlans.length > 0 ? (
                     filteredPlans.map((plan) => (
                       <TableRow
-                        key={plan.id}
+                        key={plan.apiId}
                         onClick={() => handleApiClick(plan)}
                         className="hover:cursor-pointer">
                         <TableCell>
@@ -328,7 +229,7 @@ export default function ApiManagementPage() {
                             <span className="font-medium hover:cursor-pointer">{plan.name}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="font-mono text-sm">{plan.planId}</TableCell>
+                        <TableCell className="font-mono text-sm">{plan.apiId}</TableCell>
                         <TableCell className="max-w-xs truncate">{plan.description}</TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
@@ -339,7 +240,8 @@ export default function ApiManagementPage() {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
-                            <span>{plan.createdAt}</span>
+                            {/* <span>{plan.createdAt}</span> */}
+                            <span>{format(plan.createdAt, 'yyyy-MM-dd')}</span>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -350,6 +252,11 @@ export default function ApiManagementPage() {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setIsModifyModalOpen(true);
+                                setModifyApiForm((prev) => ({
+                                  ...prev,
+                                  name: plan.name,
+                                  description: plan.description,
+                                }));
                               }}>
                               <Settings className="h-4 w-4" />
                             </Button>
@@ -391,24 +298,26 @@ export default function ApiManagementPage() {
 
           {/* Create API Modal */}
           <ApiCreateModal
+            userId={userData?.userId}
+            userKey={userData?.userKey}
+            organizationId={userData?.organizationId}
             open={isCreateModalOpen}
             onOpenChange={setIsCreateModalOpen}
-            onSuccess={handleCreateApi}
           />
 
           {/* Modify API Plan */}
           <ApiModifyModal
             open={isModifyModalOpen}
             onOpenChange={setIsModifyModalOpen}
-            initialValue={{ name: modifyApiForm.name, description: modifyApiForm.description }}
-            onSuccess={handleModifyApi}
+            existingValue={modifyApiForm}
+            selectedAPIId={selectedAPIId}
+            userId={userData?.userId}
           />
 
           <ApiDeleteModal
             open={isMethodDeleteDialogOpen}
             onOpenChange={setIsDeleteModalOpen}
-            apiToDelete={apiToDelete}
-            handleDeleteApi={handleDeleteApi}
+            selectedAPIId={selectedAPIId}
           />
         </div>
       </AppLayout>

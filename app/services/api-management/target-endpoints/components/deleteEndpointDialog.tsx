@@ -1,4 +1,10 @@
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Trash2 } from 'lucide-react';
 import { TargetEndpoint } from '../page';
@@ -53,7 +59,10 @@ export default function DeleteEndpointDialog({
           <Button variant="outline" onClick={handleModalClose}>
             취소
           </Button>
-          <Button variant="destructive" onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
+          <Button
+            variant="destructive"
+            onClick={handleDeleteConfirm}
+            className="bg-red-600 hover:bg-red-700">
             <Trash2 className="h-4 w-4 mr-2" />
             삭제
           </Button>

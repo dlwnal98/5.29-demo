@@ -10,21 +10,27 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { AlertTriangle } from 'lucide-react';
-import type { Apis } from '../page';
+import { useDeleteAPI } from '@/hooks/use-apimanagement';
+import { toast } from 'sonner';
 
 interface DeleteMethodDialogProps {
+  selectedAPIId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  apiToDelete: Apis | null;
-  handleDeleteApi: () => void;
 }
 
-export function ApiDeleteModal({
-  open,
-  onOpenChange,
-  apiToDelete,
-  handleDeleteApi,
-}: DeleteMethodDialogProps) {
+export function ApiDeleteModal({ selectedAPIId, open, onOpenChange }: DeleteMethodDialogProps) {
+  const { mutate: deleteAPI } = useDeleteAPI({
+    onSuccess: () => {
+      toast.success('API가 삭제되었습니다.');
+      onOpenChange(false);
+    },
+  });
+
+  const handleDeleteApi = () => {
+    deleteAPI(selectedAPIId);
+  };
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -40,7 +46,7 @@ export function ApiDeleteModal({
                   🚨 위험: 이 작업은 되돌릴 수 없습니다!
                 </p>
                 <p className="text-red-700 text-sm">
-                  Api <strong>{apiToDelete?.name}</strong>를 영구적으로 삭제합니다.
+                  Api <strong>해당 API</strong>를 영구적으로 삭제합니다.
                 </p>
               </div>
               <div className="text-sm text-red-600 space-y-1">
@@ -60,11 +66,15 @@ export function ApiDeleteModal({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>취소</AlertDialogCancel>
+          <AlertDialogCancel
+            onClick={() => {
+              onOpenChange(false);
+            }}>
+            취소
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDeleteApi}
-            className="bg-red-600 hover:bg-red-700 text-white"
-          >
+            className="bg-red-600 hover:bg-red-700 text-white">
             삭제하기
           </AlertDialogAction>
         </AlertDialogFooter>

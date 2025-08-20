@@ -13,12 +13,20 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Plus, Search, Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import CreateEndpointDialog from './components/createEndpointDialog';
 import ModifyEndpointDialog from './components/modifyEndpointDialog';
 import DeleteEndpointDialog from './components/deleteEndpointDialog';
+import { useGetEndpointsList } from '@/hooks/use-endpoints';
 
 export interface TargetEndpoint {
   id: string;

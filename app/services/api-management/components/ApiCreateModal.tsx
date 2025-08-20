@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import {
   Select,
   SelectTrigger,
@@ -23,14 +23,18 @@ import {
 import { Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { sampleApiData } from '@/constants/sample-api-data';
+import { useCloneCreateAPI, useCreateAPI } from '@/hooks/use-apimanagement';
 
 // 예시 API 목록 (실제 환경에서는 props로 받아도 됨)
-const mockApiPlans = [
+const cloneApiList = [
   { id: '1', name: 'Sample API 1', planId: 'plan-1', description: '샘플 API 1' },
   { id: '2', name: 'Sample API 2', planId: 'plan-2', description: '샘플 API 2' },
 ];
 
 interface ApiCreateModalProps {
+  userId?: string;
+  userKey?: string;
+  organizationId?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: (newApi: any) => void;
@@ -45,7 +49,14 @@ const initialForm = {
   selectedExample: '',
 };
 
-const ApiCreateModal = ({ open, onOpenChange, onSuccess }: ApiCreateModalProps) => {
+const ApiCreateModal = ({
+  userId,
+  userKey,
+  organizationId,
+  open,
+  onOpenChange,
+  onSuccess,
+}: ApiCreateModalProps) => {
   const [createApiForm, setCreateApiForm] = useState({ ...initialForm });
   const [swaggerFile, setSwaggerFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -96,25 +107,65 @@ const ApiCreateModal = ({ open, onOpenChange, onSuccess }: ApiCreateModalProps) 
     }
   };
 
+  // API 직접입력 생성
+  const { mutate: createAPI } = useCreateAPI({
+    onSuccess: () => {
+      onOpenChange(false);
+      setCreateApiForm({ ...initialForm });
+      setSwaggerFile(null);
+      toast.success(`API '${createApiForm.name}'이(가) 생성되었습니다.`);
+    },
+  });
+
+  //API 복제 생성
+  const { mutate: cloneCreateAPI } = useCloneCreateAPI({
+    onSuccess: () => {
+      onOpenChange(false);
+      setCreateApiForm({ ...initialForm });
+      setSwaggerFile(null);
+      toast.success(`API '${createApiForm.name}'이(가) 생성되었습니다.`);
+    },
+  });
+
   // 생성 버튼 클릭
   const handleCreateApi = () => {
     if (!createApiForm.name.trim()) {
       toast.error('API 이름을 입력해주세요.');
       return;
     }
-    if (createApiForm.type === 'copy' && !createApiForm.sourceApiId) {
-      toast.error('복사할 API를 선택해주세요.');
-      return;
+
+    if (createApiForm.type === 'copy') {
+      if (!createApiForm.sourceApiId) {
+        toast.error('복사할 API를 선택해주세요.');
+        return;
+      } else {
+        cloneCreateAPI({
+          apiId: createApiForm.sourceApiId,
+          targetOrganizationId: organizationId || '',
+          newName: createApiForm.name,
+        });
+      }
+    } else {
+      createAPI({
+        organizationId: organizationId || '',
+        ownerUserKey: userKey || '',
+        name: createApiForm.name,
+        description: createApiForm.description,
+        createdBy: userId || '',
+      });
     }
+
     if (createApiForm.type === 'swagger' && !createApiForm.swaggerContent.trim()) {
       toast.error('Swagger 내용을 입력하거나 파일을 업로드해주세요.');
       return;
     }
+  };
 
+  // 취소 버튼 클릭
+  const handleCancel = () => {
     onOpenChange(false);
     setCreateApiForm({ ...initialForm });
     setSwaggerFile(null);
-    toast.success(`API '${createApiForm.name}'이(가) 생성되었습니다.`);
   };
 
   // 타입별 입력 UI
@@ -130,14 +181,17 @@ const ApiCreateModal = ({ open, onOpenChange, onSuccess }: ApiCreateModalProps) 
               <Select
                 value={createApiForm.sourceApiId}
                 onValueChange={(value) =>
-                  setCreateApiForm((prev) => ({ ...prev, sourceApiId: value }))
-                }
-              >
+                  setCreateApiForm((prev) => ({
+                    ...prev,
+                    sourceApiId: value,
+                    name: createApiForm.name,
+                  }))
+                }>
                 <SelectTrigger>
                   <SelectValue placeholder="복사할 API를 선택하세요" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockApiPlans.map((api) => (
+                  {cloneApiList.map((api) => (
                     <SelectItem key={api.id} value={api.id}>
                       <div className="flex flex-col">
                         <span className="font-medium">{api.name}</span>
@@ -169,12 +223,10 @@ const ApiCreateModal = ({ open, onOpenChange, onSuccess }: ApiCreateModalProps) 
                     }`}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                  >
+                    onDrop={handleDrop}>
                     <label
                       htmlFor="swagger-upload"
-                      className="flex flex-col items-center space-y-3 w-full h-full cursor-pointer mb-2 text-blue-600 p-8 "
-                    >
+                      className="flex flex-col items-center space-y-3 w-full h-full cursor-pointer mb-2 text-blue-600 p-8 ">
                       <Upload className="h-8 w-8 text-blue-600 mx-auto" />
                       <p className="text-gray-600">
                         파일을 여기로 드래그하거나 클릭하여 업로드하세요
@@ -185,8 +237,7 @@ const ApiCreateModal = ({ open, onOpenChange, onSuccess }: ApiCreateModalProps) 
                   <div className="flex items-center">
                     <label
                       htmlFor="swagger-upload"
-                      className="flex items-center text-[12px] font-medium cursor-pointer text-blue-600 hover:text-blue-700 px-4 py-2 border border-blue-300 rounded-md hover:bg-blue-50 transition-colors"
-                    >
+                      className="flex items-center text-[12px] font-medium cursor-pointer text-blue-600 hover:text-blue-700 px-4 py-2 border border-blue-300 rounded-md hover:bg-blue-50 transition-colors">
                       <Upload className="h-4 w-4 text-blue-600 mx-auto mr-2" /> 파일 선택
                     </label>
                     <p className="ml-3 text-sm text-green-600 font-medium">
@@ -276,14 +327,12 @@ const ApiCreateModal = ({ open, onOpenChange, onSuccess }: ApiCreateModalProps) 
                 }));
                 setSwaggerFile(null);
               }}
-              className="grid grid-cols-2 gap-4"
-            >
+              className="grid grid-cols-2 gap-4">
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="new" id="new" />
                 <Label
                   htmlFor="new"
-                  className="text-sm font-medium text-blue-600 hover:cursor-pointer"
-                >
+                  className="text-sm font-medium text-blue-600 hover:cursor-pointer">
                   새로운 API
                 </Label>
               </div>
@@ -339,18 +388,11 @@ const ApiCreateModal = ({ open, onOpenChange, onSuccess }: ApiCreateModalProps) 
               {createApiForm.description.length}/300 자
             </div>
           </div>
-          {/* 타입별 입력 */}
+          {/* 타입별 추가 입력 */}
           {renderCreateApiContent()}
         </div>
         <DialogFooter className="gap-2">
-          <Button
-            variant="outline"
-            onClick={() => {
-              onOpenChange(false);
-              setCreateApiForm({ ...initialForm });
-              setSwaggerFile(null);
-            }}
-          >
+          <Button variant="outline" onClick={handleCancel}>
             취소
           </Button>
           <Button onClick={handleCreateApi} className="bg-blue-500 hover:bg-blue-600 text-white">

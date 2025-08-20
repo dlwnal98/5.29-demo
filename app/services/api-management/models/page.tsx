@@ -407,8 +407,7 @@ export default function ModelsPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => copySchema(modelForm.schema)}
-                className="h-7 px-2"
-              >
+                className="h-7 px-2">
                 <Copy className="h-3 w-3" />
               </Button>
             </div>
@@ -476,27 +475,11 @@ export default function ModelsPage() {
           </div>
           <div className="flex items-center space-x-2">
             <Button
-              variant="outline"
-              // className={`${
-              //   selectedModels.length > 0
-              //     ? 'text-red-600 border-red-600 hover:bg-red-50'
-              //     : 'text-gray-400 border-gray-300 cursor-not-allowed'
-              // } bg-transparent`}
-              className={
-                'text-red-600 border-red-600 bg-red-50 hover:text-white hover:border-red-300 hover:bg-red-500'
-              }
-              // disabled={selectedModels.length === 0}
-              onClick={handleDeleteSelected}
-            >
-              삭제
-            </Button>
-            <Button
               onClick={() => {
                 resetForm();
                 setIsCreateModalOpen(true);
               }}
-              className="bg-orange-500 hover:bg-orange-600 text-white"
-            >
+              className="bg-orange-500 hover:bg-orange-600 text-white">
               <Plus className="h-4 w-4 mr-2" />
               모델 생성
             </Button>
@@ -510,14 +493,6 @@ export default function ModelsPage() {
             <Table>
               <TableHeader className="hover:bg-white">
                 <TableRow className="hover:bg-white">
-                  <TableHead className="w-12">
-                    <input
-                      type="checkbox"
-                      className="rounded hover:cursor-pointer"
-                      checked={isAllSelected}
-                      onChange={handleSelectAll}
-                    />
-                  </TableHead>
                   <TableHead>이름</TableHead>
                   <TableHead>콘텐츠 유형</TableHead>
                   <TableHead>설명</TableHead>
@@ -538,17 +513,7 @@ export default function ModelsPage() {
                               ? 'bg-gray-50 hover:cursor-pointer'
                               : ' hover:bg-blue-50 hover:cursor-pointer'
                         }`}
-                        onClick={() => handleModelClick(model)}
-                      >
-                        <TableCell>
-                          <input
-                            type="checkbox"
-                            className="rounded hover:cursor-pointer"
-                            checked={selectedModels.includes(model.id)}
-                            onChange={() => handleSelectModel(model.id)}
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        </TableCell>
+                        onClick={() => handleModelClick(model)}>
                         <TableCell>
                           <span className="font-medium text-blue-600">{model.name}</span>
                         </TableCell>
@@ -569,8 +534,7 @@ export default function ModelsPage() {
                                 e.stopPropagation();
                                 openEditModal(model);
                               }}
-                              className="h-8 w-8 p-0"
-                            >
+                              className="h-8 w-8 p-0">
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button
@@ -580,8 +544,7 @@ export default function ModelsPage() {
                                 e.stopPropagation();
                                 openDeleteModal(model);
                               }}
-                              className="h-8 w-8 p-0 text-red-600 bg-white hover:text-red-700 hover:bg-red-50 border-red-200"
-                            >
+                              className="h-8 w-8 p-0 text-red-600 bg-white hover:text-red-700 hover:bg-red-50 border-red-200">
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
@@ -591,8 +554,7 @@ export default function ModelsPage() {
                             variant="ghost"
                             size="sm"
                             // onClick={() => handleModelClick(model)}
-                            className="h-8 w-8 p-0"
-                          >
+                            className="h-8 w-8 p-0">
                             {expandedModel === model.id ? (
                               <ChevronDown className="h-4 w-4 text-gray-400" />
                             ) : (
@@ -604,8 +566,7 @@ export default function ModelsPage() {
 
                       {/* Expanded Model Details */}
                       <TableRow
-                        className={`${expandedModel === model.id ? 'table-row' : 'hidden'}`}
-                      >
+                        className={`${expandedModel === model.id ? 'table-row' : 'hidden'}`}>
                         <TableCell colSpan={6} className="p-0">
                           <Collapsible open={expandedModel === model.id}>
                             <CollapsibleContent className="transition-all duration-300 ease-in-out">
@@ -631,8 +592,7 @@ export default function ModelsPage() {
                                       <div className="mt-1">
                                         <Badge
                                           variant="outline"
-                                          className="font-mono text-xs bg-white"
-                                        >
+                                          className="font-mono text-xs bg-white">
                                           {model.contentType}
                                         </Badge>
                                       </div>
@@ -658,8 +618,7 @@ export default function ModelsPage() {
                                       variant="ghost"
                                       size="sm"
                                       onClick={() => copySchema(model.schema)}
-                                      className="h-7 px-2"
-                                    >
+                                      className="h-7 px-2">
                                       <Copy className="h-3 w-3 mr-1" />
                                       복사
                                     </Button>
@@ -737,14 +696,12 @@ export default function ModelsPage() {
                 onClick={() => {
                   setIsCreateModalOpen(false);
                   resetForm();
-                }}
-              >
+                }}>
                 취소
               </Button>
               <Button
                 onClick={handleCreateModel}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
-              >
+                className="bg-blue-500 hover:bg-blue-600 text-white">
                 생성
               </Button>
             </DialogFooter>
@@ -771,14 +728,12 @@ export default function ModelsPage() {
                   setIsEditModalOpen(false);
                   setSelectedModel(null);
                   resetForm();
-                }}
-              >
+                }}>
                 취소
               </Button>
               <Button
                 onClick={handleEditModel}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
-              >
+                className="bg-blue-500 hover:bg-blue-600 text-white">
                 수정
               </Button>
             </DialogFooter>
@@ -827,15 +782,13 @@ export default function ModelsPage() {
                 onClick={() => {
                   setIsDeleteModalOpen(false);
                   setModelToDelete(null);
-                }}
-              >
+                }}>
                 취소
               </Button>
               <Button
                 variant="destructive"
                 onClick={selectedModels.length > 1 ? confirmDeleteSelected : handleDeleteModel}
-                className="bg-red-600 hover:bg-red-700"
-              >
+                className="bg-red-600 hover:bg-red-700">
                 <Trash2 className="h-4 w-4 mr-2" />
                 삭제
               </Button>

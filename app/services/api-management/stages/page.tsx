@@ -574,21 +574,19 @@ export default function StagesPage() {
     return (
       <div key={resource.id}>
         <div
-          className={`flex items-center gap-2 py-1 px-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-sm ${
+          className={`flex items-center gap-2 py-1 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-sm ${
             selectedResource.resource.id === resource.id
               ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
               : ''
           }`}
-          style={{ paddingLeft: `${level * 16 + 8}px` }}
-          onClick={() => handleResourceClick(resource, isStage ? 'stage' : 'resource')}
-        >
+          style={{ paddingLeft: `${level * 8 + 8}px` }}
+          onClick={() => handleResourceClick(resource, isStage ? 'stage' : 'resource')}>
           {hasChildren && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 toggleExpanded(resource, parentPath);
-              }}
-            >
+              }}>
               {isExpanded ? (
                 <SquareMinus className="h-3 w-3 text-blue-500" />
               ) : (
@@ -599,8 +597,7 @@ export default function StagesPage() {
           {!hasChildren && <div className="w-3" />}
 
           <span
-            className={`font-medium ${isStage ? 'text-blue-600' : 'text-gray-700 dark:text-gray-300'}`}
-          >
+            className={`font-medium ${isStage ? 'text-blue-600' : 'text-gray-700 dark:text-gray-300'}`}>
             {resource.name}
           </span>
         </div>
@@ -616,9 +613,8 @@ export default function StagesPage() {
                     ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
                     : 'text-gray-600 dark:text-gray-400'
                 }`}
-                style={{ paddingLeft: `${(level + 1) * 16 + 8}px` }}
-                onClick={() => handleMethodClick(method, resource)}
-              >
+                style={{ paddingLeft: `${level * 8 + 8}px` }}
+                onClick={() => handleMethodClick(method, resource)}>
                 <div className="w-3" />
                 <span
                   className={`font-mono text-xs px-1.5 py-0.5 rounded ${
@@ -631,8 +627,7 @@ export default function StagesPage() {
                           : method.type === 'DELETE'
                             ? 'bg-red-100 text-red-800'
                             : 'bg-gray-100 text-gray-800'
-                  }`}
-                >
+                  }`}>
                   {method.type}
                 </span>
               </div>
@@ -668,8 +663,7 @@ export default function StagesPage() {
                           : method.type === 'DELETE'
                             ? 'bg-red-100 text-red-800'
                             : 'bg-gray-100 text-gray-800'
-                  }`}
-                >
+                  }`}>
                   {method.type}
                 </span>
                 <span className="text-sm text-gray-600">{method.description}</span>
@@ -757,8 +751,7 @@ export default function StagesPage() {
           <div className="flex items-center gap-3">
             <Button
               className="bg-orange-500 hover:bg-orange-600 text-white"
-              onClick={() => setIsCreateStageModalOpen(true)}
-            >
+              onClick={() => setIsCreateStageModalOpen(true)}>
               스테이지 생성
             </Button>
           </div>
@@ -794,8 +787,7 @@ export default function StagesPage() {
                                   : selectedMethod.method.type === 'DELETE'
                                     ? 'bg-red-100 text-red-800'
                                     : 'bg-gray-100 text-gray-800'
-                          }`}
-                        >
+                          }`}>
                           {selectedMethod.method.type}
                         </span>
                         {selectedMethod.method.path} - 메서드 상세
@@ -822,8 +814,7 @@ export default function StagesPage() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleCopyMethodUrl(selectedMethod.url)}
-                        >
+                          onClick={() => handleCopyMethodUrl(selectedMethod.url)}>
                           <Copy className="h-4 w-4" />
                         </Button>
                       </div>
@@ -848,8 +839,9 @@ export default function StagesPage() {
                               <div
                                 key={method.id}
                                 className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
-                                onClick={() => handleMethodClick(method, selectedResource.resource)}
-                              >
+                                onClick={() =>
+                                  handleMethodClick(method, selectedResource.resource)
+                                }>
                                 <div className="flex items-center gap-3">
                                   <span
                                     className={`px-2 py-1 rounded text-sm font-mono ${
@@ -862,8 +854,7 @@ export default function StagesPage() {
                                             : method.type === 'DELETE'
                                               ? 'bg-red-100 text-red-800'
                                               : 'bg-gray-100 text-gray-800'
-                                    }`}
-                                  >
+                                    }`}>
                                     {method.type}
                                   </span>
                                   <div>
@@ -902,8 +893,7 @@ export default function StagesPage() {
                           size="sm"
                           onClick={() => setIsEditModalOpen(true)}
                           className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 border-gray-200"
-                          title="스테이지 수정"
-                        >
+                          title="스테이지 수정">
                           <Settings className="h-4 w-4" />
                         </Button>
                         <Button
@@ -911,8 +901,7 @@ export default function StagesPage() {
                           size="sm"
                           onClick={handleExportApi}
                           className="text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200 bg-transparent"
-                          title="API 내보내기"
-                        >
+                          title="API 내보내기">
                           <Download className="h-4 w-4 " />
                         </Button>
                         <Button
@@ -920,8 +909,7 @@ export default function StagesPage() {
                           size="sm"
                           onClick={() => setIsDeleteStageDialogOpen(true)}
                           className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-                          title="스테이지 삭제"
-                        >
+                          title="스테이지 삭제">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -952,8 +940,7 @@ export default function StagesPage() {
                         <div className="mt-1 flex items-center gap-2">
                           <button
                             onClick={handleCopyUrl}
-                            className="text-blue-600 hover:text-blue-700 text-sm font-mono flex items-center gap-1"
-                          >
+                            className="text-blue-600 hover:text-blue-700 text-sm font-mono flex items-center gap-1">
                             {selectedStage.url}
                             <Copy className="h-3 w-3" />
                           </button>
@@ -973,8 +960,7 @@ export default function StagesPage() {
                     </h2>
                     <Button
                       onClick={handleActiveDeploymentChange}
-                      className="bg-blue-500 hover:bg-blue-600 text-white"
-                    >
+                      className="bg-blue-500 hover:bg-blue-600 text-white">
                       활성 배포 변경
                     </Button>
                   </div>
@@ -1020,15 +1006,13 @@ export default function StagesPage() {
                       <Collapsible
                         key={deployment.id}
                         open={expandedDeployments.has(deployment.id)}
-                        onOpenChange={() => toggleDeploymentExpansion(deployment.id)}
-                      >
+                        onOpenChange={() => toggleDeploymentExpansion(deployment.id)}>
                         <div
                           className={
                             selectedDeployment === deployment.id
                               ? 'grid grid-cols-12 gap-4 py-3 px-3  cursor-pointer bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500'
                               : 'grid grid-cols-12 gap-4 py-3 px-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer'
-                          }
-                        >
+                          }>
                           <div className="col-span-1 flex items-center">
                             <input
                               type="radio"
@@ -1113,8 +1097,7 @@ export default function StagesPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                        disabled={currentPage === 1}
-                      >
+                        disabled={currentPage === 1}>
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
                       <span className="text-sm font-medium">{currentPage}</span>
@@ -1122,8 +1105,7 @@ export default function StagesPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                        disabled={currentPage === totalPages}
-                      >
+                        disabled={currentPage === totalPages}>
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </div>
@@ -1181,8 +1163,7 @@ export default function StagesPage() {
               </Button>
               <Button
                 onClick={confirmActiveDeploymentChange}
-                className="bg-orange-500 hover:bg-orange-600 text-white"
-              >
+                className="bg-orange-500 hover:bg-orange-600 text-white">
                 활성 배포 변경
               </Button>
             </DialogFooter>
@@ -1206,8 +1187,7 @@ export default function StagesPage() {
                 <div>
                   <Label
                     htmlFor="stage-name"
-                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >
+                    className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     스테이지 이름
                   </Label>
                   <Input
@@ -1221,8 +1201,7 @@ export default function StagesPage() {
                 <div>
                   <Label
                     htmlFor="stage-description"
-                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >
+                    className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     스테이지 설명 - <span className="text-gray-500">선택 사항</span>
                   </Label>
                   <Textarea
@@ -1259,8 +1238,7 @@ export default function StagesPage() {
               <div>
                 <Label
                   htmlFor="create-stage-name"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   스테이지 이름 *
                 </Label>
                 <Input
@@ -1279,8 +1257,7 @@ export default function StagesPage() {
               <div>
                 <Label
                   htmlFor="create-stage-description"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   스테이지 설명
                 </Label>
                 <Textarea
@@ -1306,8 +1283,7 @@ export default function StagesPage() {
                 <div>
                   <Select
                     value={selectedDeploymentRecord}
-                    onValueChange={setSelectedDeploymentRecord}
-                  >
+                    onValueChange={setSelectedDeploymentRecord}>
                     <SelectTrigger className="mt-2">
                       <SelectValue placeholder="배포 기록을 선택하세요" />
                     </SelectTrigger>
@@ -1336,14 +1312,12 @@ export default function StagesPage() {
                 onClick={() => {
                   setIsCreateStageModalOpen(false);
                   setCreateStageForm({ name: '', description: '' });
-                }}
-              >
+                }}>
                 취소
               </Button>
               <Button
                 onClick={handleCreateStage}
-                className="bg-orange-500 hover:bg-orange-600 text-white"
-              >
+                className="bg-orange-500 hover:bg-orange-600 text-white">
                 생성
               </Button>
             </DialogFooter>
@@ -1396,8 +1370,7 @@ export default function StagesPage() {
               </Button>
               <Button
                 onClick={handleRollbackConfirm}
-                className="bg-orange-500 hover:bg-orange-600 text-white"
-              >
+                className="bg-orange-500 hover:bg-orange-600 text-white">
                 활성 배포 변경
               </Button>
             </DialogFooter>
@@ -1434,8 +1407,7 @@ export default function StagesPage() {
               <AlertDialogCancel>취소</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDeleteStage}
-                className="bg-red-600 hover:bg-red-700 text-white"
-              >
+                className="bg-red-600 hover:bg-red-700 text-white">
                 삭제하기
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -1445,8 +1417,7 @@ export default function StagesPage() {
         {/* Revoke Deployment Confirmation Dialog */}
         <AlertDialog
           open={isRevokeDeploymentDialogOpen}
-          onOpenChange={setIsRevokeDeploymentDialogOpen}
-        >
+          onOpenChange={setIsRevokeDeploymentDialogOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle className="flex items-center gap-2 text-orange-600">
@@ -1473,8 +1444,7 @@ export default function StagesPage() {
               <AlertDialogCancel>취소</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleRevokeDeployment}
-                className="bg-orange-600 hover:bg-orange-700 text-white"
-              >
+                className="bg-orange-600 hover:bg-orange-700 text-white">
                 회수하기
               </AlertDialogAction>
             </AlertDialogFooter>

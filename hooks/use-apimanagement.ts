@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
+import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
 import { requestDelete, requestGet, requestPost, requestPut } from '@/lib/apiClient';
 
-interface APIListProp {
+interface APIListData {
   apiId: string;
   name: string;
   description: string;
@@ -25,10 +25,10 @@ const getAPIList = async (organizationId: string, page?: number, size?: number) 
   }
 };
 
-export function useGetAPIList(organizationId: string) {
-  return useQuery<APIListProp[]>({
+export function useGetAPIList(organizationId: string, page?: number, size?: number) {
+  return useQuery<APIListData[]>({
     queryKey: ['getAPIList', organizationId],
-    queryFn: () => getAPIList(organizationId),
+    queryFn: () => getAPIList(organizationId, page, size),
     enabled: !!organizationId, // 조건적 실행
     staleTime: Infinity,
     refetchOnWindowFocus: false,
@@ -37,49 +37,46 @@ export function useGetAPIList(organizationId: string) {
   });
 }
 
-//api 키 생성 + 실시간 목록 생성
-const createAPI = async (
-  organizationId: string,
-  ownerUserKey: string,
-  name: string,
-  description: string,
-  createdBy: string
-) => {
-  const { data } = await axios.post(`/api/v1/plans`, {
-    organizationId,
-    ownerUserKey,
-    name,
-    description,
-    createdBy,
-  });
+interface CreateAPIProps {
+  organizationId: string;
+  ownerUserKey: string;
+  name: string;
+  description: string;
+  createdBy: string;
+}
 
-  return data;
+//api 키 생성 + 실시간 목록 생성
+const createAPI = async (data: CreateAPIProps) => {
+  const res = await requestPost(`/api/v1/plans`, data);
+
+  if (res.code == 200) {
+    return res.data;
+  }
 };
 
-export function useCreateAPI() {
+export function useCreateAPI(options?: UseMutationOptions<any, Error, CreateAPIProps>) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      organizationId,
-      ownerUserKey,
-      name,
-      description,
-      createdBy,
-    }: {
-      organizationId: string;
-      ownerUserKey: string;
-      name: string;
-      description: string;
-      createdBy: string;
-    }) => createAPI(organizationId, ownerUserKey, name, description, createdBy),
-    onSuccess: () => {
+    ...options,
+
+    mutationFn: (data: CreateAPIProps) => createAPI(data),
+    onSuccess: (data, variables, context) => {
       //   브랜치 생성 성공 시 목록 invalidate
       queryClient.invalidateQueries({
         queryKey: ['getAPIList'],
       });
+
+      // 외부 onSuccess 실행
+      options?.onSuccess?.(data, variables, context);
     },
   });
+}
+
+interface CloneCreateAPIProps {
+  apiId: string;
+  targetOrganizationId: string;
+  newName: string;
 }
 
 //api 복제하여 생성 + 실시간 목록 생성
@@ -93,70 +90,57 @@ const cloneCreateAPI = async (apiId: string, targetOrganizationId: string, newNa
   }
 };
 
-export function useCloneCreateAPI() {
+export function useCloneCreateAPI(options?: UseMutationOptions<any, Error, CloneCreateAPIProps>) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      apiId,
-      targetOrganizationId,
-      newName,
-    }: {
-      apiId: string;
-      targetOrganizationId: string;
-      newName: string;
-    }) => cloneCreateAPI(apiId, targetOrganizationId, newName),
-    onSuccess: () => {
+    ...options,
+    mutationFn: ({ apiId, targetOrganizationId, newName }: CloneCreateAPIProps) =>
+      cloneCreateAPI(apiId, targetOrganizationId, newName),
+    onSuccess: (data, variables, context) => {
       //   브랜치 생성 성공 시 목록 invalidate
       queryClient.invalidateQueries({
         queryKey: ['getAPIList'],
       });
+
+      // 외부 onSuccess 실행
+      options?.onSuccess?.(data, variables, context);
     },
   });
 }
 
+interface ModifyAPIProps {
+  name: string;
+  description: string;
+  enabled: boolean;
+  updatedBy: string;
+}
+
 //api 키 수정 + 실시간 목록 생성
-const modifyAPI = async (
-  apiId: string,
-  name: string,
-  description: string,
-  enabled: boolean,
-  updatedBy: string
-) => {
-  const res = await requestPut(`/api/v1/plans/${apiId}`, {
-    name,
-    description,
-    enabled,
-    updatedBy,
-  });
+const modifyAPI = async (apiId: string, data: ModifyAPIProps) => {
+  const res = await requestPut(`/api/v1/plans/${apiId}`, data);
 
   if (res.code == 200) {
     return res.data;
   }
 };
 
-export function useModifyAPI() {
+export function useModifyAPI(
+  options?: UseMutationOptions<any, Error, { apiId: string; data: ModifyAPIProps }>
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      apiId,
-      name,
-      description,
-      enabled,
-      updatedBy,
-    }: {
-      apiId: string;
-      name: string;
-      description: string;
-      enabled: boolean;
-      updatedBy: string;
-    }) => modifyAPI(apiId, name, description, enabled, updatedBy),
-    onSuccess: () => {
+    ...options,
+    mutationFn: ({ apiId, data }: { apiId: string; data: ModifyAPIProps }) =>
+      modifyAPI(apiId, data),
+    onSuccess: (data, variables, context) => {
       //   브랜치 생성 성공 시 목록 invalidate
       queryClient.invalidateQueries({
         queryKey: ['getAPIList'],
       });
+
+      options?.onSuccess?.(data, variables, context);
     },
   });
 }
@@ -170,16 +154,19 @@ const deleteAPI = async (apiId: string) => {
   }
 };
 
-export function useDeleteAPI() {
+export function useDeleteAPI(options?: UseMutationOptions<any, Error, string>) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ apiId }: { apiId: string }) => deleteAPI(apiId),
-    onSuccess: () => {
+    ...options,
+    mutationFn: (apiId: string) => deleteAPI(apiId),
+    onSuccess: (data, variables, context) => {
       //   브랜치 생성 성공 시 목록 invalidate
       queryClient.invalidateQueries({
         queryKey: ['getAPIList'],
       });
+
+      options?.onSuccess?.(data, variables, context);
     },
   });
 }

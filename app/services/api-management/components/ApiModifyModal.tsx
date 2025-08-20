@@ -11,44 +11,58 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
+import { useModifyAPI } from '@/hooks/use-apimanagement';
 
 interface ApiModifyModalProps {
+  userId: string;
+  selectedAPIId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  initialValue?: { name: string; description: string };
+  existingValue?: { name: string; description: string };
   onSuccess?: (modifiedApi: any) => void;
 }
 
 const initialForm = { name: '', description: '' };
 
-const ApiModifyModal = ({ open, onOpenChange, initialValue, onSuccess }: ApiModifyModalProps) => {
-  const [form, setForm] = useState(initialForm);
+const ApiModifyModal = ({
+  userId,
+  selectedAPIId,
+  open,
+  onOpenChange,
+  existingValue,
+  onSuccess,
+}: ApiModifyModalProps) => {
+  const [form, setForm] = useState(existingValue || initialForm);
+
+  const { mutate: modifyAPI } = useModifyAPI({
+    onSuccess: () => {
+      onOpenChange(false);
+      setForm(existingValue || initialForm);
+      toast.success(`API '${form.name}'이(가) 수정되었습니다.`);
+    },
+  });
 
   useEffect(() => {
     if (open) {
-      setForm(initialValue || initialForm);
+      setForm(existingValue || initialForm);
     }
-  }, [open, initialValue]);
+  }, [open, existingValue]);
 
   const handleModify = () => {
     if (!form.name.trim()) {
       toast.error('API 이름을 입력해주세요.');
       return;
     }
-    const modifiedApi = {
-      id: Date.now().toString(),
-      name: form.name,
-      description: form.description,
-      apiId: Math.random().toString(36).substring(2, 12),
-      protocol: 'REST',
-      endpointType: '지역',
-      createdDate: new Date().toISOString().split('T')[0],
-      selected: false,
-    };
-    if (onSuccess) onSuccess(modifiedApi);
-    onOpenChange(false);
-    setForm(initialForm);
-    toast.success(`API '${form.name}'이(가) 수정되었습니다.`);
+
+    modifyAPI({
+      apiId: selectedAPIId,
+      data: {
+        name: form.name,
+        description: form.description,
+        enabled: true,
+        updatedBy: userId,
+      },
+    });
   };
 
   return (
@@ -94,9 +108,8 @@ const ApiModifyModal = ({ open, onOpenChange, initialValue, onSuccess }: ApiModi
             variant="outline"
             onClick={() => {
               onOpenChange(false);
-              setForm(initialForm);
-            }}
-          >
+              setForm(existingValue || initialForm);
+            }}>
             취소
           </Button>
           <Button onClick={handleModify} className="bg-blue-500 hover:bg-blue-600 text-white">
