@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -10,23 +10,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { X, Globe } from 'lucide-react';
-import type { CorsSettings, Resource } from '@/types/resource';
+import { Globe } from 'lucide-react';
+import type { Resource } from '@/types/resource';
+import { useModifyResourceCorsSettings } from '@/hooks/use-resources';
+import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from 'sonner';
 
 interface CorsSettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  corsForm: CorsSettings;
-  setCorsForm: (form: CorsSettings) => void;
+  // corsForm: CorsSettings;
+  // setCorsForm: (form: CorsSettings) => void;
   handleCorsUpdate: () => void;
+  resourceId: string;
   httpMethods: string[];
   addCorsMethod: (method: string) => void;
   removeCorsMethod: (method: string) => void;
@@ -37,9 +33,10 @@ interface CorsSettingsDialogProps {
 export function CorsSettingsDialog({
   open,
   onOpenChange,
-  corsForm,
-  setCorsForm,
+  // corsForm,
+  // setCorsForm,
   handleCorsUpdate,
+  resourceId,
   httpMethods,
   addCorsMethod,
   removeCorsMethod,
@@ -47,6 +44,36 @@ export function CorsSettingsDialog({
   setSelectedResource,
 }: CorsSettingsDialogProps) {
   const availableResourcePaths = ['/', '/api', '/users', '/products', '/orders'];
+
+  const [corsForm, setCorsForm] = useState({
+    allowMethods: [],
+    allowHeaders: '',
+    allowOrigin: '',
+    exposeHeaders: '',
+    maxAge: '',
+    allowCredentials: false,
+  });
+
+  console.log(corsForm, selectedResource);
+
+  const { mutate: modifyCORSMutate } = useModifyResourceCorsSettings({
+    onSuccess: () => {
+      toast.success('리소스의 CORS 설정이 변경되었습니다.');
+      onOpenChange(false);
+    },
+  });
+
+  const modifyCORSSettings = () => {
+    modifyCORSMutate({
+      resourceId: resourceId,
+      enableCors: selectedResource.corsEnabled,
+      data: {
+        allowedOrigins: selectedResource.corsSettings.allowOrigin,
+        allowedHeaders: selectedResource.corsSettings.allowHeaders,
+        exposedHeaders: selectedResource.corsSettings.exposeHeaders,
+      },
+    });
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -57,40 +84,6 @@ export function CorsSettingsDialog({
             CORS 활성화 설정
           </DialogTitle>
         </DialogHeader>
-
-        {/* <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="resource-path" className="text-sm font-medium text-gray-700 mb-2 block">
-              리소스 경로
-            </Label>
-            <Select
-              value={selectedResource.path}
-              onValueChange={(value) => setSelectedResource({ ...selectedResource, path: value })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="경로를 선택하세요" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableResourcePaths.map((path) => (
-                  <SelectItem key={path} value={path}>
-                    {path}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="resource-name" className="text-sm font-medium text-gray-700 mb-2 block">
-              리소스 이름
-            </Label>
-            <Input
-              id="resource-name"
-              placeholder="my-resource"
-              value={selectedResource.name}
-              onChange={(e) => setSelectedResource({ ...selectedResource, name: e.target.value })}
-            />
-          </div>
-        </div> */}
 
         {/* CORS Toggle */}
         <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
@@ -122,50 +115,22 @@ export function CorsSettingsDialog({
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Access-Control-Allow-Method
                 </Label>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {corsForm.allowMethods.map((method) => (
-                    <Badge
-                      key={method}
-                      className={`$ {
-                    method === 'GET'
-                      ? 'bg-green-100 text-green-800 hover:bg-green-100'
-                      : method === 'POST'
-                        ? 'bg-blue-100 text-blue-800 hover:bg-blue-100'
-                        : method === 'HEAD'
-                          ? 'bg-purple-100 text-purple-800 hover:bg-purple-100'
-                          : 'bg-gray-100 text-gray-800 hover:bg-gray-100'
-                  } cursor-pointer`}
-                      onClick={() => removeCorsMethod(method)}>
-                      {method}
-                      <X className="h-3 w-3 ml-1" />
-                    </Badge>
+                <div className="space-y-1">
+                  {/* 리소스에서 생성한 메서드 종류가 체크박스 옵션으로 나와야함 */}
+                  {corsForm.allowMethods.map((method: string) => (
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={method}
+                        // checked={false}
+                        // onCheckedChange={(checked) => handleSaveId(checked as boolean)}
+                        className="bg-white border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                      />
+                      <Label htmlFor={method} className="text-sm text-gray-600 cursor-pointer">
+                        {method.toUpperCase()}
+                      </Label>
+                    </div>
                   ))}
                 </div>
-                <Select onValueChange={addCorsMethod}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="메서드 추가" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {httpMethods
-                      .filter((method) => !corsForm.allowMethods.includes(method))
-                      .map((method) => (
-                        <SelectItem key={method} value={method}>
-                          {method}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              {/* Access-Control-Allow-Headers */}
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                  Access-Control-Allow-Headers
-                </Label>
-                <Input
-                  value={corsForm.allowHeaders}
-                  onChange={(e) => setCorsForm({ ...corsForm, allowHeaders: e.target.value })}
-                  placeholder="content-type,x-ncp-apigw-api-key,x-ncp-apigw-timestamp"
-                />
               </div>
               {/* Access-Control-Allow-Origin */}
               <div>
@@ -178,6 +143,18 @@ export function CorsSettingsDialog({
                   placeholder="*"
                 />
               </div>
+              {/* Access-Control-Allow-Headers */}
+              <div>
+                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                  Access-Control-Allow-Headers
+                </Label>
+                <Input
+                  value={corsForm.allowHeaders}
+                  onChange={(e) => setCorsForm({ ...corsForm, allowHeaders: e.target.value })}
+                  placeholder="content-type,x-ncp-apigw-api-key,x-ncp-apigw-timestamp"
+                />
+              </div>
+
               {/* Access-Control-Expose-Headers */}
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
@@ -219,7 +196,7 @@ export function CorsSettingsDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             취소
           </Button>
-          <Button onClick={handleCorsUpdate} className="bg-blue-500 hover:bg-blue-600 text-white">
+          <Button onClick={modifyCORSSettings} className="bg-blue-500 hover:bg-blue-600 text-white">
             저장
           </Button>
         </DialogFooter>

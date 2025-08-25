@@ -23,11 +23,11 @@ interface ResourceDetailCardProps {
   handleCreateMethod: () => void;
   handleMethodClick: (method: Method, resource: Resource) => void;
   setMethodToDelete: (method: Method) => void;
-  setIsMethodDeleteDialogOpen: (open: boolean) => void;
+  setIsResourceDeleteDialogOpen: (open: boolean) => void;
   getMethodStyle: (method: any) => string;
   // CORS 관련 props 추가
-  corsForm: CorsSettings;
-  setCorsForm: (form: CorsSettings) => void;
+  // corsForm: CorsSettings;
+  // setCorsForm: (form: CorsSettings) => void;
   handleCorsUpdate: () => void;
   httpMethods: string[];
   addCorsMethod: (method: string) => void;
@@ -42,10 +42,10 @@ export function ResourceDetailCard({
   handleCreateMethod,
   handleMethodClick,
   setMethodToDelete,
-  setIsMethodDeleteDialogOpen,
+  setIsResourceDeleteDialogOpen,
   getMethodStyle,
-  corsForm,
-  setCorsForm,
+  // corsForm,
+  // setCorsForm,
   handleCorsUpdate,
   httpMethods,
   addCorsMethod,
@@ -57,7 +57,7 @@ export function ResourceDetailCard({
   // CORS 버튼 클릭 핸들러 수정
   const handleCorsButtonClick = () => {
     if (selectedResource.corsEnabled && selectedResource.corsSettings) {
-      setCorsForm(selectedResource.corsSettings);
+      // setCorsForm(selectedResource.corsSettings);
     }
     setIsCorsModalOpen(true);
   };
@@ -93,7 +93,7 @@ export function ResourceDetailCard({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setIsMethodDeleteDialogOpen(true)}
+                onClick={() => setIsResourceDeleteDialogOpen(true)}
                 className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                 title="삭제">
                 리소스 삭제
@@ -121,7 +121,7 @@ export function ResourceDetailCard({
                 CORS 활성화 여부
               </Label>
               <div className="mt-1 text-sm font-mono text-gray-600 dark:text-gray-400">
-                {!selectedResource.corsEnabled ? (
+                {selectedResource.corsEnabled ? (
                   <div className="flex items-center">
                     <Badge variant="outline" className={getStatusColor('active')}>
                       active
@@ -193,7 +193,6 @@ export function ResourceDetailCard({
                         {method.type}
                       </span>
                     </TableCell>
-
                     <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
                       {method.apiKey}
                     </TableCell>
@@ -210,7 +209,7 @@ export function ResourceDetailCard({
                         onClick={(e) => {
                           e.stopPropagation();
                           setMethodToDelete(method);
-                          setIsMethodDeleteDialogOpen(true);
+                          // setIsMethodDeleteDialogOpen(true);
                         }}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -235,8 +234,9 @@ export function ResourceDetailCard({
         onOpenChange={setIsCorsModalOpen}
         selectedResource={selectedResource}
         setSelectedResource={setSelectedResource}
-        corsForm={corsForm}
-        setCorsForm={setCorsForm}
+        resourceId={'RS12341335'}
+        // corsForm={corsForm}
+        // setCorsForm={setCorsForm}
         handleCorsUpdate={handleCorsUpdate}
         httpMethods={httpMethods}
         addCorsMethod={addCorsMethod}

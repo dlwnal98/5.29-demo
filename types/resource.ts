@@ -2,8 +2,6 @@ export interface Resource {
   id: string;
   path: string;
   name: string;
-  corsEnabled: boolean;
-  corsSettings?: any;
   children?: Resource[];
   methods: Method[];
 }
@@ -11,17 +9,8 @@ export interface Resource {
 export interface Method {
   id: string;
   type: string;
-  permissions: string;
-  apiKey: string;
   resourcePath: string;
-  endpointUrl: string;
   summary: string;
-  description: string;
-  parameters: any[];
-  requestBody: any;
-  responses: Record<string, any>;
-  security: any;
-  requestValidator?: string;
 }
 
 export interface Stage {
@@ -52,11 +41,11 @@ export interface TestResponse {
 
 export interface CorsSettings {
   allowMethods: string[];
-  allowHeaders: string;
-  allowOrigin: string;
-  exposeHeaders: string;
-  maxAge: string;
-  allowCredentials: boolean;
+  allowHeaders?: string[];
+  allowOrigin?: string[];
+  exposeHeaders?: string[];
+  maxAge?: string;
+  allowCredentials?: boolean;
 }
 
 export interface QueryParameter {

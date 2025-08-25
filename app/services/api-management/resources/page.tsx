@@ -22,9 +22,8 @@ import {
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 import { mockData2 } from '@/lib/data';
-
 import type {
   QueryParameter,
   CorsSettings,
@@ -48,65 +47,52 @@ import { MethodResponseTab } from './components/MethodResponseTab';
 import { MethodResponseEdit } from './components/MethodResponseEdit';
 import { useClipboard } from 'use-clipboard-copy';
 import DeployResourceDialog from './components/DeployResourceDialog';
+import { useAuthStore } from '@/store/store';
 
 export default function ApiResourcesPage() {
   const router = useRouter();
   const leftSidebarRef = useRef<HTMLDivElement>(null);
   const rightContentRef = useRef<HTMLDivElement>(null);
 
-  // mockData2의 OpenAPI 구조를 기존 Resource/Method[] 형태로 변환하는 함수 수정
+  const userData = useAuthStore((state) => state.user);
+
+  // OpenAPI 문서로 리소스 폴더구조 데이터 수정
   function convertOpenApiToResources(openApiPaths: any): Resource[] {
-    const resources = Object.entries(openApiPaths).map(([path, methods]: [string, any], idx) => ({
+    let resources = Object.entries(openApiPaths).map(([path, methods]: [string, any], idx) => ({
       id: `resource-${idx}`,
       path,
       name: path.replace(/^\//, '') || 'root',
-      corsEnabled: false,
-      corsSettings: undefined,
-      methods: Object.entries(methods).map(([type, methodObj]: [string, any], mIdx) => ({
-        id: methodObj['x-methodId'] || `method-${path}-${type}`,
-        type: type.toUpperCase(),
-        permissions: methodObj['x-permissions'] || '-',
-        apiKey: methodObj['x-apiKeyId'] || '-',
-        resourcePath: path,
-        endpointUrl: (mockData2.spec.servers?.[0]?.url || '') + path,
-        summary: methodObj.summary,
-        description: methodObj.description,
-        parameters: methodObj.parameters,
-        requestBody: methodObj.requestBody,
-        responses: methodObj.responses,
-        security: methodObj.security,
-        requestValidator: '없음',
-      })),
+      methods: Object.entries(methods)
+        .filter(([type]) => type !== 'x-cors-policy')
+        .map(([type, methodObj]: [string, any], mIdx) => ({
+          id: methodObj['x-methodId'] || `method-${path}-${type}`,
+          type: type.toUpperCase(),
+          resourcePath: path,
+          summary: methodObj.summary,
+        })),
     }));
 
-    // 루트 리소스를 항상 최상단에 추가
-    const rootResource: Resource = {
-      id: 'root',
-      path: '/',
-      name: 'root',
-      corsEnabled: false,
-      corsSettings: undefined,
-      methods: [],
-    };
+    // 루트 추가/이동 로직
+    const rootResource: Resource = { id: 'root', path: '/', name: 'root', methods: ['GET'] };
 
-    // 루트가 이미 존재하는지 확인하고, 없으면 추가
     const hasRoot = resources.some((r) => r.path === '/');
     if (!hasRoot) {
-      return [rootResource, ...resources];
+      resources = [rootResource, ...resources];
     } else {
-      // 루트가 있다면 맨 앞으로 이동
       const rootIndex = resources.findIndex((r) => r.path === '/');
       const root = resources[rootIndex];
       const otherResources = resources.filter((_, index) => index !== rootIndex);
-      return [root, ...otherResources];
+      resources = [root, ...otherResources];
     }
+
+    return resources;
   }
 
   // 기존 useState(Resource[]) 부분을 mockData2 기반으로 초기화
   const [resources, setResources] = useState<Resource[]>(
-    convertOpenApiToResources(mockData2.spec.paths)
+    convertOpenApiToResources(mockData2.paths)
   );
-
+  console.log(resources);
   const [selectedResource, setSelectedResource] = useState<Resource>(resources[0]);
   const [selectedMethod, setSelectedMethod] = useState<Method | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -774,7 +760,8 @@ export default function ApiResourcesPage() {
                 )}
 
                 <span className="font-mono font-medium text-[15px]">
-                  {resource.path === '/' ? '/' : resource.path}
+                  {/* {resource.path === '/' ? '/' : resource.path} */}
+                  {resource.path}
                 </span>
               </div>
 
@@ -786,7 +773,7 @@ export default function ApiResourcesPage() {
                     return (
                       <div
                         key={method.id}
-                        className={`flex items-center gap-2 py-1 px-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-green-900/20 rounded-md ${
+                        className={`flex items-center gap-2 py-1 px-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-green-900/20 rounded-md ${
                           isMethodSelected
                             ? 'bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300'
                             : 'text-gray-600 dark:text-gray-400'
@@ -796,9 +783,7 @@ export default function ApiResourcesPage() {
                           className={`${getMethodStyle(method.type)} font-mono text-xs px-2 py-1 rounded`}>
                           {method.type}
                         </span>
-                        <span className="text-[12px]">
-                          - {method.summary || method.description}
-                        </span>
+                        <span className="text-[12px]">- {method.summary}</span>
                       </div>
                     );
                   })}
@@ -813,6 +798,8 @@ export default function ApiResourcesPage() {
 
   return (
     <AppLayout>
+      <Toaster position="bottom-center" richColors expand={true} />
+
       <div className="container mx-auto px-4 py-6">
         {/* Breadcrumb */}
         <Breadcrumb className="mb-6">
@@ -1077,7 +1064,7 @@ export default function ApiResourcesPage() {
                   handleCreateMethod={handleCreateMethod}
                   handleMethodClick={handleMethodClick}
                   setMethodToDelete={setMethodToDelete}
-                  setIsMethodDeleteDialogOpen={setIsMethodDeleteDialogOpen}
+                  setIsResourceDeleteDialogOpen={setIsDeleteDialogOpen}
                   getMethodStyle={getMethodStyle}
                   corsForm={corsForm}
                   setCorsForm={setCorsForm}
@@ -1096,8 +1083,10 @@ export default function ApiResourcesPage() {
       <ResourceCreateDialog
         open={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
-        createResourceForm={createResourceForm}
-        setCreateResourceForm={setCreateResourceForm}
+        // createResourceForm={createResourceForm}
+        // setCreateResourceForm={setCreateResourceForm}
+        apiId={'API123456789'}
+        // apiId={apiId}
         handleCreateResource={handleCreateResource}
         availableResourcePaths={availableResourcePaths}
         httpMethods={httpMethods}
@@ -1107,6 +1096,9 @@ export default function ApiResourcesPage() {
       <DeleteResourceDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
+        userId={userData?.userId || ''}
+        resourceId={'RSC123456789'}
+        // resourceId={resourceId}
         selectedResource={selectedResource}
         handleDeleteResource={handleDeleteResource}
       />

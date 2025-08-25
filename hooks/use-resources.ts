@@ -1,4 +1,4 @@
-import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
+import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
 import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from '@/lib/apiClient';
 
 interface ResourceData {
@@ -91,23 +91,24 @@ export function useGetResourceTree(apiId: string) {
   });
 }
 
-interface initialPathsProps {
-  pathPattern: string;
-  description?: string;
-  pathOrder?: number;
-}
+// interface initialPathsProps {
+//   pathPattern: string;
+//   description?: string;
+//   pathOrder?: number;
+// }
 
-interface createResourceProps {
-  apiId: string;
+export interface CreateResourceProps {
+  planId: string;
   resourceName: string;
   description: string;
-  resourceType: string;
-  initialPaths: initialPathsProps[];
-  createdBy: string;
+  // resourceType: string;
+  // initialPaths: initialPathsProps[];
+  // createdBy: string;
+  resourcePath: string;
 }
 
 //resource 생성 + 실시간 목록 생성
-const createResource = async (data: createResourceProps) => {
+const createResource = async (data: CreateResourceProps) => {
   const res = await requestPost(`/api/v1/resources`, data);
 
   if (res.code == 200) {
@@ -115,16 +116,19 @@ const createResource = async (data: createResourceProps) => {
   }
 };
 
-export function useCreateAPI() {
+export function useCreateResource(options?: UseMutationOptions<any, Error, CreateResourceProps>) {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (data: createResourceProps) => createResource(data),
-    onSuccess: () => {
+  return useMutation<any, Error, CreateResourceProps>({
+    ...options,
+    mutationFn: (data: CreateResourceProps) => createResource(data),
+    onSuccess: (data, variables, context) => {
       // 브랜치 생성 성공 시 목록 invalidate
       queryClient.invalidateQueries({
         queryKey: ['getResourceList'],
       });
+      // 외부 onSuccess 실행
+      options?.onSuccess?.(data, variables, context);
     },
   });
 }
@@ -146,17 +150,17 @@ const getResourceValidatePath = async (apiId: string, resourcePath: string) => {
   }
 };
 
-export function useGetResourceValidatePath(apiId: string, resourcePath: string) {
-  return useQuery<validatePathProps[]>({
-    queryKey: ['getResourceValidatePath'],
-    queryFn: () => getResourceValidatePath(apiId, resourcePath),
-    // enabled: !!apiId, // 조건적 실행
-    staleTime: Infinity,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-  });
-}
+// export function useGetResourceValidatePath(apiId: string, resourcePath: string) {
+//   return useQuery<validatePathProps[]>({
+//     queryKey: ['getResourceValidatePath'],
+//     queryFn: () => getResourceValidatePath(apiId, resourcePath),
+//     // enabled: !!apiId, // 조건적 실행
+//     staleTime: Infinity,
+//     refetchOnWindowFocus: false,
+//     refetchOnMount: false,
+//     refetchOnReconnect: false,
+//   });
+// }
 
 interface resourceCorsConfig {
   allowOrigins: string[];
@@ -195,9 +199,7 @@ export function useGetResourceCorsSettings(resourceId: string) {
   });
 }
 
-interface modifyResourceProps {
-  resourceId: string;
-  enableCors: boolean;
+interface ModifyResourceProps {
   allowedOrigins?: string[];
   allowedHeaders?: string[];
   exposedHeaders?: string[];
@@ -206,8 +208,8 @@ interface modifyResourceProps {
 //resource Cors 설정 수정
 const modifyResourceCorsSettings = async (
   resourceId: string,
-  enableCors: string,
-  data: modifyResourceProps
+  enableCors: boolean,
+  data: ModifyResourceProps
 ) => {
   const res = await requestPatch(
     `/api/v1/resources/${resourceId}/cors?enabledCors=${enableCors}`,
@@ -219,18 +221,27 @@ const modifyResourceCorsSettings = async (
   }
 };
 
-export function useModifyResourceCorsSettings() {
+export function useModifyResourceCorsSettings(
+  options?: UseMutationOptions<
+    any,
+    Error,
+    { resourceId: string; enableCors: boolean; data: ModifyResourceProps }
+  >
+) {
   return useMutation({
+    ...options,
     mutationFn: ({
       resourceId,
       enableCors,
       data,
     }: {
       resourceId: string;
-      enableCors: string;
-      data: modifyResourceProps;
+      enableCors: boolean;
+      data: ModifyResourceProps;
     }) => modifyResourceCorsSettings(resourceId, enableCors, data),
-    onSuccess: () => {},
+    onSuccess: (data, variables, context) => {
+      options?.onSuccess?.(data, variables, context);
+    },
   });
 }
 

@@ -10,10 +10,14 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { AlertTriangle } from 'lucide-react';
+import { requestDelete } from '@/lib/apiClient';
+import { toast } from 'sonner';
 
 interface DeleteResourceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  userId: string;
+  resourceId: string;
   selectedResource: { path: string };
   handleDeleteResource: () => void;
 }
@@ -21,9 +25,24 @@ interface DeleteResourceDialogProps {
 export function DeleteResourceDialog({
   open,
   onOpenChange,
+  userId,
+  resourceId,
   selectedResource,
   handleDeleteResource,
 }: DeleteResourceDialogProps) {
+  const deleteResource = async () => {
+    const res = await requestDelete(`/api/v1/resources/${resourceId}`, {
+      headers: {
+        'X-User-Id': userId,
+      },
+    });
+
+    if (res.code == 200) {
+      toast.success('리소스가 삭제되었습니다');
+      onOpenChange(false);
+    }
+  };
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -53,9 +72,8 @@ export function DeleteResourceDialog({
         <AlertDialogFooter>
           <AlertDialogCancel>취소</AlertDialogCancel>
           <AlertDialogAction
-            onClick={handleDeleteResource}
-            className="bg-red-600 hover:bg-red-700 text-white"
-          >
+            onClick={deleteResource}
+            className="bg-red-600 hover:bg-red-700 text-white">
             삭제하기
           </AlertDialogAction>
         </AlertDialogFooter>

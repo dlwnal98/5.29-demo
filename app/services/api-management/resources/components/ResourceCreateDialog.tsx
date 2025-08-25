@@ -1,4 +1,6 @@
+'use client';
 import React from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -20,17 +22,22 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
 import type { CorsSettings } from '@/types/resource';
+import { useCreateAPI } from '@/hooks/use-apimanagement';
+import { requestGet } from '@/lib/apiClient';
+import { CreateResourceProps, useCreateResource } from '@/hooks/use-resources';
+import { toast } from 'sonner';
 
 interface ResourceCreateDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  createResourceForm: {
-    path: string;
-    name: string;
-    corsEnabled: boolean;
-    corsSettings: CorsSettings;
-  };
-  setCreateResourceForm: (form: any) => void;
+  // createResourceForm: {
+  //   path: string;
+  //   name: string;
+  //   corsEnabled: boolean;
+  //   corsSettings: CorsSettings;
+  // };
+  // setCreateResourceForm: (form: any) => void;
+  apiId: string;
   handleCreateResource: () => void;
   availableResourcePaths: string[];
   httpMethods: string[];
@@ -39,12 +46,30 @@ interface ResourceCreateDialogProps {
 export function ResourceCreateDialog({
   open,
   onOpenChange,
-  createResourceForm,
-  setCreateResourceForm,
+  // createResourceForm,
+  // setCreateResourceForm,
+  apiId,
   handleCreateResource,
+
   availableResourcePaths,
   httpMethods,
 }: ResourceCreateDialogProps) {
+  const [createResourceForm, setCreateResourceForm] = useState({
+    planId: apiId,
+    resourceName: '',
+    description: '',
+    resourcePath: '',
+    corsEnabled: false,
+    corsSettings: {
+      allowMethods: [] as string[],
+      allowHeaders: '',
+      allowOrigin: '*',
+      exposeHeaders: '',
+      maxAge: '',
+      allowCredentials: false,
+    },
+  });
+
   const addCreateFormCorsMethod = (method: string) => {
     if (!createResourceForm.corsSettings.allowMethods.includes(method)) {
       setCreateResourceForm({
@@ -67,6 +92,24 @@ export function ResourceCreateDialog({
     });
   };
 
+  const { mutate: createResourceMutate } = useCreateResource({
+    onSuccess: () => {
+      toast.success('리소스가 생성되었습니다.');
+      onOpenChange(false);
+    },
+  });
+
+  const createResource = async (data: CreateResourceProps) => {
+    //resource 경로 검증
+    const res = await requestGet(
+      `/api/v1/resources/validate-path?apiId=${data.planId}&resourcePath=${data.resourcePath}`
+    );
+
+    if (res.code == 200) {
+      createResourceMutate(data);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-scroll">
@@ -79,16 +122,15 @@ export function ResourceCreateDialog({
             <div>
               <Label
                 htmlFor="resource-path"
-                className="text-sm font-medium text-gray-700 mb-2 block"
-              >
+                className="text-sm font-medium text-gray-700 mb-2 block">
                 리소스 경로
               </Label>
               <Select
-                value={createResourceForm.path}
+                // value={createResourceForm.path}
+                value={'/api'}
                 onValueChange={(value) =>
-                  setCreateResourceForm({ ...createResourceForm, path: value })
-                }
-              >
+                  setCreateResourceForm({ ...createResourceForm, resourcePath: value })
+                }>
                 <SelectTrigger>
                   <SelectValue placeholder="경로를 선택하세요" />
                 </SelectTrigger>
@@ -104,16 +146,15 @@ export function ResourceCreateDialog({
             <div>
               <Label
                 htmlFor="resource-name"
-                className="text-sm font-medium text-gray-700 mb-2 block"
-              >
+                className="text-sm font-medium text-gray-700 mb-2 block">
                 리소스 이름
               </Label>
               <Input
                 id="resource-name"
                 placeholder="my-resource"
-                value={createResourceForm.name}
+                value={createResourceForm.resourceName}
                 onChange={(e) =>
-                  setCreateResourceForm({ ...createResourceForm, name: e.target.value })
+                  setCreateResourceForm({ ...createResourceForm, resourceName: e.target.value })
                 }
               />
             </div>
@@ -123,12 +164,12 @@ export function ResourceCreateDialog({
             <div>
               <Label
                 htmlFor="cors-toggle"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
+                className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 원본에서 CORS
               </Label>
               <p className="text-xs text-gray-500 mt-1">
-                Cross-Origin Resource Sharing을 활성화합니다
+                모든 오리진, 모든 메서드 및 몇 가지 공통 헤더를 허용하는 OPTIONS 메서드를
+                생성합니다.
               </p>
             </div>
             <Switch
@@ -139,148 +180,6 @@ export function ResourceCreateDialog({
               }
             />
           </div>
-          {/* CORS Settings - Only show when CORS is enabled */}
-          {createResourceForm.corsEnabled && (
-            <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-4 space-y-4">
-              <h4 className="font-medium text-blue-900 dark:text-blue-100">CORS 설정</h4>
-              {/* Access-Control-Allow-Method */}
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                  Access-Control-Allow-Method
-                </Label>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {createResourceForm.corsSettings.allowMethods.map((method) => (
-                    <Badge
-                      key={method}
-                      className={`${
-                        method === 'GET'
-                          ? 'bg-green-100 text-green-800 hover:bg-green-100'
-                          : method === 'POST'
-                            ? 'bg-blue-100 text-blue-800 hover:bg-blue-100'
-                            : method === 'HEAD'
-                              ? 'bg-purple-100 text-purple-800 hover:bg-purple-100'
-                              : 'bg-gray-100 text-gray-800 hover:bg-gray-100'
-                      } cursor-pointer`}
-                      onClick={() => removeCreateFormCorsMethod(method)}
-                    >
-                      {method}
-                      <X className="h-3 w-3 ml-1" />
-                    </Badge>
-                  ))}
-                </div>
-                <Select onValueChange={addCreateFormCorsMethod}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="메서드 추가" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {httpMethods
-                      .filter(
-                        (method) => !createResourceForm.corsSettings.allowMethods.includes(method)
-                      )
-                      .map((method) => (
-                        <SelectItem key={method} value={method}>
-                          {method}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              {/* Access-Control-Allow-Headers */}
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                  Access-Control-Allow-Headers
-                </Label>
-                <Input
-                  value={createResourceForm.corsSettings.allowHeaders}
-                  onChange={(e) =>
-                    setCreateResourceForm({
-                      ...createResourceForm,
-                      corsSettings: {
-                        ...createResourceForm.corsSettings,
-                        allowHeaders: e.target.value,
-                      },
-                    })
-                  }
-                  placeholder="content-type,x-ncp-apigw-api-key,x-ncp-apigw-timestamp"
-                />
-              </div>
-              {/* Access-Control-Allow-Origin */}
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                  Access-Control-Allow-Origin
-                </Label>
-                <Input
-                  value={createResourceForm.corsSettings.allowOrigin}
-                  onChange={(e) =>
-                    setCreateResourceForm({
-                      ...createResourceForm,
-                      corsSettings: {
-                        ...createResourceForm.corsSettings,
-                        allowOrigin: e.target.value,
-                      },
-                    })
-                  }
-                  placeholder="*"
-                />
-              </div>
-              {/* Access-Control-Expose-Headers */}
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                  Access-Control-Expose-Headers
-                </Label>
-                <Input
-                  value={createResourceForm.corsSettings.exposeHeaders}
-                  onChange={(e) =>
-                    setCreateResourceForm({
-                      ...createResourceForm,
-                      corsSettings: {
-                        ...createResourceForm.corsSettings,
-                        exposeHeaders: e.target.value,
-                      },
-                    })
-                  }
-                  placeholder="헤더 이름들을 쉼표로 구분"
-                />
-              </div>
-              {/* Access-Control-Max-Age */}
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                  Access-Control-Max-Age
-                </Label>
-                <Input
-                  value={createResourceForm.corsSettings.maxAge}
-                  onChange={(e) =>
-                    setCreateResourceForm({
-                      ...createResourceForm,
-                      corsSettings: {
-                        ...createResourceForm.corsSettings,
-                        maxAge: e.target.value,
-                      },
-                    })
-                  }
-                  placeholder="86400"
-                />
-              </div>
-              {/* Access-Control-Allow-Credentials */}
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Access-Control-Allow-Credentials
-                </Label>
-                <Switch
-                  checked={createResourceForm.corsSettings.allowCredentials}
-                  onCheckedChange={(checked) =>
-                    setCreateResourceForm({
-                      ...createResourceForm,
-                      corsSettings: {
-                        ...createResourceForm.corsSettings,
-                        allowCredentials: checked,
-                      },
-                    })
-                  }
-                />
-              </div>
-            </div>
-          )}
         </div>
         <DialogFooter className="gap-2">
           <Button
@@ -288,11 +187,13 @@ export function ResourceCreateDialog({
             onClick={() => {
               onOpenChange(false);
               setCreateResourceForm({
-                path: '',
-                name: '',
+                planId: apiId,
+                resourceName: '',
+                description: '',
+                resourcePath: '',
                 corsEnabled: false,
                 corsSettings: {
-                  allowMethods: [],
+                  allowMethods: [] as string[],
                   allowHeaders: '',
                   allowOrigin: '*',
                   exposeHeaders: '',
@@ -300,14 +201,13 @@ export function ResourceCreateDialog({
                   allowCredentials: false,
                 },
               });
-            }}
-          >
+            }}>
             취소
           </Button>
           <Button
-            onClick={handleCreateResource}
-            className="bg-blue-500 hover:bg-blue-600 text-white"
-          >
+            // onClick={handleCreateResource}
+            onClick={() => createResource(createResourceForm)}
+            className="bg-blue-500 hover:bg-blue-600 text-white">
             생성
           </Button>
         </DialogFooter>
