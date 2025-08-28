@@ -1,22 +1,20 @@
-import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
+import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
 import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from '@/lib/apiClient';
 
-interface ModelData {
+export interface ModelData {
   modelId: string;
   apiId: string;
-  name: string;
-  title: string;
-  contentType: string;
+  modelName: string;
+  modelType: string;
   description: string;
-  schema: {};
-  examples: {}[];
+  enabled: boolean;
   createdAt: string;
   createdBy: string;
 }
 
 // API 계획의 모델 목록 조회
 const getModelList = async (apiId: string): Promise<ModelData[]> => {
-  const res = await requestGet(`/api/v1/models/plan/${apiId}`);
+  const res = await requestGet(`/api/v1/models/${apiId}`);
   if (res.code === 200) {
     return res.data;
   }
@@ -29,6 +27,55 @@ export function useGetModelList(apiId: string) {
     queryKey: ['getModelList', apiId], // pathId별 캐싱
     queryFn: () => getModelList(apiId),
     enabled: !!apiId, // pathId 있을 때만 실행
+    staleTime: Infinity, // 데이터 오래 유지
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+}
+
+export interface ModelDetailData {
+  modelId: string;
+  apiId: string;
+  modelName: string;
+  modelType: string;
+  description: string;
+  version: string;
+  enabled: boolean;
+  createdAt: string;
+  createdBy: string;
+  updatedAt: string;
+  updatedBy: string;
+  usageInfo: {
+    usageCount: number;
+    usedByMethods: string[];
+    lastUsed: string;
+    popularityRank: string;
+  };
+  qualityMetrics: {
+    schemaComplexity: number;
+    validationCoverage: number;
+    hasExamples: boolean;
+    hasDocumentation: boolean;
+    qualityScore: string;
+  };
+}
+
+// API 계획의 모델 목록 조회
+const getModelDetail = async (modelId: string): Promise<ModelDetailData[]> => {
+  const res = await requestGet(`/api/v1/models/${modelId}`);
+  if (res.code === 200) {
+    return res.data;
+  }
+  throw new Error(res.message || '모델 목록 조회 실패');
+};
+
+// ✅ React Query Hook
+export function useGetModelDetail(modelId: string) {
+  return useQuery<ModelDetailData[]>({
+    queryKey: ['getModelDetail'], // pathId별 캐싱
+    queryFn: () => getModelDetail(modelId),
+    enabled: !!modelId, // pathId 있을 때만 실행
     staleTime: Infinity, // 데이터 오래 유지
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -105,7 +152,7 @@ interface ExamplesProps {
 }
 
 interface CreateModelProps {
-  planId: string;
+  apiId: string;
   modelName: string;
   title: string;
   contentType: string;
@@ -184,15 +231,17 @@ const deleteModel = async (modelId: string) => {
 };
 
 // ✅ React Query Hook
-export function useDeleteModel() {
+export function useDeleteModel(options?: UseMutationOptions<any, Error, string>) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    ...options,
     mutationFn: (modelId: string) => deleteModel(modelId),
-    onSuccess: () => {
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ['getModelList'],
       });
+      options?.onSuccess?.(data, variables, context);
     },
   });
 }

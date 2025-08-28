@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import {
   Breadcrumb,
@@ -32,66 +31,34 @@ import ApiCreateModal from './components/ApiCreateModal';
 import ApiModifyModal from './components/ApiModifyModal';
 import { ApiDeleteModal } from './components/ApiDeleteModal';
 import CommonPagination from '@/components/common-pagination';
-import { format } from 'date-fns';
 import { useAuthStore } from '@/store/store';
+import { useGetAPIList } from '@/hooks/use-apimanagement';
 
 export interface Apis {
   apiId: string;
   organizationId: string;
-  ownerUserKey: string;
   name: string;
   description: string;
   version: string;
-  status: string;
   enabled: boolean;
-  draftDocId: string;
-  createdAt: string;
-  updatedAt: string;
-  createdBy: string;
 }
 
 const apisData: Apis[] = [
   {
     apiId: 'API123456789',
     organizationId: 'ORG123456789',
-    ownerUserKey: 'USR123456789',
-    name: '사용자 관리 API',
-    description: '사용자 정보 관리를 위한 RESTful API',
+    name: 'User Management API',
+    description: '사용자 관리 API',
     version: '1.0.0',
-    status: 'DRAFT', // DRAFT, PUBLISHED, DEPRECATED, ARCHIVED
     enabled: true,
-    draftDocId: 'draft_API123456789',
-    createdAt: '2025-01-15T10:30:00Z',
-    updatedAt: '2025-01-15T14:30:00Z',
-    createdBy: 'admin',
   },
   {
-    apiId: 'API1234567890',
+    apiId: 'API987654321',
     organizationId: 'ORG123456789',
-    ownerUserKey: 'USR123456789',
-    name: '사용자 관리 API',
-    description: '사용자 정보 관리를 위한 RESTful API',
-    version: '1.0.0',
-    status: 'PUBLISHED',
+    name: 'Product Catalog API',
+    description: '상품 카탈로그 API',
+    version: '2.1.0',
     enabled: true,
-    draftDocId: 'draft_API123456789',
-    createdAt: '2025-01-15T10:30:00Z',
-    updatedAt: '2025-01-15T14:30:00Z',
-    createdBy: 'admin',
-  },
-  {
-    apiId: 'API12345678901',
-    organizationId: 'ORG123456789',
-    ownerUserKey: 'USR123456789',
-    name: '사용자 관리 API',
-    description: '사용자 정보 관리를 위한 RESTful API',
-    version: '1.0.0',
-    status: 'DEPRECATED',
-    enabled: true,
-    draftDocId: 'draft_API123456789',
-    createdAt: '2025-01-15T10:30:00Z',
-    updatedAt: '2025-01-15T14:30:00Z',
-    createdBy: 'admin',
   },
 ];
 
@@ -111,8 +78,6 @@ export default function ApiManagementPage() {
     description: '',
   });
 
-  // const { data: apisData } = useGetAPIList(userData?.organizationId);
-
   const filteredPlans = apisData.filter(
     (plan) =>
       plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -120,16 +85,19 @@ export default function ApiManagementPage() {
       plan.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'PUBLISHED':
-        return 'bg-green-100 text-green-700 border-green-200';
-      case 'DEPRECATED':
-        return 'bg-gray-100 text-gray-700 border-gray-200';
-      default:
-        return 'bg-amber-100 text-amber-700 border-amber-200';
-    }
-  };
+  // 페이지네이션
+  const safeFilteredUsers = filteredPlans ?? [];
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
+
+  const totalPages = Math.ceil(safeFilteredUsers.length / usersPerPage);
+
+  const startIndex = (currentPage - 1) * usersPerPage;
+  const endIndex = startIndex + usersPerPage;
+  const currentUsers = safeFilteredUsers?.slice(startIndex, endIndex);
+
+  // const { data: apisData } = useGetAPIList(userData?.organizationId,currentPage,usersPerPage);
 
   const router = useRouter();
 
@@ -145,18 +113,6 @@ export default function ApiManagementPage() {
     // Navigate to API resource creation page
     router.push(`/services/api-management/resources?apiId=${api.apiId}&apiName=${api.name}`);
   };
-
-  // 페이지네이션
-  const safeFilteredUsers = filteredPlans ?? [];
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const usersPerPage = 10;
-
-  const totalPages = Math.ceil(safeFilteredUsers.length / usersPerPage);
-
-  const startIndex = (currentPage - 1) * usersPerPage;
-  const endIndex = startIndex + usersPerPage;
-  const currentUsers = safeFilteredUsers?.slice(startIndex, endIndex);
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
@@ -209,11 +165,9 @@ export default function ApiManagementPage() {
               <Table>
                 <TableHeader className="hover:bg-white">
                   <TableRow className="hover:bg-white">
-                    <TableHead>이름</TableHead>
-                    <TableHead>ID</TableHead>
+                    <TableHead className="w-[20%]">이름</TableHead>
+                    <TableHead className="w-3">ID</TableHead>
                     <TableHead>설명</TableHead>
-                    <TableHead>배포 상태</TableHead>
-                    <TableHead>생성일</TableHead>
                     <TableHead className="w-3 text-center">작업</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -231,19 +185,6 @@ export default function ApiManagementPage() {
                         </TableCell>
                         <TableCell className="font-mono text-sm">{plan.apiId}</TableCell>
                         <TableCell className="max-w-xs truncate">{plan.description}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <Badge variant="outline" className={getStatusColor(plan.status)}>
-                              {plan.status}
-                            </Badge>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            {/* <span>{plan.createdAt}</span> */}
-                            <span>{format(plan.createdAt, 'yyyy-MM-dd')}</span>
-                          </div>
-                        </TableCell>
                         <TableCell>
                           <div className="flex items-center justify-end space-x-2">
                             <Button
@@ -311,7 +252,7 @@ export default function ApiManagementPage() {
             onOpenChange={setIsModifyModalOpen}
             existingValue={modifyApiForm}
             selectedAPIId={selectedAPIId}
-            userId={userData?.userId}
+            userId={userData?.userId || ''}
           />
 
           <ApiDeleteModal

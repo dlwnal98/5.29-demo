@@ -25,6 +25,8 @@ import { Plus, Trash2, Key, Settings, AlertCircle, CheckCircle } from 'lucide-re
 import type { QueryParameter, RequestHeader, RequestBodyModel, Model } from '@/types/resource';
 import { toast } from 'sonner';
 import { ApiKey } from '@/types/methods';
+import { requestHeaderList } from '@/lib/data';
+import RequestHeaderListSearch from '../../models/components/RequestHeaderListSearch';
 
 interface MethodRequestEditProps {
   editForm: any;
@@ -182,23 +184,8 @@ export function MethodRequestEdit({
 
   console.log(editForm.apiKeyRequired);
 
-  const httpHeaderOptions = [
-    'Content-Type',
-    'Accept',
-    'Authorization',
-    'User-Agent',
-    'Cache-Control',
-    'Pragma',
-    'Expires',
-    'Origin',
-    'Referer',
-    'Cookie',
-    'Set-Cookie',
-    'Host',
-    'X-Requested-With',
-    'X-Forwarded-For',
-  ];
-
+  const [isOpen, setIsOpen] = useState(false);
+  const [openId, setOpenId] = useState<string | null>(null);
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -215,16 +202,12 @@ export function MethodRequestEdit({
       {/* Method Request Settings Edit */}
       <Card>
         <CardHeader>
-          <CardTitle>메서드 요청 설정</CardTitle>
+          <CardTitle className="!text-lg">메서드 요청 설정</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center space-x-2">
             <Label className="text-sm font-medium">API 키가 필요함</Label>
-            <Switch
-              checked={editForm.apiKeyRequired}
-              onCheckedChange={handleApiKeyToggle}
-              className="mt-2"
-            />
+            <Switch checked={editForm.apiKeyRequired} onCheckedChange={handleApiKeyToggle} />
           </div>
           {editForm.selectedApiKey && selectedApiKeyInfo && (
             <div className="mt-4 p-4 bg-green-50 dark:bg-green-950/20 border border-green-200 rounded-lg">
@@ -254,72 +237,72 @@ export function MethodRequestEdit({
               </div>
             </div>
           )}
-          <div>
-            <Label className="text-sm font-medium">요청 검사기</Label>
-            <Select
-              value={editForm.requestValidator}
-              onValueChange={(value) => setEditForm({ ...editForm, requestValidator: value })}>
-              <SelectTrigger className="mt-2">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {requestValidators.map((validator) => (
-                  <SelectItem key={validator.value} value={validator.value}>
-                    {validator.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-12">
+            <div className="col-span-10">
+              <Label className="text-sm font-medium">요청 검사기</Label>
+              <Select
+                value={editForm.requestValidator}
+                onValueChange={(value) => setEditForm({ ...editForm, requestValidator: value })}>
+                <SelectTrigger className="mt-2">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {requestValidators.map((validator) => (
+                    <SelectItem
+                      key={validator.value}
+                      value={validator.value}
+                      className="hover:cursor-pointer">
+                      {validator.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="cols-span-2"></div>
           </div>
         </CardContent>
       </Card>
       {/* URL Query String Parameters Edit */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+          <CardTitle className="flex items-center !text-lg  gap-3">
             URL 쿼리 문자열 파라미터
             <Button
               size="sm"
-              onClick={addQueryParameter}
-              className="bg-blue-500 hover:bg-blue-600 text-white">
-              <Plus className="h-4 w-4" />
+              variant={'outline'}
+              className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
+              onClick={addQueryParameter}>
+              <span className="font-bold">추가</span>
             </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {queryParameters.map((param) => (
-              <div key={param.id} className="grid grid-cols-12 gap-3 items-center">
-                <div className="col-span-3">
+              <div key={param.id} className="grid grid-cols-12 gap-4 items-center mb-3">
+                <div className="col-span-10">
                   <Input
                     value={param.name}
                     onChange={(e) => updateQueryParameter(param.id, 'name', e.target.value)}
                     placeholder="파라미터 이름"
                   />
                 </div>
-                <div className="col-span-3">
-                  <Input
-                    value={param.description}
-                    onChange={(e) => updateQueryParameter(param.id, 'description', e.target.value)}
-                    placeholder="설명"
-                  />
-                </div>
-
-                <div className="col-span-1 flex justify-cente space-x-1">
-                  <Switch
-                    checked={param.required}
-                    onCheckedChange={(checked) =>
-                      updateQueryParameter(param.id, 'required', checked)
-                    }
-                  />
-                  <Label className="text-sm font-medium">required</Label>
-                </div>
-                <div className="col-span-2 flex justify-end">
+                <div className="col-span-2 gap-1 flex items-center">
+                  <div className="flex items-center space-x-2">
+                    <Label className="text-xs">필수</Label>
+                    <Switch
+                      checked={param.required}
+                      onCheckedChange={(checked) =>
+                        updateQueryParameter(param.id, 'required', checked)
+                      }
+                    />
+                  </div>
                   <Button
                     size="sm"
                     variant="outline"
+                    className="border-0 hover:bg-transparent  cursor-pointer"
                     onClick={() => removeQueryParameter(param.id)}>
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-5 w-5" />
                   </Button>
                 </div>
               </div>
@@ -335,22 +318,26 @@ export function MethodRequestEdit({
       {/* HTTP Request Headers Edit */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+          <CardTitle className="flex items-center  gap-3 !text-lg">
             HTTP 요청 헤더
             <Button
               size="sm"
-              onClick={addRequestHeader}
-              className="bg-blue-500 hover:bg-blue-600 text-white">
-              <Plus className="h-4 w-4" />
+              variant={'outline'}
+              className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
+              onClick={addRequestHeader}>
+              <span className="font-bold">추가</span>
             </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {requestHeaders.map((header) => (
-              <div key={header.id} className="grid grid-cols-12 gap-3 items-center">
-                <div className="col-span-6">
-                  <Select
+              <div
+                key={header.id}
+                // className="grid grid-cols-12 gap-3 mt-3 items-center">
+                className={`grid grid-cols-12 gap-3 mt-3 ${openId === header.id ? 'items-start' : 'items-center  mb-3'}`}>
+                <div className="col-span-10">
+                  {/* <Select
                     value={header.type}
                     onValueChange={(value) => updateRequestHeader(header.id, 'type', value)}>
                     <SelectTrigger>
@@ -362,25 +349,37 @@ export function MethodRequestEdit({
                           {headerName}
                         </SelectItem>
                       ))}
+                     
                     </SelectContent>
-                  </Select>
-                </div>
-                <div className="col-span-1 flex justify-center">
-                  <Switch
-                    checked={header.required}
-                    onCheckedChange={(checked) =>
-                      updateRequestHeader(header.id, 'required', checked)
-                    }
-                    // disabled={header.name === 'Content-Type'}
+                  </Select> */}
+                  <RequestHeaderListSearch
+                    updateHeader={updateRequestHeader}
+                    key={header.id}
+                    isOpen={openId === header.id}
+                    setIsOpen={(val) => setOpenId(val ? header.id : null)}
                   />
                 </div>
-                <div className="col-span-1 flex justify-end">
+                <div
+                  className={`col-span-2 gap-1 flex items-center ${openId === header.id ? 'mt-1' : ''}`}>
+                  {/* className={`col-span-2 gap-1 flex items-center mt-1`}> */}
+                  <div className="flex items-center space-x-2">
+                    <Label className="text-xs">필수</Label>
+                    <Switch
+                      checked={header.required}
+                      onCheckedChange={(checked) =>
+                        updateRequestHeader(header.id, 'required', checked)
+                      }
+                      // disabled={header.name === 'Content-Type'}
+                    />
+                  </div>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => removeRequestHeader(header.id)}
-                    disabled={header.name === 'Content-Type'}>
-                    <Trash2 className="h-4 w-4" />
+                    className="border-0 hover:bg-transparent cursor-pointer"
+                    // disabled={header.name === 'Content-Type'}
+                  >
+                    <Trash2 className="h-5 w-5" />
                   </Button>
                 </div>
               </div>
@@ -391,28 +390,29 @@ export function MethodRequestEdit({
       {/* Request Body Edit */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-3 !text-lg">
             요청 본문
             <Button
               size="sm"
-              onClick={addRequestBodyModel}
-              className="bg-blue-500 hover:bg-blue-600 text-white">
-              <Plus className="h-4 w-4 mr-1" />
+              variant={'outline'}
+              className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
+              onClick={addRequestBodyModel}>
+              <span className="font-bold">추가</span>
             </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {requestBodyModels.map((model) => (
-              <div key={model.id} className="grid grid-cols-12 gap-3 items-center">
-                <div className="col-span-4">
+              <div key={model.id} className="grid grid-cols-12 gap-3 items-center mb-3">
+                <div className="col-span-5">
                   <Input
                     value={model.modelName}
                     onChange={(e) => updateRequestBodyModel(model.id, 'modelName', e.target.value)}
                     placeholder="콘텐츠 유형"
                   />
                 </div>
-                <div className="col-span-3">
+                <div className="col-span-5">
                   <Select
                     value={model.modelId}
                     onValueChange={(value) => {
@@ -428,9 +428,8 @@ export function MethodRequestEdit({
                     <SelectContent>
                       {availableModels.map((availableModel) => (
                         <SelectItem key={availableModel.id} value={availableModel.id}>
-                          <div className="flex items-center justify-between w-full">
-                            <span>{availableModel.name}</span>
-                            <Button
+                          {availableModel.name}
+                          {/* <Button
                               size="sm"
                               variant="ghost"
                               onClick={(e) => {
@@ -439,19 +438,19 @@ export function MethodRequestEdit({
                               }}
                               className="ml-2 h-6 w-6 p-0 text-red-500 hover:text-red-700">
                               <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
+                            </Button> */}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="col-span-1 flex justify-end">
+                <div className="col-span-2 flex justify-start">
                   <Button
                     size="sm"
                     variant="outline"
+                    className="border-0 hover:bg-transparent  cursor-pointer"
                     onClick={() => removeRequestBodyModel(model.id)}>
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-5 w-5" />
                   </Button>
                 </div>
               </div>

@@ -8,14 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -45,6 +38,9 @@ import {
 import { toast } from 'sonner';
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import { useClipboard } from 'use-clipboard-copy';
+import CreateModelDialog from './components/CreateModelDialog';
+import ModifyModelDialog from './components/ModifyModelDialog';
+import DeleteModelDialog from './components/DeleteModelDialog';
 
 interface Model {
   id: string;
@@ -143,7 +139,6 @@ export default function ModelsPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [modelToDelete, setModelToDelete] = useState<Model | null>(null);
-  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
   const [selectedModels, setSelectedModels] = useState<string[]>([]);
   const [isAllSelected, setIsAllSelected] = useState(false);
 
@@ -229,84 +224,6 @@ export default function ModelsPage() {
     }
   };
 
-  const handleCreateModel = () => {
-    if (!modelForm.name.trim()) {
-      toast.error('모델 이름을 입력해주세요.');
-      return;
-    }
-
-    try {
-      JSON.parse(modelForm.schema);
-    } catch (error) {
-      toast.error('유효하지 않은 JSON 스키마입니다.');
-      return;
-    }
-
-    const newModel: Model = {
-      id: Date.now().toString(),
-      name: modelForm.name,
-      contentType: modelForm.contentType,
-      description: modelForm.description,
-      schema: modelForm.schema,
-      createdAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
-      updatedAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
-      usageCount: 0,
-    };
-
-    setModels([...models, newModel]);
-    setIsCreateModalOpen(false);
-    resetForm();
-    toast.success(`모델 '${newModel.name}'이(가) 생성되었습니다.`);
-  };
-
-  const handleEditModel = () => {
-    if (!selectedModel) return;
-
-    if (!modelForm.name.trim()) {
-      toast.error('모델 이름을 입력해주세요.');
-      return;
-    }
-
-    try {
-      JSON.parse(modelForm.schema);
-    } catch (error) {
-      toast.error('유효하지 않은 JSON 스키마입니다.');
-      return;
-    }
-
-    const updatedModels = models.map((model) =>
-      model.id === selectedModel.id
-        ? {
-            ...model,
-            name: modelForm.name,
-            contentType: modelForm.contentType,
-            description: modelForm.description,
-            schema: modelForm.schema,
-            updatedAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
-          }
-        : model
-    );
-
-    setModels(updatedModels);
-    setIsEditModalOpen(false);
-    setSelectedModel(null);
-    resetForm();
-    toast.success(`모델 '${modelForm.name}'이(가) 수정되었습니다.`);
-  };
-
-  const handleDeleteModel = () => {
-    if (!modelToDelete) return;
-
-    const updatedModels = models.filter((model) => model.id !== modelToDelete.id);
-    setModels(updatedModels);
-    setIsDeleteModalOpen(false);
-    setModelToDelete(null);
-    if (expandedModel === modelToDelete.id) {
-      setExpandedModel(null);
-    }
-    toast.success(`모델 '${modelToDelete.name}'이(가) 삭제되었습니다.`);
-  };
-
   const openEditModal = (model: Model) => {
     setSelectedModel(model);
     setModelForm({
@@ -321,22 +238,6 @@ export default function ModelsPage() {
   const openDeleteModal = (model: Model) => {
     setModelToDelete(model);
     setIsDeleteModalOpen(true);
-  };
-
-  const resetForm = () => {
-    setModelForm({
-      name: '',
-      contentType: 'application/json',
-      description: '',
-      schema: `{
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "New Schema",
-  "type": "object",
-  "properties": {
-    
-  }
-}`,
-    });
   };
 
   const copySchema = (schema: string) => {
@@ -476,7 +377,7 @@ export default function ModelsPage() {
           <div className="flex items-center space-x-2">
             <Button
               onClick={() => {
-                resetForm();
+                // resetForm();
                 setIsCreateModalOpen(true);
               }}
               className="bg-orange-500 hover:bg-orange-600 text-white">
@@ -678,123 +579,26 @@ export default function ModelsPage() {
         </Card>
 
         {/* Create Model Modal */}
-        <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-          <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-blue-600">모델 생성</DialogTitle>
-              <DialogDescription className="text-gray-600">
-                새로운 모델을 생성합니다. (<span className="text-red-500">*</span> 필수 입력
-                사항입니다.)
-              </DialogDescription>
-            </DialogHeader>
-
-            {renderModelForm()}
-
-            <DialogFooter className="gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsCreateModalOpen(false);
-                  resetForm();
-                }}>
-                취소
-              </Button>
-              <Button
-                onClick={handleCreateModel}
-                className="bg-blue-500 hover:bg-blue-600 text-white">
-                생성
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
+        <CreateModelDialog
+          open={isCreateModalOpen}
+          onOpenChange={setIsCreateModalOpen}
+          renderModelForm={renderModelForm}
+        />
         {/* Edit Model Modal */}
-        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-          <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-blue-600">모델 편집</DialogTitle>
-              <DialogDescription className="text-gray-600">
-                기존 모델을 편집합니다. (<span className="text-red-500">*</span> 필수 입력
-                사항입니다.)
-              </DialogDescription>
-            </DialogHeader>
 
-            {renderModelForm()}
-
-            <DialogFooter className="gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsEditModalOpen(false);
-                  setSelectedModel(null);
-                  resetForm();
-                }}>
-                취소
-              </Button>
-              <Button
-                onClick={handleEditModel}
-                className="bg-blue-500 hover:bg-blue-600 text-white">
-                수정
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <ModifyModelDialog
+          open={isEditModalOpen}
+          onOpenChange={setIsEditModalOpen}
+          renderModelForm={renderModelForm}
+        />
 
         {/* Delete Confirmation Modal */}
-        <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader className="space-y-4">
-              <DialogTitle className="flex items-center text-red-600">
-                <AlertTriangle className="h-5 w-5 mr-2" />
-                모델 삭제
-              </DialogTitle>
-              <DialogDescription className="text-left space-y-3">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <p className="font-semibold text-red-800 mb-2">
-                    ⚠️ 이 작업은 실행 취소할 수 없습니다.
-                  </p>
-                  {selectedModels.length > 1 ? (
-                    <p className="text-red-700 text-sm">
-                      선택된 <strong>{selectedModels.length}개의 모델</strong>이 영구적으로
-                      삭제됩니다.
-                      <br />이 모델들을 사용하는 모든 API 메서드에 영향을 줄 수 있습니다.
-                    </p>
-                  ) : (
-                    <p className="text-red-700 text-sm">
-                      <strong>'{modelToDelete?.name}'</strong> 모델이 영구적으로 삭제됩니다.
-                      <br />이 모델을 사용하는 모든 API 메서드에 영향을 줄 수 있습니다.
-                    </p>
-                  )}
-                  {modelToDelete && modelToDelete.usageCount > 0 && (
-                    <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded">
-                      <p className="text-yellow-800 text-sm font-medium">
-                        현재 {modelToDelete.usageCount}개의 API에서 사용 중입니다.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </DialogDescription>
-            </DialogHeader>
-
-            <DialogFooter className="flex space-x-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsDeleteModalOpen(false);
-                  setModelToDelete(null);
-                }}>
-                취소
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={selectedModels.length > 1 ? confirmDeleteSelected : handleDeleteModel}
-                className="bg-red-600 hover:bg-red-700">
-                <Trash2 className="h-4 w-4 mr-2" />
-                삭제
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <DeleteModelDialog
+          open={isDeleteModalOpen}
+          onOpenChange={setIsDeleteModalOpen}
+          selectedModels={selectedModels}
+          modelToDelete={modelToDelete}
+        />
       </div>
     </AppLayout>
   );

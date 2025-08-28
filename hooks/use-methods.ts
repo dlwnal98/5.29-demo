@@ -47,9 +47,7 @@ interface QueryParameter {
   type: string;
   description: string;
   required: boolean;
-  defaultValue: string;
   example?: string;
-  schema?: {};
 }
 
 interface HeaderParameter {
@@ -67,9 +65,46 @@ interface PathParameter {
   type: string;
   description: string;
   required: boolean;
-  defaultValue?: string;
   example?: string;
-  schema?: {};
+  schema?: {
+    type: string;
+    pattern: string;
+  };
+}
+
+interface ResponseSchemaProps {
+  type: string;
+  properties: {
+    id: {
+      type: string;
+    };
+    name: {
+      type: string;
+    };
+    email: {
+      type: string;
+    };
+    createdAt?: {
+      type: string;
+      format: string;
+    };
+  };
+}
+
+interface RequestSchemaProps {
+  type: string;
+  properties: {
+    name: {
+      type: string;
+    };
+    email: {
+      type: string;
+    };
+    password: {
+      type: string;
+    };
+    required: string[];
+  };
 }
 
 // 메서드 생성 DTO
@@ -81,13 +116,16 @@ export interface CreateMethodProps {
   description: string;
   targetEndpoint: string;
   requiresAuthentication: boolean;
-  requestModelId: string;
-  responseModelId: string;
-  apiKeyId: string;
+  // requestModelId: string;
+  // responseModelId: string;
+  // apiKeyId: string;
   createdBy: string;
+  requiresApiKey: boolean;
+  requestSchema?: RequestSchemaProps;
   queryParameters?: QueryParameter[];
   headerParameters?: HeaderParameter[];
   pathParameters?: PathParameter[];
+  responseSchema: ResponseSchemaProps;
 }
 
 // ✅ API 요청 함수

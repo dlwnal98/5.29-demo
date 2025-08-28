@@ -60,6 +60,10 @@ import {
   Model,
 } from '@/types/methods';
 
+import { requestHeaderList } from '@/lib/data';
+import { SelectItemText, SelectViewport } from '@radix-ui/react-select';
+import RequestHeaderListSearch from '../../models/components/RequestHeaderListSearch';
+
 export default function CreateMethodPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -161,6 +165,10 @@ export default function CreateMethodPage() {
   const [isDirectUrlInput, setIsDirectUrlInput] = useState(false);
   const [selectedApiKeyId, setSelectedApiKeyId] = useState('');
   const [isCreatingNewApiKey, setIsCreatingNewApiKey] = useState(false);
+  const [newMethodForm, setNewMethodForm] = useState({
+    name: '',
+    description: '',
+  });
   const [newApiKeyForm, setNewApiKeyForm] = useState({
     name: '',
     description: '',
@@ -214,8 +222,6 @@ export default function CreateMethodPage() {
     {
       id: '1',
       name: '',
-      description: '',
-      type: 'string',
       required: false,
     },
   ]);
@@ -477,8 +483,6 @@ export default function CreateMethodPage() {
     const newHeader: Header = {
       id: Date.now().toString(),
       name: '',
-      description: '',
-      type: 'string',
       required: false,
     };
     setHeaders([...headers, newHeader]);
@@ -531,23 +535,10 @@ export default function CreateMethodPage() {
   // Calculate schema byte count
   const schemaByteCount = new TextEncoder().encode(newModelForm.schema).length;
 
-  const httpHeaderOptions = [
-    'Content-Type',
-    'Accept',
-    'Authorization',
-    'User-Agent',
-    'Cache-Control',
-    'Pragma',
-    'Expires',
-    'Origin',
-    'Referer',
-    'Cookie',
-    'Set-Cookie',
-    'Host',
-    'X-Requested-With',
-    'X-Forwarded-For',
-  ];
+  console.log(headers);
 
+  const [isOpen, setIsOpen] = useState(false);
+  const [openId, setOpenId] = useState<string | null>(null);
   return (
     <AppLayout>
       <div className="container mx-auto px-4 py-6">
@@ -573,7 +564,7 @@ export default function CreateMethodPage() {
         </Breadcrumb>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-4">
             <Button variant="outline" size="sm" onClick={handleBack}>
               <ArrowLeft className="h-4 w-4" />
@@ -591,8 +582,7 @@ export default function CreateMethodPage() {
             </Button>
             <Button
               onClick={handleCreateMethod}
-              className="bg-orange-500 hover:bg-orange-600 text-white"
-            >
+              className="bg-orange-500 hover:bg-orange-600 text-white">
               저장
             </Button>
           </div>
@@ -604,30 +594,75 @@ export default function CreateMethodPage() {
             <Card>
               <div className="pt-4"></div>
               <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="new-method-name" className="text-[16px] font-semibold mb-4">
+                      메서드 이름 <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="new-method-name"
+                      placeholder="예 : 사용자 정보 조회"
+                      value={newMethodForm.name}
+                      onChange={(e) => setNewMethodForm({ ...newMethodForm, name: e.target.value })}
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label
+                      htmlFor="new-method-description"
+                      className="text-[16px] font-semibold mb-4">
+                      설명
+                    </Label>
+                    <Textarea
+                      id="new-method-description"
+                      placeholder="메서드에 대한 설명을 입력하세요"
+                      value={newApiKeyForm.description}
+                      onChange={(e) =>
+                        setNewMethodForm({ ...newMethodForm, description: e.target.value })
+                      }
+                      className="mt-1 min-h-[80px]"
+                    />
+                  </div>
+                </div>
+
                 {/* Method Details */}
                 <div>
                   <div className="space-y-4">
                     <div>
                       <Label htmlFor="method-type" className="text-[16px] font-semibold mb-4">
-                        메서드 유형
+                        메서드 유형 <span className="text-red-500">*</span>
                       </Label>
                       <Select
                         value={methodForm.methodType}
                         onValueChange={(value) =>
                           setMethodForm({ ...methodForm, methodType: value })
-                        }
-                      >
+                        }>
                         <SelectTrigger className="mt-2">
                           <SelectValue placeholder="메서드 유형 선택" />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="GET">GET</SelectItem>
-                          <SelectItem value="POST">POST</SelectItem>
-                          <SelectItem value="PUT">PUT</SelectItem>
-                          <SelectItem value="DELETE">DELETE</SelectItem>
-                          <SelectItem value="PATCH">PATCH</SelectItem>
-                          <SelectItem value="OPTIONS">OPTIONS</SelectItem>
-                          <SelectItem value="HEAD">HEAD</SelectItem>
+                        <SelectContent className="hover:cursor-pointer">
+                          <SelectItem className="hover:cursor-pointer" value="GET">
+                            GET
+                          </SelectItem>
+                          <SelectItem className="hover:cursor-pointer" value="POST">
+                            POST
+                          </SelectItem>
+                          <SelectItem className="hover:cursor-pointer" value="PUT">
+                            PUT
+                          </SelectItem>
+                          <SelectItem className="hover:cursor-pointer" value="DELETE">
+                            DELETE
+                          </SelectItem>
+                          <SelectItem className="hover:cursor-pointer" value="PATCH">
+                            PATCH
+                          </SelectItem>
+                          <SelectItem className="hover:cursor-pointer" value="OPTIONS">
+                            OPTIONS
+                          </SelectItem>
+                          <SelectItem className="hover:cursor-pointer" value="HEAD">
+                            HEAD
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -636,22 +671,22 @@ export default function CreateMethodPage() {
 
                 {/* Integration Type */}
                 <div>
-                  <h3 className="text-[16px] font-semibold mb-4">통합 유형</h3>
+                  <h3 className="text-[16px] font-semibold mb-4">
+                    통합 유형 <span className="text-red-500">*</span>
+                  </h3>
                   <RadioGroup
                     value={methodForm.integrationType}
                     onValueChange={(value) =>
                       setMethodForm({ ...methodForm, integrationType: value })
                     }
-                    className="grid grid-cols-4 space-y-4"
-                  >
+                    className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 space-y-4">
                     {/* HTTP */}
                     <div
                       className={`grid-cols-1 border rounded-lg p-4 transition-all ${
                         methodForm.integrationType === 'http'
                           ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
                           : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
+                      }`}>
                       <div className="flex items-center space-x-3">
                         <RadioGroupItem value="http" id="http" />
                         <div className="flex-1">
@@ -660,8 +695,7 @@ export default function CreateMethodPage() {
                             <div>
                               <Label
                                 htmlFor="http"
-                                className="text-base font-medium cursor-pointer"
-                              >
+                                className="text-base font-medium cursor-pointer">
                                 HTTP
                               </Label>
                               <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -724,7 +758,9 @@ export default function CreateMethodPage() {
                     {/* Endpoint URL */}
                     <div>
                       <div className="flex items-center gap-3 mb-4">
-                        <Label className="text-[16px] font-semibold">엔드포인트 URL</Label>
+                        <Label className="text-[16px] font-semibold">
+                          엔드포인트 URL <span className="text-red-500">*</span>
+                        </Label>
                         <div className="flex items-center gap-2">
                           <Label className="text-sm text-gray-600">직접 입력</Label>
                           <Switch
@@ -754,14 +790,13 @@ export default function CreateMethodPage() {
                             value={methodForm.endpointUrl}
                             onValueChange={(value) =>
                               setMethodForm({ ...methodForm, endpointUrl: value })
-                            }
-                          >
+                            }>
                             <SelectTrigger>
                               <SelectValue placeholder="엔드포인트 URL 선택" />
                             </SelectTrigger>
                             <SelectContent>
                               {endpointUrls.map((url) => (
-                                <SelectItem key={url} value={url}>
+                                <SelectItem key={url} value={url} className="hover:cursor-pointer">
                                   {url}
                                 </SelectItem>
                               ))}
@@ -791,20 +826,31 @@ export default function CreateMethodPage() {
                             ...methodForm,
                             requestValidator: value,
                           })
-                        }
-                      >
+                        }>
                         <SelectTrigger className="mt-1">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="없음">없음</SelectItem>
-                          <SelectItem value="본문 검증">본문 검증</SelectItem>
-                          <SelectItem value="헤더 검증">헤더 검증</SelectItem>
-                          <SelectItem value="파라미터 검증">파라미터 검증</SelectItem>
-                          <SelectItem value="본문 및 파라미터 검증">
+                          <SelectItem className="hover:cursor-pointer" value="없음">
+                            없음
+                          </SelectItem>
+                          <SelectItem className="hover:cursor-pointer" value="본문 검증">
+                            본문 검증
+                          </SelectItem>
+                          <SelectItem className="hover:cursor-pointer" value="헤더 검증">
+                            헤더 검증
+                          </SelectItem>
+                          <SelectItem className="hover:cursor-pointer" value="파라미터 검증">
+                            파라미터 검증
+                          </SelectItem>
+                          <SelectItem
+                            className="hover:cursor-pointer"
+                            value="본문 및 파라미터 검증">
                             본문 및 파라미터 검증
                           </SelectItem>
-                          <SelectItem value="전체 검증">전체 검증</SelectItem>
+                          <SelectItem className="hover:cursor-pointer" value="전체 검증">
+                            전체 검증
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -820,13 +866,11 @@ export default function CreateMethodPage() {
             <div className="border border-gray-200 rounded-lg overflow-hidden">
               <Collapsible
                 open={openSections.urlQuery}
-                onOpenChange={() => toggleSection('urlQuery')}
-              >
+                onOpenChange={() => toggleSection('urlQuery')}>
                 <CollapsibleTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="w-full justify-between p-4 h-auto bg-green-50 hover:bg-green-100 dark:bg-green-950/20 dark:hover:bg-green-950/30 border-0 rounded-none"
-                  >
+                    className="w-full justify-between p-4 h-auto bg-green-50 hover:bg-green-100 dark:bg-green-950/20 dark:hover:bg-green-950/30 border-0 rounded-none">
                     <span className="text-lg font-semibold text-green-900 dark:text-green-100">
                       URL 쿼리 문자열 파라미터
                     </span>
@@ -840,26 +884,33 @@ export default function CreateMethodPage() {
                 <CollapsibleContent>
                   <div className="p-6 bg-white dark:bg-gray-900">
                     <div className="space-y-4">
-                      <div className=" dark:bg-blue-950/20 p-4 rounded-lg">
-                        <h4 className="font-semibold text-gray-900 dark:text-blue-100 mb-3">
+                      <div className=" dark:bg-blue-950/20 rounded-lg">
+                        <h4 className="flex items-center gap-3 font-semibold text-gray-900 dark:text-blue-100 mb-4">
                           쿼리 스트링
+                          <Button
+                            size="sm"
+                            variant={'outline'}
+                            className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
+                            onClick={addQueryParameter}>
+                            <span className="font-bold">추가</span>
+                          </Button>
                         </h4>
 
                         {queryParameters.map((param, index) => (
-                          <div key={param.id} className="grid grid-cols-12 gap-3 items-center mb-3">
-                            <div className="col-span-6">
+                          <div key={param.id} className="grid grid-cols-12 gap-4 items-center mb-3">
+                            <div className="col-span-10">
                               <Input
                                 placeholder="이름"
                                 value={param.name}
                                 onChange={(e) =>
                                   updateQueryParameter(param.id, 'name', e.target.value)
                                 }
-                                className={param.name === '' ? 'border-red-300' : ''}
+                                // className={param.name === '' ? 'border-red-300' : ''}
                               />
                             </div>
-                            <div className="col-span-1 flex justify-center">
+                            <div className="col-span-2 gap-1 flex items-center">
                               <div className="flex items-center space-x-2">
-                                <Label className="text-xs">Required</Label>
+                                <Label className="text-xs">필수</Label>
                                 <Switch
                                   checked={param.required}
                                   onCheckedChange={(checked) =>
@@ -868,35 +919,26 @@ export default function CreateMethodPage() {
                                   size="sm"
                                 />
                               </div>
-                            </div>
-                            <div className="col-span-3 flex gap-2 justify-end">
-                              <Button
-                                size="sm"
-                                className="bg-blue-500 hover:bg-blue-600 text-white"
-                                onClick={addQueryParameter}
-                              >
-                                <Plus className="h-4 w-4 mr-1" />
-                                추가
-                              </Button>
+
                               {queryParameters.length > 1 && (
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => removeQueryParameter(param.id)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
+                                  className="border-0 hover:bg-transparent cursor-pointer"
+                                  onClick={() => removeQueryParameter(param.id)}>
+                                  <Trash2 className="h-5 w-5" />
                                 </Button>
                               )}
                             </div>
                           </div>
                         ))}
 
-                        {queryParameters.some((param) => param.name === '') && (
+                        {/* {queryParameters.some((param) => param.name === '') && (
                           <div className="flex items-center gap-2 text-red-600 text-sm mt-2">
                             <AlertCircle className="h-4 w-4" />
                             <span>이름은 비워둘 수 없습니다.</span>
                           </div>
-                        )}
+                        )} */}
                       </div>
                     </div>
                   </div>
@@ -908,13 +950,11 @@ export default function CreateMethodPage() {
             <div className="border border-gray-200 rounded-lg overflow-hidden">
               <Collapsible
                 open={openSections.httpHeaders}
-                onOpenChange={() => toggleSection('httpHeaders')}
-              >
+                onOpenChange={() => toggleSection('httpHeaders')}>
                 <CollapsibleTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="w-full justify-between p-4 h-auto bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/20 dark:hover:bg-purple-950/30 border-0 rounded-none"
-                  >
+                    className="w-full justify-between p-4 h-auto bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/20 dark:hover:bg-purple-950/30 border-0 rounded-none">
                     <span className="text-lg font-semibold text-purple-900 dark:text-purple-100">
                       HTTP 요청 헤더
                     </span>
@@ -928,36 +968,34 @@ export default function CreateMethodPage() {
                 <CollapsibleContent>
                   <div className="p-6 bg-white dark:bg-gray-900">
                     <div className="space-y-4">
-                      <div className="dark:bg-green-950/20 p-4 rounded-lg">
-                        <h4 className="font-semibold text-gray-900 dark:text-green-100 mb-3">
+                      <div className="dark:bg-green-950/20 rounded-lg">
+                        <h4 className="flex items-center gap-3 font-semibold text-gray-900 dark:text-green-100 mb-4">
                           헤더
+                          <Button
+                            size="sm"
+                            variant={'outline'}
+                            className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
+                            onClick={addHeader}>
+                            <span className="font-bold">추가</span>
+                          </Button>
                         </h4>
 
                         {headers.map((header, index) => (
                           <div
                             key={header.id}
-                            className="grid grid-cols-12 gap-3 items-center mb-3"
-                          >
-                            <div className="col-span-8">
-                              <Select
-                                value={header.type}
-                                onValueChange={(value) => updateHeader(header.id, 'type', value)}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {httpHeaderOptions.map((headerName) => (
-                                    <SelectItem key={headerName} value={headerName}>
-                                      {headerName}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                            className={`grid grid-cols-12 gap-3 mt-3 ${openId === header.id ? 'items-start' : 'items-center  mb-3'}`}>
+                            <div className="col-span-10">
+                              <RequestHeaderListSearch
+                                updateHeader={updateHeader}
+                                key={header.id}
+                                isOpen={openId === header.id}
+                                setIsOpen={(val) => setOpenId(val ? header.id : null)}
+                              />
                             </div>
-                            <div className="col-span-1 flex justify-center">
+                            <div
+                              className={`col-span-2 gap-1 flex items-center ${openId === header.id ? 'mt-1' : ''}`}>
                               <div className="flex items-center space-x-2">
-                                <Label className="text-xs">Required</Label>
+                                <Label className="text-xs">필수</Label>
                                 <Switch
                                   checked={header.required}
                                   onCheckedChange={(checked) =>
@@ -966,23 +1004,14 @@ export default function CreateMethodPage() {
                                   size="sm"
                                 />
                               </div>
-                            </div>
-                            <div className="col-span-2 flex gap-2 justify-end">
-                              <Button
-                                size="sm"
-                                className="bg-blue-500 hover:bg-blue-600 text-white"
-                                onClick={addHeader}
-                              >
-                                <Plus className="h-4 w-4 mr-1" />
-                                추가
-                              </Button>
+
                               {headers.length > 1 && (
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => removeHeader(header.id)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
+                                  className="border-0 hover:bg-transparent cursor-pointer"
+                                  onClick={() => removeHeader(header.id)}>
+                                  <Trash2 className="h-5 w-5" />
                                 </Button>
                               )}
                             </div>
@@ -999,13 +1028,11 @@ export default function CreateMethodPage() {
             <div className="border border-gray-200 rounded-lg overflow-hidden">
               <Collapsible
                 open={openSections.requestBody}
-                onOpenChange={() => toggleSection('requestBody')}
-              >
+                onOpenChange={() => toggleSection('requestBody')}>
                 <CollapsibleTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="w-full justify-between p-4 h-auto bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/20 dark:hover:bg-orange-950/30 border-0 rounded-none"
-                  >
+                    className="w-full justify-between h-auto bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/20 dark:hover:bg-orange-950/30 border-0 rounded-none">
                     <span className="text-lg font-semibold text-orange-900 dark:text-orange-100">
                       요청 본문
                     </span>
@@ -1021,9 +1048,16 @@ export default function CreateMethodPage() {
                     {/* Form Data Section */}
 
                     {/* Body Models Section */}
-                    <div className="dark:bg-orange-950/20 p-4 rounded-lg">
-                      <h4 className="font-semibold text-gray-900 dark:text-orange-100 mb-3">
+                    <div className="dark:bg-orange-950/20 rounded-lg">
+                      <h4 className="flex items-center gap-3 font-semibold text-gray-900 dark:text-green-100 mb-4">
                         요청 모델
+                        <Button
+                          size="sm"
+                          variant={'outline'}
+                          className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
+                          onClick={addBodyModel}>
+                          <span className="font-bold">추가</span>
+                        </Button>
                       </h4>
 
                       {bodyModels.map((model, index) => (
@@ -1045,21 +1079,22 @@ export default function CreateMethodPage() {
                                 } else {
                                   updateBodyModel(model.id, 'model', value);
                                 }
-                              }}
-                            >
+                              }}>
                               <SelectTrigger>
                                 <SelectValue placeholder="모델" />
                               </SelectTrigger>
                               <SelectContent>
                                 {models.map((availableModel) => (
-                                  <SelectItem key={availableModel.id} value={availableModel.name}>
+                                  <SelectItem
+                                    key={availableModel.id}
+                                    value={availableModel.name}
+                                    className="hover:cursor-pointer">
                                     {availableModel.name}
                                   </SelectItem>
                                 ))}
                                 <SelectItem
                                   value="create-new"
-                                  className="text-blue-600 font-medium"
-                                >
+                                  className="text-blue-600 font-medium hover:cursor-pointer">
                                   <div className="flex items-center gap-2">
                                     <Plus className="h-4 w-4" />
                                     새로운 모델 생성
@@ -1068,22 +1103,14 @@ export default function CreateMethodPage() {
                               </SelectContent>
                             </Select>
                           </div>
-                          <div className="col-span-2 flex gap-2 justify-end">
-                            <Button
-                              size="sm"
-                              className="bg-blue-500 hover:bg-blue-600 text-white"
-                              onClick={addBodyModel}
-                            >
-                              <Plus className="h-4 w-4 mr-1" />
-                              추가
-                            </Button>
+                          <div className="col-span-2 flex justify-start">
                             {bodyModels.length > 1 && (
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => removeBodyModel(model.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
+                                className="border-0 hover:bg-transparent  cursor-pointer"
+                                onClick={() => removeBodyModel(model.id)}>
+                                <Trash2 className="h-5 w-5" />
                               </Button>
                             )}
                           </div>
@@ -1114,8 +1141,7 @@ export default function CreateMethodPage() {
                   variant={!isCreatingNewApiKey ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setIsCreatingNewApiKey(false)}
-                  className="flex items-center gap-2"
-                >
+                  className="flex items-center gap-2">
                   <Settings className="h-4 w-4" />
                   기존 API 키 선택
                 </Button>
@@ -1123,8 +1149,7 @@ export default function CreateMethodPage() {
                   variant={isCreatingNewApiKey ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setIsCreatingNewApiKey(true)}
-                  className="flex items-center gap-2"
-                >
+                  className="flex items-center gap-2">
                   <Plus className="h-4 w-4" />새 API 키 생성
                 </Button>
               </div>
@@ -1146,8 +1171,7 @@ export default function CreateMethodPage() {
                               ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
                               : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                           }`}
-                          onClick={() => setSelectedApiKeyId(apiKey.id)}
-                        >
+                          onClick={() => setSelectedApiKeyId(apiKey.id)}>
                           <div className="flex items-start gap-3">
                             <input
                               type="radio"
@@ -1248,8 +1272,7 @@ export default function CreateMethodPage() {
                   isCreatingNewApiKey
                     ? !newApiKeyForm.name.trim()
                     : !selectedApiKeyId && apiKeys.length > 0
-                }
-              >
+                }>
                 {isCreatingNewApiKey ? '생성 및 선택' : '선택'}
               </Button>
             </DialogFooter>
@@ -1276,8 +1299,7 @@ export default function CreateMethodPage() {
                   <div>
                     <Label
                       htmlFor="model-name"
-                      className="text-sm font-medium flex items-center gap-1"
-                    >
+                      className="text-sm font-medium flex items-center gap-1">
                       모델 이름 <span className="text-red-500">*</span>
                     </Label>
                     <Input
@@ -1373,10 +1395,7 @@ export default function CreateMethodPage() {
               <Button
                 onClick={handleCreateModel}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
-                disabled={!newModelForm.name.trim()}
-              >
-                추가
-              </Button>
+                disabled={!newModelForm.name.trim()}></Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

@@ -1,8 +1,9 @@
+'use client';
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-
 import {
   Table,
   TableHeader,
@@ -11,54 +12,63 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
-import { Trash2, CheckCircle, XCircle, Settings, Shield } from 'lucide-react';
-import type { Resource, Method, CorsSettings } from '@/types/resource';
+import { Trash2, Shield } from 'lucide-react';
+import type { Resource, Method } from '@/types/resource';
 import { CorsSettingsDialog } from './CorsSettingsDialog';
+import { DeleteMethodDialog } from './DeleteMethodDialog';
+import { toast, Toaster } from 'sonner';
+import { useRouter } from 'next/navigation';
+import { getMethodStyle } from '@/lib/etc';
+import { DeleteResourceDialog } from './DeleteResourceDialog';
+import { useAuthStore } from '@/store/store';
 
 interface ResourceDetailCardProps {
-  mockData2: any;
   selectedResource: Resource;
   setSelectedResource: (resource: Resource) => void;
-  handleCorsClick: () => void;
-  handleCreateMethod: () => void;
   handleMethodClick: (method: Method, resource: Resource) => void;
-  setMethodToDelete: (method: Method) => void;
-  setIsResourceDeleteDialogOpen: (open: boolean) => void;
-  getMethodStyle: (method: any) => string;
-  // CORS 관련 props 추가
-  // corsForm: CorsSettings;
-  // setCorsForm: (form: CorsSettings) => void;
-  handleCorsUpdate: () => void;
-  httpMethods: string[];
-  addCorsMethod: (method: string) => void;
-  removeCorsMethod: (method: string) => void;
 }
 
 export function ResourceDetailCard({
-  mockData2,
+  // mockData2,
   selectedResource,
   setSelectedResource,
-  handleCorsClick,
-  handleCreateMethod,
   handleMethodClick,
-  setMethodToDelete,
-  setIsResourceDeleteDialogOpen,
-  getMethodStyle,
-  // corsForm,
-  // setCorsForm,
-  handleCorsUpdate,
-  httpMethods,
-  addCorsMethod,
-  removeCorsMethod,
 }: ResourceDetailCardProps) {
+  const userData = useAuthStore((state) => state.user);
+
+  const router = useRouter();
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   // CORS 다이얼로그 상태 추가
   const [isCorsModalOpen, setIsCorsModalOpen] = useState(false);
+  const [methodToDelete, setMethodToDelete] = useState<Method | null>(null);
+  const [isMethodDeleteDialogOpen, setIsMethodDeleteDialogOpen] = useState(false);
+
+  const handleDeleteResource = () => {
+    if (selectedResource.id === 'root') {
+      toast.error('루트 리소스는 삭제할 수 없습니다.');
+      return;
+    }
+
+    setIsDeleteDialogOpen(false);
+    toast.success(`리소스 '${selectedResource.name}'이(가) 삭제되었습니다.`);
+  };
+
+  const handleDeleteMethod = () => {
+    if (methodToDelete) {
+      toast.success(
+        `메서드 '${methodToDelete.type} ${methodToDelete.resourcePath}'이(가) 삭제되었습니다.`
+      );
+      setMethodToDelete(null);
+      setIsMethodDeleteDialogOpen(false);
+    }
+  };
 
   // CORS 버튼 클릭 핸들러 수정
   const handleCorsButtonClick = () => {
-    if (selectedResource.corsEnabled && selectedResource.corsSettings) {
-      // setCorsForm(selectedResource.corsSettings);
-    }
+    // if (selectedResource.corsEnabled && selectedResource.corsSettings) {
+    // setCorsForm(selectedResource.corsSettings);
+    // }
     setIsCorsModalOpen(true);
   };
 
@@ -73,6 +83,8 @@ export function ResourceDetailCard({
     }
   };
 
+  console.log(selectedResource);
+
   return (
     <>
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -86,14 +98,16 @@ export function ResourceDetailCard({
                 size="sm"
                 onClick={handleCorsButtonClick}
                 className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 border-gray-300"
-                title="리소스 수정">
+                title="리소스 수정"
+                // disabled={'inactive'}
+              >
                 {/* <Settings className="h-4 w-4 text-gray-500" /> */}
                 CORS 활성화 설정
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setIsResourceDeleteDialogOpen(true)}
+                onClick={() => setIsDeleteDialogOpen(true)}
                 className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                 title="삭제">
                 리소스 삭제
@@ -107,12 +121,12 @@ export function ResourceDetailCard({
                 리소스 ID
               </Label>
               <div className="mt-1 text-sm font-mono text-gray-900 dark:text-gray-400">
-                {mockData2?._id}
+                {selectedResource.id}
               </div>
             </div>
             <div>
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">경로</Label>
-              <div className="mt-1 text-lg font-mono text-gray-900 dark:text-white">
+              <div className="mt-1 text-sm font-mono text-gray-900 dark:text-white">
                 {selectedResource.path}
               </div>
             </div>
@@ -163,7 +177,12 @@ export function ResourceDetailCard({
             <div className="flex gap-2">
               <Button
                 size="sm"
-                onClick={handleCreateMethod}
+                // onClick={handleCreateMethod}
+                onClick={() => {
+                  router.push(
+                    `/services/api-management/resources/methods?resourceId=${selectedResource.id}&resourcePath=${selectedResource.path}`
+                  );
+                }}
                 className="bg-blue-500 hover:bg-blue-600 text-white">
                 메서드 생성
               </Button>
@@ -173,10 +192,12 @@ export function ResourceDetailCard({
             <Table>
               <TableHeader className="hover:bg-white dark:hover:bg-gray-700">
                 <TableRow className="hover:bg-white dark:hover:bg-gray-700">
-                  <TableHead>메서드 유형</TableHead>
+                  <TableHead className="w-[10%]">메서드 유형</TableHead>
+                  <TableHead>메서드 이름</TableHead>
+
                   <TableHead>API 키</TableHead>
                   <TableHead>엔드포인트 URL</TableHead>
-                  <TableHead className="w-[100px]">작업</TableHead>
+                  <TableHead className="w-[7%] text-center">작업</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -189,12 +210,14 @@ export function ResourceDetailCard({
                         handleMethodClick(method, selectedResource);
                       }}>
                       <span
-                        className={`${getMethodStyle(method.type.toUpperCase())} font-mono text-sm px-2 py-1 rounded`}>
+                        className={`${getMethodStyle(method.type.toUpperCase())}  font-mono text-sm px-2 py-1 rounded`}>
                         {method.type}
                       </span>
                     </TableCell>
+                    <TableCell>{method.summary}</TableCell>
+
                     <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
-                      {method.apiKey}
+                      {method.apiKeys[0]?.apiKeyId}
                     </TableCell>
                     <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
                       <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
@@ -209,7 +232,7 @@ export function ResourceDetailCard({
                         onClick={(e) => {
                           e.stopPropagation();
                           setMethodToDelete(method);
-                          // setIsMethodDeleteDialogOpen(true);
+                          setIsMethodDeleteDialogOpen(true);
                         }}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -237,10 +260,26 @@ export function ResourceDetailCard({
         resourceId={'RS12341335'}
         // corsForm={corsForm}
         // setCorsForm={setCorsForm}
-        handleCorsUpdate={handleCorsUpdate}
-        httpMethods={httpMethods}
-        addCorsMethod={addCorsMethod}
-        removeCorsMethod={removeCorsMethod}
+        // handleCorsUpdate={handleCorsUpdate}
+        // addCorsMethod={addCorsMethod}
+        // removeCorsMethod={removeCorsMethod}
+      />
+
+      {/* Delete Method Confirmation Dialog */}
+      <DeleteMethodDialog
+        open={isMethodDeleteDialogOpen}
+        onOpenChange={setIsMethodDeleteDialogOpen}
+        methodToDelete={methodToDelete}
+      />
+
+      {/* Delete Resource Confirmation Dialog */}
+      <DeleteResourceDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        userId={userData?.userId || ''}
+        resourceId={selectedResource.id}
+        selectedResource={selectedResource}
+        handleDeleteResource={handleDeleteResource}
       />
     </>
   );

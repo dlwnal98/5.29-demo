@@ -1,17 +1,18 @@
-import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
-import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from '@/lib/apiClient';
+import { useQuery } from '@tanstack/react-query';
+import { requestGet } from '@/lib/apiClient';
 
 interface EndpointsData {
   endpointId: string;
   stageId: string;
   baseUrl: string;
   fullEndpoint: string;
-  path: string;
   status: string;
-  description: string;
   createdAt: string;
-  updatedAt: string;
-  createdBy: string;
+  healthStatus: {
+    status: string;
+    responseTime: number;
+    statusCode: number;
+  };
 }
 
 // Endpoints List 조회
@@ -56,65 +57,65 @@ export function useGetEndpointDetail(endpointId: string) {
   });
 }
 
-interface createEndpointProps {
-  stageId: string;
-  path: string;
-  description: string;
-  createdBy: string;
-}
+// interface createEndpointProps {
+//   stageId: string;
+//   path: string;
+//   description: string;
+//   createdBy: string;
+// }
 
-//Endpoints 생성
-const createEndpoint = async (data: createEndpointProps) => {
-  const res = await requestPost(`/api/v1/endpoints`, data);
+// //Endpoints 생성
+// const createEndpoint = async (data: createEndpointProps) => {
+//   const res = await requestPost(`/api/v1/endpoints`, data);
 
-  if (res.code == 200) {
-    return res.data;
-  }
-};
+//   if (res.code == 200) {
+//     return res.data;
+//   }
+// };
 
-export function useCreateEndpoint() {
-  const queryClient = useQueryClient();
+// export function useCreateEndpoint() {
+//   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (data: createEndpointProps) => createEndpoint(data),
-    onSuccess: () => {
-      //   브랜치 생성 성공 시 목록 invalidate
-      queryClient.invalidateQueries({
-        queryKey: ['getEndpointsList'],
-      });
-    },
-  });
-}
+//   return useMutation({
+//     mutationFn: (data: createEndpointProps) => createEndpoint(data),
+//     onSuccess: () => {
+//       //   브랜치 생성 성공 시 목록 invalidate
+//       queryClient.invalidateQueries({
+//         queryKey: ['getEndpointsList'],
+//       });
+//     },
+//   });
+// }
 
-interface ModifyEndpointProps {
-  path: string;
-  description: string;
-  updatedBy: string;
-}
+// interface ModifyEndpointProps {
+//   path: string;
+//   description: string;
+//   updatedBy: string;
+// }
 
-//Endpoints 수정
-const modifyEndpoint = async (endpointId: string, data: ModifyEndpointProps) => {
-  const res = await requestPut(`/api/v1/endpoints/${endpointId}`, data);
+// //Endpoints 수정
+// const modifyEndpoint = async (endpointId: string, data: ModifyEndpointProps) => {
+//   const res = await requestPut(`/api/v1/endpoints/${endpointId}`, data);
 
-  if (res.code == 200) {
-    return res.data;
-  }
-};
+//   if (res.code == 200) {
+//     return res.data;
+//   }
+// };
 
-export function useModifyEndpoint() {
-  const queryClient = useQueryClient();
+// export function useModifyEndpoint() {
+//   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: ({ endpointId, data }: { endpointId: string; data: ModifyEndpointProps }) =>
-      modifyEndpoint(endpointId, data),
-    onSuccess: () => {
-      //   브랜치 생성 성공 시 목록 invalidate
-      queryClient.invalidateQueries({
-        queryKey: ['getEndpointsList'],
-      });
-    },
-  });
-}
+//   return useMutation({
+//     mutationFn: ({ endpointId, data }: { endpointId: string; data: ModifyEndpointProps }) =>
+//       modifyEndpoint(endpointId, data),
+//     onSuccess: () => {
+//       //   브랜치 생성 성공 시 목록 invalidate
+//       queryClient.invalidateQueries({
+//         queryKey: ['getEndpointsList'],
+//       });
+//     },
+//   });
+// }
 
 //Endpoints 삭제 (스테이지 삭제하면 엔드포인트도 다 삭제하게 만들어서 이거는 쓰지 말기)
 // const deleteEndpoint = async (endpointId: string) => {

@@ -4,6 +4,15 @@ export interface Resource {
   name: string;
   children?: Resource[];
   methods: Method[];
+  corsEnabled?: boolean;
+  corsSettings?: {
+    allowMethods?: string[];
+    allowHeaders?: string;
+    allowOrigin?: string;
+    exposeHeaders?: string;
+    maxAge?: string;
+    allowCredentials?: boolean;
+  };
 }
 
 export interface Method {
@@ -11,6 +20,13 @@ export interface Method {
   type: string;
   resourcePath: string;
   summary: string;
+  apiKeys?: {
+    apiKeyId?: string;
+    mappingId?: string;
+    methodId?: string;
+    createdAt?: string;
+    createdBy?: string;
+  };
 }
 
 export interface Stage {

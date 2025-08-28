@@ -11,8 +11,6 @@ export interface QueryParameter {
 export interface Header {
   id: string;
   name: string;
-  description: string;
-  type: string;
   required: boolean;
 }
 

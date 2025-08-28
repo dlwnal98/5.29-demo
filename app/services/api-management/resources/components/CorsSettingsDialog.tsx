@@ -21,11 +21,10 @@ interface CorsSettingsDialogProps {
   onOpenChange: (open: boolean) => void;
   // corsForm: CorsSettings;
   // setCorsForm: (form: CorsSettings) => void;
-  handleCorsUpdate: () => void;
+  // handleCorsUpdate: () => void;
   resourceId: string;
-  httpMethods: string[];
-  addCorsMethod: (method: string) => void;
-  removeCorsMethod: (method: string) => void;
+  // addCorsMethod: (method: string) => void;
+  // removeCorsMethod: (method: string) => void;
   selectedResource: Resource;
   setSelectedResource: (resource: Resource) => void;
 }
@@ -35,11 +34,10 @@ export function CorsSettingsDialog({
   onOpenChange,
   // corsForm,
   // setCorsForm,
-  handleCorsUpdate,
+  // handleCorsUpdate,
   resourceId,
-  httpMethods,
-  addCorsMethod,
-  removeCorsMethod,
+  // addCorsMethod,
+  // removeCorsMethod,
   selectedResource,
   setSelectedResource,
 }: CorsSettingsDialogProps) {
@@ -71,13 +69,15 @@ export function CorsSettingsDialog({
         allowedOrigins: selectedResource.corsSettings.allowOrigin,
         allowedHeaders: selectedResource.corsSettings.allowHeaders,
         exposedHeaders: selectedResource.corsSettings.exposeHeaders,
+        maxAge: selectedResource.corsSettings.maxAge,
+        allowCredentials: selectedResource.corsSettings.allowCredentials,
       },
     });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-scroll-y">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-blue-600 flex items-center gap-2">
             <Globe className="h-5 w-5" />
@@ -116,6 +116,19 @@ export function CorsSettingsDialog({
                   Access-Control-Allow-Method
                 </Label>
                 <div className="space-y-1">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id={'Method_OPTIONS'}
+                      // checked={false}
+                      // onCheckedChange={(checked) => handleSaveId(checked as boolean)}
+                      className="bg-white border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                    />
+                    <Label
+                      htmlFor={'Method_OPTIONS'}
+                      className="text-sm text-gray-600 cursor-pointer">
+                      OPTIONS
+                    </Label>
+                  </div>
                   {/* 리소스에서 생성한 메서드 종류가 체크박스 옵션으로 나와야함 */}
                   {corsForm.allowMethods.map((method: string) => (
                     <div className="flex items-center space-x-2">

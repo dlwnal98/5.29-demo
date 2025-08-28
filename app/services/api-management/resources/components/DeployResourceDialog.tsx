@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -17,32 +20,67 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { toast, Toaster } from 'sonner';
 
 interface deployData {
   stage: string;
   version: string;
   description: string;
   newStageName: string;
-  newStageDescription: string;
 }
 
 interface deployResourceProps {
-  isDeployModalOpen: boolean;
-  handleDeployModalClose: any;
-  handleDeploySubmit: any;
-  deploymentData: deployData;
-  setDeploymentData: React.Dispatch<React.SetStateAction<deployData>>;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export default function DeployResourceDialog({
-  isDeployModalOpen,
-  handleDeployModalClose,
-  handleDeploySubmit,
-  deploymentData,
-  setDeploymentData,
-}: deployResourceProps) {
+export default function DeployResourceDialog({ open, onOpenChange }: deployResourceProps) {
+  const [deploymentData, setDeploymentData] = useState<deployData>({
+    stage: '',
+    version: '',
+    description: '',
+    newStageName: '',
+  });
+
+  const handleDeploySubmit = () => {
+    if (deploymentData.stage === 'new') {
+      if (!deploymentData.newStageName.trim()) {
+        toast.error('새 스테이지 이름을 입력해주세요.');
+        return;
+      }
+      // 새 스테이지 생성 로직
+      toast.success(
+        `새 스테이지 '${deploymentData.newStageName}'가 생성되고 이(가) 성공적으로 배포되었습니다.`
+      );
+    } else {
+      if (!deploymentData.stage) {
+        toast.error('배포 스테이지를 선택해주세요.');
+        return;
+      }
+      toast.success(`이(가) ${deploymentData.stage} 스테이지에 성공적으로 배포되었습니다.`);
+    }
+
+    onOpenChange(false);
+    setDeploymentData({
+      stage: '',
+      version: '',
+      description: '',
+      newStageName: '',
+    });
+  };
+
+  const handleDeployModalClose = () => {
+    onOpenChange(false);
+    setDeploymentData({
+      stage: '',
+      version: '',
+      description: '',
+      newStageName: '',
+    });
+  };
+
   return (
-    <Dialog open={isDeployModalOpen} onOpenChange={handleDeployModalClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center">
@@ -95,23 +133,6 @@ export default function DeployResourceDialog({
                     })
                   }
                   placeholder="새 스테이지 이름을 입력하세요"
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="new-stage-description" className="text-sm font-medium">
-                  스테이지 설명
-                </Label>
-                <Textarea
-                  id="new-stage-description"
-                  value={deploymentData.newStageDescription}
-                  onChange={(e) =>
-                    setDeploymentData({
-                      ...deploymentData,
-                      newStageDescription: e.target.value,
-                    })
-                  }
-                  placeholder="스테이지 설명을 입력하세요 (선택사항)"
                   className="mt-1"
                 />
               </div>

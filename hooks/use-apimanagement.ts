@@ -1,18 +1,13 @@
-import axios from 'axios';
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
 import { requestDelete, requestGet, requestPost, requestPut } from '@/lib/apiClient';
 
 interface APIListData {
   apiId: string;
+  organizationId: string;
   name: string;
   description: string;
   version: string;
-  organizationId: string;
-  userId: string;
   enabled: boolean;
-  tags: string[];
-  createdAt: string;
-  updatedAt: string;
 }
 
 // API List 조회
@@ -112,7 +107,6 @@ export function useCloneCreateAPI(options?: UseMutationOptions<any, Error, Clone
 interface ModifyAPIProps {
   name: string;
   description: string;
-  enabled: boolean;
   updatedBy: string;
 }
 
@@ -170,11 +164,3 @@ export function useDeleteAPI(options?: UseMutationOptions<any, Error, string>) {
     },
   });
 }
-
-// API OpenAPI 문서 조회
-export const viewOpenApiDoc = async (apiId: string) => {
-  const res = await requestGet(`/api/v1/plans${apiId}/openapi`);
-  if (res.code == 200) {
-    return res.data;
-  }
-};

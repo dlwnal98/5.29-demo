@@ -1,35 +1,19 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
 import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from '@/lib/apiClient';
 
-interface ResourceData {
-  resourceId: string;
-  resourceName: string;
-  description: string;
-  planId: string;
-  createdAt: string;
-}
-
-// 전체 Resource List 조회 (시스템 관리자용)
-export const getAllResourceList = async () => {
-  const res = await requestGet(`/api/v1/resources`);
+// open api 문서 조회
+const getOpenAPIDoc = async (apiId: string) => {
+  const res = await requestGet(`/api/v1/plans/${apiId}/openapi`);
   if (res.code == 200) {
     return res.data;
   }
 };
 
-// API 계획의 Resource List 조회
-const getResourceList = async (apiId: string) => {
-  const res = await requestGet(`/api/v1/resources/plan/${apiId}`);
-  if (res.code == 200) {
-    return res.data;
-  }
-};
-
-export function useGetResourceList(apiId: string) {
-  return useQuery<ResourceData[]>({
-    queryKey: ['getResourceList'],
-    queryFn: () => getResourceList(apiId),
-    // enabled: !!apiId, // 조건적 실행
+export function useGetOpenAPIDoc(apiId: string) {
+  return useQuery<any[]>({
+    queryKey: ['getOpenAPIDoc'],
+    queryFn: () => getOpenAPIDoc(apiId),
+    enabled: !!apiId, // 조건적 실행
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -37,75 +21,47 @@ export function useGetResourceList(apiId: string) {
   });
 }
 
-// Resource 상세 조회
-const getResourceDetail = async (resourceId: string) => {
-  const res = await requestGet(`/api/v1/resources/${resourceId}`);
-  if (res.code == 200) {
-    return res.data;
-  }
-};
-
-export function useGetResourceDetail(resourceId: string) {
-  return useQuery<ResourceData[]>({
-    queryKey: ['getResourceDetail'],
-    queryFn: () => getResourceDetail(resourceId),
-    // enabled: !!apiId, // 조건적 실행
-    staleTime: Infinity,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-  });
+interface initialPathsProps {
+  pathPattern: string;
+  description?: string;
+  pathOrder: number;
+  httpMethods?: {
+    method: string;
+    description: string;
+  }[];
 }
-
-// 리소스 트리 구조
-export interface ResourceNode {
-  resourceId: string;
-  resourceName: string;
-  level: number;
-  children: ResourceNode[];
-}
-
-// API 응답 전체 구조
-export interface ApiTreeResponse {
-  apiId: string;
-  tree: ResourceNode[];
-}
-
-// Resource 트리구조 조회
-const getResourceTree = async (apiId: string) => {
-  const res = await requestGet(`/api/v1/resources/tree/${apiId}`);
-  if (res.code == 200) {
-    return res.data;
-  }
-};
-
-export function useGetResourceTree(apiId: string) {
-  return useQuery<ApiTreeResponse[]>({
-    queryKey: ['getResourceTree'],
-    queryFn: () => getResourceTree(apiId),
-    // enabled: !!apiId, // 조건적 실행
-    staleTime: Infinity,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-  });
-}
-
-// interface initialPathsProps {
-//   pathPattern: string;
-//   description?: string;
-//   pathOrder?: number;
-// }
 
 export interface CreateResourceProps {
-  planId: string;
+  apiId: string;
   resourceName: string;
   description: string;
-  // resourceType: string;
-  // initialPaths: initialPathsProps[];
-  // createdBy: string;
-  resourcePath: string;
+  resourceType: string;
+  initialPaths: initialPathsProps[];
+  securitySettings: {
+    authenticationRequired: boolean;
+  };
+  createdBy: string;
 }
+
+// open api 문서 조회
+export const getResourceList = async (apiId: string) => {
+  const res = await requestGet(`/api/v1/resources/plan/${apiId}`);
+  if (res.code == 200) {
+    return res.data.pathSummary?.pathPatterns;
+  }
+};
+
+// export function useGetResourceList(apiId: string) {
+//   return useQuery<any[]>({
+//     queryKey: ['getResourceList'],
+//     queryFn: () => getResourceList(apiId),
+//     enabled: !!apiId, // 조건적 실행
+//     staleTime: Infinity,
+//     refetchOnWindowFocus: false,
+//     refetchOnMount: false,
+//     refetchOnReconnect: false,
+//   });
+// }
 
 //resource 생성 + 실시간 목록 생성
 const createResource = async (data: CreateResourceProps) => {
@@ -133,14 +89,8 @@ export function useCreateResource(options?: UseMutationOptions<any, Error, Creat
   });
 }
 
-interface validatePathProps {
-  valid: boolean;
-  path: string;
-  errors: any[];
-}
-
 // Resource 경로 검증
-const getResourceValidatePath = async (apiId: string, resourcePath: string) => {
+export const getResourceValidatePath = async (apiId: string, resourcePath: string) => {
   const res = await requestGet(
     `/api/v1/resources/validate-path?apiId=${apiId}&resourcePath=${resourcePath}`
   );
@@ -171,9 +121,9 @@ interface resourceCorsConfig {
   maxAge: number;
 }
 
-interface resourceCorsSettings {
+interface resourceCorsSettingsData {
   pathId: string;
-  pathPattern: string;
+  path: string;
   corsEnabled: boolean;
   corsConfig: resourceCorsConfig[];
 }
@@ -188,7 +138,7 @@ const getResourceCorsSettings = async (resourceId: string) => {
 };
 
 export function useGetResourceCorsSettings(resourceId: string) {
-  return useQuery<resourceCorsSettings[]>({
+  return useQuery<resourceCorsSettingsData[]>({
     queryKey: ['getResourceCorsSettings'],
     queryFn: () => getResourceCorsSettings(resourceId),
     // enabled: !!apiId, // 조건적 실행
@@ -203,6 +153,8 @@ interface ModifyResourceProps {
   allowedOrigins?: string[];
   allowedHeaders?: string[];
   exposedHeaders?: string[];
+  maxAge?: number;
+  allowCredentials?: boolean;
 }
 
 //resource Cors 설정 수정
@@ -265,9 +217,21 @@ interface deploymentProps {
   apiId: string;
   stageId: string;
   version: string;
-  description: string;
-  deploymentNotes: string;
-  createdBy: string;
+  deploymentType: string;
+  strategy: string;
+  deploymentOptions: {
+    autoActivate: boolean;
+    runPreDeploymentValidation: boolean;
+    runPostDeploymentValidation: boolean;
+    enableAutoRollback: boolean;
+    rollbackThreshold: number;
+    timeoutMinutes: number;
+  };
+  deployedBy: string;
+  metadata: {
+    release_notes: string;
+    jira_ticket: string;
+  };
 }
 
 // API 배포 실행
@@ -279,9 +243,12 @@ const deployAPI = async (data: deploymentProps) => {
   }
 };
 
-export function useDeployAPI() {
+export function useDeployAPI(options?: UseMutationOptions<any, Error, deploymentProps>) {
   return useMutation({
+    ...options,
     mutationFn: (data: deploymentProps) => deployAPI(data),
-    onSuccess: () => {},
+    onSuccess: (data, variables, context) => {
+      options?.onSuccess?.(data, variables, context);
+    },
   });
 }

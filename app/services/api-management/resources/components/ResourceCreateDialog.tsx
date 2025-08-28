@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import {
   Dialog,
@@ -19,41 +19,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { X } from 'lucide-react';
-import type { CorsSettings } from '@/types/resource';
-import { useCreateAPI } from '@/hooks/use-apimanagement';
 import { requestGet } from '@/lib/apiClient';
-import { CreateResourceProps, useCreateResource } from '@/hooks/use-resources';
+import { CreateResourceProps, getResourceList, useCreateResource } from '@/hooks/use-resources';
 import { toast } from 'sonner';
 
 interface ResourceCreateDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  // createResourceForm: {
-  //   path: string;
-  //   name: string;
-  //   corsEnabled: boolean;
-  //   corsSettings: CorsSettings;
-  // };
-  // setCreateResourceForm: (form: any) => void;
   apiId: string;
-  handleCreateResource: () => void;
-  availableResourcePaths: string[];
-  httpMethods: string[];
 }
 
-export function ResourceCreateDialog({
-  open,
-  onOpenChange,
-  // createResourceForm,
-  // setCreateResourceForm,
-  apiId,
-  handleCreateResource,
-
-  availableResourcePaths,
-  httpMethods,
-}: ResourceCreateDialogProps) {
+export function ResourceCreateDialog({ open, onOpenChange, apiId }: ResourceCreateDialogProps) {
   const [createResourceForm, setCreateResourceForm] = useState({
     planId: apiId,
     resourceName: '',
@@ -70,27 +46,19 @@ export function ResourceCreateDialog({
     },
   });
 
-  const addCreateFormCorsMethod = (method: string) => {
-    if (!createResourceForm.corsSettings.allowMethods.includes(method)) {
-      setCreateResourceForm({
-        ...createResourceForm,
-        corsSettings: {
-          ...createResourceForm.corsSettings,
-          allowMethods: [...createResourceForm.corsSettings.allowMethods, method],
-        },
-      });
-    }
-  };
+  // const [resourcePaths, setResourcePaths] = useState<string[]>([]);
 
-  const removeCreateFormCorsMethod = (method: string) => {
-    setCreateResourceForm({
-      ...createResourceForm,
-      corsSettings: {
-        ...createResourceForm.corsSettings,
-        allowMethods: createResourceForm.corsSettings.allowMethods.filter((m) => m !== method),
-      },
-    });
-  };
+  // const getResourcePaths = async () => {
+  //   const res = await getResourceList(apiId);
+
+  //   setResourcePaths(['/', ...res]);
+  // };
+
+  // useEffect(() => {
+  //   getResourcePaths();
+  // },[])
+
+  const availableResourcePaths = ['/', '/api', '/users', '/products', '/orders'];
 
   const { mutate: createResourceMutate } = useCreateResource({
     onSuccess: () => {
@@ -112,7 +80,7 @@ export function ResourceCreateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-scroll">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-blue-600">Resource 생성</DialogTitle>
         </DialogHeader>
@@ -135,6 +103,7 @@ export function ResourceCreateDialog({
                   <SelectValue placeholder="경로를 선택하세요" />
                 </SelectTrigger>
                 <SelectContent>
+                  {/* {resourcePaths.map((path) => ( */}
                   {availableResourcePaths.map((path) => (
                     <SelectItem key={path} value={path}>
                       {path}
@@ -205,7 +174,6 @@ export function ResourceCreateDialog({
             취소
           </Button>
           <Button
-            // onClick={handleCreateResource}
             onClick={() => createResource(createResourceForm)}
             className="bg-blue-500 hover:bg-blue-600 text-white">
             생성

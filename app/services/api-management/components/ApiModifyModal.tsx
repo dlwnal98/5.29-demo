@@ -59,7 +59,6 @@ const ApiModifyModal = ({
       data: {
         name: form.name,
         description: form.description,
-        enabled: true,
         updatedBy: userId,
       },
     });
