@@ -1,6 +1,6 @@
-import { AppLayout } from "@/components/layout/AppLayout"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { AppLayout } from '@/components/layout/AppLayout';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 export default function CreateMethodLoading() {
   return (
@@ -32,9 +32,9 @@ export default function CreateMethodLoading() {
           </div>
         </div>
 
-        <div className="grid grid-cols-12 gap-6">
+        <div className="space-y-6">
           {/* Main Form Skeleton */}
-          <div className="col-span-8 space-y-6">
+          <div className="space-y-6">
             {/* Basic Settings Card */}
             <Card>
               <CardHeader>
@@ -102,7 +102,7 @@ export default function CreateMethodLoading() {
           </div>
 
           {/* Preview Panel Skeleton */}
-          <div className="col-span-4">
+          <div>
             <Card>
               <CardHeader>
                 <Skeleton className="h-6 w-32" />
@@ -133,5 +133,5 @@ export default function CreateMethodLoading() {
         </div>
       </div>
     </AppLayout>
-  )
+  );
 }

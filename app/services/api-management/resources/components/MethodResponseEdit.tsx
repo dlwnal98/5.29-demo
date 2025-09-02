@@ -15,6 +15,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { MethodResponse, ResponseHeader, ResponseBody, Model } from '@/types/resource';
+import RequestHeaderListSearch from '../../models/components/RequestHeaderListSearch';
+import { requestHeaderList } from '@/lib/data';
 
 interface MethodResponseEditProps {
   methodResponses: MethodResponse[];
@@ -123,27 +125,16 @@ export function MethodResponseEdit({
       bodies: editForm.bodies.filter((body) => body.id !== id),
     });
   };
-  const httpHeaderOptions = [
-    'Content-Type',
-    'Accept',
-    'Authorization',
-    'User-Agent',
-    'Cache-Control',
-    'Pragma',
-    'Expires',
-    'Origin',
-    'Referer',
-    'Cookie',
-    'Set-Cookie',
-    'Host',
-    'X-Requested-With',
-    'X-Forwarded-For',
-  ];
+
   const models = availableModels ?? [];
+  const [openId, setOpenId] = useState<string | null>(null);
+
+  console.log(editingResponse, editForm);
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">{editingResponse ? '응답 편집' : '새 응답 추가'}</h3>
+      <div className="flex items-center justify-between px-2">
+        <h3 className="text-lg font-bold">{editingResponse ? '응답 편집' : '새 응답 추가'}</h3>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={handleCancelResponse}>
             <X className="h-4 w-4 mr-1" />
@@ -158,16 +149,17 @@ export function MethodResponseEdit({
 
       <Card
         className={
-          editingResponse ? 'border-l-4 border-l-blue-500' : 'border-l-4 border-l-green-500'
-        }
-      >
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">{editingResponse && '새 응답 추가'}</CardTitle>
+          editingResponse
+            ? 'border-l-4 border-l-blue-500 !mt-3'
+            : 'border-l-4 border-l-green-500 !mt-3'
+        }>
+        <CardHeader className="pb-2">
+          {/* <CardTitle className="text-base">{editingResponse && '새 응답 추가'}</CardTitle> */}
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-8">
           {/* 상태 코드 입력 */}
-          <div>
-            <Label className="text-sm font-medium">상태 코드</Label>
+          <div className="mb-2">
+            <Label className="text-lg font-semibold">상태 코드</Label>
             <Input
               value={editForm.statusCode}
               onChange={(e) => setEditForm({ ...editForm, statusCode: e.target.value })}
@@ -178,20 +170,22 @@ export function MethodResponseEdit({
 
           {/* 응답 헤더 */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <Label className="text-sm font-medium">응답 헤더</Label>
-              <Button variant="outline" size="sm" onClick={addHeader}>
-                <Plus className="h-4 w-4 mr-1" />
-                헤더 추가
+            <div className="flex items-center gap-3 mb-3">
+              <Label className="text-lg font-semibold">응답 헤더</Label>
+              <Button
+                size="sm"
+                variant={'outline'}
+                className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
+                onClick={addHeader}>
+                <span className="font-bold">추가</span>
               </Button>
             </div>
             <div className="space-y-2">
               {editForm.headers.map((header) => (
-                <div key={header.id} className="flex items-center gap-2">
-                  <Select
+                <div key={header.id} className="grid grid-cols-12 gap-3 items-center mb-3">
+                  {/* <Select
                     value={header.value}
-                    onValueChange={(value) => updateHeader(header.id, 'value', value)}
-                  >
+                    onValueChange={(value) => updateHeader(header.id, 'value', value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="헤더 유형" />
                     </SelectTrigger>
@@ -202,35 +196,58 @@ export function MethodResponseEdit({
                         </SelectItem>
                       ))}
                     </SelectContent>
-                  </Select>
-                  <Button variant="outline" size="sm" onClick={() => removeHeader(header.id)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  </Select> */}
+                  <div className="col-span-11">
+                    <RequestHeaderListSearch
+                      updateHeader={updateHeader}
+                      key={header.id}
+                      isOpen={openId === header.id}
+                      setIsOpen={(val) => setOpenId(val ? header.id : null)}
+                    />
+                  </div>
+                  <div
+                    className={`col-span-1 gap-1 flex items-center ${openId === header.id ? 'mt-1' : ''}`}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-0 hover:bg-transparent bg-transparent cursor-pointer"
+                      onClick={() => removeHeader(header.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
+              {editForm.headers.length === 0 && (
+                <div className="text-center py-4 text-gray-500 text-sm">
+                  응답 헤더가 없습니다. 추가 버튼을 클릭하여 새로운 응답 헤더를 추가하세요.
+                </div>
+              )}
             </div>
           </div>
 
           {/* 응답 본문 */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <Label className="text-sm font-medium">응답 본문</Label>
-              <Button variant="outline" size="sm" onClick={addBody}>
-                <Plus className="h-4 w-4 mr-1" />
-                본문 추가
+            <div className="flex items-center gap-3 mb-3">
+              <Label className="text-lg font-semibold">응답 본문</Label>
+              <Button
+                size="sm"
+                variant={'outline'}
+                className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
+                onClick={addBody}>
+                <span className="font-bold">추가</span>
               </Button>
             </div>
             <div className="space-y-2">
               {editForm.bodies.map((body) => (
-                <div key={body.id} className="flex items-center gap-2">
-                  <div className="col-span-4">
+                <div key={body.id} className="grid grid-cols-12 gap-3 items-center mb-3">
+                  <div className="col-span-6">
                     <Input
                       value={body.contentType}
                       onChange={(e) => updateBody(body.id, 'contentType', e.target.value)}
                       placeholder="콘텐츠 유형"
                     />
                   </div>
-                  <div className="col-span-3">
+                  <div className="col-span-5">
                     <Select
                       value={body.model}
                       onValueChange={(value) => {
@@ -239,8 +256,7 @@ export function MethodResponseEdit({
                         if (selectedModel) {
                           updateBody(body.id, 'model', selectedModel.name);
                         }
-                      }}
-                    >
+                      }}>
                       <SelectTrigger>
                         <SelectValue placeholder="모델 선택" />
                       </SelectTrigger>
@@ -249,30 +265,28 @@ export function MethodResponseEdit({
                           <SelectItem key={availableModel.id} value={availableModel.id}>
                             <div className="flex items-center justify-between w-full">
                               <span>{availableModel.name}</span>
-                              {deleteModel && (
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    deleteModel(availableModel.id);
-                                  }}
-                                  className="ml-2 h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
-                              )}
                             </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => removeBody(body.id)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="col-span-1 flex justify-start">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-0 hover:bg-transparent bg-transparent cursor-pointer"
+                      onClick={() => removeBody(body.id)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
+              {editForm.bodies.length === 0 && (
+                <div className="text-center py-4 text-gray-500 text-sm">
+                  응답 본문이 없습니다. 추가 버튼을 클릭하여 새로운 응답 본문을 추가하세요.
+                </div>
+              )}
             </div>
           </div>
         </CardContent>

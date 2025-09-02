@@ -21,8 +21,9 @@ import type {
 } from '@/types/resource';
 import { useClipboard } from 'use-clipboard-copy';
 import { toast, Toaster } from 'sonner';
+import { useSearchParams } from 'next/navigation';
 
-export default function MethodDetailCard({ selectedMethod }: Method) {
+export default function MethodDetailCard({ selectedMethod }: { selectedMethod: Method }) {
   console.log(selectedMethod);
 
   const [activeTab, setActiveTab] = useState('method-request');
@@ -30,6 +31,11 @@ export default function MethodDetailCard({ selectedMethod }: Method) {
   const [isMethodDeleteDialogOpen, setIsMethodDeleteDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [methodToDelete, setMethodToDelete] = useState<Method | null>(null);
+
+  const searchParams = useSearchParams();
+  const apiId = searchParams.get('apiId');
+  const resourceId = searchParams.get('resourceId');
+  const resourcePath = searchParams.get('resourcePath');
 
   // Test Tab States
   const [testSettings, setTestSettings] = useState({
@@ -56,16 +62,10 @@ export default function MethodDetailCard({ selectedMethod }: Method) {
   ]);
 
   const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([]);
-  const [requestHeaders, setRequestHeaders] = useState<RequestHeader[]>([
-    {
-      id: '1',
-      name: 'Content-Type',
-      description: '요청 콘텐츠 타입',
-      type: 'string',
-      required: true,
-    },
-  ]);
+  const [requestHeaders, setRequestHeaders] = useState<RequestHeader[]>([]);
   const [requestBodyModels, setRequestBodyModels] = useState<RequestBodyModel[]>([]);
+
+  console.log(requestHeaders);
 
   const [editForm, setEditForm] = useState({
     apiKeyRequired: false,
@@ -153,14 +153,6 @@ export default function MethodDetailCard({ selectedMethod }: Method) {
 }`,
     },
   ]);
-
-  // Request validators
-  const requestValidators = [
-    { value: '없음', label: '없음' },
-    { value: '본문 검증', label: '본문 검증' },
-    { value: '파라미터 검증', label: '파라미터 검증' },
-    { value: '본문 및 파라미터 검증', label: '본문 및 파라미터 검증' },
-  ];
 
   const clipboard = useClipboard();
 
@@ -381,17 +373,17 @@ export default function MethodDetailCard({ selectedMethod }: Method) {
           })) || [];
 
       // Add default Content-Type header if not exists
-      const hasContentType = headerParams.some((h: any) => h.name.toLowerCase() === 'content-type');
-      if (!hasContentType) {
-        headerParams.unshift({
-          id: 'content-type',
-          name: 'Content-Type',
-          description: '요청 콘텐츠 타입',
-          type: 'string',
-          required: true,
-        });
-      }
-      setRequestHeaders(headerParams);
+      // const hasContentType = headerParams.some((h: any) => h.name.toLowerCase() === 'content-type');
+      // if (!hasContentType) {
+      //   headerParams.unshift({
+      //     id: 'content-type',
+      //     name: 'Content-Type',
+      //     description: '요청 콘텐츠 타입',
+      //     type: 'string',
+      //     required: true,
+      //   });
+      // }
+      // setRequestHeaders(headerParams);
 
       // Initialize request body models
       if (selectedMethod.requestBody?.content) {
@@ -412,7 +404,6 @@ export default function MethodDetailCard({ selectedMethod }: Method) {
   return (
     <>
       <Toaster position="bottom-center" richColors expand={true} />
-
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         {/* Method Header */}
         <div className="border-b border-gray-200 dark:border-gray-700 p-6">
@@ -566,7 +557,6 @@ export default function MethodDetailCard({ selectedMethod }: Method) {
                   deleteModel={deleteModel}
                   handleCancelEdit={handleCancelEdit}
                   handleSaveEdit={handleSaveEdit}
-                  requestValidators={requestValidators}
                 />
               )}
             </TabsContent>

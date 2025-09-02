@@ -62,6 +62,8 @@ export function MethodResponseTab({
     );
   }
 
+  console.log(methodResponses);
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -83,8 +85,7 @@ export function MethodResponseTab({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleDeleteResponse(response)}
-                  >
+                    onClick={() => handleDeleteResponse(response)}>
                     삭제
                   </Button>
                 </div>

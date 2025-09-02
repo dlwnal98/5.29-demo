@@ -90,7 +90,7 @@ export function goToBaseProjectUrl() {
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS' | 'HEAD';
 
 export function getMethodStyle(method: HttpMethod): string {
-  const base = 'text-[11px] font-medium px-2.5 py-0.5 rounded border';
+  const base = 'text-[11px] font-medium px-2.5 py-0.5 rounded ';
 
   const styles: Record<HttpMethod, string> = {
     GET: `${base} bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-300 dark:border-green-500`,

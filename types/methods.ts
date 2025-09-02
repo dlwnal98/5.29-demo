@@ -1,17 +1,21 @@
 export interface QueryParameter {
   id: string;
   name: string;
-  description: string;
   type: string;
-  isArray: boolean;
+  description: string;
   required: boolean;
-  cacheKey: boolean;
+  example?: string;
 }
 
 export interface Header {
   id: string;
   name: string;
+  type: string;
+  description: string;
   required: boolean;
+  defaultValue?: string;
+  example: string;
+  schema?: {};
 }
 
 export interface FormData {
@@ -44,8 +48,12 @@ export interface ApiKey {
 }
 
 export interface Model {
-  id: string;
-  name: string;
+  modelId: string;
+  apiId: string;
+  modelName: string;
+  modelType: string;
   description: string;
-  schema: string;
+  enabled: boolean;
+  createdAt: string;
+  createdBy: string;
 }

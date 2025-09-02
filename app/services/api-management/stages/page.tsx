@@ -49,10 +49,11 @@ import {
   Settings,
   Search,
   ChevronLeft,
+  Eye,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 import { Switch } from '@/components/ui/switch';
 import {
   Select,
@@ -412,8 +413,7 @@ export default function StagesPage() {
   const clipboard = useClipboard();
 
   const getResourceKey = (resource: ApiResource, parentPath = '') => {
-    // 부모 경로와 현재 리소스의 id를 조합하여 고유한 키 생성
-    return `${parentPath}${resource.id}`;
+    return `${parentPath}${resource.path}-${resource.id}`;
   };
 
   const toggleExpanded = (resource: ApiResource, parentPath = '') => {
@@ -573,8 +573,9 @@ export default function StagesPage() {
 
     return (
       <div key={resource.id}>
+        <Toaster position="bottom-center" richColors expand={true} />
         <div
-          className={`flex items-center gap-2 py-1 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-sm ${
+          className={`flex items-center gap-2 py-1 mb-1 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-sm ${
             selectedResource.resource.id === resource.id
               ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
               : ''
@@ -588,51 +589,54 @@ export default function StagesPage() {
                 toggleExpanded(resource, parentPath);
               }}>
               {isExpanded ? (
-                <SquareMinus className="h-3 w-3 text-blue-500" />
+                <SquareMinus className="h-3 w-3" />
               ) : (
-                <SquarePlus className="h-3 w-3 text-blue-500" />
+                <SquarePlus className="h-3 w-3" />
               )}
             </button>
           )}
           {!hasChildren && <div className="w-3" />}
 
           <span
-            className={`font-medium ${isStage ? 'text-blue-600' : 'text-gray-700 dark:text-gray-300'}`}>
+            className={`font-medium ${selectedResource.resource.id !== resource.id ? '' : 'text-blue-700 dark:text-gray-300'}`}>
             {resource.name}
           </span>
         </div>
 
         {hasChildren && isExpanded && (
-          <>
+          <div className=" space-y-1">
             {resource.children?.map((child) => renderResourceTree(child, level + 1, resourceKey))}
             {resource.methods?.map((method, index) => (
               <div
                 key={`${resource.id}-${method.id}-${index}`}
-                className={`flex items-center gap-2 py-1 px-2 text-xs cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 rounded ${
+                className={`flex items-center justify-between gap-2 h-[32px] py-1 px-2 text-xs cursor-pointer dark:hover:bg-green-900/20 rounded ${
                   selectedMethod?.method.id === method.id
-                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                    ? 'bg-white dark:bg-green-900/30 dark:text-green-300'
                     : 'text-gray-600 dark:text-gray-400'
                 }`}
                 style={{ paddingLeft: `${level * 8 + 8}px` }}
                 onClick={() => handleMethodClick(method, resource)}>
-                <div className="w-3" />
-                <span
-                  className={`font-mono text-xs px-1.5 py-0.5 rounded ${
-                    method.type === 'GET'
-                      ? 'bg-green-100 text-green-800'
-                      : method.type === 'POST'
-                        ? 'bg-blue-100 text-blue-800'
-                        : method.type === 'PUT'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : method.type === 'DELETE'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-gray-100 text-gray-800'
-                  }`}>
-                  {method.type}
-                </span>
+                <div className="space-x-1" style={{ paddingLeft: `${level * 8 + 8}px` }}>
+                  <span
+                    className={`font-mono text-xs px-1.5 py-0.5 rounded ${
+                      method.type === 'GET'
+                        ? 'bg-green-100 text-green-800'
+                        : method.type === 'POST'
+                          ? 'bg-blue-100 text-blue-800'
+                          : method.type === 'PUT'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : method.type === 'DELETE'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-gray-100 text-gray-800'
+                    }`}>
+                    {method.type}
+                  </span>
+                  <span className="text-[12px]">- {method.summary}</span>
+                </div>
+                {selectedMethod?.method.id === method.id && <Eye width={'14px'} />}
               </div>
             ))}
-          </>
+          </div>
         )}
       </div>
     );
@@ -748,19 +752,27 @@ export default function StagesPage() {
             </Button>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Stages</h1>
           </div>
-          <div className="flex items-center gap-3">
+          {/* <div className="flex items-center gap-3">
             <Button
               className="bg-orange-500 hover:bg-orange-600 text-white"
               onClick={() => setIsCreateStageModalOpen(true)}>
               스테이지 생성
             </Button>
-          </div>
+          </div> */}
         </div>
 
         <div className="grid grid-cols-12 gap-6">
           {/* Left Sidebar - Resource Tree */}
           <div className="col-span-3">
             <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3 h-full">
+              <div className="flex items-center justify-end p-2">
+                <Button
+                  size={'sm'}
+                  className="bg-orange-500 hover:bg-orange-600 text-white"
+                  onClick={() => setIsCreateStageModalOpen(true)}>
+                  스테이지 생성
+                </Button>
+              </div>
               <div className="space-y-1">
                 {apiResources.map((resource) => renderResourceTree(resource))}
               </div>

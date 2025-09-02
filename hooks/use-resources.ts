@@ -21,28 +21,6 @@ export function useGetOpenAPIDoc(apiId: string) {
   });
 }
 
-interface initialPathsProps {
-  pathPattern: string;
-  description?: string;
-  pathOrder: number;
-  httpMethods?: {
-    method: string;
-    description: string;
-  }[];
-}
-
-export interface CreateResourceProps {
-  apiId: string;
-  resourceName: string;
-  description: string;
-  resourceType: string;
-  initialPaths: initialPathsProps[];
-  securitySettings: {
-    authenticationRequired: boolean;
-  };
-  createdBy: string;
-}
-
 // open api 문서 조회
 export const getResourceList = async (apiId: string) => {
   const res = await requestGet(`/api/v1/resources/plan/${apiId}`);
@@ -62,6 +40,24 @@ export const getResourceList = async (apiId: string) => {
 //     refetchOnReconnect: false,
 //   });
 // }
+
+interface initialPathsProps {
+  pathPattern: string;
+  description?: string;
+  pathOrder: number;
+}
+
+export interface CreateResourceProps {
+  apiId: string;
+  resourceName: string;
+  description: string;
+  resourceType: string;
+  initialPaths: initialPathsProps[];
+  securitySettings: {
+    authenticationRequired: boolean;
+  };
+  createdBy: string;
+}
 
 //resource 생성 + 실시간 목록 생성
 const createResource = async (data: CreateResourceProps) => {
@@ -150,9 +146,10 @@ export function useGetResourceCorsSettings(resourceId: string) {
 }
 
 interface ModifyResourceProps {
-  allowedOrigins?: string[];
-  allowedHeaders?: string[];
-  exposedHeaders?: string[];
+  allowOrigins?: string[];
+  allowMethods?: string[];
+  allowHeaders?: string[];
+  exposeHeaders?: string[];
   maxAge?: number;
   allowCredentials?: boolean;
 }
@@ -198,8 +195,10 @@ export function useModifyResourceCorsSettings(
 }
 
 // API 배포 무결성 검증
-const validateDeployment = async (deploymentId: string) => {
-  const res = await requestPost(`/api/v1/deployments/${deploymentId}/validate`);
+const validateDeployment = async (deploymentId: string, validationType?: string) => {
+  const res = await requestPost(
+    `/api/v1/deployments/${deploymentId}/validate?validationType=${validationType}`
+  );
 
   if (res.code == 200) {
     return res.data;
@@ -208,7 +207,8 @@ const validateDeployment = async (deploymentId: string) => {
 
 export function useValidateDeployment() {
   return useMutation({
-    mutationFn: (deploymentId: string) => validateDeployment(deploymentId),
+    mutationFn: (deploymentId: string, validationType?: string) =>
+      validateDeployment(deploymentId, validationType),
     onSuccess: () => {},
   });
 }

@@ -10,7 +10,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { ArrowLeft, Rocket, SquarePlus, SquareMinus } from 'lucide-react';
+import { ArrowLeft, Rocket, SquarePlus, SquareMinus, Eye } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast, Toaster } from 'sonner';
@@ -124,7 +124,7 @@ export default function ApiResourcesPage() {
   const handleResourceClick = (resource: Resource) => {
     setSelectedResource(resource);
     setSelectedMethod(null); // 메서드 선택 해제
-    toggleResourceExpansion(resource.id);
+    // toggleResourceExpansion(resource.id);
   };
 
   const handleDeploy = () => {
@@ -141,7 +141,7 @@ export default function ApiResourcesPage() {
   const toggleResourceExpansion = (resourceId: string) => {
     const newExpanded = new Set(expandedResources);
     if (newExpanded.has(resourceId)) {
-      // newExpanded.delete(resourceId);
+      newExpanded.delete(resourceId);
     } else {
       newExpanded.add(resourceId);
     }
@@ -155,34 +155,41 @@ export default function ApiResourcesPage() {
         {resources.map((resource, index) => {
           const isExpanded = expandedResources.has(resource.id);
           const hasMethods = resource.methods.length > 0;
-          const isSelected = selectedResource?.id === resource.id && !selectedMethod;
+          const isSelected = selectedResource?.id === resource.id;
+          // const isSelected = selectedResource?.id === resource.id && !selectedMethod;
           const isRoot = resource.id === 'root';
 
           return (
             // <div key={resource.id} className={isRoot ? '' : ''}>
-            <div key={resource.id} className={resource.path === '/' ? '' : 'ml-2'}>
+            <div key={resource.id} className={resource.path === '/' ? '' : 'pl-2'}>
               {/* 리소스 항목 */}
               <div
-                className={`flex items-center gap-2 py-1 px-2 mb-1 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md ${
+                className={`flex items-center gap-2 py-1 px-2 mb-1 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded ${
                   isSelected
                     ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                    : ''
+                    : isExpanded
+                      ? 'text-blue'
+                      : ''
                 }`}
                 onClick={() => handleResourceClick(resource)}>
                 {/* 확장/축소 버튼 */}
                 {hasMethods ? (
-                  <Button variant="ghost" size="sm" className="h-4 w-4 p-0 hover:bg-transparent">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleResourceExpansion(resource.id);
+                    }}>
                     {isExpanded ? (
                       <SquareMinus className="h-3 w-3" />
                     ) : (
                       <SquarePlus className="h-3 w-3" />
                     )}
-                  </Button>
+                  </button>
                 ) : (
                   <div className="w-2" />
                 )}
 
-                <span className="font-mono font-medium text-[15px]">
+                <span className="font-medium text-sm">
                   {/* {resource.path === '/' ? '/' : resource.path} */}
                   {resource.path}
                 </span>
@@ -196,17 +203,20 @@ export default function ApiResourcesPage() {
                     return (
                       <div
                         key={method.id}
-                        className={`flex items-center gap-2 py-1 px-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-green-900/20 rounded-md ${
+                        className={`flex items-center justify-between w-[100%] gap-2 py-1 px-2 cursor-pointer dark:hover:bg-green-900/20 ${
                           isMethodSelected
-                            ? 'bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300'
+                            ? 'bg-white dark:bg-gray-900/30 text-gray-700 dark:text-gray-300'
                             : 'text-gray-600 dark:text-gray-400'
                         }`}
                         onClick={() => handleMethodClick(method, resource)}>
-                        <span
-                          className={`${getMethodStyle(method.type)} font-mono text-xs px-2 py-1 rounded`}>
-                          {method.type}
-                        </span>
-                        <span className="text-[12px]">- {method.summary}</span>
+                        <div className="space-x-1">
+                          <span
+                            className={`${getMethodStyle(method.type)} !font-mono !font-medium !text-xs !px-1.5 !py-0.5 rounded`}>
+                            {method.type}
+                          </span>
+                          <span className="text-[12px]">- {method.summary}</span>
+                        </div>
+                        {isMethodSelected && <Eye width={'14px'} />}
                       </div>
                     );
                   })}
@@ -252,7 +262,7 @@ export default function ApiResourcesPage() {
             </Button>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">리소스</h1>
           </div>
-          <div>
+          {/* <div>
             <Button
               size="sm"
               onClick={() => handleDeploy()}
@@ -260,7 +270,7 @@ export default function ApiResourcesPage() {
               API 배포
               <Rocket className="h-4 w-4" />
             </Button>
-          </div>
+          </div> */}
         </div>
 
         <div className="grid grid-cols-12 gap-6">
@@ -268,14 +278,21 @@ export default function ApiResourcesPage() {
           <div className="col-span-3">
             <div
               ref={leftSidebarRef}
-              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 overflow-auto">
-              <div className="flex items-center justify-end mb-4">
+              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-2 overflow-auto">
+              <div className="flex items-center justify-end p-2 gap-2">
                 {/* <h3 className="font-semibold text-gray-900 dark:text-white">리소스 목록</h3> */}
                 <Button
                   size="sm"
                   onClick={() => setIsCreateModalOpen(true)}
-                  className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 h-7">
+                  className="bg-blue-500 hover:bg-blue-600 text-white text-xs">
                   리소스 생성
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => handleDeploy()}
+                  className="bg-orange-500 hover:bg-orange-600 text-white text-xs">
+                  API 배포
+                  {/* <Rocket className="h-4 w-4" /> */}
                 </Button>
               </div>
 
@@ -296,6 +313,7 @@ export default function ApiResourcesPage() {
                   selectedResource={selectedResource}
                   setSelectedResource={setSelectedResource}
                   handleMethodClick={handleMethodClick}
+                  apiId={currentApiId || ''}
                 />
               )}
             </div>

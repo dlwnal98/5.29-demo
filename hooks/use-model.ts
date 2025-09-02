@@ -154,9 +154,12 @@ interface ExamplesProps {
 interface CreateModelProps {
   apiId: string;
   modelName: string;
+  modelType: string; //REQUEST
+  description: string;
+  version: string;
+  jsonSchema: SchemaProps;
   title: string;
   contentType: string;
-  description: string;
   schema: SchemaProps;
   examples: ExamplesProps[];
   createdBy: string;

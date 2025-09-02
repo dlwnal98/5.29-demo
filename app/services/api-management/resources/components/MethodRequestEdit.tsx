@@ -27,6 +27,10 @@ import { toast } from 'sonner';
 import { ApiKey } from '@/types/methods';
 import { requestHeaderList } from '@/lib/data';
 import RequestHeaderListSearch from '../../models/components/RequestHeaderListSearch';
+import { checkerOptionList } from '@/lib/data';
+import { SelectAPIKeyModal } from '../methods/components/SelectAPIKeyModal';
+import { useAuthStore } from '@/store/store';
+import { useGetAPIKeyList } from '@/hooks/use-apiKeys';
 
 interface MethodRequestEditProps {
   editForm: any;
@@ -47,7 +51,6 @@ interface MethodRequestEditProps {
   deleteModel: (modelId: string) => void;
   handleCancelEdit: () => void;
   handleSaveEdit: () => void;
-  requestValidators: { value: string; label: string }[];
 }
 
 export function MethodRequestEdit({
@@ -69,11 +72,11 @@ export function MethodRequestEdit({
   deleteModel,
   handleCancelEdit,
   handleSaveEdit,
-  requestValidators,
 }: MethodRequestEditProps) {
+  const userData = useAuthStore((state) => state.user);
+
+  const { data: apiKeyList } = useGetAPIKeyList(userData?.organizationId);
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
-  const [isModelModalOpen, setIsModelModalOpen] = useState(false);
-  const [isDirectUrlInput, setIsDirectUrlInput] = useState(false);
   const [selectedApiKeyId, setSelectedApiKeyId] = useState('');
   const [isCreatingNewApiKey, setIsCreatingNewApiKey] = useState(false);
   const [newApiKeyForm, setNewApiKeyForm] = useState({
@@ -132,7 +135,7 @@ export function MethodRequestEdit({
         value: `api-key-${Date.now()}`,
       };
 
-      setApiKeys([...apiKeys, newApiKey]);
+      // setApiKeys([...apiKeys, newApiKey]);
       setEditForm({
         ...editForm,
         apiKeyRequired: true,
@@ -180,15 +183,16 @@ export function MethodRequestEdit({
       });
     }
   };
-  const selectedApiKeyInfo = apiKeys.find((key) => key.id === editForm.selectedApiKey);
+  const selectedApiKeyInfo = apiKeyList?.find((key) => key.keyId === editForm.selectedApiKey);
 
   console.log(editForm.apiKeyRequired);
+  console.log(requestHeaders);
 
   const [isOpen, setIsOpen] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between px-2">
         <h3 className="text-lg font-bold text-gray-900 dark:text-white">메서드 요청 편집</h3>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleCancelEdit}>
@@ -200,7 +204,7 @@ export function MethodRequestEdit({
         </div>
       </div>
       {/* Method Request Settings Edit */}
-      <Card>
+      <Card className="!mt-3">
         <CardHeader>
           <CardTitle className="!text-lg">메서드 요청 설정</CardTitle>
         </CardHeader>
@@ -237,8 +241,8 @@ export function MethodRequestEdit({
               </div>
             </div>
           )}
-          <div className="grid grid-cols-12">
-            <div className="col-span-10">
+          <div>
+            <div>
               <Label className="text-sm font-medium">요청 검사기</Label>
               <Select
                 value={editForm.requestValidator}
@@ -247,7 +251,7 @@ export function MethodRequestEdit({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {requestValidators.map((validator) => (
+                  {checkerOptionList.map((validator) => (
                     <SelectItem
                       key={validator.value}
                       value={validator.value}
@@ -258,7 +262,6 @@ export function MethodRequestEdit({
                 </SelectContent>
               </Select>
             </div>
-            <div className="cols-span-2"></div>
           </div>
         </CardContent>
       </Card>
@@ -300,7 +303,7 @@ export function MethodRequestEdit({
                   <Button
                     size="sm"
                     variant="outline"
-                    className="border-0 hover:bg-transparent  cursor-pointer"
+                    className="border-0 hover:bg-transparent bg-transparent cursor-pointer"
                     onClick={() => removeQueryParameter(param.id)}>
                     <Trash2 className="h-5 w-5" />
                   </Button>
@@ -376,7 +379,7 @@ export function MethodRequestEdit({
                     size="sm"
                     variant="outline"
                     onClick={() => removeRequestHeader(header.id)}
-                    className="border-0 hover:bg-transparent cursor-pointer"
+                    className="border-0 hover:bg-transparent bg-transparent cursor-pointer"
                     // disabled={header.name === 'Content-Type'}
                   >
                     <Trash2 className="h-5 w-5" />
@@ -384,6 +387,11 @@ export function MethodRequestEdit({
                 </div>
               </div>
             ))}
+            {requestHeaders.length === 0 && (
+              <div className="text-center py-6 text-gray-500">
+                요청 헤더가 없습니다. 추가 버튼을 클릭하여 새로운 요청 헤더를 추가하세요.
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -448,7 +456,7 @@ export function MethodRequestEdit({
                   <Button
                     size="sm"
                     variant="outline"
-                    className="border-0 hover:bg-transparent  cursor-pointer"
+                    className="border-0 hover:bg-transparent bg-transparent cursor-pointer"
                     onClick={() => removeRequestBodyModel(model.id)}>
                     <Trash2 className="h-5 w-5" />
                   </Button>
@@ -501,24 +509,24 @@ export function MethodRequestEdit({
                   사용할 API 키를 선택하세요.
                 </p>
 
-                {apiKeys.length > 0 ? (
+                {apiKeyList?.length > 0 ? (
                   <div className="space-y-3 max-h-60 overflow-y-auto">
-                    {apiKeys.map((apiKey) => (
+                    {apiKeyList?.map((apiKey, i) => (
                       <div
-                        key={apiKey.id}
+                        key={i}
                         className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                          selectedApiKeyId === apiKey.id
+                          selectedApiKeyId === apiKey.keyId
                             ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
                             : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                         }`}
-                        onClick={() => setSelectedApiKeyId(apiKey.id)}>
+                        onClick={() => setSelectedApiKeyId(apiKey.keyId)}>
                         <div className="flex items-start gap-3">
                           <input
                             type="radio"
                             name="apiKey"
-                            value={apiKey.id}
-                            checked={selectedApiKeyId === apiKey.id}
-                            onChange={() => setSelectedApiKeyId(apiKey.id)}
+                            value={apiKey.keyId}
+                            checked={selectedApiKeyId === apiKey.keyId}
+                            onChange={() => setSelectedApiKeyId(apiKey.keyId)}
                             className="mt-1"
                           />
                           <div className="flex-1">
@@ -527,14 +535,14 @@ export function MethodRequestEdit({
                                 {apiKey.name}
                               </h4>
                               <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-xs rounded-full font-medium">
-                                ID: {apiKey.id}
+                                ID: {apiKey.keyId}
                               </span>
                             </div>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                               {apiKey.description}
                             </p>
                             <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded text-xs font-mono text-gray-700 dark:text-gray-300">
-                              {apiKey.value}
+                              {apiKey.key}
                             </div>
                           </div>
                         </div>
@@ -609,13 +617,27 @@ export function MethodRequestEdit({
               disabled={
                 isCreatingNewApiKey
                   ? !newApiKeyForm.name.trim()
-                  : !selectedApiKeyId && apiKeys.length > 0
+                  : !selectedApiKeyId && apiKeyList?.length > 0
               }>
               {isCreatingNewApiKey ? '생성 및 선택' : '선택'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <SelectAPIKeyModal
+        open={isApiKeyModalOpen}
+        onOpenChange={setIsApiKeyModalOpen}
+        isCreatingNewApiKey={isCreatingNewApiKey}
+        setIsCreatingNewApiKey={setIsCreatingNewApiKey}
+        apiKeyList={apiKeyList || []}
+        selectedApiKeyId={selectedApiKeyId}
+        setSelectedApiKeyId={setSelectedApiKeyId}
+        newApiKeyForm={newApiKeyForm}
+        setNewApiKeyForm={setNewApiKeyForm}
+        userKey={userData?.userKey || ''}
+        organizationId={userData?.organizationId || ''}
+      />
     </div>
   );
 }

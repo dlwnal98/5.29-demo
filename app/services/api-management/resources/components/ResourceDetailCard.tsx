@@ -26,6 +26,7 @@ interface ResourceDetailCardProps {
   selectedResource: Resource;
   setSelectedResource: (resource: Resource) => void;
   handleMethodClick: (method: Method, resource: Resource) => void;
+  apiId: string;
 }
 
 export function ResourceDetailCard({
@@ -33,6 +34,7 @@ export function ResourceDetailCard({
   selectedResource,
   setSelectedResource,
   handleMethodClick,
+  apiId,
 }: ResourceDetailCardProps) {
   const userData = useAuthStore((state) => state.user);
 
@@ -180,7 +182,7 @@ export function ResourceDetailCard({
                 // onClick={handleCreateMethod}
                 onClick={() => {
                   router.push(
-                    `/services/api-management/resources/methods?resourceId=${selectedResource.id}&resourcePath=${selectedResource.path}`
+                    `/services/api-management/resources/methods?apiId=${apiId}&resourceId=${selectedResource.id}&resourcePath=${selectedResource.path}`
                   );
                 }}
                 className="bg-blue-500 hover:bg-blue-600 text-white">

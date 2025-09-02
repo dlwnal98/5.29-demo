@@ -1,4 +1,4 @@
-import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
+import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
 import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from '@/lib/apiClient';
 
 // 메서드 리스트 타입
@@ -42,7 +42,7 @@ export function useGetMethodsList(pathId: string) {
 }
 
 // 공통 파라미터 타입
-interface QueryParameter {
+export interface QueryParameter {
   name: string;
   type: string;
   description: string;
@@ -50,7 +50,7 @@ interface QueryParameter {
   example?: string;
 }
 
-interface HeaderParameter {
+export interface HeaderParameter {
   name: string;
   type: string;
   description: string;
@@ -60,7 +60,7 @@ interface HeaderParameter {
   schema?: {};
 }
 
-interface PathParameter {
+export interface PathParameter {
   name: string;
   type: string;
   description: string;
@@ -72,7 +72,7 @@ interface PathParameter {
   };
 }
 
-interface ResponseSchemaProps {
+export interface ResponseSchemaProps {
   type: string;
   properties: {
     id: {
@@ -91,7 +91,7 @@ interface ResponseSchemaProps {
   };
 }
 
-interface RequestSchemaProps {
+export interface RequestSchemaProps {
   type: string;
   properties: {
     name: {
@@ -139,15 +139,18 @@ const createMethod = async (data: CreateMethodProps) => {
 };
 
 // ✅ React Query Hook
-export function useCreateMethod() {
+export function useCreateMethod(options?: UseMutationOptions<any, Error, CreateMethodProps>) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    ...options,
     mutationFn: (data: CreateMethodProps) => createMethod(data),
-    onSuccess: () => {
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ['getMethodsList'],
       });
+
+      options?.onSuccess?.(data, variables, context);
     },
   });
 }

@@ -11,8 +11,8 @@ interface Option {
 
 interface HeaderSearchProps {
   isOpen: boolean;
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  updateHeader: (id: string, field: 'name' | 'required', value: string | boolean) => void;
+  setIsOpen: React.Dispatch<React.SetStateAction<any>>;
+  updateHeader: (id: string, field: 'name' | 'required' | 'value', value: string | boolean) => void;
 }
 
 export default function RequestHeaderListSearch({
