@@ -36,10 +36,7 @@ export function MethodTestTab({
       {/* Request Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Send className="h-5 w-5" />
-            요청 설정
-          </CardTitle>
+          <CardTitle className="flex items-center gap-2 !text-lg font-bold">요청 설정</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Method and URL */}
@@ -55,8 +52,7 @@ export function MethodTestTab({
                       : selectedMethod.type === 'DELETE'
                         ? 'bg-red-100 text-red-800'
                         : 'bg-gray-100 text-gray-800'
-              }`}
-            >
+              }`}>
               {selectedMethod.type}
             </span>
             <code className="flex-1 text-sm bg-white dark:bg-gray-700 px-3 py-2 rounded border">
@@ -65,8 +61,7 @@ export function MethodTestTab({
             <Button
               className="bg-orange-500 hover:bg-orange-600 text-white px-6"
               onClick={handleTest}
-              disabled={isTestLoading}
-            >
+              disabled={isTestLoading}>
               {isTestLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -313,10 +308,7 @@ export function MethodTestTab({
       {testResponse && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              응답 결과
-            </CardTitle>
+            <CardTitle className="flex items-center gap-2 !text-lg font-bold">응답 결과</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -332,8 +324,7 @@ export function MethodTestTab({
                           : testResponse.status >= 400
                             ? 'bg-red-100 text-red-800'
                             : 'bg-yellow-100 text-yellow-800'
-                      }`}
-                    >
+                      }`}>
                       {testResponse.status} {testResponse.statusText}
                     </span>
                   </div>
@@ -389,8 +380,7 @@ export function MethodTestTab({
                       {Object.entries(testResponse.headers).map(([key, value]) => (
                         <div
                           key={key}
-                          className="grid grid-cols-3 gap-4 py-2 border-b border-gray-200 dark:border-gray-600 last:border-b-0"
-                        >
+                          className="grid grid-cols-3 gap-4 py-2 border-b border-gray-200 dark:border-gray-600 last:border-b-0">
                           <div className="font-medium text-sm text-gray-700 dark:text-gray-300">
                             {key}
                           </div>

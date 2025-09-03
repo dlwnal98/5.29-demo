@@ -31,12 +31,12 @@ interface createAPIKeyProps {
 export default function CreateAPIKeyDialog({
   isCreateModalOpen,
   setIsCreateModalOpen,
-  keyName,
   newApiKey,
   setNewApiKey,
-  description,
   handleCreateAPIKey,
 }: createAPIKeyProps) {
+  const { keyName, description } = newApiKey;
+
   return (
     <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
       <DialogContent className="max-w-lg">
@@ -81,7 +81,7 @@ export default function CreateAPIKeyDialog({
             <Button
               onClick={() => handleCreateAPIKey()}
               className="bg-orange-500 hover:bg-orange-600 text-white"
-            >
+              disabled={keyName.length === 0}>
               발급
             </Button>
           </div>

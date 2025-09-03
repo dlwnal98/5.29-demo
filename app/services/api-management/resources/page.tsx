@@ -29,6 +29,7 @@ export default function ApiResourcesPage() {
   const rightContentRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const currentApiId = searchParams.get('apiId');
+  const currentApiName = searchParams.get('apiName');
 
   //mockData2 대신 들어가면 됨
   // const { data: openAPIDocData } = useGetOpenAPIDoc(currentApiId || '');
@@ -238,7 +239,7 @@ export default function ApiResourcesPage() {
         <Breadcrumb className="mb-6">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/services">Services</BreadcrumbLink>
+              <BreadcrumbLink href="/services/api-management">Services</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -246,7 +247,7 @@ export default function ApiResourcesPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>리소스</BreadcrumbPage>
+              <BreadcrumbPage>리소스 : {currentApiName}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -262,15 +263,6 @@ export default function ApiResourcesPage() {
             </Button>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">리소스</h1>
           </div>
-          {/* <div>
-            <Button
-              size="sm"
-              onClick={() => handleDeploy()}
-              className="bg-orange-500 hover:bg-orange-600 text-white">
-              API 배포
-              <Rocket className="h-4 w-4" />
-            </Button>
-          </div> */}
         </div>
 
         <div className="grid grid-cols-12 gap-6">
@@ -280,17 +272,16 @@ export default function ApiResourcesPage() {
               ref={leftSidebarRef}
               className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-2 overflow-auto">
               <div className="flex items-center justify-end p-2 gap-2">
-                {/* <h3 className="font-semibold text-gray-900 dark:text-white">리소스 목록</h3> */}
                 <Button
                   size="sm"
                   onClick={() => setIsCreateModalOpen(true)}
-                  className="bg-blue-500 hover:bg-blue-600 text-white text-xs">
+                  className="bg-blue-500 hover:bg-blue-600 text-white text-xs lg:text-sm">
                   리소스 생성
                 </Button>
                 <Button
                   size="sm"
                   onClick={() => handleDeploy()}
-                  className="bg-orange-500 hover:bg-orange-600 text-white text-xs">
+                  className="bg-orange-500 hover:bg-orange-600 text-white text-xs lg:text-sm">
                   API 배포
                   {/* <Rocket className="h-4 w-4" /> */}
                 </Button>

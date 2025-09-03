@@ -223,7 +223,7 @@ export default function TargetEndpointsPage() {
               <TableBody>
                 {filteredEndpoints.length > 0 ? (
                   filteredEndpoints.map((endpoint) => (
-                    <TableRow key={endpoint.id}>
+                    <TableRow key={endpoint.id} className="hover:bg-white">
                       <TableCell className="font-medium">{endpoint.targetId}</TableCell>
                       <TableCell className="font-mono text-sm">{endpoint.url}</TableCell>
                       <TableCell>{endpoint.createdAt}</TableCell>
