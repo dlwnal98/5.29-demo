@@ -22,6 +22,7 @@ import { ResourceDetailCard } from './components/ResourceDetailCard';
 import MethodDetailCard from './components/MethodDetailCard';
 import { ResourceCreateDialog } from './components/ResourceCreateDialog';
 import { useGetOpenAPIDoc } from '@/hooks/use-resources';
+import { useAuthStore } from '@/store/store';
 
 export default function ApiResourcesPage() {
   const router = useRouter();
@@ -30,9 +31,11 @@ export default function ApiResourcesPage() {
   const searchParams = useSearchParams();
   const currentApiId = searchParams.get('apiId');
   const currentApiName = searchParams.get('apiName');
+  const userData = useAuthStore((state) => state.user);
 
   //mockData2 대신 들어가면 됨
-  // const { data: openAPIDocData } = useGetOpenAPIDoc(currentApiId || '');
+  const { data: openAPIDocData } = useGetOpenAPIDoc(currentApiId || '');
+  console.log(openAPIDocData);
 
   // OpenAPI 문서로 리소스 폴더구조 데이터 수정
   function convertOpenApiToResources(openApiPaths: any): Resource[] {
@@ -70,7 +73,8 @@ export default function ApiResourcesPage() {
 
   // 기존 useState(Resource[]) 부분을 mockData2 기반으로 초기화
   const [resources, setResources] = useState<Resource[]>(
-    convertOpenApiToResources(mockData2.paths)
+    // convertOpenApiToResources(mockData2.paths)
+    convertOpenApiToResources(openAPIDocData?.paths ?? [])
   );
   const [selectedResource, setSelectedResource] = useState<Resource>(resources[0]);
   const [selectedMethod, setSelectedMethod] = useState<Method | null>(null);
@@ -317,6 +321,7 @@ export default function ApiResourcesPage() {
         open={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
         apiId={currentApiId || ''}
+        userKey={userData?.userKey || ''}
       />
 
       <DeployResourceDialog open={isDeployModalOpen} onOpenChange={setIsDeployModalOpen} />

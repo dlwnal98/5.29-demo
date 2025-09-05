@@ -63,6 +63,15 @@ const nextConfig = {
         source: '/api/v1/users/:path*',
         destination: 'http://1.224.162.188:58083/api/v1/users/:path*',
       },
+
+      {
+        source: '/api/v1/plans/:path*',
+        destination: 'http://1.224.162.188:58084/api/v1/plans/:path*',
+      },
+      {
+        source: '/api/v1/resources/:path*',
+        destination: 'http://1.224.162.188:58084/api/v1/resources/:path*',
+      },
     ];
   },
 };

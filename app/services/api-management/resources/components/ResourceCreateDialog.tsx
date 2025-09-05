@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -27,22 +28,60 @@ interface ResourceCreateDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   apiId: string;
+  userKey: string;
 }
 
-export function ResourceCreateDialog({ open, onOpenChange, apiId }: ResourceCreateDialogProps) {
+export function ResourceCreateDialog({
+  open,
+  onOpenChange,
+  apiId,
+  userKey,
+}: ResourceCreateDialogProps) {
   const [createResourceForm, setCreateResourceForm] = useState({
-    planId: apiId,
+    apiId: apiId,
     resourceName: '',
     description: '',
-    resourcePath: '',
-    corsEnabled: false,
-    corsSettings: {
-      allowMethods: [] as string[],
-      allowHeaders: '',
-      allowOrigin: '*',
-      exposeHeaders: '',
-      maxAge: '',
-      allowCredentials: false,
+    resourceType: 'REST',
+    initialPaths: [
+      {
+        pathPattern: '/',
+        description: '', // 없애기로
+      },
+    ],
+    securitySettings: {
+      corsPolicy: {
+        policyId: 'COR123456789',
+        allowedOrigins: '*',
+        allowedMethods: 'GET,POST,PUT,DELETE',
+        allowedHeaders: 'Content-Type,Authorization',
+        exposedHeaders: 'X-Total-Count',
+        allowCredentials: true,
+        maxAgeSeconds: 3600,
+        enabled: true,
+      },
+      allowedOrigins: ['https://example.com', 'https://app.example.com'],
+      blockedIps: ['192.168.1.100', '10.0.0.50'],
+      httpsOnly: true,
+      securityHeaders: {
+        'X-Frame-Options': 'DENY',
+        'X-Content-Type-Options': 'nosniff',
+      },
+    },
+    cachingSettings: {
+      enableCaching: false,
+      cacheStrategy: 'TIME_BASED',
+      defaultTtlSeconds: 300,
+      methodSpecificTtl: {
+        GET: 600,
+        POST: 0,
+      },
+      cacheKeys: ['user_id', 'resource_path', 'query_params'],
+      varyHeaders: ['Accept-Language', 'Accept-Encoding'],
+    },
+    createdBy: userKey,
+    metadata: {
+      version: '1.0',
+      team: 'backend',
     },
   });
 
@@ -58,6 +97,10 @@ export function ResourceCreateDialog({ open, onOpenChange, apiId }: ResourceCrea
   //   getResourcePaths();
   // },[])
 
+  useEffect(() => {
+    if (userKey) setCreateResourceForm({ ...createResourceForm, createdBy: userKey });
+  }, [userKey]);
+
   const availableResourcePaths = ['/', '/api', '/users', '/products', '/orders'];
 
   const { mutate: createResourceMutate } = useCreateResource({
@@ -68,14 +111,69 @@ export function ResourceCreateDialog({ open, onOpenChange, apiId }: ResourceCrea
   });
 
   const createResource = async (data: CreateResourceProps) => {
+    const resourcePath =
+      data.initialPaths[0].pathPattern === '/'
+        ? data.initialPaths[0].pathPattern + data.resourceName
+        : data.initialPaths[0].pathPattern + '/' + data.resourceName;
     //resource 경로 검증
     const res = await requestGet(
-      `/api/v1/resources/validate-path?apiId=${data.planId}&resourcePath=${data.resourcePath}`
+      `/api/v1/resources/validate-path?apiId=${data.apiId}&resourcePath=${resourcePath}`
     );
 
-    if (res.code == 200) {
+    if (res) {
       createResourceMutate(data);
     }
+  };
+
+  const handleCancel = () => {
+    onOpenChange(false);
+    setCreateResourceForm({
+      apiId: apiId,
+      resourceName: '',
+      description: '',
+      resourceType: 'REST',
+      initialPaths: [
+        {
+          pathPattern: '',
+          description: '', // 없애기로
+        },
+      ],
+      securitySettings: {
+        corsPolicy: {
+          policyId: 'COR123456789',
+          allowedOrigins: '*',
+          allowedMethods: 'GET,POST,PUT,DELETE',
+          allowedHeaders: 'Content-Type,Authorization',
+          exposedHeaders: 'X-Total-Count',
+          allowCredentials: true,
+          maxAgeSeconds: 3600,
+          enabled: true,
+        },
+        allowedOrigins: ['https://example.com', 'https://app.example.com'],
+        blockedIps: ['192.168.1.100', '10.0.0.50'],
+        httpsOnly: true,
+        securityHeaders: {
+          'X-Frame-Options': 'DENY',
+          'X-Content-Type-Options': 'nosniff',
+        },
+      },
+      cachingSettings: {
+        enableCaching: false,
+        cacheStrategy: 'TIME_BASED',
+        defaultTtlSeconds: 300,
+        methodSpecificTtl: {
+          GET: 600,
+          POST: 0,
+        },
+        cacheKeys: ['user_id', 'resource_path', 'query_params'],
+        varyHeaders: ['Accept-Language', 'Accept-Encoding'],
+      },
+      createdBy: userKey,
+      metadata: {
+        version: '1.0',
+        team: 'backend',
+      },
+    });
   };
 
   return (
@@ -94,10 +192,21 @@ export function ResourceCreateDialog({ open, onOpenChange, apiId }: ResourceCrea
                 리소스 경로
               </Label>
               <Select
-                // value={createResourceForm.path}
-                value={'/api'}
+                value={
+                  createResourceForm.initialPaths[0].pathPattern
+                    ? createResourceForm.initialPaths[0].pathPattern
+                    : '/'
+                }
                 onValueChange={(value) =>
-                  setCreateResourceForm({ ...createResourceForm, resourcePath: value })
+                  setCreateResourceForm({
+                    ...createResourceForm,
+                    initialPaths: [
+                      {
+                        ...createResourceForm.initialPaths[0],
+                        pathPattern: value,
+                      },
+                    ],
+                  })
                 }>
                 <SelectTrigger>
                   <SelectValue placeholder="경로를 선택하세요" />
@@ -120,11 +229,29 @@ export function ResourceCreateDialog({ open, onOpenChange, apiId }: ResourceCrea
               </Label>
               <Input
                 id="resource-name"
-                placeholder="my-resource"
+                placeholder=""
                 value={createResourceForm.resourceName}
                 onChange={(e) =>
                   setCreateResourceForm({ ...createResourceForm, resourceName: e.target.value })
                 }
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 gap-4">
+            <div className="col-span-4">
+              <Label
+                htmlFor="resource-description"
+                className="text-sm font-medium text-gray-700 mb-2 block">
+                리소스 설명
+              </Label>
+              <Textarea
+                id="resource-description"
+                placeholder=""
+                value={createResourceForm.description}
+                onChange={(e) => {
+                  setCreateResourceForm({ ...createResourceForm, description: e.target.value });
+                }}
+                className="min-h-[50px] text-sm resize-none"
               />
             </div>
           </div>
@@ -143,34 +270,24 @@ export function ResourceCreateDialog({ open, onOpenChange, apiId }: ResourceCrea
             </div>
             <Switch
               id="cors-toggle"
-              checked={createResourceForm.corsEnabled}
+              checked={createResourceForm.securitySettings.corsPolicy.enabled}
               onCheckedChange={(checked) =>
-                setCreateResourceForm({ ...createResourceForm, corsEnabled: checked })
+                setCreateResourceForm({
+                  ...createResourceForm,
+                  securitySettings: {
+                    ...createResourceForm.securitySettings,
+                    corsPolicy: {
+                      ...createResourceForm.securitySettings?.corsPolicy,
+                      enabled: checked,
+                    },
+                  },
+                })
               }
             />
           </div>
         </div>
         <DialogFooter className="gap-2">
-          <Button
-            variant="outline"
-            onClick={() => {
-              onOpenChange(false);
-              setCreateResourceForm({
-                planId: apiId,
-                resourceName: '',
-                description: '',
-                resourcePath: '',
-                corsEnabled: false,
-                corsSettings: {
-                  allowMethods: [] as string[],
-                  allowHeaders: '',
-                  allowOrigin: '*',
-                  exposeHeaders: '',
-                  maxAge: '',
-                  allowCredentials: false,
-                },
-              });
-            }}>
+          <Button variant="outline" onClick={handleCancel}>
             취소
           </Button>
           <Button

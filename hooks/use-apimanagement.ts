@@ -1,7 +1,7 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
 import { requestDelete, requestGet, requestPost, requestPut } from '@/lib/apiClient';
 
-interface APIListData {
+export interface APIListData {
   apiId: string;
   organizationId: string;
   name: string;
@@ -15,14 +15,13 @@ const getAPIList = async (organizationId: string, page?: number, size?: number) 
   const res = await requestGet(
     `/api/v1/plans?organizationId=${organizationId}&page=${page}&size=${size}`
   );
-  if (res.code == 200) {
-    return res.data;
-  }
+
+  return res;
 };
 
 export function useGetAPIList(organizationId: string, page?: number, size?: number) {
   return useQuery<APIListData[]>({
-    queryKey: ['getAPIList', organizationId],
+    queryKey: ['getAPIList', organizationId, page, size],
     queryFn: () => getAPIList(organizationId, page, size),
     enabled: !!organizationId, // 조건적 실행
     staleTime: Infinity,
@@ -34,19 +33,18 @@ export function useGetAPIList(organizationId: string, page?: number, size?: numb
 
 interface CreateAPIProps {
   organizationId: string;
-  ownerUserKey: string;
   name: string;
-  description: string;
+  description?: string;
   createdBy: string;
 }
 
-//api 키 생성 + 실시간 목록 생성
+//api 생성 + 실시간 목록 생성
 const createAPI = async (data: CreateAPIProps) => {
-  const res = await requestPost(`/api/v1/plans`, data);
+  const res = await requestPost(`/api/v1/plans`, {
+    body: data,
+  });
 
-  if (res.code == 200) {
-    return res.data;
-  }
+  return res;
 };
 
 export function useCreateAPI(options?: UseMutationOptions<any, Error, CreateAPIProps>) {
@@ -72,17 +70,22 @@ interface CloneCreateAPIProps {
   apiId: string;
   targetOrganizationId: string;
   newName: string;
+  userKey: string;
 }
 
 //api 복제하여 생성 + 실시간 목록 생성
-const cloneCreateAPI = async (apiId: string, targetOrganizationId: string, newName: string) => {
+const cloneCreateAPI = async (data: CloneCreateAPIProps) => {
+  console.log(data);
   const res = await requestPost(
-    `/api/v1/plans/${apiId}/clone?targetOrganizationId=${targetOrganizationId}&newName=${newName}`
+    `/api/v1/plans/${data.apiId}/clone?targetOrganizationId=${data.targetOrganizationId}&newName=${data.newName}`,
+    {
+      headers: {
+        'X-User-Id': data.userKey,
+      },
+    }
   );
 
-  if (res.code == 200) {
-    return res.data;
-  }
+  return res;
 };
 
 export function useCloneCreateAPI(options?: UseMutationOptions<any, Error, CloneCreateAPIProps>) {
@@ -90,8 +93,7 @@ export function useCloneCreateAPI(options?: UseMutationOptions<any, Error, Clone
 
   return useMutation({
     ...options,
-    mutationFn: ({ apiId, targetOrganizationId, newName }: CloneCreateAPIProps) =>
-      cloneCreateAPI(apiId, targetOrganizationId, newName),
+    mutationFn: (data: CloneCreateAPIProps) => cloneCreateAPI(data),
     onSuccess: (data, variables, context) => {
       //   브랜치 생성 성공 시 목록 invalidate
       queryClient.invalidateQueries({
@@ -107,16 +109,27 @@ export function useCloneCreateAPI(options?: UseMutationOptions<any, Error, Clone
 interface ModifyAPIProps {
   name: string;
   description: string;
-  updatedBy: string;
+  updatedBy: string; // userKey
+  enabled: true;
+  metadata: {
+    category: 'user-management';
+    version: '2.0';
+  };
+  versionUpdateType: 'PATCH';
+  updateOptions: {
+    mergeMetadata: true;
+    invalidateCache: true;
+    publishEvent: true;
+  };
 }
 
 //api 키 수정 + 실시간 목록 생성
 const modifyAPI = async (apiId: string, data: ModifyAPIProps) => {
-  const res = await requestPut(`/api/v1/plans/${apiId}`, data);
+  const res = await requestPut(`/api/v1/plans/${apiId}`, {
+    body: data,
+  });
 
-  if (res.code == 200) {
-    return res.data;
-  }
+  return res;
 };
 
 export function useModifyAPI(
@@ -143,9 +156,7 @@ export function useModifyAPI(
 const deleteAPI = async (apiId: string) => {
   const res = await requestDelete(`/api/v1/plans/${apiId}`);
 
-  if (res.code == 200) {
-    return res.data;
-  }
+  return res;
 };
 
 export function useDeleteAPI(options?: UseMutationOptions<any, Error, string>) {

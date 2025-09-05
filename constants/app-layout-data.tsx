@@ -21,7 +21,6 @@ import {
 } from 'lucide-react';
 
 // 사이드 바
-
 export const projectsData: Project[] = [
   {
     slug: 'my-project',

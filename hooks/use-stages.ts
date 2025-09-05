@@ -25,7 +25,6 @@ const getStatesList = async (organizationId: string): Promise<StagesData[]> => {
   throw new Error(res.message || '스테이지 목록 조회 실패');
 };
 
-// ✅ React Query Hook
 export function useGetStagesList(organizationId: string) {
   return useQuery<StagesData[]>({
     queryKey: ['getStatesList', organizationId], // pathId별 캐싱
@@ -47,7 +46,6 @@ const getStateDetailList = async (stageId: string): Promise<StagesData[]> => {
   throw new Error(res.message || '스테이지 목록 조회 실패');
 };
 
-// ✅ React Query Hook
 export function useGetStageDetailList(stageId: string) {
   return useQuery<StagesData[]>({
     queryKey: ['getStateDetailList', stageId], // pathId별 캐싱
@@ -80,7 +78,6 @@ const createStage = async (data: CreateStageProps) => {
   throw new Error(res.message || '스테이지 생성 실패');
 };
 
-// ✅ React Query Hook
 export function useCreateStage() {
   const queryClient = useQueryClient();
 
@@ -110,7 +107,6 @@ const handleStageStatus = async (stageId: string, data: handleStageStatusProps) 
   throw new Error(res.message || '스테이지 상태 변경 실패');
 };
 
-// ✅ React Query Hook
 export function useHandleStageStatus() {
   const queryClient = useQueryClient();
 
@@ -135,7 +131,6 @@ const deleteStage = async (stageId: string, deletedBy: string) => {
   throw new Error(res.message || '스테이지 삭제 실패');
 };
 
-// ✅ React Query Hook
 export function useDeleteStage() {
   const queryClient = useQueryClient();
 
@@ -247,7 +242,6 @@ const getDeploymentHistoryList = async (
   throw new Error(res.message || '배포 목록 조회 실패');
 };
 
-// ✅ React Query Hook
 export function useGetDeploymentHistoryList(stageId: string, page?: number, size?: number) {
   return useQuery<deploymentHistoryData[]>({
     queryKey: ['getDeploymentHistoryList', stageId], // pathId별 캐싱
@@ -283,7 +277,6 @@ const getDeploymentDetail = async (deploymentId: string): Promise<deploymentDeta
   throw new Error(res.message || '배포 상세 내용 조회 실패');
 };
 
-// ✅ React Query Hook
 export function useGetDeploymentDetail(deploymentId: string) {
   return useQuery<deploymentDetailData[]>({
     queryKey: ['getDeploymentDetail', deploymentId], // pathId별 캐싱

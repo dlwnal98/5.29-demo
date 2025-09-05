@@ -147,7 +147,7 @@ export default function AccountPage() {
                       프로필 정보
                     </CardTitle>
                     <CardDescription className="text-gray-600 dark:text-gray-400">
-                      기본 프로필 정보를 수정할 수 있습니다d
+                      기본 프로필 정보를 수정할 수 있습니다
                     </CardDescription>
                   </div>
                 </div>
@@ -384,7 +384,7 @@ export default function AccountPage() {
             </Card>
 
             {/* 계정 삭제 구역 */}
-            <Card className="border-0 shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-l-4 border-l-red-500">
+            <Card className="border-0 shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
               <CardHeader className="pb-6">
                 <div className="flex items-center space-x-3">
                   <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-red-500 to-rose-600 flex items-center justify-center">

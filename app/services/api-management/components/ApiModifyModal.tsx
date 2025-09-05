@@ -14,39 +14,35 @@ import { toast } from 'sonner';
 import { useModifyAPI } from '@/hooks/use-apimanagement';
 
 interface ApiModifyModalProps {
-  userId: string;
+  userKey: string;
   selectedAPIId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  existingValue?: { name: string; description: string };
-  onSuccess?: (modifiedApi: any) => void;
+  existingValue: { name: string; description: string };
 }
 
-const initialForm = { name: '', description: '' };
-
 const ApiModifyModal = ({
-  userId,
+  userKey,
   selectedAPIId,
   open,
   onOpenChange,
   existingValue,
-  onSuccess,
 }: ApiModifyModalProps) => {
-  const [form, setForm] = useState(existingValue || initialForm);
+  const [form, setForm] = useState(existingValue);
+
+  useEffect(() => {
+    if (open) {
+      setForm(existingValue);
+    }
+  }, [open, existingValue]);
 
   const { mutate: modifyAPI } = useModifyAPI({
     onSuccess: () => {
       onOpenChange(false);
-      setForm(existingValue || initialForm);
+      setForm(existingValue);
       toast.success(`API '${form.name}'이(가) 수정되었습니다.`);
     },
   });
-
-  useEffect(() => {
-    if (open) {
-      setForm(existingValue || initialForm);
-    }
-  }, [open, existingValue]);
 
   const handleModify = () => {
     if (!form.name.trim()) {
@@ -59,7 +55,18 @@ const ApiModifyModal = ({
       data: {
         name: form.name,
         description: form.description,
-        updatedBy: userId,
+        updatedBy: userKey,
+        enabled: true,
+        metadata: {
+          category: 'user-management',
+          version: '2.0',
+        },
+        versionUpdateType: 'PATCH',
+        updateOptions: {
+          mergeMetadata: true,
+          invalidateCache: true,
+          publishEvent: true,
+        },
       },
     });
   };
@@ -107,7 +114,7 @@ const ApiModifyModal = ({
             variant="outline"
             onClick={() => {
               onOpenChange(false);
-              setForm(existingValue || initialForm);
+              setForm(existingValue);
             }}>
             취소
           </Button>

@@ -64,6 +64,8 @@ export function MethodResponseTab({
 
   console.log(methodResponses);
 
+  //응답 200은 기본적으로 들어가 있는 거라서
+
   return (
     <>
       <div className="flex items-center justify-between">

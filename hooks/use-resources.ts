@@ -4,9 +4,7 @@ import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from
 // open api 문서 조회
 const getOpenAPIDoc = async (apiId: string) => {
   const res = await requestGet(`/api/v1/plans/${apiId}/openapi`);
-  if (res.code == 200) {
-    return res.data;
-  }
+  return res;
 };
 
 export function useGetOpenAPIDoc(apiId: string) {
@@ -41,31 +39,61 @@ export const getResourceList = async (apiId: string) => {
 //   });
 // }
 
-interface initialPathsProps {
-  pathPattern: string;
-  description?: string;
-  pathOrder: number;
-}
-
 export interface CreateResourceProps {
   apiId: string;
   resourceName: string;
   description: string;
-  resourceType: string;
-  initialPaths: initialPathsProps[];
-  securitySettings: {
-    authenticationRequired: boolean;
+  resourceType?: 'REST';
+  initialPaths: [
+    {
+      pathPattern: string;
+      description?: string; // 없애기로
+    },
+  ];
+  securitySettings?: {
+    corsPolicy?: {
+      policyId?: 'COR123456789';
+      allowedOrigins?: '*';
+      allowedMethods?: 'GET,POST,PUT,DELETE';
+      allowedHeaders?: 'Content-Type,Authorization';
+      exposedHeaders?: 'X-Total-Count';
+      allowCredentials?: true;
+      maxAgeSeconds?: 3600;
+      enabled: true;
+    };
+    allowedOrigins?: ['https://example.com', 'https://app.example.com'];
+    blockedIps?: ['192.168.1.100', '10.0.0.50'];
+    httpsOnly?: true;
+    securityHeaders?: {
+      'X-Frame-Options': 'DENY';
+      'X-Content-Type-Options': 'nosniff';
+    };
+  };
+  cachingSettings?: {
+    enableCaching?: false;
+    cacheStrategy?: 'TIME_BASED';
+    defaultTtlSeconds?: 300;
+    methodSpecificTtl?: {
+      GET?: 600;
+      POST?: 0;
+    };
+    cacheKeys?: ['user_id', 'resource_path', 'query_params'];
+    varyHeaders?: ['Accept-Language', 'Accept-Encoding'];
   };
   createdBy: string;
+  metadata?: {
+    version?: '1.0';
+    team?: 'backend';
+  };
 }
 
 //resource 생성 + 실시간 목록 생성
 const createResource = async (data: CreateResourceProps) => {
-  const res = await requestPost(`/api/v1/resources`, data);
+  const res = await requestPost(`/api/v1/resources`, {
+    body: data,
+  });
 
-  if (res.code == 200) {
-    return res.data;
-  }
+  return res;
 };
 
 export function useCreateResource(options?: UseMutationOptions<any, Error, CreateResourceProps>) {
