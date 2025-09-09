@@ -768,7 +768,9 @@ export default function StagesPage() {
               <div className="flex items-center justify-end p-2">
                 <Button
                   size={'sm'}
-                  className="bg-orange-500 hover:bg-orange-600 text-white"
+                  variant={'outline'}
+                  // className="bg-orange-500 hover:bg-orange-600 text-white"
+                  className="rounded-full h-[25px] !gap-1 border-2 border-blue-500 text-[#0F74E1] font-bold hover:text-blue-700 hover:bg-blue-50"
                   onClick={() => setIsCreateStageModalOpen(true)}>
                   스테이지 생성
                 </Button>

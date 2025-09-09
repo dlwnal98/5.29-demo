@@ -114,28 +114,30 @@ export interface CreateMethodProps {
   httpMethod: string;
   methodName: string;
   description: string;
-  targetEndpoint: string;
-  requiresAuthentication: boolean;
-  // requestModelId: string;
-  // responseModelId: string;
-  // apiKeyId: string;
-  createdBy: string;
+  backendServiceUrl: string;
+  requestModelIds: string[];
+  responseModelId: string;
+  queryParameters: {
+    name: string;
+    required: boolean;
+  }[];
+  headerParameters: {
+    name: string;
+    required: boolean;
+  }[];
+  apiKeyId: string;
   requiresApiKey: boolean;
-  requestSchema?: RequestSchemaProps;
-  queryParameters?: QueryParameter[];
-  headerParameters?: HeaderParameter[];
-  pathParameters?: PathParameter[];
-  responseSchema: ResponseSchemaProps;
+  requestValidator: string;
+  createdBy: string;
 }
 
 // ✅ API 요청 함수
 const createMethod = async (data: CreateMethodProps) => {
-  const res = await requestPost(`/api/v1/methods`, data);
+  const res = await requestPost(`/api/v1/methods`, {
+    body: data,
+  });
 
-  if (res.code === 200) {
-    return res.data;
-  }
-  throw new Error(res.message || '메서드 생성 실패');
+  return res;
 };
 
 // ✅ React Query Hook

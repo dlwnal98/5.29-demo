@@ -1,4 +1,4 @@
-import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
+import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
 import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from '@/lib/apiClient';
 
 interface StagesData {
@@ -60,36 +60,38 @@ export function useGetStageDetailList(stageId: string) {
 
 interface CreateStageProps {
   organizationId: string;
-  apiId: string;
   stageName: string;
-  description: string;
-  environmentType: string;
-  isDefault: boolean;
+  description?: string;
   createdBy: string;
+  enabled: true;
+  deploymentSource: 'DRAFT' | 'PREVIOUS_DEVELOPMENT'; // 새 스테이지 생성시 'DRAFT', 옵션에서 스테이지 선택시 'PREVIOUS_DEVELOPMENT'
+  apiId: string;
+  sourceDeploymentId: string; // draft일 때는 없어도 됨
+  deploymentVersion?: string;
 }
 
 // 스테이지 생성
-const createStage = async (data: CreateStageProps) => {
+export const createStage = async (data: CreateStageProps) => {
   const res = await requestPost(`/api/v1/stages`, data);
 
-  if (res.code === 200) {
-    return res.data;
-  }
-  throw new Error(res.message || '스테이지 생성 실패');
+  return res;
 };
 
-export function useCreateStage() {
-  const queryClient = useQueryClient();
+// export function useCreateStage(options?: UseMutationOptions<any, Error, CreateStageProps>) {
+//   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (data: CreateStageProps) => createStage(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['getStagesList'],
-      });
-    },
-  });
-}
+//   return useMutation({
+//     ...options,
+//     mutationFn: (data: CreateStageProps) => createStage(data),
+//     onSuccess: (data, variables, context) => {
+//       queryClient.invalidateQueries({
+//         queryKey: ['getStagesList'],
+//       });
+
+//       options?.onSuccess?.(data, variables, context);
+//     },
+//   });
+// }
 
 interface handleStageStatusProps {
   status: string;

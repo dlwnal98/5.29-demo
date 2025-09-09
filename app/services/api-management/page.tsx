@@ -117,7 +117,9 @@ export default function ApiManagementPage() {
                 />
               </div>
 
-              <Button onClick={() => setIsCreateModalOpen(true)}>
+              <Button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg">
                 <Plus className="h-4 w-4" />
                 API 생성
               </Button>
@@ -131,10 +133,10 @@ export default function ApiManagementPage() {
               <Table>
                 <TableHeader className="hover:bg-white">
                   <TableRow className="hover:bg-white">
-                    <TableHead className="w-3">ID</TableHead>
+                    <TableHead className="w-[10%]">ID</TableHead>
                     <TableHead className="w-[25%]">이름</TableHead>
-                    <TableHead>설명</TableHead>
-                    <TableHead className="w-3 text-center">작업</TableHead>
+                    <TableHead className="w-auto">설명</TableHead>
+                    <TableHead className="w-[8%] text-center">작업</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -227,6 +229,7 @@ export default function ApiManagementPage() {
             open={isMethodDeleteDialogOpen}
             onOpenChange={setIsDeleteModalOpen}
             selectedAPIId={selectedAPIId}
+            userKey={userData?.userKey || ''}
           />
         </div>
       </AppLayout>

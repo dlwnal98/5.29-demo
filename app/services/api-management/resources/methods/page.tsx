@@ -72,23 +72,30 @@ export default function CreateMethodPage() {
   // 이 형태의 props로 메소드 생성할 수 있음
   // const [methodForm, setMethodForm] = useState({
   //   pathId: '',
-  // resourceId: '',
-  // httpMethod: '',
-  // methodName: '',
-  // description:'',
-  // targetEndpoint:'',
-  // requiresAuthentication: false,
-  // // requestModelId: string;
-  // // responseModelId: string;
-  // // apiKeyId: string;
-  // createdBy: '',
-  // requiresApiKey: false,
-  // // requestSchema?: RequestSchemaProps;
-  // // queryParameters?: QueryParameter[];
-  // // headerParameters?: HeaderParameter[];
-  // // pathParameters?: PathParameter[];
-  // // responseSchema: ResponseSchemaProps;
-  // })
+  //   resourceId: '',
+  //   httpMethod: '',
+  //   methodName: '',
+  //   description: '',
+  //   backendServiceUrl: '',
+  //   requestModelIds: [],
+  //   responseModelId: '',
+  //   queryParameters: [
+  //     {
+  //       name: '',
+  //       required: false,
+  //     },
+  //   ],
+  //   headerParameters: [
+  //     {
+  //       name: '',
+  //       required: false,
+  //     },
+  //   ],
+  //   apiKeyId: '',
+  //   requiresApiKey: false,
+  //   requestValidator: '',
+  //   createdBy: '',
+  // });
 
   const [modelList, setModelList] = useState<Model[]>([
     {

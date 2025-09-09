@@ -19,12 +19,7 @@ import { toast } from 'sonner';
 interface CorsSettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  // corsForm: CorsSettings;
-  // setCorsForm: (form: CorsSettings) => void;
-  // handleCorsUpdate: () => void;
   resourceId: string;
-  // addCorsMethod: (method: string) => void;
-  // removeCorsMethod: (method: string) => void;
   selectedResource: Resource;
   setSelectedResource: (resource: Resource) => void;
 }
@@ -32,17 +27,9 @@ interface CorsSettingsDialogProps {
 export function CorsSettingsDialog({
   open,
   onOpenChange,
-  // corsForm,
-  // setCorsForm,
-  // handleCorsUpdate,
   resourceId,
-  // addCorsMethod,
-  // removeCorsMethod,
   selectedResource,
-  setSelectedResource,
 }: CorsSettingsDialogProps) {
-  const availableResourcePaths = ['/', '/api', '/users', '/products', '/orders'];
-
   const [corsForm, setCorsForm] = useState({
     allowMethods: [],
     allowHeaders: '',
@@ -51,8 +38,6 @@ export function CorsSettingsDialog({
     maxAge: '',
     allowCredentials: false,
   });
-
-  console.log(corsForm, selectedResource);
 
   const { mutate: modifyCORSMutate } = useModifyResourceCorsSettings({
     onSuccess: () => {
@@ -85,35 +70,13 @@ export function CorsSettingsDialog({
           </DialogTitle>
         </DialogHeader>
 
-        {/* CORS Toggle */}
-        <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          <div>
-            <Label
-              htmlFor="cors-toggle"
-              className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              원본에서 CORS
-            </Label>
-            <p className="text-xs text-gray-500 mt-1">
-              Cross-Origin Resource Sharing을 활성화합니다
-            </p>
-          </div>
-          <Switch
-            id="cors-toggle"
-            checked={selectedResource.corsEnabled}
-            onCheckedChange={(checked) =>
-              setSelectedResource({ ...selectedResource, corsEnabled: checked })
-            }
-          />
-        </div>
-
         {selectedResource.corsEnabled && (
           <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-4 space-y-4">
             <h4 className="font-medium text-blue-900 dark:text-blue-100">CORS 설정</h4>
             <div className="space-y-4">
-              {/* Access-Control-Allow-Method */}
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                  Access-Control-Allow-Method
+                  Access-Control-Allow-Methods
                 </Label>
                 <div className="space-y-1">
                   <div className="flex items-center space-x-2">
@@ -145,18 +108,6 @@ export function CorsSettingsDialog({
                   ))}
                 </div>
               </div>
-              {/* Access-Control-Allow-Origin */}
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                  Access-Control-Allow-Origin
-                </Label>
-                <Input
-                  value={corsForm.allowOrigin}
-                  onChange={(e) => setCorsForm({ ...corsForm, allowOrigin: e.target.value })}
-                  placeholder="*"
-                />
-              </div>
-              {/* Access-Control-Allow-Headers */}
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Access-Control-Allow-Headers
@@ -167,8 +118,17 @@ export function CorsSettingsDialog({
                   placeholder="content-type,x-ncp-apigw-api-key,x-ncp-apigw-timestamp"
                 />
               </div>
+              <div>
+                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                  Access-Control-Allow-Origin
+                </Label>
+                <Input
+                  value={corsForm.allowOrigin}
+                  onChange={(e) => setCorsForm({ ...corsForm, allowOrigin: e.target.value })}
+                  placeholder="*"
+                />
+              </div>
 
-              {/* Access-Control-Expose-Headers */}
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Access-Control-Expose-Headers
@@ -179,7 +139,6 @@ export function CorsSettingsDialog({
                   placeholder="헤더 이름들을 쉼표로 구분"
                 />
               </div>
-              {/* Access-Control-Max-Age */}
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Access-Control-Max-Age
@@ -190,7 +149,6 @@ export function CorsSettingsDialog({
                   placeholder="86400"
                 />
               </div>
-              {/* Access-Control-Allow-Credentials */}
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Access-Control-Allow-Credentials

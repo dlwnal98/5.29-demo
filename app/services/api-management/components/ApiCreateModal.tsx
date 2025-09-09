@@ -148,10 +148,11 @@ const ApiCreateModal = ({
         return;
       } else {
         cloneCreateAPI({
-          apiId: copyApiId,
+          copyApiId: copyApiId,
           targetOrganizationId: organizationId,
           newName: createApiForm.name,
           userKey: userKey,
+          description: createApiForm.description,
         });
       }
     }

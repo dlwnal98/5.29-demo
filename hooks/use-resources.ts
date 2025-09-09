@@ -19,75 +19,17 @@ export function useGetOpenAPIDoc(apiId: string) {
   });
 }
 
-// open api 문서 조회
-export const getResourceList = async (apiId: string) => {
-  const res = await requestGet(`/api/v1/resources/plan/${apiId}`);
-  if (res.code == 200) {
-    return res.data.pathSummary?.pathPatterns;
-  }
-};
-
-// export function useGetResourceList(apiId: string) {
-//   return useQuery<any[]>({
-//     queryKey: ['getResourceList'],
-//     queryFn: () => getResourceList(apiId),
-//     enabled: !!apiId, // 조건적 실행
-//     staleTime: Infinity,
-//     refetchOnWindowFocus: false,
-//     refetchOnMount: false,
-//     refetchOnReconnect: false,
-//   });
-// }
-
+//resource 생성 + 실시간 목록 생성
 export interface CreateResourceProps {
   apiId: string;
   resourceName: string;
-  description: string;
-  resourceType?: 'REST';
-  initialPaths: [
-    {
-      pathPattern: string;
-      description?: string; // 없애기로
-    },
-  ];
-  securitySettings?: {
-    corsPolicy?: {
-      policyId?: 'COR123456789';
-      allowedOrigins?: '*';
-      allowedMethods?: 'GET,POST,PUT,DELETE';
-      allowedHeaders?: 'Content-Type,Authorization';
-      exposedHeaders?: 'X-Total-Count';
-      allowCredentials?: true;
-      maxAgeSeconds?: 3600;
-      enabled: true;
-    };
-    allowedOrigins?: ['https://example.com', 'https://app.example.com'];
-    blockedIps?: ['192.168.1.100', '10.0.0.50'];
-    httpsOnly?: true;
-    securityHeaders?: {
-      'X-Frame-Options': 'DENY';
-      'X-Content-Type-Options': 'nosniff';
-    };
-  };
-  cachingSettings?: {
-    enableCaching?: false;
-    cacheStrategy?: 'TIME_BASED';
-    defaultTtlSeconds?: 300;
-    methodSpecificTtl?: {
-      GET?: 600;
-      POST?: 0;
-    };
-    cacheKeys?: ['user_id', 'resource_path', 'query_params'];
-    varyHeaders?: ['Accept-Language', 'Accept-Encoding'];
-  };
+  description?: string;
+  path: string;
+  enableCors: boolean;
+  resourceType: 'REST';
   createdBy: string;
-  metadata?: {
-    version?: '1.0';
-    team?: 'backend';
-  };
 }
 
-//resource 생성 + 실시간 목록 생성
 const createResource = async (data: CreateResourceProps) => {
   const res = await requestPost(`/api/v1/resources`, {
     body: data,
@@ -113,34 +55,12 @@ export function useCreateResource(options?: UseMutationOptions<any, Error, Creat
   });
 }
 
-// Resource 경로 검증
-export const getResourceValidatePath = async (apiId: string, resourcePath: string) => {
-  const res = await requestGet(
-    `/api/v1/resources/validate-path?apiId=${apiId}&resourcePath=${resourcePath}`
-  );
-
-  if (res.code == 200) {
-    return res.data;
-  }
-};
-
-// export function useGetResourceValidatePath(apiId: string, resourcePath: string) {
-//   return useQuery<validatePathProps[]>({
-//     queryKey: ['getResourceValidatePath'],
-//     queryFn: () => getResourceValidatePath(apiId, resourcePath),
-//     // enabled: !!apiId, // 조건적 실행
-//     staleTime: Infinity,
-//     refetchOnWindowFocus: false,
-//     refetchOnMount: false,
-//     refetchOnReconnect: false,
-//   });
-// }
-
+// Resource별 CORS 정책 조회
 interface resourceCorsConfig {
-  allowOrigins: string[];
-  allowMethods: string[];
-  aloowHeaders: string[];
-  exposeHeaders: string[];
+  allowedOrigins: string[];
+  allowedMethods: string[];
+  allowedHeaders: string[];
+  exposedHeaders: string[];
   allowCredentials: boolean;
   maxAge: number;
 }
@@ -152,13 +72,10 @@ interface resourceCorsSettingsData {
   corsConfig: resourceCorsConfig[];
 }
 
-// Resource별 CORS 정책 조회
 const getResourceCorsSettings = async (resourceId: string) => {
   const res = await requestGet(`/api/v1/resources/${resourceId}/cors`);
 
-  if (res.code == 200) {
-    return res.data;
-  }
+  return res;
 };
 
 export function useGetResourceCorsSettings(resourceId: string) {
@@ -173,16 +90,16 @@ export function useGetResourceCorsSettings(resourceId: string) {
   });
 }
 
+//resource Cors 설정 수정
 interface ModifyResourceProps {
-  allowOrigins?: string[];
-  allowMethods?: string[];
-  allowHeaders?: string[];
-  exposeHeaders?: string[];
+  allowedOrigins?: string[];
+  allowedMethods?: string[];
+  allowedHeaders?: string[];
+  exposedHeaders?: string[];
   maxAge?: number;
   allowCredentials?: boolean;
 }
 
-//resource Cors 설정 수정
 const modifyResourceCorsSettings = async (
   resourceId: string,
   enableCors: boolean,
@@ -193,9 +110,7 @@ const modifyResourceCorsSettings = async (
     data
   );
 
-  if (res.code == 200) {
-    return res.data;
-  }
+  return res;
 };
 
 export function useModifyResourceCorsSettings(
@@ -222,53 +137,23 @@ export function useModifyResourceCorsSettings(
   });
 }
 
-// API 배포 무결성 검증
-const validateDeployment = async (deploymentId: string, validationType?: string) => {
-  const res = await requestPost(
-    `/api/v1/deployments/${deploymentId}/validate?validationType=${validationType}`
-  );
-
-  if (res.code == 200) {
-    return res.data;
-  }
-};
-
-export function useValidateDeployment() {
-  return useMutation({
-    mutationFn: (deploymentId: string, validationType?: string) =>
-      validateDeployment(deploymentId, validationType),
-    onSuccess: () => {},
-  });
-}
-
+// API 배포 실행
 interface deploymentProps {
   apiId: string;
   stageId: string;
-  version: string;
-  deploymentType: string;
-  strategy: string;
-  deploymentOptions: {
-    autoActivate: boolean;
-    runPreDeploymentValidation: boolean;
-    runPostDeploymentValidation: boolean;
-    enableAutoRollback: boolean;
-    rollbackThreshold: number;
-    timeoutMinutes: number;
-  };
+  version?: string;
   deployedBy: string;
-  metadata: {
-    release_notes: string;
-    jira_ticket: string;
+  description?: string;
+  metadata?: {
+    jiraTicket?: string;
+    reviewer?: string;
   };
 }
 
-// API 배포 실행
 const deployAPI = async (data: deploymentProps) => {
   const res = await requestPost(`/api/v1/deployments`, data);
 
-  if (res.code == 200) {
-    return res.data;
-  }
+  return res;
 };
 
 export function useDeployAPI(options?: UseMutationOptions<any, Error, deploymentProps>) {

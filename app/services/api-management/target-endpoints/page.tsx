@@ -199,7 +199,9 @@ export default function TargetEndpointsPage() {
               />
             </div>
 
-            <Button onClick={handleCreate}>
+            <Button
+              onClick={handleCreate}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg">
               <Plus className="h-4 w-4" />
               Endpoint 생성
             </Button>

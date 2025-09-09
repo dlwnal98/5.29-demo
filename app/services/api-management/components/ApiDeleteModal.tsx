@@ -15,11 +15,17 @@ import { toast } from 'sonner';
 
 interface DeleteMethodDialogProps {
   selectedAPIId: string;
+  userKey: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function ApiDeleteModal({ selectedAPIId, open, onOpenChange }: DeleteMethodDialogProps) {
+export function ApiDeleteModal({
+  selectedAPIId,
+  open,
+  onOpenChange,
+  userKey,
+}: DeleteMethodDialogProps) {
   const { mutate: deleteAPI } = useDeleteAPI({
     onSuccess: () => {
       toast.success('API가 삭제되었습니다.');
@@ -28,7 +34,10 @@ export function ApiDeleteModal({ selectedAPIId, open, onOpenChange }: DeleteMeth
   });
 
   const handleDeleteApi = () => {
-    deleteAPI(selectedAPIId);
+    console.log(userKey);
+    if (userKey) {
+      deleteAPI({ apiId: selectedAPIId, userKey: userKey });
+    }
   };
 
   return (

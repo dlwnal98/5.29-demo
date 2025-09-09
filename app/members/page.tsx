@@ -273,10 +273,10 @@ export default function UsersPage() {
 
               {/* 멤버 생성 */}
               <Button
-                className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg"
                 onClick={() => handleAction('create', '', '')}>
                 <Plus className="h-4 w-4" />
-                Create Member
+                Member 생성
               </Button>
             </div>
           </div>

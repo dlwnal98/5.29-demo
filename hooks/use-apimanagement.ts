@@ -1,5 +1,6 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
 import { requestDelete, requestGet, requestPost, requestPut } from '@/lib/apiClient';
+import { headers } from 'next/headers';
 
 export interface APIListData {
   apiId: string;
@@ -13,7 +14,7 @@ export interface APIListData {
 // API List 조회
 const getAPIList = async (organizationId: string, page?: number, size?: number) => {
   const res = await requestGet(
-    `/api/v1/plans?organizationId=${organizationId}&page=${page}&size=${size}`
+    `/api/v1/plans/organization/${organizationId}?page=${page}&size=${size}`
   );
 
   return res;
@@ -67,23 +68,24 @@ export function useCreateAPI(options?: UseMutationOptions<any, Error, CreateAPIP
 }
 
 interface CloneCreateAPIProps {
-  apiId: string;
+  copyApiId: string;
   targetOrganizationId: string;
   newName: string;
   userKey: string;
+  description?: string;
 }
 
 //api 복제하여 생성 + 실시간 목록 생성
 const cloneCreateAPI = async (data: CloneCreateAPIProps) => {
   console.log(data);
-  const res = await requestPost(
-    `/api/v1/plans/${data.apiId}/clone?targetOrganizationId=${data.targetOrganizationId}&newName=${data.newName}`,
-    {
-      headers: {
-        'X-User-Id': data.userKey,
-      },
-    }
-  );
+  const res = await requestPost(`/api/v1/plans/${data.copyApiId}/clone`, {
+    body: {
+      targetOrganizationId: data.targetOrganizationId,
+      newName: data.newName,
+      createdBy: data.userKey,
+      description: data.description,
+    },
+  });
 
   return res;
 };
@@ -111,16 +113,6 @@ interface ModifyAPIProps {
   description: string;
   updatedBy: string; // userKey
   enabled: true;
-  metadata: {
-    category: 'user-management';
-    version: '2.0';
-  };
-  versionUpdateType: 'PATCH';
-  updateOptions: {
-    mergeMetadata: true;
-    invalidateCache: true;
-    publishEvent: true;
-  };
 }
 
 //api 키 수정 + 실시간 목록 생성
@@ -153,18 +145,25 @@ export function useModifyAPI(
 }
 
 //api 키 삭제 + 실시간 목록 생성
-const deleteAPI = async (apiId: string) => {
-  const res = await requestDelete(`/api/v1/plans/${apiId}`);
+const deleteAPI = async (apiId: string, userKey: string) => {
+  const res = await requestDelete(`/api/v1/plans/${apiId}`, {
+    headers: {
+      'X-User-Id': userKey,
+    },
+  });
 
   return res;
 };
 
-export function useDeleteAPI(options?: UseMutationOptions<any, Error, string>) {
+export function useDeleteAPI(
+  options?: UseMutationOptions<any, Error, { apiId: string; userKey: string }>
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...options,
-    mutationFn: (apiId: string) => deleteAPI(apiId),
+    mutationFn: ({ apiId, userKey }: { apiId: string; userKey: string }) =>
+      deleteAPI(apiId, userKey),
     onSuccess: (data, variables, context) => {
       //   브랜치 생성 성공 시 목록 invalidate
       queryClient.invalidateQueries({

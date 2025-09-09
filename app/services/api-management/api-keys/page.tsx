@@ -189,7 +189,9 @@ export default function ApiKeysPage() {
             <Button variant="outline" onClick={handleRefresh}>
               <RefreshCw className="h-4 w-4 " />
             </Button>
-            <Button onClick={() => setIsCreateModalOpen(!isCreateModalOpen)}>
+            <Button
+              onClick={() => setIsCreateModalOpen(!isCreateModalOpen)}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg">
               <Plus className="h-4 w-4 mr-2" />
               API Key 생성
             </Button>

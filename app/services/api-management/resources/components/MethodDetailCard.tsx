@@ -428,16 +428,16 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
               <div className="w-[100%] flex items-center justify-between mt-2">
                 <div className="w-[40%]">
                   <div className="flex items-center gap-2  mb-2">
+                    <div className="w-20 text-sm text-gray-600 dark:text-gray-400">메서드 ID</div>
+                    <div className="font-mono text-sm">{selectedMethod.apiKeys.methodId}</div>
+                  </div>
+                  <div className="flex items-center gap-2  mb-2">
                     <div className="w-20 text-sm text-gray-600 dark:text-gray-400">메서드 이름</div>
                     <div className="font-semibold text-sm">{selectedMethod.summary}</div>
                   </div>
                   <div className="flex items-center gap-2  mb-2">
-                    <div className="w-20 text-sm text-gray-600 dark:text-gray-400">메서드 설명</div>
+                    <div className="w-20 text-sm text-gray-600 dark:text-gray-400">메서드 요약</div>
                     <div className="font-semibold text-sm">{selectedMethod.description}</div>
-                  </div>
-                  <div className="flex items-center gap-2  mb-2">
-                    <div className="w-20 text-sm text-gray-600 dark:text-gray-400">메서드 ID</div>
-                    <div className="font-mono text-sm">{selectedMethod.apiKeys.methodId}</div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="w-20 text-sm text-gray-600 dark:text-gray-400">URL</span>

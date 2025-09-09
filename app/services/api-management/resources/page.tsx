@@ -50,11 +50,11 @@ export default function ApiResourcesPage() {
           type: type?.toUpperCase(),
           resourcePath: path,
           summary: methodObj.summary,
+          description: methodObj.description,
           apiKeys: methodObj['x-api-keys'],
         })),
     }));
 
-    console.log(mockData2);
     // 루트 추가/이동 로직
     const rootResource: Resource = { id: 'root', path: '/', name: 'root', methods: [] };
 
@@ -89,6 +89,32 @@ export default function ApiResourcesPage() {
     newStageName: '',
   });
 
+  useEffect(() => {
+    if (openAPIDocData?.paths) {
+      setResources(convertOpenApiToResources(openAPIDocData.paths));
+    }
+  }, [openAPIDocData]);
+
+  // useEffect(() => {
+  //   if (resources) {
+  //     setExpandedResources((prev) => {
+  //       const newSet = new Set(prev);
+  //       resources.forEach((resource) => {
+  //         newSet.add(resource.id); // resource가 객체라면 적절한 string 키 사용
+  //       });
+  //       return newSet;
+  //     });
+  //   }
+  // }, [resources]);
+
+  // ✅ 모든 리소스를 한 번만 펼치는 로직
+  useEffect(() => {
+    if (resources.length > 0) {
+      // 모든 리소스 id를 초기 expandedResources로 설정
+      setExpandedResources(new Set(resources.map((r) => r.id)));
+    }
+  }, [resources]);
+
   // Sync heights
   useEffect(() => {
     const syncHeights = () => {
@@ -118,7 +144,6 @@ export default function ApiResourcesPage() {
   }, [selectedMethod, activeTab]);
 
   const handleMethodClick = (method: Method, resource: Resource) => {
-    console.log(method, resource);
     setSelectedMethod(method);
     setSelectedResource(resource);
     setActiveTab('method-request');
@@ -145,6 +170,8 @@ export default function ApiResourcesPage() {
   // 리소스 확장/축소 토글 함수
   const toggleResourceExpansion = (resourceId: string) => {
     const newExpanded = new Set(expandedResources);
+    console.log(resourceId, newExpanded);
+
     if (newExpanded.has(resourceId)) {
       newExpanded.delete(resourceId);
     } else {
@@ -153,15 +180,17 @@ export default function ApiResourcesPage() {
     setExpandedResources(newExpanded);
   };
 
+  console.log(resources);
+
   // 트리 구조 리소스 목록 렌더링 함수
   const renderResourceTree = () => {
     return (
       <div className="space-y-1">
         {resources.map((resource, index) => {
+          console.log(expandedResources);
           const isExpanded = expandedResources.has(resource.id);
           const hasMethods = resource.methods.length > 0;
           const isSelected = selectedResource?.id === resource.id;
-          // const isSelected = selectedResource?.id === resource.id && !selectedMethod;
           const isRoot = resource.id === 'root';
 
           return (
@@ -178,7 +207,7 @@ export default function ApiResourcesPage() {
                 }`}
                 onClick={() => handleResourceClick(resource)}>
                 {/* 확장/축소 버튼 */}
-                {hasMethods ? (
+                {isRoot || hasMethods ? (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -189,15 +218,12 @@ export default function ApiResourcesPage() {
                     ) : (
                       <SquarePlus className="h-3 w-3" />
                     )}
+                    {/* <span className="font-medium text-sm">{resource.path}</span> */}
                   </button>
                 ) : (
                   <div className="w-2" />
                 )}
-
-                <span className="font-medium text-sm">
-                  {/* {resource.path === '/' ? '/' : resource.path} */}
-                  {resource.path}
-                </span>
+                <span className="font-medium text-sm">{resource.path}</span>
               </div>
 
               {/* 메서드 목록 */}
@@ -257,7 +283,7 @@ export default function ApiResourcesPage() {
         </Breadcrumb>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-4">
             <Button
               variant="outline"
@@ -266,6 +292,15 @@ export default function ApiResourcesPage() {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">리소스</h1>
+          </div>
+          <div className="flex items-center justify-end p-2 gap-2">
+            <Button
+              size="sm"
+              onClick={() => handleDeploy()}
+              className="text-sm rounded-full !px-4 h-[28px] bg-orange-500 hover:bg-orange-600 text-white text-xs lg:text-sm">
+              API 배포
+              {/* <Rocket className="h-4 w-4" /> */}
+            </Button>
           </div>
         </div>
 
@@ -278,19 +313,13 @@ export default function ApiResourcesPage() {
               <div className="flex items-center justify-end p-2 gap-2">
                 <Button
                   size="sm"
+                  variant={'outline'}
                   onClick={() => setIsCreateModalOpen(true)}
-                  className="bg-blue-500 hover:bg-blue-600 text-white text-xs lg:text-sm">
+                  // className="bg-blue-500 hover:bg-blue-600 text-white text-xs lg:text-sm"
+                  className="rounded-full h-[25px] !gap-1 border-2 border-blue-500 text-[#0F74E1] font-bold hover:text-blue-700 hover:bg-blue-50">
                   리소스 생성
                 </Button>
-                <Button
-                  size="sm"
-                  onClick={() => handleDeploy()}
-                  className="bg-orange-500 hover:bg-orange-600 text-white text-xs lg:text-sm">
-                  API 배포
-                  {/* <Rocket className="h-4 w-4" /> */}
-                </Button>
               </div>
-
               {/* 트리 구조 리소스 목록 렌더링 */}
               {renderResourceTree()}
             </div>
@@ -324,7 +353,13 @@ export default function ApiResourcesPage() {
         userKey={userData?.userKey || ''}
       />
 
-      <DeployResourceDialog open={isDeployModalOpen} onOpenChange={setIsDeployModalOpen} />
+      <DeployResourceDialog
+        open={isDeployModalOpen}
+        onOpenChange={setIsDeployModalOpen}
+        apiId={currentApiId || ''}
+        userKey={userData?.userKey || ''}
+        organizationId={userData?.organizationId || ''}
+      />
     </AppLayout>
   );
 }

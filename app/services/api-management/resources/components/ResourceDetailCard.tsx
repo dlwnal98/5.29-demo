@@ -91,30 +91,51 @@ export function ResourceDetailCard({
     <>
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         {/* Resource Details Header */}
-        <div className="border-b border-gray-200 dark:border-gray-700 p-6">
+        <div className="border-b border-gray-200 dark:border-gray-700 p-6  space-y-3">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">리소스 세부 정보</h2>
             <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCorsButtonClick}
-                className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 border-gray-300"
-                title="리소스 수정"
-                // disabled={'inactive'}
-              >
-                {/* <Settings className="h-4 w-4 text-gray-500" /> */}
-                CORS 활성화 설정
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsDeleteDialogOpen(true)}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-                title="삭제">
-                리소스 삭제
-                {/* <Trash2 className="h-4 w-4" /> */}
-              </Button>
+              {selectedResource.corsEnabled && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCorsButtonClick}
+                  className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 border-gray-300"
+                  title="리소스 수정"
+                  // disabled={'inactive'}
+                >
+                  {/* <Settings className="h-4 w-4 text-gray-500" /> */}
+                  CORS 활성화 설정
+                </Button>
+              )}
+              {selectedResource.id !== 'root' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsDeleteDialogOpen(true)}
+                  // className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                  className="rounded-full h-[25px] !gap-1 border-2 border-red-500 text-red-600 font-bold hover:text-red-700 hover:bg-red-50"
+                  title="삭제">
+                  리소스 삭제
+                  {/* <Trash2 className="h-4 w-4" /> */}
+                </Button>
+              )}
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-6">
+            <div className="col-span-1">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                리소스 이름
+              </Label>
+              <div className="mt-1 text-sm font-mono text-gray-900 dark:text-gray-400">
+                {selectedResource.id}
+              </div>
+            </div>
+            <div className="col-span-2">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">설명</Label>
+              <div className="mt-1 text-sm font-mono text-gray-900 dark:text-white">
+                {selectedResource.description}
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-6">
@@ -179,13 +200,15 @@ export function ResourceDetailCard({
             <div className="flex gap-2">
               <Button
                 size="sm"
+                // variant={'outline'}
                 // onClick={handleCreateMethod}
                 onClick={() => {
                   router.push(
                     `/services/api-management/resources/methods?apiId=${apiId}&resourceId=${selectedResource.id}&resourcePath=${selectedResource.path}`
                   );
                 }}
-                className="bg-blue-500 hover:bg-blue-600 text-white">
+                className="rounded-full h-[28px] bg-blue-500 hover:bg-blue-600 text-white">
+                {/* className="rounded-full h-[25px] !gap-1 border-2 border-blue-500 text-[#0F74E1] font-bold hover:text-blue-700 hover:bg-blue-50"> */}
                 메서드 생성
               </Button>
             </div>
@@ -259,12 +282,7 @@ export function ResourceDetailCard({
         onOpenChange={setIsCorsModalOpen}
         selectedResource={selectedResource}
         setSelectedResource={setSelectedResource}
-        resourceId={'RS12341335'}
-        // corsForm={corsForm}
-        // setCorsForm={setCorsForm}
-        // handleCorsUpdate={handleCorsUpdate}
-        // addCorsMethod={addCorsMethod}
-        // removeCorsMethod={removeCorsMethod}
+        resourceId={selectedResource.id}
       />
 
       {/* Delete Method Confirmation Dialog */}
@@ -278,10 +296,8 @@ export function ResourceDetailCard({
       <DeleteResourceDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
-        userId={userData?.userId || ''}
         resourceId={selectedResource.id}
         selectedResource={selectedResource}
-        handleDeleteResource={handleDeleteResource}
       />
     </>
   );

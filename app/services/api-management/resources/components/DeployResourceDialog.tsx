@@ -21,6 +21,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast, Toaster } from 'sonner';
+import { createStage } from '@/hooks/use-stages';
+import { useDeployAPI } from '@/hooks/use-resources';
 
 interface deployData {
   stage: string;
@@ -32,15 +34,60 @@ interface deployData {
 interface deployResourceProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  apiId: string;
+  userKey: string;
+  organizationId: string;
 }
 
-export default function DeployResourceDialog({ open, onOpenChange }: deployResourceProps) {
+export default function DeployResourceDialog({
+  open,
+  onOpenChange,
+  apiId,
+  userKey,
+  organizationId,
+}: deployResourceProps) {
   const [deploymentData, setDeploymentData] = useState<deployData>({
     stage: '',
     version: '',
     description: '',
     newStageName: '',
   });
+
+  const { mutate: handleDeploy } = useDeployAPI({
+    onSuccess: () => {
+      toast.success('성공적으로 배포되었습니다.');
+    },
+  });
+
+  const handleCreateAndDeploy = async () => {
+    const res = await createStage({
+      organizationId: organizationId,
+      stageName: deploymentData.newStageName,
+      description: deploymentData.description,
+      createdBy: userKey,
+      enabled: true,
+      deploymentSource: 'DRAFT',
+      apiId: apiId,
+      sourceDeploymentId: '',
+      deploymentVersion: 'v1.2.0',
+    });
+
+    if (res) {
+      handleDeploy({
+        apiId: apiId,
+        stageId: deploymentData.stage,
+        version: '',
+        deployedBy: userKey,
+        description: deploymentData.description,
+        metadata: {
+          jiraTicket: '',
+          reviewer: '',
+        },
+      });
+    } else {
+      toast.error('새로운 스테이지 생성에 실패하였습니다\n 재입력이 필요합니다.');
+    }
+  };
 
   const handleDeploySubmit = () => {
     if (deploymentData.stage === 'new') {
@@ -49,15 +96,24 @@ export default function DeployResourceDialog({ open, onOpenChange }: deployResou
         return;
       }
       // 새 스테이지 생성 로직
-      toast.success(
-        `새 스테이지 '${deploymentData.newStageName}'가 생성되고 이(가) 성공적으로 배포되었습니다.`
-      );
+      handleCreateAndDeploy;
     } else {
       if (!deploymentData.stage) {
         toast.error('배포 스테이지를 선택해주세요.');
         return;
       }
-      toast.success(`이(가) ${deploymentData.stage} 스테이지에 성공적으로 배포되었습니다.`);
+
+      handleDeploy({
+        apiId: apiId,
+        stageId: deploymentData.stage,
+        version: '',
+        deployedBy: userKey,
+        description: deploymentData.description,
+        metadata: {
+          jiraTicket: '',
+          reviewer: '',
+        },
+      });
     }
 
     onOpenChange(false);
@@ -79,12 +135,30 @@ export default function DeployResourceDialog({ open, onOpenChange }: deployResou
     });
   };
 
+  const stageList = [
+    {
+      id: 1,
+      label: 'Deployment',
+      value: 'STG123145',
+    },
+    {
+      id: 2,
+      label: 'Staging',
+      value: 'STG1231456',
+    },
+    {
+      id: 3,
+      label: 'Production',
+      value: 'STG123147345',
+    },
+  ];
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center">
-            <Rocket className="h-5 w-5 mr-2 text-orange-500" />
+            {/* <Rocket className="h-5 w-5 mr-2 text-orange-500" /> */}
             API 배포
           </DialogTitle>
         </DialogHeader>
@@ -95,14 +169,21 @@ export default function DeployResourceDialog({ open, onOpenChange }: deployResou
             </Label>
             <Select
               value={deploymentData.stage}
-              onValueChange={(value) => setDeploymentData({ ...deploymentData, stage: value })}>
+              onValueChange={(value) =>
+                setDeploymentData({
+                  ...deploymentData,
+                  stage: value,
+                  description: '',
+                  newStageName: '',
+                })
+              }>
               <SelectTrigger className="mt-1">
                 <SelectValue placeholder="스테이지 선택" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="dev">Development</SelectItem>
-                <SelectItem value="staging">Staging</SelectItem>
-                <SelectItem value="prod">Production</SelectItem>
+                {stageList.map((stage, i) => {
+                  return <SelectItem value={stage.value}>{stage.label}</SelectItem>;
+                })}
                 <SelectItem value="new">
                   <div className="flex items-center gap-2">
                     <Plus className="h-4 w-4" />새 스테이지 생성
@@ -121,7 +202,7 @@ export default function DeployResourceDialog({ open, onOpenChange }: deployResou
               </div>
               <div>
                 <Label htmlFor="new-stage-name" className="text-sm font-medium">
-                  스테이지 이름 *
+                  스테이지 이름 <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="new-stage-name"
@@ -164,7 +245,7 @@ export default function DeployResourceDialog({ open, onOpenChange }: deployResou
           <Button
             onClick={handleDeploySubmit}
             className="bg-orange-500 hover:bg-orange-600 text-white">
-            <Rocket className="h-4 w-4 mr-2" />
+            {/* <Rocket className="h-4 w-4 mr-2" /> */}
             배포
           </Button>
         </DialogFooter>

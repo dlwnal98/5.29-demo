@@ -16,28 +16,20 @@ import { toast, Toaster } from 'sonner';
 interface DeleteResourceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  userId: string;
   resourceId: string;
   selectedResource: { path: string };
-  handleDeleteResource: () => void;
 }
 
 export function DeleteResourceDialog({
   open,
   onOpenChange,
-  userId,
   resourceId,
   selectedResource,
-  handleDeleteResource,
 }: DeleteResourceDialogProps) {
   const deleteResource = async () => {
-    const res = await requestDelete(`/api/v1/resources/${resourceId}`, {
-      headers: {
-        'X-User-Id': userId,
-      },
-    });
+    const res = await requestDelete(`/api/v1/resources/${resourceId}`);
 
-    if (res.code == 200) {
+    if (res) {
       toast.success('리소스가 삭제되었습니다');
       onOpenChange(false);
     }

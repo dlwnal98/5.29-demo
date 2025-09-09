@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { requestGet } from '@/lib/apiClient';
-import { CreateResourceProps, getResourceList, useCreateResource } from '@/hooks/use-resources';
+import { CreateResourceProps, useCreateResource } from '@/hooks/use-resources';
 import { toast } from 'sonner';
 
 interface ResourceCreateDialogProps {
@@ -41,61 +41,12 @@ export function ResourceCreateDialog({
     apiId: apiId,
     resourceName: '',
     description: '',
+    path: '',
+    enableCors: false,
     resourceType: 'REST',
-    initialPaths: [
-      {
-        pathPattern: '/',
-        description: '', // 없애기로
-      },
-    ],
-    securitySettings: {
-      corsPolicy: {
-        policyId: 'COR123456789',
-        allowedOrigins: '*',
-        allowedMethods: 'GET,POST,PUT,DELETE',
-        allowedHeaders: 'Content-Type,Authorization',
-        exposedHeaders: 'X-Total-Count',
-        allowCredentials: true,
-        maxAgeSeconds: 3600,
-        enabled: true,
-      },
-      allowedOrigins: ['https://example.com', 'https://app.example.com'],
-      blockedIps: ['192.168.1.100', '10.0.0.50'],
-      httpsOnly: true,
-      securityHeaders: {
-        'X-Frame-Options': 'DENY',
-        'X-Content-Type-Options': 'nosniff',
-      },
-    },
-    cachingSettings: {
-      enableCaching: false,
-      cacheStrategy: 'TIME_BASED',
-      defaultTtlSeconds: 300,
-      methodSpecificTtl: {
-        GET: 600,
-        POST: 0,
-      },
-      cacheKeys: ['user_id', 'resource_path', 'query_params'],
-      varyHeaders: ['Accept-Language', 'Accept-Encoding'],
-    },
     createdBy: userKey,
-    metadata: {
-      version: '1.0',
-      team: 'backend',
-    },
   });
-
-  // const [resourcePaths, setResourcePaths] = useState<string[]>([]);
-
-  // const getResourcePaths = async () => {
-  //   const res = await getResourceList(apiId);
-
-  //   setResourcePaths(['/', ...res]);
-  // };
-
-  // useEffect(() => {
-  //   getResourcePaths();
-  // },[])
+  const [pathPattern, setPathPattern] = useState('');
 
   useEffect(() => {
     if (userKey) setCreateResourceForm({ ...createResourceForm, createdBy: userKey });
@@ -111,18 +62,7 @@ export function ResourceCreateDialog({
   });
 
   const createResource = async (data: CreateResourceProps) => {
-    const resourcePath =
-      data.initialPaths[0].pathPattern === '/'
-        ? data.initialPaths[0].pathPattern + data.resourceName
-        : data.initialPaths[0].pathPattern + '/' + data.resourceName;
-    //resource 경로 검증
-    const res = await requestGet(
-      `/api/v1/resources/validate-path?apiId=${data.apiId}&resourcePath=${resourcePath}`
-    );
-
-    if (res) {
-      createResourceMutate(data);
-    }
+    createResourceMutate(data);
   };
 
   const handleCancel = () => {
@@ -131,48 +71,10 @@ export function ResourceCreateDialog({
       apiId: apiId,
       resourceName: '',
       description: '',
+      path: '',
+      enableCors: false,
       resourceType: 'REST',
-      initialPaths: [
-        {
-          pathPattern: '',
-          description: '', // 없애기로
-        },
-      ],
-      securitySettings: {
-        corsPolicy: {
-          policyId: 'COR123456789',
-          allowedOrigins: '*',
-          allowedMethods: 'GET,POST,PUT,DELETE',
-          allowedHeaders: 'Content-Type,Authorization',
-          exposedHeaders: 'X-Total-Count',
-          allowCredentials: true,
-          maxAgeSeconds: 3600,
-          enabled: true,
-        },
-        allowedOrigins: ['https://example.com', 'https://app.example.com'],
-        blockedIps: ['192.168.1.100', '10.0.0.50'],
-        httpsOnly: true,
-        securityHeaders: {
-          'X-Frame-Options': 'DENY',
-          'X-Content-Type-Options': 'nosniff',
-        },
-      },
-      cachingSettings: {
-        enableCaching: false,
-        cacheStrategy: 'TIME_BASED',
-        defaultTtlSeconds: 300,
-        methodSpecificTtl: {
-          GET: 600,
-          POST: 0,
-        },
-        cacheKeys: ['user_id', 'resource_path', 'query_params'],
-        varyHeaders: ['Accept-Language', 'Accept-Encoding'],
-      },
       createdBy: userKey,
-      metadata: {
-        version: '1.0',
-        team: 'backend',
-      },
     });
   };
 
@@ -180,7 +82,7 @@ export function ResourceCreateDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-blue-600">Resource 생성</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-blue-600">리소스 생성</DialogTitle>
         </DialogHeader>
         <div className="space-y-6 py-4">
           {/* Resource Path and Name - Side by Side */}
@@ -189,23 +91,14 @@ export function ResourceCreateDialog({
               <Label
                 htmlFor="resource-path"
                 className="text-sm font-medium text-gray-700 mb-2 block">
-                리소스 경로
+                리소스 경로<span className="text-red-500 ml-1">*</span>
               </Label>
               <Select
-                value={
-                  createResourceForm.initialPaths[0].pathPattern
-                    ? createResourceForm.initialPaths[0].pathPattern
-                    : '/'
-                }
+                value={pathPattern ? pathPattern : '/'}
                 onValueChange={(value) =>
                   setCreateResourceForm({
                     ...createResourceForm,
-                    initialPaths: [
-                      {
-                        ...createResourceForm.initialPaths[0],
-                        pathPattern: value,
-                      },
-                    ],
+                    path: value,
                   })
                 }>
                 <SelectTrigger>
@@ -225,7 +118,7 @@ export function ResourceCreateDialog({
               <Label
                 htmlFor="resource-name"
                 className="text-sm font-medium text-gray-700 mb-2 block">
-                리소스 이름
+                리소스 이름<span className="text-red-500 ml-1">*</span>
               </Label>
               <Input
                 id="resource-name"
@@ -270,17 +163,11 @@ export function ResourceCreateDialog({
             </div>
             <Switch
               id="cors-toggle"
-              checked={createResourceForm.securitySettings.corsPolicy.enabled}
+              checked={createResourceForm.enableCors}
               onCheckedChange={(checked) =>
                 setCreateResourceForm({
                   ...createResourceForm,
-                  securitySettings: {
-                    ...createResourceForm.securitySettings,
-                    corsPolicy: {
-                      ...createResourceForm.securitySettings?.corsPolicy,
-                      enabled: checked,
-                    },
-                  },
+                  enableCors: checked,
                 })
               }
             />

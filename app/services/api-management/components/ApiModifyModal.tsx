@@ -57,16 +57,6 @@ const ApiModifyModal = ({
         description: form.description,
         updatedBy: userKey,
         enabled: true,
-        metadata: {
-          category: 'user-management',
-          version: '2.0',
-        },
-        versionUpdateType: 'PATCH',
-        updateOptions: {
-          mergeMetadata: true,
-          invalidateCache: true,
-          publishEvent: true,
-        },
       },
     });
   };
