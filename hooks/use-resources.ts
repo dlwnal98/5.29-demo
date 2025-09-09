@@ -9,7 +9,7 @@ const getOpenAPIDoc = async (apiId: string) => {
 
 export function useGetOpenAPIDoc(apiId: string) {
   return useQuery<any[]>({
-    queryKey: ['getOpenAPIDoc'],
+    queryKey: ['getOpenAPIDoc', apiId],
     queryFn: () => getOpenAPIDoc(apiId),
     enabled: !!apiId, // 조건적 실행
     staleTime: Infinity,
@@ -90,7 +90,7 @@ export function useGetResourceCorsSettings(resourceId: string) {
   });
 }
 
-//resource Cors 설정 수정
+//Resource CORS  수정
 interface ModifyResourceProps {
   allowedOrigins?: string[];
   allowedMethods?: string[];

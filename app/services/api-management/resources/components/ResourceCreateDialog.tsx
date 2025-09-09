@@ -41,18 +41,29 @@ export function ResourceCreateDialog({
     apiId: apiId,
     resourceName: '',
     description: '',
-    path: '',
+    path: '/',
     enableCors: false,
     resourceType: 'REST',
     createdBy: userKey,
   });
-  const [pathPattern, setPathPattern] = useState('');
+
+  const [resourcePaths, setResourcePaths] = useState([]);
 
   useEffect(() => {
     if (userKey) setCreateResourceForm({ ...createResourceForm, createdBy: userKey });
   }, [userKey]);
 
-  const availableResourcePaths = ['/', '/api', '/users', '/products', '/orders'];
+  useEffect(() => {
+    getResourcePaths(apiId);
+  }, [apiId]);
+
+  const getResourcePaths = async (apiId: string) => {
+    const res = await requestGet(`/api/v1/resources/api/${apiId}/paths`);
+
+    if (res) {
+      setResourcePaths(res);
+    }
+  };
 
   const { mutate: createResourceMutate } = useCreateResource({
     onSuccess: () => {
@@ -71,7 +82,7 @@ export function ResourceCreateDialog({
       apiId: apiId,
       resourceName: '',
       description: '',
-      path: '',
+      path: '/',
       enableCors: false,
       resourceType: 'REST',
       createdBy: userKey,
@@ -94,7 +105,7 @@ export function ResourceCreateDialog({
                 리소스 경로<span className="text-red-500 ml-1">*</span>
               </Label>
               <Select
-                value={pathPattern ? pathPattern : '/'}
+                value={createResourceForm.path ? createResourceForm.path : '/'}
                 onValueChange={(value) =>
                   setCreateResourceForm({
                     ...createResourceForm,
@@ -105,8 +116,7 @@ export function ResourceCreateDialog({
                   <SelectValue placeholder="경로를 선택하세요" />
                 </SelectTrigger>
                 <SelectContent>
-                  {/* {resourcePaths.map((path) => ( */}
-                  {availableResourcePaths.map((path) => (
+                  {resourcePaths.map((path) => (
                     <SelectItem key={path} value={path}>
                       {path}
                     </SelectItem>
