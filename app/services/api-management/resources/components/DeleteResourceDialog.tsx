@@ -18,6 +18,7 @@ interface DeleteResourceDialogProps {
   onOpenChange: (open: boolean) => void;
   resourceId: string;
   selectedResource: { path: string };
+  onRemoved: () => void;
 }
 
 export function DeleteResourceDialog({
@@ -25,14 +26,14 @@ export function DeleteResourceDialog({
   onOpenChange,
   resourceId,
   selectedResource,
+  onRemoved,
 }: DeleteResourceDialogProps) {
   const deleteResource = async () => {
-    const res = await requestDelete(`/api/v1/resources/${resourceId}`);
+    await requestDelete(`/api/v1/resources/${resourceId}`);
 
-    if (res) {
-      toast.success('리소스가 삭제되었습니다');
-      onOpenChange(false);
-    }
+    toast.success('리소스가 삭제되었습니다');
+    onOpenChange(false);
+    onRemoved();
   };
 
   return (
@@ -51,7 +52,7 @@ export function DeleteResourceDialog({
                 <p>
                   리소스{' '}
                   <span className="font-mono bg-gray-100 px-2 py-1 rounded">
-                    {selectedResource.path}
+                    {selectedResource?.path}
                   </span>
                   을(를) 삭제하시겠습니까?
                 </p>

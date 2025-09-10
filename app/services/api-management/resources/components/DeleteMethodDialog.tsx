@@ -11,32 +11,35 @@ import {
 } from '@/components/ui/alert-dialog';
 import { AlertTriangle } from 'lucide-react';
 import type { Method } from '@/types/resource';
-import { deleteMethod } from '@/hooks/use-methods';
 import { toast, Toaster } from 'sonner';
+import { requestDelete } from '@/lib/apiClient';
 
 interface DeleteMethodDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   methodToDelete: Method | null;
+  userKey: string;
 }
 
 export function DeleteMethodDialog({
   open,
   onOpenChange,
   methodToDelete,
+  userKey,
 }: DeleteMethodDialogProps) {
   console.log(methodToDelete);
 
   const handleDeleteMethod = async () => {
-    if (methodToDelete) {
-      const res = await deleteMethod(methodToDelete?.apiKeys?.methodId);
-
-      if (res.code == 200) {
-        toast.success(
-          `메서드 '${methodToDelete.type} ${methodToDelete.resourcePath}'이(가) 삭제되었습니다.`
-        );
-        onOpenChange(false);
-      }
+    if (methodToDelete && userKey) {
+      await requestDelete(`/api/v1/methods/${methodToDelete?.info['x-method-id']}`, {
+        headers: {
+          'X-User-Id': userKey,
+        },
+      });
+      toast.success(
+        `메서드 '${methodToDelete.type} ${methodToDelete.resourcePath}'이(가) 삭제되었습니다.`
+      );
+      onOpenChange(false);
     }
   };
 

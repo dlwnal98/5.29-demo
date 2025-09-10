@@ -27,6 +27,7 @@ interface ResourceDetailCardProps {
   setSelectedResource: (resource: Resource) => void;
   handleMethodClick: (method: Method, resource: Resource) => void;
   apiId: string;
+  onRemoved: () => void;
 }
 
 export function ResourceDetailCard({
@@ -35,6 +36,7 @@ export function ResourceDetailCard({
   setSelectedResource,
   handleMethodClick,
   apiId,
+  onRemoved,
 }: ResourceDetailCardProps) {
   const userData = useAuthStore((state) => state.user);
 
@@ -47,10 +49,10 @@ export function ResourceDetailCard({
   const [isMethodDeleteDialogOpen, setIsMethodDeleteDialogOpen] = useState(false);
 
   const handleDeleteResource = () => {
-    if (selectedResource.id === 'root') {
-      toast.error('루트 리소스는 삭제할 수 없습니다.');
-      return;
-    }
+    // if (selectedResource.path === '/') {
+    //   toast.error('루트 리소스는 삭제할 수 없습니다.');
+    //   return;
+    // }
 
     setIsDeleteDialogOpen(false);
     toast.success(`리소스 '${selectedResource.name}'이(가) 삭제되었습니다.`);
@@ -95,12 +97,13 @@ export function ResourceDetailCard({
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">리소스 세부 정보</h2>
             <div className="flex items-center gap-3">
-              {selectedResource.corsEnabled && (
+              {selectedResource?.cors && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleCorsButtonClick}
-                  className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 border-gray-300"
+                  // className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 border-gray-300"
+                  className="rounded-full h-[25px] !gap-1 border-2 border-gray-700 text-gray-600 font-bold hover:text-gray-700 hover:bg-gray-50"
                   title="리소스 수정"
                   // disabled={'inactive'}
                 >
@@ -108,7 +111,7 @@ export function ResourceDetailCard({
                   CORS 활성화 설정
                 </Button>
               )}
-              {selectedResource.id !== 'root' && (
+              {selectedResource?.path !== '/' && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -128,13 +131,13 @@ export function ResourceDetailCard({
                 리소스 이름
               </Label>
               <div className="mt-1 text-sm font-mono text-gray-900 dark:text-gray-400">
-                {selectedResource.id}
+                {selectedResource?.name}
               </div>
             </div>
             <div className="col-span-2">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">설명</Label>
               <div className="mt-1 text-sm font-mono text-gray-900 dark:text-white">
-                {selectedResource.description}
+                {selectedResource?.description}
               </div>
             </div>
           </div>
@@ -144,13 +147,13 @@ export function ResourceDetailCard({
                 리소스 ID
               </Label>
               <div className="mt-1 text-sm font-mono text-gray-900 dark:text-gray-400">
-                {selectedResource.id}
+                {selectedResource?.resourceId}
               </div>
             </div>
             <div>
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">경로</Label>
               <div className="mt-1 text-sm font-mono text-gray-900 dark:text-white">
-                {selectedResource.path}
+                {selectedResource?.path}
               </div>
             </div>
             <div>
@@ -158,33 +161,17 @@ export function ResourceDetailCard({
                 CORS 활성화 여부
               </Label>
               <div className="mt-1 text-sm font-mono text-gray-600 dark:text-gray-400">
-                {selectedResource.corsEnabled ? (
+                {selectedResource?.cors ? (
                   <div className="flex items-center">
                     <Badge variant="outline" className={getStatusColor('active')}>
                       active
                     </Badge>
-                    {/* <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleCorsButtonClick}
-                      className="border-0 text-gray-600 hover:text-gray-700 hover:bg-transparent"
-                      title="리소스 수정">
-                      <Settings className="h-4 w-4 text-gray-500" />
-                    </Button> */}
                   </div>
                 ) : (
                   <div className="flex items-center">
                     <Badge variant="outline" className={getStatusColor('inactive')}>
                       inactive
                     </Badge>
-                    {/* <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleCorsButtonClick}
-                      className="border-0 text-gray-600 hover:text-gray-700 hover:bg-transparent"
-                      title="리소스 수정">
-                      <Settings className="h-4 w-4 text-gray-500" />
-                    </Button> */}
                   </div>
                 )}
               </div>
@@ -195,7 +182,7 @@ export function ResourceDetailCard({
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className={`text-lg font-semibold text-gray-900 dark:text-white`}>
-              메서드 ({selectedResource.methods.length})
+              메서드 ({selectedResource?.methods?.length})
             </h3>
             <div className="flex gap-2">
               <Button
@@ -204,7 +191,7 @@ export function ResourceDetailCard({
                 // onClick={handleCreateMethod}
                 onClick={() => {
                   router.push(
-                    `/services/api-management/resources/methods?apiId=${apiId}&resourceId=${selectedResource.id}&resourcePath=${selectedResource.path}`
+                    `/services/api-management/resources/methods?apiId=${apiId}&resourceId=${selectedResource?.resourceId}&resourcePath=${selectedResource?.path}`
                   );
                 }}
                 className="rounded-full h-[28px] bg-blue-500 hover:bg-blue-600 text-white">
@@ -213,7 +200,7 @@ export function ResourceDetailCard({
               </Button>
             </div>
           </div>
-          {selectedResource.methods.length > 0 ? (
+          {selectedResource?.methods?.length > 0 ? (
             <Table>
               <TableHeader className="hover:bg-white dark:hover:bg-gray-700">
                 <TableRow className="hover:bg-white dark:hover:bg-gray-700">
@@ -226,7 +213,7 @@ export function ResourceDetailCard({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {selectedResource.methods.map((method) => (
+                {selectedResource?.methods.map((method) => (
                   <TableRow
                     key={method.id}
                     className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -239,15 +226,17 @@ export function ResourceDetailCard({
                         {method.type}
                       </span>
                     </TableCell>
-                    <TableCell>{method.summary}</TableCell>
+                    <TableCell>{method?.info?.summary}</TableCell>
 
                     <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
-                      {method.apiKeys[0]?.apiKeyId}
+                      {method?.info['x-api-key-required'] ? 'True' : 'False'}
                     </TableCell>
                     <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
-                      <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-                        {method.endpointUrl}
-                      </code>
+                      {method?.info['x-backend-endpoint'] && (
+                        <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                          {method?.info['x-backend-endpoint'] ?? ''}
+                        </code>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Button
@@ -282,7 +271,7 @@ export function ResourceDetailCard({
         onOpenChange={setIsCorsModalOpen}
         selectedResource={selectedResource}
         setSelectedResource={setSelectedResource}
-        resourceId={selectedResource.id}
+        resourceId={selectedResource?.resourceId}
       />
 
       {/* Delete Method Confirmation Dialog */}
@@ -290,14 +279,16 @@ export function ResourceDetailCard({
         open={isMethodDeleteDialogOpen}
         onOpenChange={setIsMethodDeleteDialogOpen}
         methodToDelete={methodToDelete}
+        userKey={userData?.userKey || ''}
       />
 
       {/* Delete Resource Confirmation Dialog */}
       <DeleteResourceDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
-        resourceId={selectedResource.id}
+        resourceId={selectedResource?.resourceId}
         selectedResource={selectedResource}
+        onRemoved={onRemoved}
       />
     </>
   );

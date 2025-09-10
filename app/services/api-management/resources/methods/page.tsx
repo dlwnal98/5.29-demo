@@ -64,7 +64,7 @@ export default function CreateMethodPage() {
     endpointUrl: '',
     customEndpointUrl: '',
     additionalParameter: '',
-    requestValidator: '없음',
+    requestValidator: 'ALL',
     apiKeyRequired: false,
     selectedApiKey: '',
   });
@@ -129,10 +129,9 @@ export default function CreateMethodPage() {
 
   const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([
     {
-      id: '',
+      id: '1',
       name: '',
       type: 'string',
-      description: '',
       required: false,
     },
   ]);
@@ -142,9 +141,7 @@ export default function CreateMethodPage() {
       id: '1',
       name: '',
       type: 'string',
-      description: '',
       required: false,
-      example: '',
     },
   ]);
 
@@ -176,7 +173,7 @@ export default function CreateMethodPage() {
       return;
     }
 
-    if (methodForm.integrationType === 'http' && !methodForm.httpMethod) {
+    if (methodForm.integrationType === 'http' && !methodForm.methodType) {
       toast.error('HTTP 메서드를 선택해주세요.');
       return;
     }
@@ -189,7 +186,21 @@ export default function CreateMethodPage() {
       }
     }
 
-    // createMethod()
+    createMethod({
+      resourceId: resourceId || '',
+      httpMethod: methodForm.methodType,
+      methodName: methodForm.methodName,
+      description: methodForm.description,
+      backendServiceUrl: methodForm.endpointUrl + '/' + methodForm.customEndpointUrl,
+      requestModelIds: [],
+      responseModelId: '',
+      queryParameters: queryParameters,
+      headerParameters: headers,
+      apiKeyId: methodForm.selectedApiKey,
+      requiresApiKey: methodForm.apiKeyRequired,
+      requestValidator: methodForm.requestValidator,
+      createdBy: userData?.userKey || '',
+    });
     toast.success('메서드가 성공적으로 생성되었습니다.');
     handleBack();
   };

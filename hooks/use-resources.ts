@@ -1,5 +1,12 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
-import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from '@/lib/apiClient';
+import { requestGet, requestPatch, requestPost } from '@/lib/apiClient';
+
+interface OpenAPIData {
+  openapi: string;
+  info: Record<string, any>;
+  components: Record<string, any>;
+  paths: Record<string, any>;
+}
 
 // open api 문서 조회
 const getOpenAPIDoc = async (apiId: string) => {
@@ -8,7 +15,7 @@ const getOpenAPIDoc = async (apiId: string) => {
 };
 
 export function useGetOpenAPIDoc(apiId: string) {
-  return useQuery<any[]>({
+  return useQuery<OpenAPIData>({
     queryKey: ['getOpenAPIDoc', apiId],
     queryFn: () => getOpenAPIDoc(apiId),
     enabled: !!apiId, // 조건적 실행

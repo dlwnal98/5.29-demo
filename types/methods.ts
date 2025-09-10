@@ -1,21 +1,18 @@
 export interface QueryParameter {
-  id: string;
+  id?: string;
   name: string;
   type: string;
-  description: string;
+
   required: boolean;
-  example?: string;
 }
 
 export interface Header {
-  id: string;
+  id?: string;
+
   name: string;
   type: string;
-  description: string;
+
   required: boolean;
-  defaultValue?: string;
-  example: string;
-  schema?: {};
 }
 
 export interface FormData {

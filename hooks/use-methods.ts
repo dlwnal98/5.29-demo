@@ -1,5 +1,6 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
 import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from '@/lib/apiClient';
+import { types } from 'util';
 
 // 메서드 리스트 타입
 export interface MethodsListProps {
@@ -72,57 +73,23 @@ export interface PathParameter {
   };
 }
 
-export interface ResponseSchemaProps {
-  type: string;
-  properties: {
-    id: {
-      type: string;
-    };
-    name: {
-      type: string;
-    };
-    email: {
-      type: string;
-    };
-    createdAt?: {
-      type: string;
-      format: string;
-    };
-  };
-}
-
-export interface RequestSchemaProps {
-  type: string;
-  properties: {
-    name: {
-      type: string;
-    };
-    email: {
-      type: string;
-    };
-    password: {
-      type: string;
-    };
-    required: string[];
-  };
-}
-
 // 메서드 생성 DTO
 export interface CreateMethodProps {
-  pathId: string;
   resourceId: string;
   httpMethod: string;
   methodName: string;
-  description: string;
+  description?: string;
   backendServiceUrl: string;
-  requestModelIds: string[];
-  responseModelId: string;
+  requestModelIds?: string[];
+  responseModelId?: string;
   queryParameters: {
     name: string;
+    type: string;
     required: boolean;
   }[];
   headerParameters: {
     name: string;
+    type: string;
     required: boolean;
   }[];
   apiKeyId: string;
@@ -196,12 +163,3 @@ export function useModifyMethod() {
     },
   });
 }
-
-export const deleteMethod = async (methodId: string) => {
-  const res = await requestDelete(`/api/v1/methods/${methodId}`);
-
-  if (res.code == 200) {
-    return res.data;
-  }
-  throw new Error(res.message);
-};

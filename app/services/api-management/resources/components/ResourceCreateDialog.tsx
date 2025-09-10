@@ -29,6 +29,7 @@ interface ResourceCreateDialogProps {
   onOpenChange: (open: boolean) => void;
   apiId: string;
   userKey: string;
+  onCreated: () => void;
 }
 
 export function ResourceCreateDialog({
@@ -36,6 +37,7 @@ export function ResourceCreateDialog({
   onOpenChange,
   apiId,
   userKey,
+  onCreated,
 }: ResourceCreateDialogProps) {
   const [createResourceForm, setCreateResourceForm] = useState({
     apiId: apiId,
@@ -48,6 +50,7 @@ export function ResourceCreateDialog({
   });
 
   const [resourcePaths, setResourcePaths] = useState([]);
+  const [pathPattern, setPathPattern] = useState('');
 
   useEffect(() => {
     if (userKey) setCreateResourceForm({ ...createResourceForm, createdBy: userKey });
@@ -69,11 +72,17 @@ export function ResourceCreateDialog({
     onSuccess: () => {
       toast.success('리소스가 생성되었습니다.');
       onOpenChange(false);
+      onCreated();
     },
   });
 
   const createResource = async (data: CreateResourceProps) => {
-    createResourceMutate(data);
+    const resourcePath =
+      pathPattern === '/'
+        ? `${pathPattern}${data.resourceName}`
+        : `${pathPattern}/${data.resourceName}`;
+
+    createResourceMutate({ ...data, path: resourcePath });
   };
 
   const handleCancel = () => {
@@ -105,13 +114,8 @@ export function ResourceCreateDialog({
                 리소스 경로<span className="text-red-500 ml-1">*</span>
               </Label>
               <Select
-                value={createResourceForm.path ? createResourceForm.path : '/'}
-                onValueChange={(value) =>
-                  setCreateResourceForm({
-                    ...createResourceForm,
-                    path: value,
-                  })
-                }>
+                value={pathPattern ? pathPattern : '/'}
+                onValueChange={(value) => setPathPattern(value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="경로를 선택하세요" />
                 </SelectTrigger>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,7 @@ import type { Resource } from '@/types/resource';
 import { useModifyResourceCorsSettings } from '@/hooks/use-resources';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 
 interface CorsSettingsDialogProps {
   open: boolean;
@@ -32,12 +33,23 @@ export function CorsSettingsDialog({
 }: CorsSettingsDialogProps) {
   const [corsForm, setCorsForm] = useState({
     allowMethods: [],
-    allowHeaders: '',
+    allowHeaders: [],
     allowOrigin: '',
-    exposeHeaders: '',
+    exposeHeaders: [],
     maxAge: '',
     allowCredentials: false,
   });
+
+  // useEffect(() => {
+  //   setCorsForm({
+  //     allowMethods: selectedResource.cors.allowMethods.map((method) => method),
+  //     allowHeaders: selectedResource.cors.allowHeaders.map((header) => header),
+  //     allowOrigin: '',
+  //     exposeHeaders: selectedResource.cors.exposeHeaders.map((header) => header),
+  //     maxAge: selectedResource.cors.maxAge,
+  //     allowCredentials: selectedResource.cors?.allowCredentials,
+  //   });
+  // }, [selectedResource]);
 
   const { mutate: modifyCORSMutate } = useModifyResourceCorsSettings({
     onSuccess: () => {
@@ -46,19 +58,19 @@ export function CorsSettingsDialog({
     },
   });
 
-  const modifyCORSSettings = () => {
-    modifyCORSMutate({
-      resourceId: resourceId,
-      enableCors: selectedResource.corsEnabled,
-      data: {
-        allowedOrigins: selectedResource.corsSettings.allowOrigin,
-        allowedHeaders: selectedResource.corsSettings.allowHeaders,
-        exposedHeaders: selectedResource.corsSettings.exposeHeaders,
-        maxAge: selectedResource.corsSettings.maxAge,
-        allowCredentials: selectedResource.corsSettings.allowCredentials,
-      },
-    });
-  };
+  // const modifyCORSSettings = () => {
+  //   modifyCORSMutate({
+  //     resourceId: resourceId,
+  //     enableCors: selectedResource.corsEnabled,
+  //     data: {
+  //       allowedOrigins: selectedResource.cors.allowOrigins,
+  //       allowedHeaders: selectedResource.cors.allowHeaders,
+  //       exposedHeaders: selectedResource.cors.exposeHeaders,
+  //       maxAge: selectedResource.cors.maxAge,
+  //       allowCredentials: selectedResource.cors.allowCredentials,
+  //     },
+  //   });
+  // };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -70,7 +82,7 @@ export function CorsSettingsDialog({
           </DialogTitle>
         </DialogHeader>
 
-        {selectedResource.corsEnabled && (
+        {selectedResource?.cors && (
           <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-4 space-y-4">
             <h4 className="font-medium text-blue-900 dark:text-blue-100">CORS 설정</h4>
             <div className="space-y-4">
@@ -167,9 +179,9 @@ export function CorsSettingsDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             취소
           </Button>
-          <Button onClick={modifyCORSSettings} className="bg-blue-500 hover:bg-blue-600 text-white">
+          {/* <Button onClick={modifyCORSSettings} className="bg-blue-500 hover:bg-blue-600 text-white">
             저장
-          </Button>
+          </Button> */}
         </DialogFooter>
       </DialogContent>
     </Dialog>

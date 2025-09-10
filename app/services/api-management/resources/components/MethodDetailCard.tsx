@@ -157,7 +157,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
   const clipboard = useClipboard();
 
   const handleCopyEndpoint = () => {
-    clipboard.copy(selectedMethod?.endpointUrl);
+    clipboard.copy(selectedMethod?.info['x-backend-endpoint'] ?? '');
     toast.success('ARN이 클립보드에 복사되었습니다.');
   };
 
@@ -346,7 +346,6 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
         requestValidator: selectedMethod.requestValidator || '없음',
       });
 
-      // Initialize query parameters
       const queryParams =
         selectedMethod.parameters
           ?.filter((p: any) => p.in === 'query')
@@ -360,7 +359,6 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
           })) || [];
       setQueryParameters(queryParams);
 
-      // Initialize request headers
       const headerParams =
         selectedMethod.parameters
           ?.filter((p: any) => p.in === 'header')
@@ -429,20 +427,26 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                 <div className="w-[40%]">
                   <div className="flex items-center gap-2  mb-2">
                     <div className="w-20 text-sm text-gray-600 dark:text-gray-400">메서드 ID</div>
-                    <div className="font-mono text-sm">{selectedMethod.apiKeys.methodId}</div>
+                    <div className="font-mono text-sm">
+                      {selectedMethod?.info['x-method-id'] ?? ''}
+                    </div>
                   </div>
                   <div className="flex items-center gap-2  mb-2">
                     <div className="w-20 text-sm text-gray-600 dark:text-gray-400">메서드 이름</div>
-                    <div className="font-semibold text-sm">{selectedMethod.summary}</div>
+                    <div className="font-semibold text-sm">
+                      {selectedMethod?.info['x-method-name'] ?? ''}
+                    </div>
                   </div>
                   <div className="flex items-center gap-2  mb-2">
                     <div className="w-20 text-sm text-gray-600 dark:text-gray-400">메서드 요약</div>
-                    <div className="font-semibold text-sm">{selectedMethod.description}</div>
+                    <div className="font-semibold text-sm">{selectedMethod?.info?.summary}</div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="w-20 text-sm text-gray-600 dark:text-gray-400">URL</span>
                     <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
-                      <code className="text-sm font-mono">{selectedMethod?.endpointUrl}</code>
+                      <code className="text-sm font-mono">
+                        {selectedMethod?.info['x-backend-endpoint'] ?? ''}
+                      </code>
                       <Button size="sm" variant="ghost" onClick={handleCopyEndpoint}>
                         <Copy className="h-3 w-3" />
                       </Button>

@@ -14,8 +14,7 @@ import { ArrowLeft, Rocket, SquarePlus, SquareMinus, Eye } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast, Toaster } from 'sonner';
-import { mockData2 } from '@/lib/data';
-import type { CorsSettings, Resource, Method } from '@/types/resource';
+import type { Resource, Method } from '@/types/resource';
 import { getMethodStyle } from '@/lib/etc';
 import DeployResourceDialog from './components/DeployResourceDialog';
 import { ResourceDetailCard } from './components/ResourceDetailCard';
@@ -34,39 +33,33 @@ export default function ApiResourcesPage() {
   const userData = useAuthStore((state) => state.user);
 
   //mockData2 대신 들어가면 됨
-  const { data: openAPIDocData } = useGetOpenAPIDoc(currentApiId || '');
+  const { data: openAPIDocData, refetch } = useGetOpenAPIDoc(currentApiId || '');
   console.log(openAPIDocData);
 
   // OpenAPI 문서로 리소스 폴더구조 데이터 수정
   function convertOpenApiToResources(openApiPaths: any): Resource[] {
+    const excludedKeys = ['x-cors-policy', 'x-resource-id', 'x-resource-name'];
+
     let resources = Object.entries(openApiPaths).map(([path, methods]: [string, any], idx) => ({
-      id: `resource-${idx}`,
-      path,
-      name: path.replace(/^\//, '') || 'root',
+      id: idx,
+      path: path,
+      name: methods['x-resource-name'],
+      description: methods['x-resource-description'] || '',
+      resourceId: methods['x-resource-id'],
+      cors: methods['x-cors-policy'],
       methods: Object.entries(methods)
-        .filter(([type]) => type !== 'x-cors-policy')
+        .filter(([type]) => !excludedKeys.includes(type))
         .map(([type, methodObj]: [string, any], mIdx) => ({
-          id: methodObj['x-methodId'] || `method-${path}-${type}`,
+          id: mIdx,
           type: type?.toUpperCase(),
           resourcePath: path,
-          summary: methodObj.summary,
-          description: methodObj.description,
-          apiKeys: methodObj['x-api-keys'],
+          // summary: methodObj.summary,
+          // description: methodObj.description,
+          // apiKeys: methodObj['x-api-keys'] || '',
+          // endpointUrl: methodObj['endpointUrl'] || '',
+          info: methodObj,
         })),
     }));
-
-    // 루트 추가/이동 로직
-    const rootResource: Resource = { id: 'root', path: '/', name: 'root', methods: [] };
-
-    const hasRoot = resources.some((r) => r.path === '/');
-    if (!hasRoot) {
-      resources = [rootResource, ...resources];
-    } else {
-      const rootIndex = resources.findIndex((r) => r.path === '/');
-      const root = resources[rootIndex];
-      const otherResources = resources.filter((_, index) => index !== rootIndex);
-      resources = [root, ...otherResources];
-    }
 
     return resources;
   }
@@ -111,7 +104,7 @@ export default function ApiResourcesPage() {
   useEffect(() => {
     if (resources.length > 0) {
       // 모든 리소스 id를 초기 expandedResources로 설정
-      setExpandedResources(new Set(resources.map((r) => r.id)));
+      setExpandedResources(new Set(resources.map((r) => String(r.id))));
     }
   }, [resources]);
 
@@ -188,13 +181,13 @@ export default function ApiResourcesPage() {
       <div className="space-y-1">
         {resources.map((resource, index) => {
           console.log(expandedResources);
+          console.log(resource);
           const isExpanded = expandedResources.has(resource.id);
           const hasMethods = resource.methods.length > 0;
           const isSelected = selectedResource?.id === resource.id;
-          const isRoot = resource.id === 'root';
+          const isRoot = resource.path === '/';
 
           return (
-            // <div key={resource.id} className={isRoot ? '' : ''}>
             <div key={resource.id} className={resource.path === '/' ? '' : 'pl-2'}>
               {/* 리소스 항목 */}
               <div
@@ -245,7 +238,7 @@ export default function ApiResourcesPage() {
                             className={`${getMethodStyle(method.type)} !font-mono !font-medium !text-xs !px-1.5 !py-0.5 rounded`}>
                             {method.type}
                           </span>
-                          <span className="text-[12px]">- {method.summary}</span>
+                          <span className="text-[12px]">- {method.info.summary}</span>
                         </div>
                         {isMethodSelected && <Eye width={'14px'} />}
                       </div>
@@ -351,6 +344,7 @@ export default function ApiResourcesPage() {
         onOpenChange={setIsCreateModalOpen}
         apiId={currentApiId || ''}
         userKey={userData?.userKey || ''}
+        onCreated={refetch}
       />
 
       <DeployResourceDialog

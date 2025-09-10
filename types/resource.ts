@@ -1,32 +1,29 @@
 export interface Resource {
-  id: string;
+  id: number;
   path: string;
   name: string;
+  description: string;
   children?: Resource[];
   methods: Method[];
-  corsEnabled?: boolean;
-  corsSettings?: {
+  cors?: {
     allowMethods?: string[];
-    allowHeaders?: string;
-    allowOrigin?: string;
-    exposeHeaders?: string;
+    allowHeaders?: string[];
+    allowOrigins?: string;
+    exposeHeaders?: string[];
     maxAge?: string;
     allowCredentials?: boolean;
+    createdAt: string;
+    policyId: string;
+    resourceId: string;
+    updatedAt: string;
   };
 }
 
 export interface Method {
-  id: string;
+  id: string | number;
   type: string;
   resourcePath: string;
-  summary: string;
-  apiKeys?: {
-    apiKeyId?: string;
-    mappingId?: string;
-    methodId?: string;
-    createdAt?: string;
-    createdBy?: string;
-  };
+  info: {};
 }
 
 export interface Stage {
