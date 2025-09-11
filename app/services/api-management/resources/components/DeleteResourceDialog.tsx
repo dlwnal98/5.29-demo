@@ -32,8 +32,8 @@ export function DeleteResourceDialog({
     await requestDelete(`/api/v1/resources/${resourceId}`);
 
     toast.success('리소스가 삭제되었습니다');
+    onRemoved?.();
     onOpenChange(false);
-    onRemoved();
   };
 
   return (

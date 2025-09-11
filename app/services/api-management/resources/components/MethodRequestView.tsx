@@ -20,6 +20,8 @@ export function MethodRequestView({
   requestBodyModels,
   handleEditMethod,
 }: MethodRequestViewProps) {
+  console.log(selectedMethod);
+
   return (
     <>
       {/* Method Request Settings */}
@@ -66,7 +68,7 @@ export function MethodRequestView({
               <div className="space-y-3">
                 <div>
                   <div className="mt-1 text-sm text-gray-900 dark:text-white">
-                    {selectedMethod.apiKey !== '-' ? 'True' : 'False'}
+                    {selectedMethod?.info['x-api-key-required'] ? 'True' : 'False'}
                   </div>
                 </div>
               </div>
@@ -74,7 +76,9 @@ export function MethodRequestView({
             <div className="col-span-2">
               <div className="space-y-3">
                 <div>
-                  <div className="mt-1 text-sm text-gray-900 dark:text-white">{'123l1k2j412'}</div>
+                  <div className="mt-1 text-sm text-gray-900 dark:text-white">
+                    {selectedMethod?.info['x-api-key-id']}
+                  </div>
                 </div>
               </div>
             </div>

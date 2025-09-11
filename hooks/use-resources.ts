@@ -19,7 +19,7 @@ export function useGetOpenAPIDoc(apiId: string) {
     queryKey: ['getOpenAPIDoc', apiId],
     queryFn: () => getOpenAPIDoc(apiId),
     enabled: !!apiId, // 조건적 실행
-    staleTime: Infinity,
+    // staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,

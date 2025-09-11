@@ -371,7 +371,7 @@ export default function CreateMethodPage() {
                     <Textarea
                       id="new-method-description"
                       placeholder="메서드에 대한 설명을 입력하세요"
-                      value={newApiKeyForm.description}
+                      value={methodForm.description}
                       onChange={(e) =>
                         setMethodForm({ ...methodForm, description: e.target.value })
                       }

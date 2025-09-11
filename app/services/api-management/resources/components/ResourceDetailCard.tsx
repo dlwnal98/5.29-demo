@@ -16,7 +16,6 @@ import { Trash2, Shield } from 'lucide-react';
 import type { Resource, Method } from '@/types/resource';
 import { CorsSettingsDialog } from './CorsSettingsDialog';
 import { DeleteMethodDialog } from './DeleteMethodDialog';
-import { toast, Toaster } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { getMethodStyle } from '@/lib/etc';
 import { DeleteResourceDialog } from './DeleteResourceDialog';
@@ -31,7 +30,6 @@ interface ResourceDetailCardProps {
 }
 
 export function ResourceDetailCard({
-  // mockData2,
   selectedResource,
   setSelectedResource,
   handleMethodClick,
@@ -43,30 +41,9 @@ export function ResourceDetailCard({
   const router = useRouter();
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  // CORS 다이얼로그 상태 추가
   const [isCorsModalOpen, setIsCorsModalOpen] = useState(false);
   const [methodToDelete, setMethodToDelete] = useState<Method | null>(null);
   const [isMethodDeleteDialogOpen, setIsMethodDeleteDialogOpen] = useState(false);
-
-  const handleDeleteResource = () => {
-    // if (selectedResource.path === '/') {
-    //   toast.error('루트 리소스는 삭제할 수 없습니다.');
-    //   return;
-    // }
-
-    setIsDeleteDialogOpen(false);
-    toast.success(`리소스 '${selectedResource.name}'이(가) 삭제되었습니다.`);
-  };
-
-  const handleDeleteMethod = () => {
-    if (methodToDelete) {
-      toast.success(
-        `메서드 '${methodToDelete.type} ${methodToDelete.resourcePath}'이(가) 삭제되었습니다.`
-      );
-      setMethodToDelete(null);
-      setIsMethodDeleteDialogOpen(false);
-    }
-  };
 
   // CORS 버튼 클릭 핸들러 수정
   const handleCorsButtonClick = () => {
@@ -102,12 +79,8 @@ export function ResourceDetailCard({
                   variant="outline"
                   size="sm"
                   onClick={handleCorsButtonClick}
-                  // className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 border-gray-300"
-                  className="rounded-full h-[25px] !gap-1 border-2 border-gray-700 text-gray-600 font-bold hover:text-gray-700 hover:bg-gray-50"
                   title="리소스 수정"
-                  // disabled={'inactive'}
-                >
-                  {/* <Settings className="h-4 w-4 text-gray-500" /> */}
+                  className="rounded-full h-[25px] !gap-1 border-2 border-blue-500 text-[#0F74E1] font-bold hover:text-blue-700 hover:bg-blue-50">
                   CORS 활성화 설정
                 </Button>
               )}
@@ -116,11 +89,9 @@ export function ResourceDetailCard({
                   variant="outline"
                   size="sm"
                   onClick={() => setIsDeleteDialogOpen(true)}
-                  // className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                   className="rounded-full h-[25px] !gap-1 border-2 border-red-500 text-red-600 font-bold hover:text-red-700 hover:bg-red-50"
                   title="삭제">
                   리소스 삭제
-                  {/* <Trash2 className="h-4 w-4" /> */}
                 </Button>
               )}
             </div>
@@ -178,24 +149,23 @@ export function ResourceDetailCard({
             </div>
           </div>
         </div>
-        {/* Methods Section */}
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className={`text-lg font-semibold text-gray-900 dark:text-white`}>
-              메서드 ({selectedResource?.methods?.length})
+              메서드
+              {selectedResource?.methods?.length > 0 && (
+                <span>({selectedResource?.methods?.length})</span>
+              )}
             </h3>
             <div className="flex gap-2">
               <Button
                 size="sm"
-                // variant={'outline'}
-                // onClick={handleCreateMethod}
                 onClick={() => {
                   router.push(
                     `/services/api-management/resources/methods?apiId=${apiId}&resourceId=${selectedResource?.resourceId}&resourcePath=${selectedResource?.path}`
                   );
                 }}
                 className="rounded-full h-[28px] bg-blue-500 hover:bg-blue-600 text-white">
-                {/* className="rounded-full h-[25px] !gap-1 border-2 border-blue-500 text-[#0F74E1] font-bold hover:text-blue-700 hover:bg-blue-50"> */}
                 메서드 생성
               </Button>
             </div>
@@ -206,7 +176,6 @@ export function ResourceDetailCard({
                 <TableRow className="hover:bg-white dark:hover:bg-gray-700">
                   <TableHead className="w-[10%]">메서드 유형</TableHead>
                   <TableHead>메서드 이름</TableHead>
-
                   <TableHead>API 키</TableHead>
                   <TableHead>엔드포인트 URL</TableHead>
                   <TableHead className="w-[7%] text-center">작업</TableHead>
@@ -222,12 +191,11 @@ export function ResourceDetailCard({
                         handleMethodClick(method, selectedResource);
                       }}>
                       <span
-                        className={`${getMethodStyle(method.type.toUpperCase())}  font-mono text-sm px-2 py-1 rounded`}>
+                        className={`${getMethodStyle(method.type)}  font-mono text-sm px-2 py-1 rounded`}>
                         {method.type}
                       </span>
                     </TableCell>
                     <TableCell>{method?.info?.summary}</TableCell>
-
                     <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
                       {method?.info['x-api-key-required'] ? 'True' : 'False'}
                     </TableCell>
@@ -265,7 +233,6 @@ export function ResourceDetailCard({
         </div>
       </div>
 
-      {/* CORS Settings Dialog */}
       <CorsSettingsDialog
         open={isCorsModalOpen}
         onOpenChange={setIsCorsModalOpen}
@@ -274,15 +241,18 @@ export function ResourceDetailCard({
         resourceId={selectedResource?.resourceId}
       />
 
-      {/* Delete Method Confirmation Dialog */}
       <DeleteMethodDialog
         open={isMethodDeleteDialogOpen}
         onOpenChange={setIsMethodDeleteDialogOpen}
         methodToDelete={methodToDelete}
+        apiId={apiId}
         userKey={userData?.userKey || ''}
+        onRemoved={onRemoved}
+        setMethodToDelete={setMethodToDelete}
+        selectedResource={selectedResource}
+        setSelectedResource={setSelectedResource}
       />
 
-      {/* Delete Resource Confirmation Dialog */}
       <DeleteResourceDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}

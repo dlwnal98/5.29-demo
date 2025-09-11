@@ -10,10 +10,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { ArrowLeft, Rocket, SquarePlus, SquareMinus, Eye } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { ArrowLeft, SquarePlus, SquareMinus, Eye } from 'lucide-react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { toast, Toaster } from 'sonner';
+import { Toaster } from 'sonner';
 import type { Resource, Method } from '@/types/resource';
 import { getMethodStyle } from '@/lib/etc';
 import DeployResourceDialog from './components/DeployResourceDialog';
@@ -32,19 +32,60 @@ export default function ApiResourcesPage() {
   const currentApiName = searchParams.get('apiName');
   const userData = useAuthStore((state) => state.user);
 
-  //mockData2 대신 들어가면 됨
   const { data: openAPIDocData, refetch } = useGetOpenAPIDoc(currentApiId || '');
   console.log(openAPIDocData);
 
+  interface Resource {
+    id: number;
+    path: string;
+    name: string;
+    description?: string;
+    cors?: any;
+    children?: Resource[];
+    methods?: Method[];
+  }
+
+  function buildTree(flatData: Resource[]): Resource[] {
+    const root: Resource = { id: -1, path: '/', name: '/', children: [] };
+
+    const pathMap = new Map<string, Resource>();
+    pathMap.set('/', root);
+
+    flatData.forEach((item) => {
+      const segments = item.path.split('/').filter(Boolean);
+      let currentPath = '';
+      let parent = root;
+
+      segments.forEach((seg, index) => {
+        currentPath += '/' + seg;
+        if (!pathMap.has(currentPath)) {
+          const newNode: Resource = {
+            id: item.id,
+            path: currentPath,
+            name: seg,
+            description: index === segments.length - 1 ? item.description : undefined,
+            cors: index === segments.length - 1 ? item.cors : undefined,
+            children: [],
+          };
+          pathMap.set(currentPath, newNode);
+          parent?.children?.push(newNode);
+        }
+        parent = pathMap.get(currentPath)!;
+      });
+    });
+
+    return root.children;
+  }
+
   // OpenAPI 문서로 리소스 폴더구조 데이터 수정
   function convertOpenApiToResources(openApiPaths: any): Resource[] {
-    const excludedKeys = ['x-cors-policy', 'x-resource-id', 'x-resource-name'];
+    const excludedKeys = ['x-cors-policy', 'x-resource-id', 'summary', 'description'];
 
     let resources = Object.entries(openApiPaths).map(([path, methods]: [string, any], idx) => ({
       id: idx,
       path: path,
-      name: methods['x-resource-name'],
-      description: methods['x-resource-description'] || '',
+      name: methods['summary'],
+      description: methods['description'] || '',
       resourceId: methods['x-resource-id'],
       cors: methods['x-cors-policy'],
       methods: Object.entries(methods)
@@ -53,25 +94,27 @@ export default function ApiResourcesPage() {
           id: mIdx,
           type: type?.toUpperCase(),
           resourcePath: path,
-          // summary: methodObj.summary,
-          // description: methodObj.description,
-          // apiKeys: methodObj['x-api-keys'] || '',
-          // endpointUrl: methodObj['endpointUrl'] || '',
           info: methodObj,
         })),
     }));
 
+    // return buildTree(resources);
     return resources;
   }
 
   // 기존 useState(Resource[]) 부분을 mockData2 기반으로 초기화
   const [resources, setResources] = useState<Resource[]>(
-    // convertOpenApiToResources(mockData2.paths)
     convertOpenApiToResources(openAPIDocData?.paths ?? [])
   );
+
+  // const resources = useMemo(() => {
+  //   if (!openAPIDocData?.paths) return [];
+  //   return convertOpenApiToResources(openAPIDocData.paths);
+  // }, [openAPIDocData]);
+
   const [selectedResource, setSelectedResource] = useState<Resource>(resources[0]);
   const [selectedMethod, setSelectedMethod] = useState<Method | null>(null);
-  const [expandedResources, setExpandedResources] = useState<Set<string>>(new Set(['root']));
+  const [expandedResources, setExpandedResources] = useState<number[]>();
   const [activeTab, setActiveTab] = useState('method-request');
   const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -88,23 +131,26 @@ export default function ApiResourcesPage() {
     }
   }, [openAPIDocData]);
 
-  // useEffect(() => {
-  //   if (resources) {
-  //     setExpandedResources((prev) => {
-  //       const newSet = new Set(prev);
-  //       resources.forEach((resource) => {
-  //         newSet.add(resource.id); // resource가 객체라면 적절한 string 키 사용
-  //       });
-  //       return newSet;
-  //     });
-  //   }
-  // }, [resources]);
+  // ✅ 모든 리소스를 한 번만 펼치는 로직
+  useEffect(() => {
+    if (resources.length > 0) {
+      // 새로고침 시 루트 선택
+      setSelectedResource((prev) => prev ?? resources.find((r) => r.path === '/'));
+
+      // expandedResources 업데이트
+      setExpandedResources((prev) => {
+        const prevExpanded = prev ?? [];
+        const newIds = resources.map((r) => r.id).filter((id) => !prevExpanded.includes(id));
+        return [...prevExpanded, ...newIds];
+      });
+    }
+  }, [resources]);
 
   // ✅ 모든 리소스를 한 번만 펼치는 로직
   useEffect(() => {
     if (resources.length > 0) {
       // 모든 리소스 id를 초기 expandedResources로 설정
-      setExpandedResources(new Set(resources.map((r) => String(r.id))));
+      // setExpandedResources(new Set(resources.map((r) => String(r.id))));
     }
   }, [resources]);
 
@@ -140,14 +186,13 @@ export default function ApiResourcesPage() {
     setSelectedMethod(method);
     setSelectedResource(resource);
     setActiveTab('method-request');
-    // setIsEditMode(false);
   };
 
   // 리소스 클릭 핸들러 수정
   const handleResourceClick = (resource: Resource) => {
     setSelectedResource(resource);
     setSelectedMethod(null); // 메서드 선택 해제
-    // toggleResourceExpansion(resource.id);
+    toggleResourceExpansion(resource.id);
   };
 
   const handleDeploy = () => {
@@ -161,18 +206,23 @@ export default function ApiResourcesPage() {
   };
 
   // 리소스 확장/축소 토글 함수
-  const toggleResourceExpansion = (resourceId: string) => {
-    const newExpanded = new Set(expandedResources);
+  const toggleResourceExpansion = (resourceId: number) => {
+    let newExpanded = [...(expandedResources ?? [])];
     console.log(resourceId, newExpanded);
 
-    if (newExpanded.has(resourceId)) {
-      newExpanded.delete(resourceId);
+    if (newExpanded.includes(resourceId)) {
+      // 이미 있으면 제거
+      newExpanded = newExpanded.filter((id) => id !== resourceId);
     } else {
-      newExpanded.add(resourceId);
+      // 없으면 추가
+      newExpanded.push(resourceId);
     }
+
+    // 상태 업데이트
     setExpandedResources(newExpanded);
   };
 
+  console.log(selectedResource);
   console.log(resources);
 
   // 트리 구조 리소스 목록 렌더링 함수
@@ -180,11 +230,13 @@ export default function ApiResourcesPage() {
     return (
       <div className="space-y-1">
         {resources.map((resource, index) => {
-          console.log(expandedResources);
+          console.log(selectedResource);
           console.log(resource);
-          const isExpanded = expandedResources.has(resource.id);
-          const hasMethods = resource.methods.length > 0;
-          const isSelected = selectedResource?.id === resource.id;
+          const isExpanded = expandedResources?.includes(resource.id);
+          const hasMethods = resource?.methods?.length > 0;
+          const isSelected =
+            // selectedResource?.id === resource.id ||
+            resource.id === resources[resources.length - 1]?.id;
           const isRoot = resource.path === '/';
 
           return (
@@ -211,7 +263,6 @@ export default function ApiResourcesPage() {
                     ) : (
                       <SquarePlus className="h-3 w-3" />
                     )}
-                    {/* <span className="font-medium text-sm">{resource.path}</span> */}
                   </button>
                 ) : (
                   <div className="w-2" />
@@ -258,7 +309,6 @@ export default function ApiResourcesPage() {
       <Toaster position="bottom-center" richColors expand={true} />
 
       <div className="container mx-auto px-4 py-6">
-        {/* Breadcrumb */}
         <Breadcrumb className="mb-6">
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -275,7 +325,6 @@ export default function ApiResourcesPage() {
           </BreadcrumbList>
         </Breadcrumb>
 
-        {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-4">
             <Button
@@ -292,13 +341,11 @@ export default function ApiResourcesPage() {
               onClick={() => handleDeploy()}
               className="text-sm rounded-full !px-4 h-[28px] bg-orange-500 hover:bg-orange-600 text-white text-xs lg:text-sm">
               API 배포
-              {/* <Rocket className="h-4 w-4" /> */}
             </Button>
           </div>
         </div>
 
         <div className="grid grid-cols-12 gap-6">
-          {/* 리소스 목록 */}
           <div className="col-span-3">
             <div
               ref={leftSidebarRef}
@@ -308,29 +355,25 @@ export default function ApiResourcesPage() {
                   size="sm"
                   variant={'outline'}
                   onClick={() => setIsCreateModalOpen(true)}
-                  // className="bg-blue-500 hover:bg-blue-600 text-white text-xs lg:text-sm"
                   className="rounded-full h-[25px] !gap-1 border-2 border-blue-500 text-[#0F74E1] font-bold hover:text-blue-700 hover:bg-blue-50">
                   리소스 생성
                 </Button>
               </div>
-              {/* 트리 구조 리소스 목록 렌더링 */}
               {renderResourceTree()}
             </div>
           </div>
 
-          {/* Main Right Content */}
           <div className="col-span-9">
             <div ref={rightContentRef}>
               {selectedMethod ? (
-                /* Method Detail View */
                 <MethodDetailCard selectedMethod={selectedMethod} />
               ) : (
-                /* Resource Detail View */
                 <ResourceDetailCard
                   selectedResource={selectedResource}
                   setSelectedResource={setSelectedResource}
                   handleMethodClick={handleMethodClick}
                   apiId={currentApiId || ''}
+                  onRemoved={refetch}
                 />
               )}
             </div>
@@ -338,7 +381,6 @@ export default function ApiResourcesPage() {
         </div>
       </div>
 
-      {/* Create Resource Modal */}
       <ResourceCreateDialog
         open={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
