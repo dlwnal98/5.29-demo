@@ -1,17 +1,12 @@
 export interface QueryParameter {
-  id?: string;
+  id?: string | number;
   name: string;
-  type: string;
-
   required: boolean;
 }
 
 export interface Header {
-  id?: string;
-
+  id?: string | number;
   name: string;
-  type: string;
-
   required: boolean;
 }
 

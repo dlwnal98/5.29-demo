@@ -25,7 +25,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { ArrowLeft, ChevronDown, ChevronRight, Globe, Trash2, CheckCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { QueryParameter, Header, BodyModel, Model } from '@/types/methods';
@@ -36,6 +36,8 @@ import { SelectAPIKeyModal } from './components/SelectAPIKeyModal';
 import { exampleMethodList, checkerOptionList } from '@/lib/data';
 import { useCreateMethod } from '@/hooks/use-methods';
 import { useGetModelList } from '@/hooks/use-model';
+import { useGetEndpointsList } from '@/hooks/use-endpoints';
+import { requestGet } from '@/lib/apiClient';
 
 export default function CreateMethodPage() {
   const searchParams = useSearchParams();
@@ -44,15 +46,19 @@ export default function CreateMethodPage() {
   const resourcePath = searchParams.get('resourcePath');
   const userData = useAuthStore((state) => state.user);
 
-  const { data: apiKeyList } = useGetAPIKeyList(userData?.organizationId);
+  const { data: apiKeyList } = useGetAPIKeyList(userData?.organizationId || '');
+  const { data: endpointList } = useGetEndpointsList(userData?.organizationId || '');
   // const {data : modelList} = useGetModelList('dasdf'); // API Id 들어가야함
+
+  console.log(endpointList);
 
   const { mutate: createMethod } = useCreateMethod({
     onSuccess: () => {
-      alert('생성');
+      toast.success('메서드가 성공적으로 생성되었습니다.');
+      handleBack();
     },
     onError: () => {
-      alert('실패');
+      toast.error('메서드 생성에 실패하였습니다.');
     },
   });
 
@@ -61,41 +67,13 @@ export default function CreateMethodPage() {
     description: '',
     methodType: '',
     integrationType: 'http',
-    endpointUrl: '',
-    customEndpointUrl: '',
-    additionalParameter: '',
-    requestValidator: 'ALL',
     apiKeyRequired: false,
     selectedApiKey: '',
+    endpointUrl: '',
+    additionalParameter: '',
+    customEndpointUrl: '',
+    requestValidator: 'NONE',
   });
-
-  // 이 형태의 props로 메소드 생성할 수 있음
-  // const [methodForm, setMethodForm] = useState({
-  //   pathId: '',
-  //   resourceId: '',
-  //   httpMethod: '',
-  //   methodName: '',
-  //   description: '',
-  //   backendServiceUrl: '',
-  //   requestModelIds: [],
-  //   responseModelId: '',
-  //   queryParameters: [
-  //     {
-  //       name: '',
-  //       required: false,
-  //     },
-  //   ],
-  //   headerParameters: [
-  //     {
-  //       name: '',
-  //       required: false,
-  //     },
-  //   ],
-  //   apiKeyId: '',
-  //   requiresApiKey: false,
-  //   requestValidator: '',
-  //   createdBy: '',
-  // });
 
   const [modelList, setModelList] = useState<Model[]>([
     {
@@ -113,6 +91,7 @@ export default function CreateMethodPage() {
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [isDirectUrlInput, setIsDirectUrlInput] = useState(false);
   const [selectedApiKeyId, setSelectedApiKeyId] = useState('');
+  const [apiKeyToggle, setApiKeyToggle] = useState(false);
   const [isCreatingNewApiKey, setIsCreatingNewApiKey] = useState(false);
   const [newApiKeyForm, setNewApiKeyForm] = useState({
     name: '',
@@ -127,23 +106,9 @@ export default function CreateMethodPage() {
     requestBody: false,
   });
 
-  const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([
-    {
-      id: '1',
-      name: '',
-      type: 'string',
-      required: false,
-    },
-  ]);
+  const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([]);
 
-  const [headers, setHeaders] = useState<Header[]>([
-    {
-      id: '1',
-      name: '',
-      type: 'string',
-      required: false,
-    },
-  ]);
+  const [headers, setHeaders] = useState<Header[]>([]);
 
   const [bodyModels, setBodyModels] = useState<BodyModel[]>([
     {
@@ -154,14 +119,17 @@ export default function CreateMethodPage() {
     },
   ]);
 
-  // Predefined endpoint URLs
-  const endpointUrls = [
-    'https://api.endpoint.com/',
-    'https://jsonplaceholder.typicode.com/',
-    'https://httpbin.org/',
-    'https://reqres.in/api/',
-    'https://api.github.com/',
-  ];
+  const [validatorList, setValidatorList] = useState([]);
+
+  const getValidatorList = async (codeType = 'REQUEST_VALIDATOR') => {
+    const res = await requestGet(`/api/v1/common-codes/${codeType}`);
+
+    return setValidatorList(res);
+  };
+
+  useEffect(() => {
+    getValidatorList();
+  }, []);
 
   const handleBack = () => {
     router.push(`/services/api-management/resources?resourceId=${resourceId}`);
@@ -188,21 +156,21 @@ export default function CreateMethodPage() {
 
     createMethod({
       resourceId: resourceId || '',
+      createdBy: userData?.userKey || '',
       httpMethod: methodForm.methodType,
       methodName: methodForm.methodName,
       description: methodForm.description,
-      backendServiceUrl: methodForm.endpointUrl + '/' + methodForm.customEndpointUrl,
-      requestModelIds: [],
-      responseModelId: '',
+      apiKeyId: selectedApiKeyId,
+      requiresApiKey: apiKeyToggle,
+      backendServiceUrl: methodForm.customEndpointUrl
+        ? methodForm.customEndpointUrl
+        : methodForm.endpointUrl + methodForm.additionalParameter,
+      // requestModelIds: [],
+      // responseModelId: '',
       queryParameters: queryParameters,
       headerParameters: headers,
-      apiKeyId: methodForm.selectedApiKey,
-      requiresApiKey: methodForm.apiKeyRequired,
       requestValidator: methodForm.requestValidator,
-      createdBy: userData?.userKey || '',
     });
-    toast.success('메서드가 성공적으로 생성되었습니다.');
-    handleBack();
   };
 
   const toggleSection = (section: keyof typeof openSections) => {
@@ -226,38 +194,48 @@ export default function CreateMethodPage() {
 
   const handleModelSelect = (modelId: string) => {};
 
+  // const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([]);
+  const [paramCounter, setParamCounter] = useState(0); // 순차 id 관리용
+
   const addQueryParameter = () => {
     const newParam: QueryParameter = {
-      id: Date.now().toString(),
+      id: (paramCounter + 1).toString(), // 고유하고 순차적인 id
       name: '',
-      description: '',
-      type: 'string',
       required: false,
     };
-    setQueryParameters([...queryParameters, newParam]);
+    setQueryParameters((prev) => [...prev, newParam]);
+    setParamCounter((prev) => prev + 1);
   };
 
   const updateQueryParameter = (id: string, field: keyof QueryParameter, value: any) => {
-    setQueryParameters(
-      queryParameters.map((param) => (param.id === id ? { ...param, [field]: value } : param))
+    setQueryParameters((prev) =>
+      prev.map((param) => (param.id === id ? { ...param, [field]: value } : param))
     );
   };
 
   const removeQueryParameter = (id: string) => {
-    setQueryParameters(queryParameters.filter((param) => param.id !== id));
+    setQueryParameters((prev) => prev.filter((param) => param.id !== id));
   };
 
+  console.log(queryParameters);
+
+  const nextHeaderIdRef = useRef<number>(0);
+  // 추가: 생성순으로 id 부여
   const addHeader = () => {
+    const id = nextHeaderIdRef.current++;
     const newHeader: Header = {
-      id: Date.now().toString(),
+      id,
       name: '',
-      type: 'string',
-      description: '',
       required: false,
-      example: '',
     };
-    setHeaders([...headers, newHeader]);
+    // functional update 사용 (안전)
+    setHeaders((prev) => [...prev, newHeader]);
   };
+
+  // 수정: id 기준으로 업데이트
+  // const updateHeader = (id: number, field: keyof Header, value: any) => {
+  //   setHeaders((prev) => prev.map((h) => (h.id === id ? { ...h, [field]: value } : h)));
+  // };
 
   const updateHeader = (id: string, field: keyof Header, value: any) => {
     setHeaders(
@@ -265,9 +243,12 @@ export default function CreateMethodPage() {
     );
   };
 
-  const removeHeader = (id: string) => {
-    setHeaders(headers.filter((header) => header.id !== id));
+  // 삭제
+  const removeHeader = (id: number) => {
+    setHeaders((prev) => prev.filter((h) => h.id !== id));
   };
+
+  console.log(headers);
 
   const addBodyModel = () => {
     const newModel: BodyModel = {
@@ -453,10 +434,7 @@ export default function CreateMethodPage() {
                         <div>
                           <Label className="text-[16px] font-semibold mb-4">API Key 설정</Label>
                         </div>
-                        <Switch
-                          checked={methodForm.apiKeyRequired}
-                          onCheckedChange={handleApiKeyToggle}
-                        />
+                        <Switch checked={apiKeyToggle} onCheckedChange={handleApiKeyToggle} />
                       </div>
 
                       {methodForm.selectedApiKey && selectedApiKeyInfo && (
@@ -525,9 +503,12 @@ export default function CreateMethodPage() {
                               <SelectValue placeholder="엔드포인트 URL 선택" />
                             </SelectTrigger>
                             <SelectContent>
-                              {endpointUrls.map((url) => (
-                                <SelectItem key={url} value={url} className="hover:cursor-pointer">
-                                  {url}
+                              {endpointList?.map((url, id) => (
+                                <SelectItem
+                                  key={id}
+                                  value={url.targetEndpoint}
+                                  className="hover:cursor-pointer">
+                                  {url.targetEndpoint}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -561,9 +542,9 @@ export default function CreateMethodPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {checkerOptionList.map((checker, i) => (
-                            <SelectItem className="hover:cursor-pointer" value={checker.value}>
-                              {checker.label}
+                          {validatorList.map((checker, i) => (
+                            <SelectItem className="hover:cursor-pointer" value={checker.code}>
+                              {checker.description}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -690,22 +671,24 @@ export default function CreateMethodPage() {
                             <span className="font-bold">추가</span>
                           </Button>
                         </h4>
-                        {headers.length == 0 ? (
+                        {headers.length === 0 ? (
                           <p className="text-sm text-gray-500">헤더를 찾을 수 없습니다.</p>
                         ) : (
                           <>
-                            {headers.map((header, index) => (
+                            {headers.map((header) => (
                               <div
                                 key={header.id}
-                                className={`grid grid-cols-12 gap-3 mt-3 ${openId === header.id ? 'items-start' : 'items-center  mb-3'}`}>
+                                className={`grid grid-cols-12 gap-3 mt-3 ${openId === header.id ? 'items-start' : 'items-center mb-3'}`}>
                                 <div className="col-span-10">
                                   <RequestHeaderListSearch
-                                    updateHeader={updateHeader}
-                                    key={header.id}
                                     isOpen={openId === header.id}
                                     setIsOpen={(val) => setOpenId(val ? header.id : null)}
+                                    updateHeader={(field, value) =>
+                                      updateHeader(header.id, field, value)
+                                    }
                                   />
                                 </div>
+
                                 <div
                                   className={`col-span-2 gap-1 flex items-center ${openId === header.id ? 'mt-1' : ''}`}>
                                   <div className="flex items-center space-x-2">
@@ -849,7 +832,7 @@ export default function CreateMethodPage() {
           newApiKeyForm={newApiKeyForm}
           setNewApiKeyForm={setNewApiKeyForm}
           userKey={userData?.userKey || ''}
-          organizationId={userData?.organizationId || ''}
+          setApiKeyToggle={setApiKeyToggle}
         />
       </div>
     </AppLayout>

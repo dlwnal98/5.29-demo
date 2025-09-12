@@ -15,6 +15,7 @@ import { Plus, AlertCircle, Key, Settings } from 'lucide-react';
 import { SetStateAction } from 'react';
 import { ApiKey } from '@/hooks/use-apiKeys';
 import { useCreateAPIKey } from '@/hooks/use-apiKeys';
+import { useState } from 'react';
 
 interface SeleceAPIKeyProps {
   open: boolean;
@@ -26,6 +27,7 @@ interface SeleceAPIKeyProps {
   setSelectedApiKeyId: React.Dispatch<SetStateAction<string>>;
   newApiKeyForm: { name: string; description: string };
   setNewApiKeyForm: React.Dispatch<SetStateAction<any>>;
+  setApiKeyToggle: React.Dispatch<SetStateAction<boolean>>;
   userKey: string;
   organizationId: string;
 }
@@ -42,7 +44,10 @@ export function SelectAPIKeyModal({
   setNewApiKeyForm,
   userKey,
   organizationId,
+  setApiKeyToggle,
 }: SeleceAPIKeyProps) {
+  const [selectApiKey, setSelectApiKey] = useState('');
+
   const { mutate: createAPIKey } = useCreateAPIKey({
     onSuccess: () => {
       alert('성공');
@@ -56,12 +61,18 @@ export function SelectAPIKeyModal({
   });
 
   const handleCreateAPIKey = () => {
-    createAPIKey({
-      userKey,
-      keyName: newApiKeyForm.name,
-      description: newApiKeyForm.description,
-      organizationId,
-    });
+    if (isCreatingNewApiKey) {
+      createAPIKey({
+        userKey,
+        keyName: newApiKeyForm.name,
+        description: newApiKeyForm.description,
+        organizationId,
+      });
+    } else {
+      setSelectedApiKeyId(selectApiKey);
+      setApiKeyToggle(true);
+      onOpenChange(false);
+    }
   };
 
   return (
@@ -107,18 +118,18 @@ export function SelectAPIKeyModal({
                     <div
                       key={i}
                       className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                        selectedApiKeyId === apiKey.keyId
+                        selectApiKey === apiKey.keyId
                           ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
                           : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                       }`}
-                      onClick={() => setSelectedApiKeyId(apiKey.keyId)}>
+                      onClick={() => setSelectApiKey(apiKey.keyId)}>
                       <div className="flex items-start gap-3">
                         <input
                           type="radio"
                           name="apiKey"
                           value={apiKey.keyId}
-                          checked={selectedApiKeyId === apiKey.keyId}
-                          onChange={() => setSelectedApiKeyId(apiKey.keyId)}
+                          checked={selectApiKey === apiKey.keyId}
+                          onChange={() => setSelectApiKey(apiKey.keyId)}
                           className="mt-1"
                         />
                         <div className="flex-1">
@@ -210,11 +221,12 @@ export function SelectAPIKeyModal({
           <Button
             onClick={handleCreateAPIKey}
             className="bg-blue-600 hover:bg-blue-700 text-white"
-            disabled={
-              isCreatingNewApiKey
-                ? !newApiKeyForm.name.trim()
-                : !selectedApiKeyId && apiKeyList?.length > 0
-            }>
+            // disabled={
+            //   isCreatingNewApiKey
+            //     ? !newApiKeyForm.name.trim()
+            //     : !selectedApiKeyId && apiKeyList?.length > 0
+            // }
+          >
             {isCreatingNewApiKey ? '생성 및 선택' : '선택'}
           </Button>
         </DialogFooter>

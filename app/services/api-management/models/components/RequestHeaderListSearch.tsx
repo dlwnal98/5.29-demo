@@ -8,11 +8,10 @@ interface Option {
   label: string;
   value: string;
 }
-
 interface HeaderSearchProps {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<any>>;
-  updateHeader: (id: string, field: 'name' | 'required' | 'value', value: string | boolean) => void;
+  updateHeader: (field: 'name' | 'required' | 'value', value: string | boolean) => void;
 }
 
 export default function RequestHeaderListSearch({
@@ -56,7 +55,7 @@ export default function RequestHeaderListSearch({
     setSelected(option);
     setSearch(option.value);
     setIsOpen(false);
-    updateHeader(option.id, 'name', option.value);
+    updateHeader('name', option.value); // id 필요 없음
     inputRef.current?.focus();
   };
 

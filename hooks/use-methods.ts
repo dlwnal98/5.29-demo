@@ -92,8 +92,8 @@ export interface CreateMethodProps {
     type: string;
     required: boolean;
   }[];
-  apiKeyId: string;
-  requiresApiKey: boolean;
+  apiKeyId?: string;
+  requiresApiKey?: boolean;
   requestValidator: string;
   createdBy: string;
 }
@@ -163,3 +163,19 @@ export function useModifyMethod() {
     },
   });
 }
+
+// 요청검사기 데이터
+export interface MethodsListProps {
+  codeType: string;
+  code: string;
+  codeName: string;
+  description: string;
+  isActive: boolean;
+}
+
+// 요청검사기 목록 조회 API
+const getValidatorList = async (codeType = 'REQUEST_VALIDATOR'): Promise<MethodsListProps[]> => {
+  const res = await requestGet(`/api/v1/common-codes/${codeType}`);
+
+  return res;
+};
