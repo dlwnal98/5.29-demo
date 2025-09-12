@@ -88,8 +88,8 @@ const nextConfig = {
         destination: 'http://1.224.162.188:58084/api/v1/deployments/:path*',
       },
       {
-        source: '/api/v1/endpoints/:path*',
-        destination: 'http://1.224.162.188:58084/api/v1/endpoints/:path*',
+        source: '/api/v1/target-endpoints/:path*',
+        destination: 'http://1.224.162.188:58084/api/v1/target-endpoints/:path*',
       },
     ];
   },

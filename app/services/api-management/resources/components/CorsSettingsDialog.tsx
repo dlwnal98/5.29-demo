@@ -30,6 +30,7 @@ export function CorsSettingsDialog({
   onOpenChange,
   resourceId,
   selectedResource,
+  setSelectedResource,
 }: CorsSettingsDialogProps) {
   const [corsForm, setCorsForm] = useState({
     allowMethods: [],

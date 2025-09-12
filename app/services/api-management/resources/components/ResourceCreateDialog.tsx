@@ -76,13 +76,18 @@ export function ResourceCreateDialog({
     },
   });
 
+  function isValid(s: string | number) {
+    return /^[a-z0-9\-_{}]+$/.test(String(s));
+  }
+
   const createResource = async (data: CreateResourceProps) => {
     const resourcePath =
       pathPattern === '/'
         ? `${pathPattern}${data.resourceName}`
         : `${pathPattern}/${data.resourceName}`;
 
-    createResourceMutate({ ...data, path: resourcePath });
+    if (isValid(data.resourceName)) createResourceMutate({ ...data, path: resourcePath });
+    else toast.error('리소스 이름을 다시 입력해주세요.');
   };
 
   const handleCancel = () => {

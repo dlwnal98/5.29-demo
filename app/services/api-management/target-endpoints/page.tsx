@@ -22,62 +22,32 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Plus, Search, Edit, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
 import CreateEndpointDialog from './components/createEndpointDialog';
 import ModifyEndpointDialog from './components/modifyEndpointDialog';
 import DeleteEndpointDialog from './components/deleteEndpointDialog';
 import { useGetEndpointsList } from '@/hooks/use-endpoints';
-
-export interface TargetEndpoint {
-  id: string;
-  targetId: string;
-  url: string;
-  createdAt: string;
-  description: string;
-}
-
-const mockEndpoints: TargetEndpoint[] = [
-  {
-    id: '1',
-    targetId: 'endpoint-001',
-    url: 'https://api.example.com/v1',
-    createdAt: '2024-01-15',
-    description: '메인 API 서버 엔드포인트',
-  },
-  {
-    id: '2',
-    targetId: 'endpoint-002',
-    url: 'https://staging-api.example.com/v1',
-    createdAt: '2024-01-20',
-    description: '스테이징 환경 API 엔드포인트',
-  },
-  {
-    id: '3',
-    targetId: 'endpoint-003',
-    url: 'https://dev-api.example.com/v1',
-    createdAt: '2024-01-25',
-    description: '개발 환경 API 엔드포인트',
-  },
-];
+import { useAuthStore } from '@/store/store';
+import { EndpointsData } from '@/hooks/use-endpoints';
 
 export default function TargetEndpointsPage() {
-  const [endpoints, setEndpoints] = useState<TargetEndpoint[]>(mockEndpoints);
+  const userData = useAuthStore((state) => state.user);
+  const { data: endpoints = [] } = useGetEndpointsList(userData?.organizationId || '');
+
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedEndpoint, setSelectedEndpoint] = useState<TargetEndpoint | null>(null);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedId, setSelectedId] = useState('');
   const [formData, setFormData] = useState({
     targetId: '',
     url: '',
     description: '',
   });
 
-  const filteredEndpoints = endpoints.filter(
+  const filteredEndpoints = endpoints?.filter(
     (endpoint) =>
       endpoint.targetId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      endpoint.url.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      endpoint.targetEndpoint.toLowerCase().includes(searchTerm.toLowerCase()) ||
       endpoint.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -86,78 +56,24 @@ export default function TargetEndpointsPage() {
     setIsCreateModalOpen(true);
   };
 
-  const handleEdit = (endpoint: TargetEndpoint) => {
-    setSelectedEndpoint(endpoint);
+  const handleEdit = (endpoint: EndpointsData) => {
     setFormData({
       targetId: endpoint.targetId,
-      url: endpoint.url,
+      url: endpoint.targetEndpoint,
       description: endpoint.description,
     });
     setIsEditModalOpen(true);
   };
 
-  const handleCreateSubmit = () => {
-    if (!formData.url) {
-      toast.error('필수 필드를 모두 입력해주세요.');
-      return;
-    }
-
-    const newEndpoint: TargetEndpoint = {
-      id: Date.now().toString(),
-      targetId: `endpoint-${Date.now()}`,
-      url: formData.url,
-      description: formData.description,
-      createdAt: new Date().toISOString().split('T')[0],
-    };
-
-    setEndpoints([...endpoints, newEndpoint]);
-    setIsCreateModalOpen(false);
-    setFormData({ targetId: '', url: '', description: '' });
-    toast.success('Target Endpoint가 성공적으로 생성되었습니다.');
-  };
-
-  const handleEditSubmit = () => {
-    if (!formData.url || !selectedEndpoint) {
-      toast.error('필수 필드를 모두 입력해주세요.');
-      return;
-    }
-
-    const updatedEndpoints = endpoints.map((endpoint) =>
-      endpoint.id === selectedEndpoint.id
-        ? {
-            ...endpoint,
-            url: formData.url,
-            description: formData.description,
-          }
-        : endpoint
-    );
-
-    setEndpoints(updatedEndpoints);
-    setIsEditModalOpen(false);
-    setSelectedEndpoint(null);
-    setFormData({ targetId: '', url: '', description: '' });
-    toast.success('Target Endpoint가 성공적으로 수정되었습니다.');
-  };
-
-  const handleDeleteSingle = (endpoint: TargetEndpoint) => {
-    setSelectedEndpoint(endpoint);
-    setSelectedIds([endpoint.id]);
+  const handleDeleteSingle = (endpoint: EndpointsData) => {
+    setSelectedId(endpoint.targetId);
     setIsDeleteModalOpen(true);
-  };
-
-  const handleDeleteConfirm = () => {
-    const updatedEndpoints = endpoints.filter((endpoint) => !selectedIds.includes(endpoint.id));
-    setEndpoints(updatedEndpoints);
-    setSelectedIds([]);
-    setIsDeleteModalOpen(false);
-    setSelectedEndpoint(null);
   };
 
   const handleModalClose = () => {
     setIsCreateModalOpen(false);
     setIsEditModalOpen(false);
     setIsDeleteModalOpen(false);
-    setSelectedEndpoint(null);
     setFormData({ targetId: '', url: '', description: '' });
   };
 
@@ -217,19 +133,21 @@ export default function TargetEndpointsPage() {
                 <TableRow className="hover:bg-white">
                   <TableHead>Target ID</TableHead>
                   <TableHead>URL</TableHead>
-                  <TableHead>생성일자</TableHead>
                   <TableHead>설명</TableHead>
+                  <TableHead>생성일자</TableHead>
+
                   <TableHead className="text-center w-3">수정</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredEndpoints.length > 0 ? (
-                  filteredEndpoints.map((endpoint) => (
-                    <TableRow key={endpoint.id} className="hover:bg-white">
+                {filteredEndpoints?.length > 0 ? (
+                  filteredEndpoints?.map((endpoint, id) => (
+                    <TableRow key={id} className="hover:bg-white">
                       <TableCell className="font-medium">{endpoint.targetId}</TableCell>
-                      <TableCell className="font-mono text-sm">{endpoint.url}</TableCell>
-                      <TableCell>{endpoint.createdAt}</TableCell>
+                      <TableCell className="font-mono text-sm">{endpoint.targetEndpoint}</TableCell>
                       <TableCell>{endpoint.description}</TableCell>
+                      <TableCell>{new Date(endpoint.createdAt).toLocaleDateString()}</TableCell>
+
                       <TableCell className="text-right">
                         <div className="flex gap-2 justify-end">
                           <Button
@@ -264,28 +182,25 @@ export default function TargetEndpointsPage() {
         {/* Endpoint 생성 */}
         <CreateEndpointDialog
           isCreateModalOpen={isCreateModalOpen}
-          formData={formData}
-          setFormData={setFormData}
           handleModalClose={handleModalClose}
-          handleCreateSubmit={handleCreateSubmit}
+          organizationId={userData?.organizationId || ''}
+          createdBy={userData?.userKey || ''}
         />
 
         {/* Endpoint 수정 */}
         <ModifyEndpointDialog
           isEditModalOpen={isEditModalOpen}
           formData={formData}
-          setFormData={setFormData}
           handleModalClose={handleModalClose}
-          handleEditSubmit={handleEditSubmit}
+          updatedBy={userData?.userKey || ''}
+          targetId={formData.targetId || ''}
         />
 
         {/* Endpoint 삭제 */}
         <DeleteEndpointDialog
           isDeleteModalOpen={isDeleteModalOpen}
-          selectedIds={selectedIds}
-          endpoints={endpoints}
           handleModalClose={handleModalClose}
-          handleDeleteConfirm={handleDeleteConfirm}
+          targetId={selectedId || ''}
         />
       </div>
     </AppLayout>
