@@ -109,8 +109,6 @@ export default function ApiResourcesPage() {
   }
 
   const tree = buildTree(openAPIDocData?.paths ?? {});
-  console.log(tree);
-  console.log(JSON.stringify(tree, null, 2));
 
   const [resources, setResources] = useState<Resource[]>(tree);
 

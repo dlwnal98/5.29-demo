@@ -16,6 +16,7 @@ import { SetStateAction } from 'react';
 import { ApiKey } from '@/hooks/use-apiKeys';
 import { useCreateAPIKey } from '@/hooks/use-apiKeys';
 import { useState } from 'react';
+import { toast, Toaster } from 'sonner';
 
 interface SeleceAPIKeyProps {
   open: boolean;
@@ -25,6 +26,7 @@ interface SeleceAPIKeyProps {
   apiKeyList: ApiKey[];
   selectedApiKeyId: string;
   setSelectedApiKeyId: React.Dispatch<SetStateAction<string>>;
+  setSelectedApiKey: React.Dispatch<SetStateAction<string>>;
   newApiKeyForm: { name: string; description: string };
   setNewApiKeyForm: React.Dispatch<SetStateAction<any>>;
   setApiKeyToggle: React.Dispatch<SetStateAction<boolean>>;
@@ -39,6 +41,7 @@ export function SelectAPIKeyModal({
   setIsCreatingNewApiKey,
   selectedApiKeyId,
   setSelectedApiKeyId,
+  setSelectedApiKey,
   apiKeyList,
   newApiKeyForm,
   setNewApiKeyForm,
@@ -49,14 +52,18 @@ export function SelectAPIKeyModal({
   const [selectApiKey, setSelectApiKey] = useState('');
 
   const { mutate: createAPIKey } = useCreateAPIKey({
-    onSuccess: () => {
-      alert('성공');
+    onSuccess: (data) => {
+      toast.success('성공');
       onOpenChange(false);
-      setNewApiKeyForm({ name: '', description: '' });
-      setSelectedApiKeyId('');
+      // setNewApiKeyForm({ name: '', description: '' });
+      console.log(data);
+      setApiKeyToggle(true);
+      setSelectedApiKey(data.key);
+      // setSelectedApiKeyId('');
     },
     onError: () => {
-      alert('실패');
+      toast.error('실패');
+      setApiKeyToggle(false);
     },
   });
 
@@ -91,7 +98,10 @@ export function SelectAPIKeyModal({
             <Button
               variant={!isCreatingNewApiKey ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setIsCreatingNewApiKey(false)}
+              onClick={() => {
+                setIsCreatingNewApiKey(false);
+                setNewApiKeyForm({ name: '', description: '' });
+              }}
               className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
               기존 API 키 선택
@@ -99,7 +109,10 @@ export function SelectAPIKeyModal({
             <Button
               variant={isCreatingNewApiKey ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setIsCreatingNewApiKey(true)}
+              onClick={() => {
+                setIsCreatingNewApiKey(true);
+                setNewApiKeyForm({ name: '', description: '' });
+              }}
               className="flex items-center gap-2">
               <Plus className="h-4 w-4" />새 API 키 생성
             </Button>
@@ -122,14 +135,30 @@ export function SelectAPIKeyModal({
                           ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
                           : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                       }`}
-                      onClick={() => setSelectApiKey(apiKey.keyId)}>
+                      onClick={() => {
+                        setSelectApiKey(apiKey.keyId);
+                        setNewApiKeyForm({
+                          ...newApiKeyForm,
+                          name: apiKey.name,
+                          description: apiKey.description,
+                        });
+                        setSelectedApiKey(apiKey.key);
+                      }}>
                       <div className="flex items-start gap-3">
                         <input
                           type="radio"
                           name="apiKey"
                           value={apiKey.keyId}
                           checked={selectApiKey === apiKey.keyId}
-                          onChange={() => setSelectApiKey(apiKey.keyId)}
+                          onChange={() => {
+                            setSelectApiKey(apiKey.keyId);
+                            setNewApiKeyForm({
+                              ...newApiKeyForm,
+                              name: apiKey.name,
+                              description: apiKey.description,
+                            });
+                            setSelectedApiKey(apiKey.key);
+                          }}
                           className="mt-1"
                         />
                         <div className="flex-1">

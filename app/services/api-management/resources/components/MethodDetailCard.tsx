@@ -67,11 +67,11 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
 
   console.log(requestHeaders);
 
-  const [editForm, setEditForm] = useState({
-    apiKeyRequired: false,
-    sdkOperationName: '',
-    requestValidator: '없음',
-  });
+  // const [editForm, setEditForm] = useState({
+  //   apiKeyRequired: false,
+  //   sdkOperationName: '',
+  //   requestValidator: '없음',
+  // });
 
   // Available models
   const [availableModels, setAvailableModels] = useState<Model[]>([
@@ -183,11 +183,11 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
     setIsEditMode(false);
     // Reset form to original values
     if (selectedMethod) {
-      setEditForm({
-        apiKeyRequired: selectedMethod.apiKey !== '-',
-        sdkOperationName: selectedMethod.summary || '',
-        requestValidator: selectedMethod.requestValidator || '없음',
-      });
+      // setEditForm({
+      //   apiKeyRequired: selectedMethod.apiKey !== '-',
+      //   sdkOperationName: selectedMethod.summary || '',
+      //   requestValidator: selectedMethod.requestValidator || '없음',
+      // });
     }
   };
 
@@ -340,11 +340,11 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
 
   useEffect(() => {
     if (selectedMethod) {
-      setEditForm({
-        apiKeyRequired: selectedMethod.apiKey !== '-',
-        sdkOperationName: selectedMethod.summary || '',
-        requestValidator: selectedMethod.requestValidator || '없음',
-      });
+      // setEditForm({
+      //   apiKeyRequired: selectedMethod.apiKey !== '-',
+      //   sdkOperationName: selectedMethod.summary || '',
+      //   requestValidator: selectedMethod.requestValidator || '없음',
+      // });
 
       const queryParams =
         selectedMethod.parameters
@@ -399,6 +399,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
       }
     }
   }, [selectedMethod]);
+
   return (
     <>
       <Toaster position="bottom-center" richColors expand={true} />
@@ -423,8 +424,8 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                   </Button>
                 </div>
               </div>
-              <div className="w-[100%] flex items-center justify-between mt-2">
-                <div className="w-[40%]">
+              <div className="w-[100%] mt-2">
+                <div>
                   <div className="flex items-center gap-2  mb-2">
                     <div className="w-20 text-sm text-gray-600 dark:text-gray-400">메서드 ID</div>
                     <div className="font-mono text-sm">
@@ -443,7 +444,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="w-20 text-sm text-gray-600 dark:text-gray-400">URL</span>
-                    <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
+                    <div className="flex items-center gap-2">
                       <code className="text-sm font-mono">
                         {selectedMethod?.info['x-backend-endpoint'] ?? ''}
                       </code>
@@ -453,7 +454,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                     </div>
                   </div>
                 </div>
-                <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-6 w-[70%]">
+                <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-6 w-[100%] mt-3">
                   <div className="flex items-center justify-between">
                     {/* Client */}
                     <div className="flex flex-col items-center">
@@ -543,22 +544,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                 />
               ) : (
                 <MethodRequestEdit
-                  editForm={editForm}
-                  setEditForm={setEditForm}
-                  queryParameters={queryParameters}
-                  updateQueryParameter={updateQueryParameter}
-                  removeQueryParameter={removeQueryParameter}
-                  addQueryParameter={addQueryParameter}
-                  requestHeaders={requestHeaders}
-                  updateRequestHeader={updateRequestHeader}
-                  removeRequestHeader={removeRequestHeader}
-                  addRequestHeader={addRequestHeader}
-                  requestBodyModels={requestBodyModels}
-                  updateRequestBodyModel={updateRequestBodyModel}
-                  removeRequestBodyModel={removeRequestBodyModel}
-                  addRequestBodyModel={addRequestBodyModel}
-                  availableModels={availableModels}
-                  deleteModel={deleteModel}
+                  selectedMethod={selectedMethod}
                   handleCancelEdit={handleCancelEdit}
                   handleSaveEdit={handleSaveEdit}
                 />

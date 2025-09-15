@@ -24,7 +24,15 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { ArrowLeft, ChevronDown, ChevronRight, Globe, Trash2, CheckCircle } from 'lucide-react';
+import {
+  Copy,
+  ArrowLeft,
+  ChevronDown,
+  ChevronRight,
+  Globe,
+  Trash2,
+  CheckCircle,
+} from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -38,6 +46,7 @@ import { useCreateMethod } from '@/hooks/use-methods';
 import { useGetModelList } from '@/hooks/use-model';
 import { useGetEndpointsList } from '@/hooks/use-endpoints';
 import { requestGet } from '@/lib/apiClient';
+import { useClipboard } from 'use-clipboard-copy';
 
 export default function CreateMethodPage() {
   const searchParams = useSearchParams();
@@ -91,6 +100,7 @@ export default function CreateMethodPage() {
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [isDirectUrlInput, setIsDirectUrlInput] = useState(false);
   const [selectedApiKeyId, setSelectedApiKeyId] = useState('');
+  const [selectedApiKey, setSelectedApiKey] = useState('');
   const [apiKeyToggle, setApiKeyToggle] = useState(false);
   const [isCreatingNewApiKey, setIsCreatingNewApiKey] = useState(false);
   const [newApiKeyForm, setNewApiKeyForm] = useState({
@@ -181,14 +191,12 @@ export default function CreateMethodPage() {
   };
 
   const handleApiKeyToggle = (checked: boolean) => {
+    setIsCreatingNewApiKey(false);
+    setNewApiKeyForm({ name: '', description: '' });
     if (checked) {
       setIsApiKeyModalOpen(true);
     } else {
-      setMethodForm({
-        ...methodForm,
-        apiKeyRequired: false,
-        selectedApiKey: '',
-      });
+      setApiKeyToggle(false);
     }
   };
 
@@ -274,6 +282,14 @@ export default function CreateMethodPage() {
   const selectedApiKeyInfo = apiKeyList?.find((key) => key.keyId === methodForm.selectedApiKey);
 
   const [openId, setOpenId] = useState<string | null>(null);
+
+  const clipboard = useClipboard();
+
+  // 비밀번호 복사 함수
+  const handleCopyAPIKey = (apiKey: string) => {
+    clipboard.copy(apiKey);
+    toast.success('API Key가 복사되었습니다.');
+  };
 
   return (
     <AppLayout>
@@ -437,7 +453,7 @@ export default function CreateMethodPage() {
                         <Switch checked={apiKeyToggle} onCheckedChange={handleApiKeyToggle} />
                       </div>
 
-                      {methodForm.selectedApiKey && selectedApiKeyInfo && (
+                      {apiKeyToggle && (
                         <div className="mt-4 p-4 bg-green-50 dark:bg-green-950/20 border border-green-200 rounded-lg">
                           <div className="flex items-start gap-3">
                             <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
@@ -449,16 +465,16 @@ export default function CreateMethodPage() {
                                 <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-xs rounded-full font-medium">
                                   활성화됨
                                 </span>
+                                <button
+                                  className="hover:underline"
+                                  onClick={() => handleCopyAPIKey(selectedApiKey)}>
+                                  <Copy className="h-4 w-4 ml-2" />
+                                </button>
                               </div>
-                              <p className="font-medium text-gray-900 dark:text-white mb-1">
-                                {selectedApiKeyInfo.name}
-                              </p>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                {selectedApiKeyInfo.description}
-                              </p>
+
                               <div className="bg-white dark:bg-gray-800 p-2 rounded border">
-                                <p className="text-xs font-mono text-gray-700 dark:text-gray-300">
-                                  ID: {selectedApiKeyInfo.id}
+                                <p className="text-xs font-mono text-gray-700 dark:text-gray-300 break-all">
+                                  {selectedApiKey}
                                 </p>
                               </div>
                             </div>
@@ -833,6 +849,8 @@ export default function CreateMethodPage() {
           setNewApiKeyForm={setNewApiKeyForm}
           userKey={userData?.userKey || ''}
           setApiKeyToggle={setApiKeyToggle}
+          setSelectedApiKey={setSelectedApiKey}
+          organizationId={userData?.organizationId || ''}
         />
       </div>
     </AppLayout>

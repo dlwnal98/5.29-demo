@@ -124,17 +124,48 @@ export function useCreateMethod(options?: UseMutationOptions<any, Error, CreateM
   });
 }
 
+// interface ModifyMethodProps {
+//   methodName: string;
+//   description: string;
+//   backendServiceUrl: boolean;
+//   requestSchema: {};
+//   responseSchema: {};
+//   requestModelId: string;
+//   responseModelId: string;
+//   queryParameters?: QueryParameter[];
+//   headerParameters?: HeaderParameter[];
+//   pathParameters?: PathParameter[];
+//   updatedBy: string;
+// }
+
 interface ModifyMethodProps {
   methodName: string;
   description: string;
-  requiresAuthentication: boolean;
-  requestSchema: {};
-  responseSchema: {};
-  requestModelId: string;
-  responseModelId: string;
-  queryParameters?: QueryParameter[];
-  headerParameters?: HeaderParameter[];
-  pathParameters?: PathParameter[];
+  backendServiceUrl: string;
+  requestModelIds?: string[];
+  responseModelId?: string;
+  requestModelId?: string[];
+  queryParameters?: [
+    {
+      name?: string;
+      required?: boolean;
+    },
+  ];
+  headerParameters?: [
+    {
+      name?: string;
+      required?: boolean;
+    },
+  ];
+  pathParameters?: [
+    {
+      name?: string;
+      required?: boolean;
+    },
+  ];
+  enabled: boolean;
+  requestValidator: string;
+  apiKeyRequired: false;
   updatedBy: string;
 }
 

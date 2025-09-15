@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -13,69 +13,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Plus, Trash2, Key, Settings, AlertCircle, CheckCircle } from 'lucide-react';
+import { Copy, Trash2, CheckCircle } from 'lucide-react';
 import type { QueryParameter, RequestHeader, RequestBodyModel, Model } from '@/types/resource';
 import { toast } from 'sonner';
-import { ApiKey } from '@/types/methods';
-import { requestHeaderList } from '@/lib/data';
 import RequestHeaderListSearch from '../../models/components/RequestHeaderListSearch';
-import { checkerOptionList } from '@/lib/data';
 import { SelectAPIKeyModal } from '../methods/components/SelectAPIKeyModal';
 import { useAuthStore } from '@/store/store';
 import { useGetAPIKeyList } from '@/hooks/use-apiKeys';
+import { Method } from '@/types/resource';
+import { requestGet } from '@/lib/apiClient';
+import { useClipboard } from 'use-clipboard-copy';
 
 interface MethodRequestEditProps {
-  editForm: any;
-  setEditForm: (form: any) => void;
-  queryParameters: QueryParameter[];
-  updateQueryParameter: (id: string, field: keyof QueryParameter, value: any) => void;
-  removeQueryParameter: (id: string) => void;
-  addQueryParameter: () => void;
-  requestHeaders: RequestHeader[];
-  updateRequestHeader: (id: string, field: keyof RequestHeader, value: any) => void;
-  removeRequestHeader: (id: string) => void;
-  addRequestHeader: () => void;
-  requestBodyModels: RequestBodyModel[];
-  updateRequestBodyModel: (id: string, field: keyof RequestBodyModel, value: any) => void;
-  removeRequestBodyModel: (id: string) => void;
-  addRequestBodyModel: () => void;
-  availableModels: Model[];
-  deleteModel: (modelId: string) => void;
+  selectedMethod: Method;
   handleCancelEdit: () => void;
   handleSaveEdit: () => void;
 }
 
 export function MethodRequestEdit({
-  editForm,
-  setEditForm,
-  queryParameters,
-  updateQueryParameter,
-  removeQueryParameter,
-  addQueryParameter,
-  requestHeaders,
-  updateRequestHeader,
-  removeRequestHeader,
-  addRequestHeader,
-  requestBodyModels,
-  updateRequestBodyModel,
-  removeRequestBodyModel,
-  addRequestBodyModel,
-  availableModels,
-  deleteModel,
+  selectedMethod,
   handleCancelEdit,
   handleSaveEdit,
 }: MethodRequestEditProps) {
   const userData = useAuthStore((state) => state.user);
 
-  const { data: apiKeyList } = useGetAPIKeyList(userData?.organizationId);
+  const { data: apiKeyList } = useGetAPIKeyList(userData?.organizationId || '');
+
+  const [validatorList, setValidatorList] = useState([]);
+
+  const getValidatorList = async (codeType = 'REQUEST_VALIDATOR') => {
+    const res = await requestGet(`/api/v1/common-codes/${codeType}`);
+
+    return setValidatorList(res);
+  };
+
+  useEffect(() => {
+    getValidatorList();
+  }, []);
+
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [selectedApiKeyId, setSelectedApiKeyId] = useState('');
   const [isCreatingNewApiKey, setIsCreatingNewApiKey] = useState(false);
@@ -83,113 +58,217 @@ export function MethodRequestEdit({
     name: '',
     description: '',
   });
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([
-    {
-      id: '1',
-      name: 'Production API Key',
-      description: '프로덕션 환경용 API 키',
-      value: 'prod-api-key-123',
-    },
-    {
-      id: '2',
-      name: 'Development API Key',
-      description: '개발 환경용 API 키',
-      value: 'dev-api-key-456',
-    },
-    {
-      id: '3',
-      name: 'Test API Key',
-      description: '테스트 환경용 API 키',
-      value: 'test-api-key-789',
-    },
-  ]);
+  const [apiKeyContent, setApiKeyContent] = useState('');
 
-  const [methodForm, setMethodForm] = useState({
-    methodType: '',
-    integrationType: 'http',
-    // HTTP Integration
-    httpProxyIntegration: true,
-    endpointUrl: '',
-    customEndpointUrl: '',
-    additionalParameter: '',
-    // Common
-    authorization: '없음',
-    requestValidator: '없음',
-    apiKeyRequired: false,
+  const [methodEditForm, setMethodEditForm] = useState({
     selectedApiKey: '',
-    operationName: 'GetPets',
+    requestValidator: 'NONE',
   });
+  const [apiKeyToggle, setApiKeyToggle] = useState(false);
 
-  const handleApiKeySelect = () => {
-    if (isCreatingNewApiKey) {
-      // 새 API 키 생성
-      if (!newApiKeyForm.name.trim()) {
-        toast.error('API 키 이름을 입력해주세요.');
-        return;
-      }
-
-      const newApiKey: ApiKey = {
-        id: Date.now().toString(),
-        name: newApiKeyForm.name,
-        description: newApiKeyForm.description,
-        value: `api-key-${Date.now()}`,
-      };
-
-      // setApiKeys([...apiKeys, newApiKey]);
-      setEditForm({
-        ...editForm,
-        apiKeyRequired: true,
-        selectedApiKey: newApiKey.id,
+  useEffect(() => {
+    if (selectedMethod) {
+      setApiKeyToggle(selectedMethod?.info['x-api-key-required']);
+      setMethodEditForm({
+        selectedApiKey: selectedMethod?.info['x-api-key-id'],
+        requestValidator: selectedMethod?.info['x-request-validator'],
       });
-
-      setNewApiKeyForm({ name: '', description: '' });
-      setIsCreatingNewApiKey(false);
-      toast.success('새 API 키가 생성되고 선택되었습니다.');
-    } else {
-      // 기존 API 키 선택
-      if (!selectedApiKeyId) {
-        toast.error('API 키를 선택해주세요.');
-        return;
-      }
-
-      setEditForm({
-        ...editForm,
-        apiKeyRequired: true,
-        selectedApiKey: selectedApiKeyId,
-      });
-      toast.success('API 키가 선택되었습니다.');
     }
+  }, [selectedMethod]);
 
-    setIsApiKeyModalOpen(false);
-    setSelectedApiKeyId('');
-  };
+  useEffect(() => {
+    if (apiKeyList && selectedMethod) {
+      const existingAPIKeyData = apiKeyList.filter(
+        (key, i) => key.keyId === selectedMethod?.info['x-api-key-id']
+      );
+      console.log(existingAPIKeyData);
 
-  const handleApiKeyModalCancel = () => {
-    setEditForm({ ...editForm, apiKeyRequired: false, selectedApiKey: '' });
-    setIsApiKeyModalOpen(false);
-    setSelectedApiKeyId('');
-    setIsCreatingNewApiKey(false);
-    setNewApiKeyForm({ name: '', description: '' });
-  };
+      setApiKeyContent(existingAPIKeyData[0]?.key);
+    }
+  }, [apiKeyList]);
 
   const handleApiKeyToggle = (checked: boolean) => {
     if (checked) {
       setIsApiKeyModalOpen(true);
     } else {
-      setEditForm({
-        ...editForm,
-        apiKeyRequired: false,
-        selectedApiKey: '',
-      });
+      setApiKeyToggle(false);
     }
   };
-  const selectedApiKeyInfo = apiKeyList?.find((key) => key.keyId === editForm.selectedApiKey);
 
-  console.log(editForm.apiKeyRequired);
-  console.log(requestHeaders);
-
-  const [isOpen, setIsOpen] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([]);
+  const [requestHeaders, setRequestHeaders] = useState<RequestHeader[]>([]);
+  const [requestBodyModels, setRequestBodyModels] = useState<RequestBodyModel[]>([]);
+  const [availableModels, setAvailableModels] = useState<Model[]>([
+    {
+      id: '1',
+      name: 'User',
+      description: '사용자 정보 모델',
+      schema: `{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "사용자 ID"
+    },
+    "name": {
+      "type": "string",
+      "description": "사용자 이름"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "이메일 주소"
+    }
+  },
+  "required": ["id", "name", "email"]
+}`,
+    },
+    {
+      id: '2',
+      name: 'Product',
+      description: '상품 정보 모델',
+      schema: `{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "상품 ID"
+    },
+    "name": {
+      "type": "string",
+      "description": "상품명"
+    },
+    "price": {
+      "type": "number",
+      "minimum": 0,
+      "description": "가격"
+    }
+  },
+  "required": ["id", "name", "price"]
+}`,
+    },
+    {
+      id: '3',
+      name: 'Order',
+      description: '주문 정보 모델',
+      schema: `{
+  "type": "object",
+  "properties": {
+    "orderId": {
+      "type": "string",
+      "description": "주문 ID"
+    },
+    "userId": {
+      "type": "integer",
+      "description": "사용자 ID"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/components/schemas/Product"
+      }
+    },
+    "totalAmount": {
+      "type": "number",
+      "description": "총 금액"
+    }
+  },
+  "required": ["orderId", "userId", "items", "totalAmount"]
+}`,
+    },
+  ]);
+
+  // Query Parameter functions
+  const addQueryParameter = () => {
+    const newParam: QueryParameter = {
+      id: Date.now().toString(),
+      name: '',
+      description: '',
+      type: 'string',
+      required: false,
+      cacheKey: false,
+    };
+    setQueryParameters([...queryParameters, newParam]);
+  };
+
+  const updateQueryParameter = (id: string, field: keyof QueryParameter, value: any) => {
+    setQueryParameters(
+      queryParameters.map((param) => (param.id === id ? { ...param, [field]: value } : param))
+    );
+  };
+
+  const removeQueryParameter = (id: string) => {
+    setQueryParameters(queryParameters.filter((param) => param.id !== id));
+  };
+
+  // Request Header functions
+  const addRequestHeader = () => {
+    const newHeader: RequestHeader = {
+      id: Date.now().toString(),
+      name: '',
+      description: '',
+      type: 'string',
+      required: false,
+    };
+    setRequestHeaders([...requestHeaders, newHeader]);
+  };
+
+  const updateRequestHeader = (id: string, field: keyof RequestHeader, value: any) => {
+    setRequestHeaders(
+      requestHeaders.map((header) => (header.id === id ? { ...header, [field]: value } : header))
+    );
+  };
+
+  const removeRequestHeader = (id: string) => {
+    // Don't allow removing Content-Type header
+    const header = requestHeaders.find((h) => h.id === id);
+    if (header?.name === 'Content-Type') {
+      toast.error('Content-Type 헤더는 삭제할 수 없습니다.');
+      return;
+    }
+    setRequestHeaders(requestHeaders.filter((header) => header.id !== id));
+  };
+
+  // Request Body Model functions
+  const addRequestBodyModel = () => {
+    const newModel: RequestBodyModel = {
+      id: Date.now().toString(),
+      contentType: 'application/json',
+      modelName: '',
+      modelId: '',
+    };
+    setRequestBodyModels([...requestBodyModels, newModel]);
+  };
+
+  const updateRequestBodyModel = (id: string, field: keyof RequestBodyModel, value: any) => {
+    setRequestBodyModels(
+      requestBodyModels.map((model) => (model.id === id ? { ...model, [field]: value } : model))
+    );
+  };
+
+  const removeRequestBodyModel = (id: string) => {
+    setRequestBodyModels(requestBodyModels.filter((model) => model.id !== id));
+  };
+
+  // Model management functions
+  const deleteModel = (modelId: string) => {
+    setAvailableModels(availableModels.filter((model) => model.id !== modelId));
+    // Also remove from request body models if used
+    setRequestBodyModels(requestBodyModels.filter((model) => model.modelId !== modelId));
+    toast.success('모델이 삭제되었습니다.');
+  };
+
+  const clipboard = useClipboard();
+
+  // 비밀번호 복사 함수
+  const handleCopyAPIKey = (apiKey: string) => {
+    clipboard.copy(apiKey);
+    toast.success('API Key가 복사되었습니다.');
+  };
+
+  console.log(apiKeyToggle, newApiKeyForm, methodEditForm, selectedMethod);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between px-2">
@@ -211,13 +290,13 @@ export function MethodRequestEdit({
         <CardContent className="space-y-4">
           <div className="flex items-center space-x-2">
             <Label className="text-sm font-medium">API 키가 필요함</Label>
-            <Switch checked={editForm.apiKeyRequired} onCheckedChange={handleApiKeyToggle} />
+            <Switch checked={apiKeyToggle} onCheckedChange={handleApiKeyToggle} />
           </div>
-          {editForm.selectedApiKey && selectedApiKeyInfo && (
+          {apiKeyToggle && (
             <div className="mt-4 p-4 bg-green-50 dark:bg-green-950/20 border border-green-200 rounded-lg">
               <div className="flex items-start gap-3">
                 <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                <div className="flex-1">
+                <div>
                   <div className="flex items-center gap-2 mb-2">
                     <h4 className="font-semibold text-green-900 dark:text-green-100">
                       선택된 API 키
@@ -225,16 +304,15 @@ export function MethodRequestEdit({
                     <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-xs rounded-full font-medium">
                       활성화됨
                     </span>
+                    <button
+                      className="hover:underline"
+                      onClick={() => handleCopyAPIKey(apiKeyContent)}>
+                      <Copy className="h-4 w-4 ml-2" />
+                    </button>
                   </div>
-                  <p className="font-medium text-gray-900 dark:text-white mb-1">
-                    {selectedApiKeyInfo.name}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    {selectedApiKeyInfo.description}
-                  </p>
                   <div className="bg-white dark:bg-gray-800 p-2 rounded border">
-                    <p className="text-xs font-mono text-gray-700 dark:text-gray-300">
-                      ID: {selectedApiKeyInfo.id}
+                    <p className="text-xs font-mono text-gray-700 dark:text-gray-300 break-all">
+                      {apiKeyContent}
                     </p>
                   </div>
                 </div>
@@ -245,18 +323,17 @@ export function MethodRequestEdit({
             <div>
               <Label className="text-sm font-medium">요청 검사기</Label>
               <Select
-                value={editForm.requestValidator}
-                onValueChange={(value) => setEditForm({ ...editForm, requestValidator: value })}>
+                value={methodEditForm?.requestValidator}
+                onValueChange={(value) =>
+                  setMethodEditForm({ ...methodEditForm, requestValidator: value })
+                }>
                 <SelectTrigger className="mt-2">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {checkerOptionList.map((validator) => (
-                    <SelectItem
-                      key={validator.value}
-                      value={validator.value}
-                      className="hover:cursor-pointer">
-                      {validator.label}
+                  {validatorList.map((validator, i) => (
+                    <SelectItem key={i} value={validator?.code} className="hover:cursor-pointer">
+                      {validator?.description}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -340,23 +417,9 @@ export function MethodRequestEdit({
                 // className="grid grid-cols-12 gap-3 mt-3 items-center">
                 className={`grid grid-cols-12 gap-3 mt-3 ${openId === header.id ? 'items-start' : 'items-center  mb-3'}`}>
                 <div className="col-span-10">
-                  {/* <Select
-                    value={header.type}
-                    onValueChange={(value) => updateRequestHeader(header.id, 'type', value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {httpHeaderOptions.map((headerName) => (
-                        <SelectItem key={headerName} value={headerName}>
-                          {headerName}
-                        </SelectItem>
-                      ))}
-                     
-                    </SelectContent>
-                  </Select> */}
                   <RequestHeaderListSearch
-                    updateHeader={updateRequestHeader}
+                    // updateHeader={updateRequestHeader}
+                    updateHeader={(field, value) => updateRequestHeader(header.id, field, value)}
                     key={header.id}
                     isOpen={openId === header.id}
                     setIsOpen={(val) => setOpenId(val ? header.id : null)}
@@ -472,159 +535,6 @@ export function MethodRequestEdit({
         </CardContent>
       </Card>
 
-      {/* Enhanced API Key Selection Modal */}
-      <Dialog open={isApiKeyModalOpen} onOpenChange={setIsApiKeyModalOpen}>
-        <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <Key className="h-5 w-5" />
-              API 키 설정
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="py-4">
-            {/* Toggle between existing and new API key */}
-            <div className="flex items-center gap-4 mb-6 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <Button
-                variant={!isCreatingNewApiKey ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setIsCreatingNewApiKey(false)}
-                className="flex items-center gap-2">
-                <Settings className="h-4 w-4" />
-                기존 API 키 선택
-              </Button>
-              <Button
-                variant={isCreatingNewApiKey ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setIsCreatingNewApiKey(true)}
-                className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />새 API 키 생성
-              </Button>
-            </div>
-
-            {!isCreatingNewApiKey ? (
-              // Existing API Keys Selection
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  사용할 API 키를 선택하세요.
-                </p>
-
-                {apiKeyList?.length > 0 ? (
-                  <div className="space-y-3 max-h-60 overflow-y-auto">
-                    {apiKeyList?.map((apiKey, i) => (
-                      <div
-                        key={i}
-                        className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                          selectedApiKeyId === apiKey.keyId
-                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
-                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-                        }`}
-                        onClick={() => setSelectedApiKeyId(apiKey.keyId)}>
-                        <div className="flex items-start gap-3">
-                          <input
-                            type="radio"
-                            name="apiKey"
-                            value={apiKey.keyId}
-                            checked={selectedApiKeyId === apiKey.keyId}
-                            onChange={() => setSelectedApiKeyId(apiKey.keyId)}
-                            className="mt-1"
-                          />
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h4 className="font-medium text-gray-900 dark:text-white">
-                                {apiKey.name}
-                              </h4>
-                              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-xs rounded-full font-medium">
-                                ID: {apiKey.keyId}
-                              </span>
-                            </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                              {apiKey.description}
-                            </p>
-                            <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded text-xs font-mono text-gray-700 dark:text-gray-300">
-                              {apiKey.key}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <Key className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                    <p>등록된 API 키가 없습니다.</p>
-                    <p className="text-sm">새 API 키를 생성해주세요.</p>
-                  </div>
-                )}
-              </div>
-            ) : (
-              // New API Key Creation Form
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  새로운 API 키를 생성합니다.
-                </p>
-
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="new-api-key-name" className="text-sm font-medium">
-                      API 키 이름 <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="new-api-key-name"
-                      placeholder="예: Production API Key"
-                      value={newApiKeyForm.name}
-                      onChange={(e) => setNewApiKeyForm({ ...newApiKeyForm, name: e.target.value })}
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="new-api-key-description" className="text-sm font-medium">
-                      설명
-                    </Label>
-                    <Textarea
-                      id="new-api-key-description"
-                      placeholder="API 키에 대한 설명을 입력하세요"
-                      value={newApiKeyForm.description}
-                      onChange={(e) =>
-                        setNewApiKeyForm({ ...newApiKeyForm, description: e.target.value })
-                      }
-                      className="mt-1 min-h-[80px]"
-                    />
-                  </div>
-
-                  <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg">
-                    <div className="flex items-start gap-2">
-                      <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                      <div className="text-sm text-blue-800 dark:text-blue-200">
-                        <p className="font-medium mb-1">참고사항</p>
-                        <p>API 키는 자동으로 생성되며, 생성 후 안전한 곳에 보관해주세요.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={handleApiKeyModalCancel}>
-              취소
-            </Button>
-            <Button
-              onClick={handleApiKeySelect}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-              disabled={
-                isCreatingNewApiKey
-                  ? !newApiKeyForm.name.trim()
-                  : !selectedApiKeyId && apiKeyList?.length > 0
-              }>
-              {isCreatingNewApiKey ? '생성 및 선택' : '선택'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       <SelectAPIKeyModal
         open={isApiKeyModalOpen}
         onOpenChange={setIsApiKeyModalOpen}
@@ -637,6 +547,8 @@ export function MethodRequestEdit({
         setNewApiKeyForm={setNewApiKeyForm}
         userKey={userData?.userKey || ''}
         organizationId={userData?.organizationId || ''}
+        setApiKeyToggle={setApiKeyToggle}
+        setSelectedApiKey={setApiKeyContent}
       />
     </div>
   );
