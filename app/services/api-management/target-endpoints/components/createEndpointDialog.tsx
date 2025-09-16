@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
 import { useCreateEndpoint } from '@/hooks/use-endpoints';
 import { toast, Toaster } from 'sonner';
+import { onInputChange, onSave } from '@/lib/etc';
 
 interface createEndpointProps {
   isCreateModalOpen: boolean;
@@ -44,13 +45,15 @@ export default function CreateEndpointDialog({
   });
 
   const handleCreateEndpoint = () => {
-    if (organizationId && createdBy)
-      createEndpoint({
-        organizationId: organizationId,
-        targetEndpoint: endpointForm.url,
-        description: endpointForm.description,
-        createdBy: createdBy,
-      });
+    if (onSave(endpointForm.url)) {
+      if (organizationId && createdBy)
+        createEndpoint({
+          organizationId: organizationId,
+          targetEndpoint: endpointForm.url,
+          description: endpointForm.description,
+          createdBy: createdBy,
+        });
+    } else toast.error('유효하지 않은 url 형식입니다.');
   };
 
   return (
@@ -70,7 +73,10 @@ export default function CreateEndpointDialog({
               <Input
                 id="create-url"
                 value={endpointForm.url}
-                onChange={(e) => setEndpointForm({ ...endpointForm, url: e.target.value })}
+                onChange={(e) => {
+                  if (onInputChange(e.target.value))
+                    setEndpointForm({ ...endpointForm, url: e.target.value });
+                }}
                 placeholder="https://api.example.com/v1"
                 className="mt-2"
               />

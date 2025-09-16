@@ -23,6 +23,7 @@ import {
 import { requestGet } from '@/lib/apiClient';
 import { CreateResourceProps, useCreateResource } from '@/hooks/use-resources';
 import { toast } from 'sonner';
+import { isValidInput } from '@/lib/etc';
 
 interface ResourceCreateDialogProps {
   open: boolean;
@@ -143,9 +144,10 @@ export function ResourceCreateDialog({
                 id="resource-name"
                 placeholder=""
                 value={createResourceForm.resourceName}
-                onChange={(e) =>
-                  setCreateResourceForm({ ...createResourceForm, resourceName: e.target.value })
-                }
+                onChange={(e) => {
+                  if (isValidInput(e.target.value))
+                    setCreateResourceForm({ ...createResourceForm, resourceName: e.target.value });
+                }}
               />
             </div>
           </div>

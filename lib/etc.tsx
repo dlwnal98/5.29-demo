@@ -124,3 +124,36 @@ export const passwordRegex = /^.{4,}$/;
 //     /^(?=(?:.*[a-z])(?:.*\d)|(?:.*[a-z])(?:.*[!@#$%^&*])|(?:.*\d)(?:.*[!@#$%^&*]))[a-z\d!@#$%^&*]{8,20}$/;
 //   return regex.test(password);
 // }
+
+// endpoint 주소 정규식
+
+// 영어, 숫자, {}, -, _, :, /, . 허용
+const liveInputRegex = /^[A-Za-z0-9{}\-_/:.]*$/;
+// 입력 이벤트 시
+export function onInputChange(value: string) {
+  if (!liveInputRegex.test(value)) {
+    console.log('허용되지 않은 문자!');
+    return false;
+  }
+  return true;
+}
+
+const endpointRegex =
+  /^(?:(?:https?:\/\/)[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)*(?::\d{1,5})?)?(?:\/[A-Za-z0-9{}\-_]+(?:\/[A-Za-z0-9{}\-_]+)*)?$/;
+
+// 최종 저장 시
+export function onSave(value: string) {
+  if (!endpointRegex.test(value)) {
+    console.log('유효하지 않은 엔드포인트 형식!');
+    return false;
+  }
+  return true;
+}
+
+// 리소스 생성 시 이름 정규식
+
+const inputRegex = /^(?!\/)[A-Za-z0-9{}\-_\/]*(?<!\/)$/;
+
+export function isValidInput(str: string) {
+  return inputRegex.test(str);
+}

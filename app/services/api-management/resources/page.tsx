@@ -45,7 +45,7 @@ export default function ApiResourcesPage() {
   //   methods?: Method[];
   // }
   function buildTree(flatData) {
-    const excludedKeys = ['x-cors-policy', 'x-resource-id', 'summary', 'description'];
+    const excludedKeys = ['x-cors-policy', 'x-resource-id', 'summary', 'description', 'parameters'];
 
     const paths = Object.keys(flatData);
     if (paths.length === 0) return [];

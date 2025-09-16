@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useState, useEffect } from 'react';
 import { useModifyEndpoint } from '@/hooks/use-endpoints';
 import { toast, Toaster } from 'sonner';
+import { isValidEndpoint } from '@/lib/etc';
 
 interface formDataState {
   targetId: string;
@@ -87,7 +88,10 @@ export default function ModifyEndpointDialog({
               <Input
                 id="edit-url"
                 value={modifyForm.url}
-                onChange={(e) => setModifyForm({ ...modifyForm, url: e.target.value })}
+                onChange={(e) => {
+                  if (isValidEndpoint(e.target.value))
+                    setModifyForm({ ...modifyForm, url: e.target.value });
+                }}
                 placeholder="https://api.example.com/v1"
                 className="mt-2"
               />
