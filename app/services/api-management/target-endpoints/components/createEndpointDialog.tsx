@@ -33,6 +33,7 @@ export default function CreateEndpointDialog({
     url: '',
     description: '',
   });
+  const [checkUrl, setCheckUrl] = useState(false);
 
   const { mutate: createEndpoint } = useCreateEndpoint({
     onSuccess: () => {
@@ -74,12 +75,17 @@ export default function CreateEndpointDialog({
                 id="create-url"
                 value={endpointForm.url}
                 onChange={(e) => {
-                  if (onInputChange(e.target.value))
+                  if (onInputChange(e.target.value)) {
+                    setCheckUrl(false);
                     setEndpointForm({ ...endpointForm, url: e.target.value });
+                  } else setCheckUrl(true);
                 }}
                 placeholder="https://api.example.com/v1"
                 className="mt-2"
               />
+              {checkUrl && (
+                <span className="text-xs mt-2 ml-2 text-red-500">한글은 입력이 불가합니다.</span>
+              )}
             </div>
             <div>
               <Label htmlFor="create-description" className="text-sm font-medium">

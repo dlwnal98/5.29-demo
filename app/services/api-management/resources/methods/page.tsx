@@ -108,6 +108,7 @@ export default function CreateMethodPage() {
     name: '',
     description: '',
   });
+  const [checkUrl, setCheckUrl] = useState(false);
 
   // 기본값을 모두 false로 설정 (닫힌 상태)
   const [openSections, setOpenSections] = useState({
@@ -501,7 +502,14 @@ export default function CreateMethodPage() {
                             <Label className="text-sm text-gray-600">직접 입력</Label>
                             <Switch
                               checked={isDirectUrlInput}
-                              onCheckedChange={setIsDirectUrlInput}
+                              onCheckedChange={(checked) => {
+                                setMethodForm({
+                                  ...methodForm,
+                                  customEndpointUrl: '',
+                                  endpointUrl: '',
+                                });
+                                setIsDirectUrlInput(checked);
+                              }}
                             />
                           </div>
                         </div>
@@ -511,11 +519,13 @@ export default function CreateMethodPage() {
                             placeholder="https://your-api-endpoint.com"
                             value={methodForm.customEndpointUrl}
                             onChange={(e) => {
-                              if (onInputChange(e.target.value))
+                              if (onInputChange(e.target.value)) {
+                                setCheckUrl(false);
                                 setMethodForm({
                                   ...methodForm,
                                   customEndpointUrl: e.target.value,
                                 });
+                              } else setCheckUrl(true);
                             }}
                           />
                         ) : (
@@ -540,6 +550,11 @@ export default function CreateMethodPage() {
                               </SelectContent>
                             </Select>
                           </div>
+                        )}
+                        {checkUrl && (
+                          <span className="text-xs mt-2 ml-2 text-red-500">
+                            한글은 입력이 불가합니다.
+                          </span>
                         )}
                       </div>
 

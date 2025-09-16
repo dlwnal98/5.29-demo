@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useState, useEffect } from 'react';
 import { useModifyEndpoint } from '@/hooks/use-endpoints';
 import { toast, Toaster } from 'sonner';
-import { isValidEndpoint } from '@/lib/etc';
+import { onInputChange, onSave } from '@/lib/etc';
 
 interface formDataState {
   targetId: string;
@@ -41,6 +41,7 @@ export default function ModifyEndpointDialog({
     url: formData.url,
     description: formData.description,
   });
+  const [checkUrl, setCheckUrl] = useState(false);
 
   useEffect(() => {
     setModifyForm({
@@ -60,21 +61,22 @@ export default function ModifyEndpointDialog({
   });
 
   const handleModifyEndpoint = () => {
-    if (updatedBy)
-      modifyEndpoint({
-        targetId: targetId,
-        data: {
-          targetEndpoint: modifyForm.url,
-          description: modifyForm.description,
-          updatedBy: updatedBy,
-        },
-      });
+    if (onSave(modifyForm.url)) {
+      if (updatedBy)
+        modifyEndpoint({
+          targetId: targetId,
+          data: {
+            targetEndpoint: modifyForm.url,
+            description: modifyForm.description,
+            updatedBy: updatedBy,
+          },
+        });
+    } else toast.error('유효하지 않은 url 형식입니다.');
   };
 
   return (
     <>
       <Toaster position="bottom-center" richColors expand={true} />
-
       <Dialog open={isEditModalOpen} onOpenChange={handleModalClose}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -89,12 +91,17 @@ export default function ModifyEndpointDialog({
                 id="edit-url"
                 value={modifyForm.url}
                 onChange={(e) => {
-                  if (isValidEndpoint(e.target.value))
+                  if (onInputChange(e.target.value)) {
+                    setCheckUrl(false);
                     setModifyForm({ ...modifyForm, url: e.target.value });
+                  } else setCheckUrl(true);
                 }}
                 placeholder="https://api.example.com/v1"
                 className="mt-2"
               />
+              {checkUrl && (
+                <span className="text-xs mt-2 ml-2 text-red-500">한글은 입력이 불가합니다.</span>
+              )}
             </div>
             <div>
               <Label htmlFor="edit-description" className="text-sm font-medium">

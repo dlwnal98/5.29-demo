@@ -52,6 +52,7 @@ export function ResourceCreateDialog({
 
   const [resourcePaths, setResourcePaths] = useState([]);
   const [pathPattern, setPathPattern] = useState('');
+  const [checkUrl, setCheckUrl] = useState(false);
 
   useEffect(() => {
     if (userKey) setCreateResourceForm({ ...createResourceForm, createdBy: userKey });
@@ -77,18 +78,14 @@ export function ResourceCreateDialog({
     },
   });
 
-  function isValid(s: string | number) {
-    return /^[a-z0-9\-_{}]+$/.test(String(s));
-  }
-
   const createResource = async (data: CreateResourceProps) => {
     const resourcePath =
       pathPattern === '/'
         ? `${pathPattern}${data.resourceName}`
         : `${pathPattern}/${data.resourceName}`;
 
-    if (isValid(data.resourceName)) createResourceMutate({ ...data, path: resourcePath });
-    else toast.error('리소스 이름을 다시 입력해주세요.');
+    if (isValidInput(data.resourceName)) createResourceMutate({ ...data, path: resourcePath });
+    else toast.error('유효하지 않은 리소스 이름입니다.');
   };
 
   const handleCancel = () => {
@@ -145,12 +142,18 @@ export function ResourceCreateDialog({
                 placeholder=""
                 value={createResourceForm.resourceName}
                 onChange={(e) => {
-                  if (isValidInput(e.target.value))
+                  if (isValidInput(e.target.value)) {
+                    setCheckUrl(false);
                     setCreateResourceForm({ ...createResourceForm, resourceName: e.target.value });
+                  } else setCheckUrl(true);
                 }}
               />
+              {checkUrl && (
+                <span className="text-xs mt-2 ml-2 text-red-500">한글은 입력이 불가합니다.</span>
+              )}
             </div>
           </div>
+
           <div className="grid grid-cols-4 gap-4">
             <div className="col-span-4">
               <Label
