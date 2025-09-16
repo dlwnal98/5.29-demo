@@ -7,6 +7,7 @@ import type { Method, QueryParameter, RequestHeader, RequestBodyModel } from '@/
 
 interface MethodRequestViewProps {
   selectedMethod: Method;
+  pathParameters: QueryParameter[];
   queryParameters: QueryParameter[];
   requestHeaders: RequestHeader[];
   requestBodyModels: RequestBodyModel[];
@@ -16,11 +17,12 @@ interface MethodRequestViewProps {
 export function MethodRequestView({
   selectedMethod,
   queryParameters,
+  pathParameters,
   requestHeaders,
   requestBodyModels,
   handleEditMethod,
 }: MethodRequestViewProps) {
-  console.log(selectedMethod);
+  console.log(selectedMethod, queryParameters, requestHeaders);
 
   return (
     <>
@@ -68,7 +70,7 @@ export function MethodRequestView({
               <div className="space-y-3">
                 <div>
                   <div className="mt-1 text-sm text-gray-900 dark:text-white">
-                    {selectedMethod?.info['x-api-key-required'] ? 'True' : 'False'}
+                    {selectedMethod?.info['x-api-key-required'] ? 'Required' : 'Optional'}
                   </div>
                 </div>
               </div>
@@ -94,6 +96,51 @@ export function MethodRequestView({
           </div>
         </div>
       </div>
+      {pathParameters && (
+        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-md font-semibold text-gray-900 dark:text-white">
+              URL 패스 문자열 파라미터 ({pathParameters.length})
+            </h4>
+            <div className="flex items-center gap-2">
+              <ChevronLeft className="h-4 w-4 text-gray-400" />
+              <span className="text-sm text-gray-600 dark:text-gray-400">1</span>
+              <ChevronRight className="h-4 w-4 text-gray-400" />
+            </div>
+          </div>
+          {pathParameters.length > 0 ? (
+            <div className="space-y-2">
+              <div className="grid grid-cols-4 gap-4 text-sm font-medium text-gray-600 dark:text-gray-400 border-b pb-2">
+                <div className="col-span-3">이름</div>
+                <div className="col-span-1">필수</div>
+              </div>
+              {pathParameters.map((param) => (
+                <div
+                  key={param.id}
+                  className="grid grid-cols-3 gap-4 p-3 bg-white dark:bg-gray-800 rounded border">
+                  <div className="font-medium col-span-2">{param.name}</div>
+                  <div className="text-sm col-span-1">
+                    {param.required ? (
+                      <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Required</Badge>
+                    ) : (
+                      <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+                        Optional
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6">
+              <p className="text-gray-500 dark:text-gray-400 mb-2">요청 패스 문자열 없음</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500">
+                정의된 요청 패스 문자열이 없습니다
+              </p>
+            </div>
+          )}
+        </div>
+      )}
       {/* URL Query String Parameters */}
       <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
         <div className="flex items-center justify-between mb-4">
@@ -108,8 +155,8 @@ export function MethodRequestView({
         </div>
         {queryParameters.length > 0 ? (
           <div className="space-y-2">
-            <div className="grid grid-cols-3 gap-4 text-sm font-medium text-gray-600 dark:text-gray-400 border-b pb-2">
-              <div className="col-span-2">이름</div>
+            <div className="grid grid-cols-4 gap-4 text-sm font-medium text-gray-600 dark:text-gray-400 border-b pb-2">
+              <div className="col-span-3">이름</div>
               <div className="col-span-1">필수</div>
             </div>
             {queryParameters.map((param) => (
@@ -119,9 +166,9 @@ export function MethodRequestView({
                 <div className="font-medium col-span-2">{param.name}</div>
                 <div className="text-sm col-span-1">
                   {param.required ? (
-                    <Badge className="bg-red-100 text-red-800 hover:bg-red-100">True</Badge>
+                    <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Required</Badge>
                   ) : (
-                    <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">False</Badge>
+                    <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">Optional</Badge>
                   )}
                 </div>
               </div>
@@ -162,9 +209,11 @@ export function MethodRequestView({
                   <div className="font-medium col-span-2">{header.name}</div>
                   <div className="text-sm col-span-1">
                     {header.required ? (
-                      <Badge className="bg-red-100 text-red-800 hover:bg-red-100">True</Badge>
+                      <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Required</Badge>
                     ) : (
-                      <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">False</Badge>
+                      <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">
+                        Optional
+                      </Badge>
                     )}
                   </div>
                 </div>

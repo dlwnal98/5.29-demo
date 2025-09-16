@@ -185,11 +185,11 @@ export function ResourceDetailCard({
                 {selectedResource?.methods.map((method) => (
                   <TableRow
                     key={method.id}
-                    className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <TableCell
-                      onClick={() => {
-                        handleMethodClick(method, selectedResource);
-                      }}>
+                    className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
+                    onClick={() => {
+                      handleMethodClick(method, selectedResource);
+                    }}>
+                    <TableCell>
                       <span
                         className={`${getMethodStyle(method.type)}  font-mono text-sm px-2 py-1 rounded`}>
                         {method.type}

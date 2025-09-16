@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -23,6 +23,7 @@ import { useGetAPIKeyList } from '@/hooks/use-apiKeys';
 import { Method } from '@/types/resource';
 import { requestGet } from '@/lib/apiClient';
 import { useClipboard } from 'use-clipboard-copy';
+import { Header } from '@/types/methods';
 
 interface MethodRequestEditProps {
   selectedMethod: Method;
@@ -66,6 +67,11 @@ export function MethodRequestEdit({
   });
   const [apiKeyToggle, setApiKeyToggle] = useState(false);
 
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([]);
+  const [requestHeaders, setRequestHeaders] = useState<RequestHeader[]>([]);
+  const [requestBodyModels, setRequestBodyModels] = useState<RequestBodyModel[]>([]);
+
   useEffect(() => {
     if (selectedMethod) {
       setApiKeyToggle(selectedMethod?.info['x-api-key-required']);
@@ -73,8 +79,19 @@ export function MethodRequestEdit({
         selectedApiKey: selectedMethod?.info['x-api-key-id'],
         requestValidator: selectedMethod?.info['x-request-validator'],
       });
+
+      if (selectedMethod.info.parameters) {
+        setQueryParameters(
+          selectedMethod?.info?.parameters?.filter((param: any) => param.in === 'query')
+        );
+        setRequestHeaders(
+          selectedMethod?.info?.parameters?.filter((param: any) => param.in === 'header')
+        );
+      }
     }
   }, [selectedMethod]);
+
+  console.log(queryParameters);
 
   useEffect(() => {
     if (apiKeyList && selectedMethod) {
@@ -95,10 +112,6 @@ export function MethodRequestEdit({
     }
   };
 
-  const [openId, setOpenId] = useState<string | null>(null);
-  const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([]);
-  const [requestHeaders, setRequestHeaders] = useState<RequestHeader[]>([]);
-  const [requestBodyModels, setRequestBodyModels] = useState<RequestBodyModel[]>([]);
   const [availableModels, setAvailableModels] = useState<Model[]>([
     {
       id: '1',
@@ -179,55 +192,53 @@ export function MethodRequestEdit({
     },
   ]);
 
-  // Query Parameter functions
+  // const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([]);
+  const [paramCounter, setParamCounter] = useState(0); // 순차 id 관리용
+
   const addQueryParameter = () => {
     const newParam: QueryParameter = {
-      id: Date.now().toString(),
+      id: (paramCounter + 1).toString(), // 고유하고 순차적인 id
       name: '',
-      description: '',
-      type: 'string',
       required: false,
-      cacheKey: false,
     };
-    setQueryParameters([...queryParameters, newParam]);
+    setQueryParameters((prev) => [...prev, newParam]);
+    setParamCounter((prev) => prev + 1);
   };
 
   const updateQueryParameter = (id: string, field: keyof QueryParameter, value: any) => {
-    setQueryParameters(
-      queryParameters.map((param) => (param.id === id ? { ...param, [field]: value } : param))
+    setQueryParameters((prev) =>
+      prev.map((param) => (param.id === id ? { ...param, [field]: value } : param))
     );
   };
 
   const removeQueryParameter = (id: string) => {
-    setQueryParameters(queryParameters.filter((param) => param.id !== id));
+    setQueryParameters((prev) => prev.filter((param) => param.id !== id));
   };
 
-  // Request Header functions
+  console.log(queryParameters);
+
+  const nextHeaderIdRef = useRef<number>(0);
+  // 추가: 생성순으로 id 부여
   const addRequestHeader = () => {
-    const newHeader: RequestHeader = {
-      id: Date.now().toString(),
+    const id = nextHeaderIdRef.current++;
+    const newHeader: Header = {
+      id,
       name: '',
-      description: '',
-      type: 'string',
       required: false,
     };
-    setRequestHeaders([...requestHeaders, newHeader]);
+    // functional update 사용 (안전)
+    setRequestHeaders((prev) => [...prev, newHeader]);
   };
 
-  const updateRequestHeader = (id: string, field: keyof RequestHeader, value: any) => {
+  const updateHeader = (id: string, field: keyof Header, value: any) => {
     setRequestHeaders(
       requestHeaders.map((header) => (header.id === id ? { ...header, [field]: value } : header))
     );
   };
 
-  const removeRequestHeader = (id: string) => {
-    // Don't allow removing Content-Type header
-    const header = requestHeaders.find((h) => h.id === id);
-    if (header?.name === 'Content-Type') {
-      toast.error('Content-Type 헤더는 삭제할 수 없습니다.');
-      return;
-    }
-    setRequestHeaders(requestHeaders.filter((header) => header.id !== id));
+  // 삭제
+  const removeHeader = (id: number) => {
+    setRequestHeaders((prev) => prev.filter((h) => h.id !== id));
   };
 
   // Request Body Model functions

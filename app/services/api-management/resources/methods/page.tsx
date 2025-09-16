@@ -284,9 +284,6 @@ export default function CreateMethodPage() {
     setBodyModels(bodyModels.filter((model) => model.id !== id));
   };
 
-  // Get selected API key info
-  const selectedApiKeyInfo = apiKeyList?.find((key) => key.keyId === methodForm.selectedApiKey);
-
   const [openId, setOpenId] = useState<string | null>(null);
 
   const clipboard = useClipboard();

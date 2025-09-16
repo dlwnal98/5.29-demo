@@ -25,7 +25,7 @@ export default function AuthCallbackClient() {
       },
     });
 
-    if (res?.success === true) {
+    if (res?.code == 200) {
       const expiresAt = Date.now() + EXPIRES_IN * 1000; // Date.now()랑 expires의 시간 단위가 달라서 *1000 적용
 
       localStorage.setItem('access_token', res.data.accessToken);
@@ -67,8 +67,12 @@ export default function AuthCallbackClient() {
 
       {/* 로딩 텍스트 */}
       <div className="text-center space-y-4">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white animate-fade-in">로그인 중입니다</h1>
-        <p className="text-gray-600 dark:text-gray-300 animate-fade-in-delay">잠시만 기다려주세요</p>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white animate-fade-in">
+          로그인 중입니다
+        </h1>
+        <p className="text-gray-600 dark:text-gray-300 animate-fade-in-delay">
+          잠시만 기다려주세요
+        </p>
       </div>
 
       {/* 로딩 바 */}

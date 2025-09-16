@@ -61,11 +61,32 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
     },
   ]);
 
+  const [pathParameters, setPathParameters] = useState<QueryParameter[]>([]);
   const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([]);
   const [requestHeaders, setRequestHeaders] = useState<RequestHeader[]>([]);
   const [requestBodyModels, setRequestBodyModels] = useState<RequestBodyModel[]>([]);
 
   console.log(requestHeaders);
+
+  useEffect(() => {
+    if (selectedMethod) {
+      if (selectedMethod.info.parameters) {
+        setQueryParameters(
+          selectedMethod?.info?.parameters?.filter((param: any) => param.in === 'query')
+        );
+        setRequestHeaders(
+          selectedMethod?.info?.parameters?.filter((param: any) => param.in === 'header')
+        );
+        setPathParameters(
+          selectedMethod?.info?.parameters?.filter((param: any) => param.in === 'path')
+        );
+      } else {
+        setQueryParameters([]);
+        setRequestHeaders([]);
+        setPathParameters([]);
+      }
+    }
+  }, [selectedMethod]);
 
   // const [editForm, setEditForm] = useState({
   //   apiKeyRequired: false,
@@ -538,6 +559,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                 <MethodRequestView
                   selectedMethod={selectedMethod}
                   queryParameters={queryParameters}
+                  pathParameters={pathParameters}
                   requestHeaders={requestHeaders}
                   requestBodyModels={requestBodyModels}
                   handleEditMethod={handleEditMethod}

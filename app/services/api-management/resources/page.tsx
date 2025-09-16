@@ -337,7 +337,7 @@ export default function ApiResourcesPage() {
                           className={`${getMethodStyle(m.type)} !font-mono !font-medium !text-xs !px-1.5 !py-0.5 rounded`}>
                           {m.type}
                         </span>
-
+                        {isMethodSelected && <Eye className="w-3 h-3" />}
                         {/* <span className="text-[12px]">- {m.info.summary}</span> */}
                       </div>
                     );
