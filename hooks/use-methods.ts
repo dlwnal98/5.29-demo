@@ -171,26 +171,29 @@ interface ModifyMethodProps {
 
 // ✅ API 요청 함수
 const modifyMethod = async (methodId: string, data: ModifyMethodProps) => {
-  const res = await requestPost(`/api/v1/methods/${methodId}`, data);
+  const res = await requestPut(`/api/v1/methods/${methodId}`, {
+    body: data,
+  });
 
-  if (res.code === 200) {
-    return res.data;
-  }
-  throw new Error(res.message || '메서드 생성 실패');
+  return res;
 };
 
 // ✅ React Query Hook 수정
-export function useModifyMethod() {
+export function useModifyMethod(
+  options?: UseMutationOptions<any, Error, { methodId: string; data: ModifyMethodProps }>
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    ...options,
     //mutationFn은 단일인자만 받기 때문에 여러 인자를 넣기 위해서는 하나의 객체로 묶어서 적용
     mutationFn: ({ methodId, data }: { methodId: string; data: ModifyMethodProps }) =>
       modifyMethod(methodId, data),
-    onSuccess: () => {
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ['getMethodsList'],
       });
+      options?.onSuccess?.(data, variables, context);
     },
   });
 }

@@ -31,6 +31,9 @@ export function ApiDeleteModal({
       toast.success('API가 삭제되었습니다.');
       onOpenChange(false);
     },
+    onError: (err) => {
+      toast.error(err);
+    },
   });
 
   const handleDeleteApi = () => {

@@ -24,6 +24,7 @@ import { Method } from '@/types/resource';
 import { requestGet } from '@/lib/apiClient';
 import { useClipboard } from 'use-clipboard-copy';
 import { Header } from '@/types/methods';
+import { useModifyMethod } from '@/hooks/use-methods';
 
 interface MethodRequestEditProps {
   selectedMethod: Method;
@@ -39,6 +40,15 @@ export function MethodRequestEdit({
   const userData = useAuthStore((state) => state.user);
 
   const { data: apiKeyList } = useGetAPIKeyList(userData?.organizationId || '');
+
+  const { mutate: modifyMethod } = useModifyMethod({
+    onSuccess: () => {
+      alert('수정완료');
+    },
+    onError: () => {
+      alert('수정 실패');
+    },
+  });
 
   const [validatorList, setValidatorList] = useState([]);
 
@@ -82,10 +92,20 @@ export function MethodRequestEdit({
 
       if (selectedMethod.info.parameters) {
         setQueryParameters(
-          selectedMethod?.info?.parameters?.filter((param: any) => param.in === 'query')
+          selectedMethod.info.parameters
+            .filter((param: any) => param.in === 'query')
+            .map((param: any, idx: number) => ({
+              ...param,
+              id: param.id ?? `query-${idx}`, // 기존에 id 없으면 새로 부여
+            }))
         );
         setRequestHeaders(
-          selectedMethod?.info?.parameters?.filter((param: any) => param.in === 'header')
+          selectedMethod?.info?.parameters
+            ?.filter((param: any) => param.in === 'header')
+            .map((param: any, idx: number) => ({
+              ...param,
+              id: param.id ?? `header-${idx}`, // 기존에 id 없으면 새로 부여
+            }))
         );
       }
     }
@@ -197,9 +217,10 @@ export function MethodRequestEdit({
 
   const addQueryParameter = () => {
     const newParam: QueryParameter = {
-      id: (paramCounter + 1).toString(), // 고유하고 순차적인 id
+      // id: (paramCounter + 1).toString(), // 고유하고 순차적인 id
       name: '',
       required: false,
+      id: `query-${queryParameters.length}`,
     };
     setQueryParameters((prev) => [...prev, newParam]);
     setParamCounter((prev) => prev + 1);
@@ -220,9 +241,9 @@ export function MethodRequestEdit({
   const nextHeaderIdRef = useRef<number>(0);
   // 추가: 생성순으로 id 부여
   const addRequestHeader = () => {
-    const id = nextHeaderIdRef.current++;
+    // const id = nextHeaderIdRef.current++;
     const newHeader: Header = {
-      id,
+      id: `header-${requestHeaders.length}`,
       name: '',
       required: false,
     };
@@ -230,16 +251,18 @@ export function MethodRequestEdit({
     setRequestHeaders((prev) => [...prev, newHeader]);
   };
 
-  const updateHeader = (id: string, field: keyof Header, value: any) => {
+  const updateRequestHeader = (id: string, field: keyof Header, value: any) => {
     setRequestHeaders(
       requestHeaders.map((header) => (header.id === id ? { ...header, [field]: value } : header))
     );
   };
 
   // 삭제
-  const removeHeader = (id: number) => {
+  const removeRequestHeader = (id: number) => {
     setRequestHeaders((prev) => prev.filter((h) => h.id !== id));
   };
+
+  console.log(requestHeaders);
 
   // Request Body Model functions
   const addRequestBodyModel = () => {
@@ -277,6 +300,59 @@ export function MethodRequestEdit({
     clipboard.copy(apiKey);
     toast.success('API Key가 복사되었습니다.');
   };
+  const formattedQueryParameters = queryParameters.map((param) => ({
+    name: param.name,
+    required: param.required,
+  }));
+
+  const formattedHeaderParameters = requestHeaders.map((header) => ({
+    name: header.name,
+    required: header.required,
+  }));
+
+  const handleModifyMedthod = () => {
+    //   if (selectedMethod)
+    //   modifyMethod({ selectedMethod.info['x-method-id'], {
+    //     methodName: selectedMethod.info.summary,
+    //     description: selectedMethod.info.description,
+    //     backendServiceUrl: selectedMethod.info['x-backend-endpoint'],
+    //     // requestModelIds?: string[];
+    //     // responseModelId?: string;
+    //     // requestModelId?: string[];
+    //     queryParameters: queryParameters,
+    //     headerParameters: requestHeaders,
+    //     // pathParameters?: [
+    //     //   {
+    //     //     name?: string;
+    //     //     required?: boolean;
+    //     //   },
+    //     // ];
+    //     enabled: true,
+    //     requestValidator: methodEditForm.requestValidator,
+    //     apiKeyRequired: methodEditForm.selectedApiKey,
+    //     updatedBy: userData?.userKey,
+    //   })
+    // };
+
+    if (!selectedMethod) return;
+
+    const methodId = selectedMethod.info['x-method-id'];
+
+    modifyMethod({
+      methodId,
+      data: {
+        methodName: selectedMethod.info.summary,
+        description: selectedMethod.info.description,
+        backendServiceUrl: selectedMethod.info['x-backend-endpoint'],
+        queryParameters: formattedQueryParameters,
+        headerParameters: formattedHeaderParameters,
+        enabled: true,
+        requestValidator: methodEditForm.requestValidator,
+        apiKeyRequired: apiKeyToggle,
+        updatedBy: userData?.userKey,
+      },
+    });
+  };
 
   console.log(apiKeyToggle, newApiKeyForm, methodEditForm, selectedMethod);
 
@@ -288,7 +364,9 @@ export function MethodRequestEdit({
           <Button variant="outline" onClick={handleCancelEdit}>
             취소
           </Button>
-          <Button onClick={handleSaveEdit} className="bg-blue-500 hover:bg-blue-600 text-white">
+          <Button
+            onClick={handleModifyMedthod}
+            className="bg-blue-500 hover:bg-blue-600 text-white">
             저장
           </Button>
         </div>
@@ -434,6 +512,7 @@ export function MethodRequestEdit({
                     key={header.id}
                     isOpen={openId === header.id}
                     setIsOpen={(val) => setOpenId(val ? header.id : null)}
+                    existingSearch={header.name}
                   />
                 </div>
                 <div

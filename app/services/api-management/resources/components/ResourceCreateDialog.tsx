@@ -55,6 +55,18 @@ export function ResourceCreateDialog({
   const [checkUrl, setCheckUrl] = useState(false);
 
   useEffect(() => {
+    setCreateResourceForm({
+      apiId: apiId,
+      resourceName: '',
+      description: '',
+      path: '/',
+      enableCors: false,
+      resourceType: 'REST',
+      createdBy: userKey,
+    });
+  }, []);
+
+  useEffect(() => {
     if (userKey) setCreateResourceForm({ ...createResourceForm, createdBy: userKey });
   }, [userKey]);
 

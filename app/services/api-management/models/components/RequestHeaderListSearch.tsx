@@ -12,12 +12,14 @@ interface HeaderSearchProps {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<any>>;
   updateHeader: (field: 'name' | 'required' | 'value', value: string | boolean) => void;
+  existingSearch: string;
 }
 
 export default function RequestHeaderListSearch({
   isOpen,
   setIsOpen,
   updateHeader,
+  existingSearch,
 }: HeaderSearchProps) {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Option | null>(null);
@@ -59,6 +61,10 @@ export default function RequestHeaderListSearch({
     inputRef.current?.focus();
   };
 
+  useEffect(() => {
+    if (existingSearch) setSearch(existingSearch);
+  }, [existingSearch]);
+
   // 클릭 외부 영역 감지해서 드롭다운 닫기
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -74,6 +80,8 @@ export default function RequestHeaderListSearch({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  console.log(search);
 
   return (
     <div className="w-100 relative">

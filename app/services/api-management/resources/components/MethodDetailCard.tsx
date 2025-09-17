@@ -61,31 +61,32 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
     },
   ]);
 
-  const [pathParameters, setPathParameters] = useState<QueryParameter[]>([]);
   const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([]);
   const [requestHeaders, setRequestHeaders] = useState<RequestHeader[]>([]);
   const [requestBodyModels, setRequestBodyModels] = useState<RequestBodyModel[]>([]);
 
   console.log(requestHeaders);
-
   useEffect(() => {
-    if (selectedMethod) {
-      if (selectedMethod.info.parameters) {
-        setQueryParameters(
-          selectedMethod?.info?.parameters?.filter((param: any) => param.in === 'query')
-        );
-        setRequestHeaders(
-          selectedMethod?.info?.parameters?.filter((param: any) => param.in === 'header')
-        );
-        setPathParameters(
-          selectedMethod?.info?.parameters?.filter((param: any) => param.in === 'path')
-        );
-      } else {
-        setQueryParameters([]);
-        setRequestHeaders([]);
-        setPathParameters([]);
-      }
-    }
+    if (!selectedMethod) return;
+
+    const params = selectedMethod.info?.parameters ?? [];
+
+    const queries = params
+      .filter((param: any) => param.in?.trim().toLowerCase() === 'query')
+      .map((p: any, idx: number) => ({
+        ...p,
+        id: `query-${idx}-${p.name}`,
+      }));
+
+    const headers = params
+      .filter((param: any) => param.in?.trim().toLowerCase() === 'header')
+      .map((p: any, idx: number) => ({
+        ...p,
+        id: `header-${idx}-${p.name}`,
+      }));
+
+    setQueryParameters(queries);
+    setRequestHeaders(headers);
   }, [selectedMethod]);
 
   // const [editForm, setEditForm] = useState({
@@ -359,68 +360,6 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
     toast.success('모델이 삭제되었습니다.');
   };
 
-  useEffect(() => {
-    if (selectedMethod) {
-      // setEditForm({
-      //   apiKeyRequired: selectedMethod.apiKey !== '-',
-      //   sdkOperationName: selectedMethod.summary || '',
-      //   requestValidator: selectedMethod.requestValidator || '없음',
-      // });
-
-      const queryParams =
-        selectedMethod.parameters
-          ?.filter((p: any) => p.in === 'query')
-          .map((p: any, index: number) => ({
-            id: `query-${index}`,
-            name: p.name,
-            description: p.description || '',
-            type: p.schema?.type || 'string',
-            required: p.required || false,
-            cacheKey: false,
-          })) || [];
-      setQueryParameters(queryParams);
-
-      const headerParams =
-        selectedMethod.parameters
-          ?.filter((p: any) => p.in === 'header')
-          .map((p: any, index: number) => ({
-            id: `header-${index}`,
-            name: p.name,
-            description: p.description || '',
-            type: p.schema?.type || 'string',
-            required: p.required || false,
-          })) || [];
-
-      // Add default Content-Type header if not exists
-      // const hasContentType = headerParams.some((h: any) => h.name.toLowerCase() === 'content-type');
-      // if (!hasContentType) {
-      //   headerParams.unshift({
-      //     id: 'content-type',
-      //     name: 'Content-Type',
-      //     description: '요청 콘텐츠 타입',
-      //     type: 'string',
-      //     required: true,
-      //   });
-      // }
-      // setRequestHeaders(headerParams);
-
-      // Initialize request body models
-      if (selectedMethod.requestBody?.content) {
-        const bodyModels = Object.entries(selectedMethod.requestBody.content).map(
-          ([contentType, content]: [string, any], index: number) => ({
-            id: `body-${index}`,
-            contentType,
-            modelName: content.schema?.$ref ? content.schema.$ref.split('/').pop() : 'Empty',
-            modelId: content.schema?.$ref ? content.schema.$ref.split('/').pop() : '',
-          })
-        );
-        setRequestBodyModels(bodyModels);
-      } else {
-        setRequestBodyModels([]);
-      }
-    }
-  }, [selectedMethod]);
-
   return (
     <>
       <Toaster position="bottom-center" richColors expand={true} />
@@ -559,7 +498,6 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                 <MethodRequestView
                   selectedMethod={selectedMethod}
                   queryParameters={queryParameters}
-                  pathParameters={pathParameters}
                   requestHeaders={requestHeaders}
                   requestBodyModels={requestBodyModels}
                   handleEditMethod={handleEditMethod}
