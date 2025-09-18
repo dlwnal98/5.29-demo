@@ -22,6 +22,7 @@ import type {
 import { useClipboard } from 'use-clipboard-copy';
 import { toast, Toaster } from 'sonner';
 import { useSearchParams } from 'next/navigation';
+import { getMethodStyle } from '@/lib/etc';
 
 export default function MethodDetailCard({ selectedMethod }: { selectedMethod: Method }) {
   console.log(selectedMethod);
@@ -370,7 +371,11 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {selectedMethod.resourcePath} - {selectedMethod.type} - 메서드 상세
+                  <span
+                    className={`${getMethodStyle(selectedMethod.type)} !font-mono !font-bold !text-xl !px-1.5 !py-0.5 rounded mr-2`}>
+                    {selectedMethod.type}
+                  </span>{' '}
+                  {selectedMethod.resourcePath}
                 </h1>
                 <div className="flex items-center gap-2">
                   <Button
@@ -399,7 +404,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                     </div>
                   </div>
                   <div className="flex items-center gap-2  mb-2">
-                    <div className="w-20 text-sm text-gray-600 dark:text-gray-400">메서드 요약</div>
+                    <div className="w-20 text-sm text-gray-600 dark:text-gray-400">메서드 설명</div>
                     <div className="font-semibold text-sm">{selectedMethod?.info?.summary}</div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -407,6 +412,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                     <div className="flex items-center gap-2">
                       <code className="text-sm font-mono">
                         {selectedMethod?.info['x-backend-endpoint'] ?? ''}
+                        {selectedMethod.resourcePath}
                       </code>
                       <Button size="sm" variant="ghost" onClick={handleCopyEndpoint}>
                         <Copy className="h-3 w-3" />

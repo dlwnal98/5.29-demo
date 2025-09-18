@@ -31,8 +31,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { Checkbox } from '@/components/ui/checkbox';
-
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   ArrowLeft,
@@ -45,24 +43,20 @@ import {
   AlertTriangle,
   SquarePlus,
   SquareMinus,
-  X,
   Settings,
   Search,
   ChevronLeft,
   Eye,
 } from 'lucide-react';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast, Toaster } from 'sonner';
-import { Switch } from '@/components/ui/switch';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { useClipboard } from 'use-clipboard-copy';
+import CreateStageDialog from './components/CreateStageDialog';
+import { useAuthStore } from '@/store/store';
+import ModifyStageDialog from './components/ModifyStageDialog';
+import DeleteStageDialog from './components/DeleteStageDialog';
+import { useGetStagesDocData } from '@/hooks/use-stages';
 
 interface ApiResource {
   id: string;
@@ -116,6 +110,13 @@ interface SelectedResource {
 
 export default function StagesPage() {
   const router = useRouter();
+  const userData = useAuthStore((state) => state.user);
+  const params = useSearchParams();
+  const apiId = params.get('apiId');
+
+  const { data: stagesDocData } = useGetStagesDocData('mTKvTZMgAABJ');
+
+  console.log(stagesDocData);
 
   const mockDeployments: DeploymentRecord[] = [
     {
@@ -382,7 +383,6 @@ export default function StagesPage() {
   const [isCreateStageModalOpen, setIsCreateStageModalOpen] = useState(false);
   const [isDeleteStageDialogOpen, setIsDeleteStageDialogOpen] = useState(false);
   const [isRevokeDeploymentDialogOpen, setIsRevokeDeploymentDialogOpen] = useState(false);
-  const [isDirectUrlInput, setIsDirectUrlInput] = useState(false);
   const [isRollbackModalOpen, setIsRollbackModalOpen] = useState(false);
   const [selectedRollbackDeployment, setSelectedRollbackDeployment] =
     useState<DeploymentRecord | null>(null);
@@ -394,21 +394,6 @@ export default function StagesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isActiveDeploymentModalOpen, setIsActiveDeploymentModalOpen] = useState(false);
   const itemsPerPage = 10;
-
-  const [editForm, setEditForm] = useState({
-    name: selectedStage.name,
-    description: selectedStage.description,
-    apiCacheEnabled: false,
-    methodLevelCacheEnabled: false,
-    throttlingEnabled: false,
-    wafProfile: '없음',
-    clientCertificate: '없음',
-  });
-
-  const [createStageForm, setCreateStageForm] = useState({
-    name: '',
-    description: '',
-  });
 
   const clipboard = useClipboard();
 
@@ -439,27 +424,6 @@ export default function StagesPage() {
   const handleCopyMethodUrl = (url: string) => {
     clipboard.copy(url);
     toast.success('메서드 URL이 클립보드에 복사되었습니다.');
-  };
-
-  const handleEditSave = () => {
-    setSelectedStage({
-      ...selectedStage,
-      name: editForm.name,
-      description: editForm.description,
-    });
-    setIsEditModalOpen(false);
-    toast.success('스테이지가 성공적으로 업데이트되었습니다.');
-  };
-
-  const handleCreateStage = () => {
-    if (!createStageForm.name.trim()) {
-      toast.error('스테이지 이름을 입력해주세요.');
-      return;
-    }
-
-    toast.success(`스테이지 '${createStageForm.name}'이(가) 생성되었습니다.`);
-    setIsCreateStageModalOpen(false);
-    setCreateStageForm({ name: '', description: '' });
   };
 
   const handleResourceClick = (resource: ApiResource, type: 'stage' | 'resource') => {
@@ -493,34 +457,11 @@ export default function StagesPage() {
     toast.success('배포가 회수되었습니다.');
   };
 
-  const handleDeleteStage = () => {
-    setIsDeleteStageDialogOpen(false);
-    toast.success(`스테이지 '${selectedStage.name}'이(가) 삭제되었습니다.`);
-  };
-
-  const handleRollbackClick = (deployment: DeploymentRecord) => {
-    setSelectedRollbackDeployment(deployment);
-    setIsRollbackModalOpen(true);
-  };
-
   const handleRollbackConfirm = () => {
     if (selectedRollbackDeployment) {
       toast.success(`배포 ${selectedRollbackDeployment.deploymentId}로 롤백되었습니다.`);
       setIsRollbackModalOpen(false);
       setSelectedRollbackDeployment(null);
-    }
-  };
-
-  const getDeploymentStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-700';
-      case 'inactive':
-        return 'bg-gray-100 text-gray-700';
-      case 'failed':
-        return 'bg-red-100 text-red-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
     }
   };
 
@@ -679,44 +620,6 @@ export default function StagesPage() {
       </div>
     );
   };
-
-  const [selectedDeploymentRecord, setSelectedDeploymentRecord] = useState('');
-
-  // Mock deployment records from stages page
-  const mockDeploymentRecords = [
-    {
-      id: '1',
-      stageName: 'hello',
-      date: 'July 03, 2025, 08:26 (UTC+09:00)',
-      status: 'inactive',
-      description: 'Initial deployment',
-      deploymentId: 'eemowu',
-    },
-    {
-      id: '2',
-      stageName: 'nexfron',
-      date: 'July 03, 2025, 08:26 (UTC+09:00)',
-      status: 'inactive',
-      description: 'Production update',
-      deploymentId: 'jje6x',
-    },
-    {
-      id: '3',
-      stageName: 'hello',
-      date: 'July 02, 2025, 17:44 (UTC+09:00)',
-      status: 'active',
-      description: 'Bug fix deployment',
-      deploymentId: 'xf40pg',
-    },
-    {
-      id: '4',
-      stageName: 'nexfron',
-      date: 'July 02, 2025, 17:42 (UTC+09:00)',
-      status: 'inactive',
-      description: 'Feature rollback',
-      deploymentId: 'ussiri',
-    },
-  ];
 
   // Get current active deployment
   const currentActiveDeployment = mockDeployments.find((d) => d.status === 'active');
@@ -1185,158 +1088,23 @@ export default function StagesPage() {
         </Dialog>
 
         {/* Edit Stage Modal */}
-        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-          <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
-                스테이지 편집
-              </DialogTitle>
-            </DialogHeader>
-
-            <div className="space-y-6 py-4">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  스테이지 세부 정보
-                </h3>
-                <div>
-                  <Label
-                    htmlFor="stage-name"
-                    className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    스테이지 이름
-                  </Label>
-                  <Input
-                    id="stage-name"
-                    value={editForm.name}
-                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                    className="mt-1"
-                    disabled
-                  />
-                </div>
-                <div>
-                  <Label
-                    htmlFor="stage-description"
-                    className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    스테이지 설명 - <span className="text-gray-500">선택 사항</span>
-                  </Label>
-                  <Textarea
-                    id="stage-description"
-                    value={editForm.description}
-                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                    className="mt-1 min-h-[100px]"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
-                취소
-              </Button>
-              <Button onClick={handleEditSave} className="bg-blue-500 hover:bg-blue-600 text-white">
-                저장
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <ModifyStageDialog
+          open={isEditModalOpen}
+          onOpenChange={setIsEditModalOpen}
+          organizationId={userData?.organizationId || ''}
+          userKey={userData?.userKey || ''}
+          apiId={apiId || ''}
+          selectedStage={selectedStage}
+        />
 
         {/* Create Stage Modal */}
-        <Dialog open={isCreateStageModalOpen} onOpenChange={setIsCreateStageModalOpen}>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
-                스테이지 생성
-              </DialogTitle>
-            </DialogHeader>
-
-            <div className="space-y-4 py-4">
-              <div>
-                <Label
-                  htmlFor="create-stage-name"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  스테이지 이름 *
-                </Label>
-                <Input
-                  id="create-stage-name"
-                  value={createStageForm.name}
-                  onChange={(e) =>
-                    setCreateStageForm({
-                      ...createStageForm,
-                      name: e.target.value,
-                    })
-                  }
-                  placeholder="스테이지 이름을 입력하세요"
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label
-                  htmlFor="create-stage-description"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  스테이지 설명
-                </Label>
-                <Textarea
-                  id="create-stage-description"
-                  value={createStageForm.description}
-                  onChange={(e) =>
-                    setCreateStageForm({
-                      ...createStageForm,
-                      description: e.target.value,
-                    })
-                  }
-                  placeholder="스테이지 설명을 입력하세요 (선택사항)"
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <Label className="text-sm text-gray-600">배포 기록 선택 여부</Label>
-                  <Switch checked={isDirectUrlInput} onCheckedChange={setIsDirectUrlInput} />
-                </div>
-              </div>
-              {isDirectUrlInput && (
-                <div>
-                  <Select
-                    value={selectedDeploymentRecord}
-                    onValueChange={setSelectedDeploymentRecord}>
-                    <SelectTrigger className="mt-2">
-                      <SelectValue placeholder="배포 기록을 선택하세요" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {mockDeploymentRecords.map((record) => (
-                        <SelectItem key={record.id} value={record.deploymentId}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">
-                              {record.stageName} - {record.deploymentId}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {record.date} ({record.status})
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            </div>
-
-            <DialogFooter className="gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsCreateStageModalOpen(false);
-                  setCreateStageForm({ name: '', description: '' });
-                }}>
-                취소
-              </Button>
-              <Button
-                onClick={handleCreateStage}
-                className="bg-orange-500 hover:bg-orange-600 text-white">
-                생성
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <CreateStageDialog
+          open={isCreateStageModalOpen}
+          onOpenChange={setIsCreateStageModalOpen}
+          organizationId={userData?.organizationId || ''}
+          userKey={userData?.userKey || ''}
+          apiId={apiId || ''}
+        />
 
         {/* Rollback Modal */}
         <Dialog open={isRollbackModalOpen} onOpenChange={setIsRollbackModalOpen}>
@@ -1392,41 +1160,12 @@ export default function StagesPage() {
         </Dialog>
 
         {/* Delete Stage Confirmation Dialog */}
-        <AlertDialog open={isDeleteStageDialogOpen} onOpenChange={setIsDeleteStageDialogOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle className="flex items-center gap-2 text-red-600">
-                <AlertTriangle className="h-5 w-5" />
-                스테이지 삭제 확인
-              </AlertDialogTitle>
-              <AlertDialogDescription className="text-gray-600">
-                <div className="space-y-2">
-                  <p className="font-semibold">⚠️ 경고: 이 작업은 되돌릴 수 없습니다!</p>
-                  <p>
-                    스테이지{' '}
-                    <span className="font-mono bg-gray-100 px-2 py-1 rounded">
-                      {selectedStage.name}
-                    </span>
-                    을(를) 삭제하시겠습니까?
-                  </p>
-                  <p className="text-sm text-red-600">
-                    • 이 스테이지의 모든 배포가 중단됩니다
-                    <br />• API 호출이 실패할 수 있습니다
-                    <br />• 이 작업은 즉시 적용되며 복구할 수 없습니다
-                  </p>
-                </div>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>취소</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDeleteStage}
-                className="bg-red-600 hover:bg-red-700 text-white">
-                삭제하기
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <DeleteStageDialog
+          open={isDeleteStageDialogOpen}
+          onOpenChange={setIsDeleteStageDialogOpen}
+          userKey={userData?.userKey || ''}
+          selectedStage={selectedStage}
+        />
 
         {/* Revoke Deployment Confirmation Dialog */}
         <AlertDialog

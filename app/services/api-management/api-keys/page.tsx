@@ -130,7 +130,9 @@ export default function ApiKeysPage() {
   // // 비밀번호 복사 함수
   const handleCopyApiKey = (apiKey: string) => {
     setCopyApiKey(apiKey);
-    setIsCopyModalOpen(true);
+    clipboard.copy(apiKey);
+    toast.success('API Key가 복사되었습니다.');
+    // setIsCopyModalOpen(true);
   };
 
   // 페이지네이션

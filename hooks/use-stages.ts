@@ -16,20 +16,17 @@ interface StagesData {
   lastDeployedBy: string;
 }
 
-// 전체 스테이지 목록 조회
-const getStatesList = async (organizationId: string): Promise<StagesData[]> => {
-  const res = await requestGet(`/api/v1/stages?organizationId=${organizationId}`);
-  if (res.code === 200) {
-    return res.data;
-  }
-  throw new Error(res.message || '스테이지 목록 조회 실패');
+// 전체 스테이지 목록 조회 Open API문서
+const getStatesDocData = async (apiId: string) => {
+  const res = await requestGet(`/api/v1/stages/api/${apiId}`);
+  return res;
 };
 
-export function useGetStagesList(organizationId: string) {
-  return useQuery<StagesData[]>({
-    queryKey: ['getStatesList', organizationId], // pathId별 캐싱
-    queryFn: () => getStatesList(organizationId),
-    enabled: !!organizationId, // pathId 있을 때만 실행
+export function useGetStagesDocData(apiId: string) {
+  return useQuery({
+    queryKey: ['getStatesList', apiId], // pathId별 캐싱
+    queryFn: () => getStatesDocData(apiId),
+    enabled: !!apiId, // pathId 있을 때만 실행
     staleTime: Infinity, // 데이터 오래 유지
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -67,12 +64,13 @@ interface CreateStageProps {
   deploymentSource: 'DRAFT' | 'PREVIOUS_DEVELOPMENT'; // 새 스테이지 생성시 'DRAFT', 옵션에서 스테이지 선택시 'PREVIOUS_DEVELOPMENT'
   apiId: string;
   sourceDeploymentId: string; // draft일 때는 없어도 됨
-  deploymentVersion?: string;
 }
 
 // 스테이지 생성
 export const createStage = async (data: CreateStageProps) => {
-  const res = await requestPost(`/api/v1/stages`, data);
+  const res = await requestPost(`/api/v1/stages`, {
+    body: data,
+  });
 
   return res;
 };
@@ -127,22 +125,23 @@ export function useHandleStageStatus() {
 const deleteStage = async (stageId: string, deletedBy: string) => {
   const res = await requestPost(`/api/v1/stages/${stageId}?deletedBy=${deletedBy}`);
 
-  if (res.code === 200) {
-    return res.data;
-  }
-  throw new Error(res.message || '스테이지 삭제 실패');
+  return res;
 };
 
-export function useDeleteStage() {
+export function useDeleteStage(
+  options?: UseMutationOptions<any, Error, { stageId: string; deletedBy: string }>
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    ...options,
     mutationFn: ({ stageId, deletedBy }: { stageId: string; deletedBy: string }) =>
       deleteStage(stageId, deletedBy),
-    onSuccess: () => {
+    onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ['getStagesList'],
       });
+      options?.onSuccess?.(data, variables, context);
     },
   });
 }

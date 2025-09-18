@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { toast, Toaster } from 'sonner';
 import { createStage } from '@/hooks/use-stages';
 import { useDeployAPI } from '@/hooks/use-resources';
+import { useRouter } from 'next/navigation';
 
 interface deployData {
   stage: string;
@@ -53,9 +54,18 @@ export default function DeployResourceDialog({
     newStageName: '',
   });
 
+  const router = useRouter();
+
   const { mutate: handleDeploy } = useDeployAPI({
     onSuccess: () => {
       toast.success('성공적으로 배포되었습니다.');
+      setDeploymentData({
+        stage: '',
+        version: '',
+        description: '',
+        newStageName: '',
+      });
+      router.push(`/services/api-management/stages?apiId=${apiId}`);
     },
   });
 
@@ -69,13 +79,12 @@ export default function DeployResourceDialog({
       deploymentSource: 'DRAFT',
       apiId: apiId,
       sourceDeploymentId: '',
-      deploymentVersion: 'v1.2.0',
     });
 
     if (res) {
       handleDeploy({
         apiId: apiId,
-        stageId: deploymentData.stage,
+        stageId: res.stageId,
         version: '',
         deployedBy: userKey,
         description: deploymentData.description,
@@ -96,7 +105,7 @@ export default function DeployResourceDialog({
         return;
       }
       // 새 스테이지 생성 로직
-      handleCreateAndDeploy;
+      handleCreateAndDeploy();
     } else {
       if (!deploymentData.stage) {
         toast.error('배포 스테이지를 선택해주세요.');
@@ -115,14 +124,6 @@ export default function DeployResourceDialog({
         },
       });
     }
-
-    onOpenChange(false);
-    setDeploymentData({
-      stage: '',
-      version: '',
-      description: '',
-      newStageName: '',
-    });
   };
 
   const handleDeployModalClose = () => {

@@ -158,7 +158,9 @@ interface deploymentProps {
 }
 
 const deployAPI = async (data: deploymentProps) => {
-  const res = await requestPost(`/api/v1/deployments`, data);
+  const res = await requestPost(`/api/v1/deployments`, {
+    body: data,
+  });
 
   return res;
 };
