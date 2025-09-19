@@ -55,6 +55,8 @@ export default function CreateMethodPage() {
   const resourceId = searchParams.get('resourceId');
   const resourcePath = searchParams.get('resourcePath');
   const userData = useAuthStore((state) => state.user);
+  const apiId = localStorage.getItem('selectedApiId');
+  const apiName = localStorage.getItem('selectedApiName');
 
   const { data: apiKeyList } = useGetAPIKeyList(userData?.organizationId || '');
   const { data: endpointList } = useGetEndpointsList(userData?.organizationId || '');
@@ -144,7 +146,7 @@ export default function CreateMethodPage() {
   }, []);
 
   const handleBack = () => {
-    router.push(`/services/api-management/resources?resourceId=${resourceId}`);
+    router.push(`/services/api-management/resources?apiId=${apiId}&apiName=${apiName}`);
   };
 
   const handleCreateMethod = () => {

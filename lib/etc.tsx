@@ -157,3 +157,78 @@ const inputRegex = /^(?!\/)[A-Za-z0-9{}\-_\/]*(?<!\/)$/;
 export function isValidInput(str: string) {
   return inputRegex.test(str);
 }
+
+//리소스 목록 생성
+
+export function buildTree(openAPIData: any) {
+  const excludedKeys = ['x-cors-policy', 'x-resource-id', 'summary', 'description', 'parameters'];
+  console.log(openAPIData);
+  // const paths = Object.keys(flatData);
+  const pathsData = openAPIData[0]?.openApiDocument?.paths;
+  const paths = Object.keys(pathsData);
+  if (paths.length === 0) return [];
+
+  // 1️⃣ 첫 번째 path를 root로 고정
+  const rootPath = paths[0];
+  const rootNode = {
+    id: 'node-root',
+    name: '/',
+    path: '/',
+    methods: Object.entries(pathsData[rootPath])
+      .filter(([type]) => !excludedKeys.includes(type))
+      .map(([type, methodObj], mIdx) => ({
+        id: `root-method-${mIdx}`,
+        type: type?.toUpperCase(),
+        resourcePath: rootPath,
+        info: methodObj,
+      })),
+    children: [],
+  };
+  const stageNode = {
+    id: 'stage-root',
+    name: '/',
+    path: '/',
+    methods: [],
+    children: rootNode,
+  };
+
+  // 2️⃣ 나머지 path들을 children으로 계층적 추가
+  paths.slice(1).forEach((path) => {
+    const segments = path.split('/').filter(Boolean);
+    let currentLevel = rootNode.children;
+
+    segments.forEach((segment, idx) => {
+      const fullPath = '/' + segments.slice(0, idx + 1).join('/');
+      let existingNode = currentLevel.find((node) => node.path === fullPath);
+
+      if (!existingNode) {
+        existingNode = {
+          id: `node-${fullPath}`,
+          name: segment,
+          path: fullPath,
+          description: pathsData[path]?.description || '',
+          resourceId: pathsData[path]?.['x-resource-id'],
+          cors: pathsData[path]?.['x-cors-policy'],
+          methods:
+            idx === segments.length - 1
+              ? Object.entries(pathsData[path])
+                  .filter(([type]) => !excludedKeys.includes(type))
+                  .map(([type, methodObj], mIdx) => ({
+                    id: `${fullPath}-method-${mIdx}`,
+                    type: type?.toUpperCase(),
+                    resourcePath: path,
+                    info: methodObj,
+                  }))
+              : [],
+          children: [],
+        };
+        currentLevel.push(existingNode);
+      }
+
+      // 다음 레벨로 내려가기
+      currentLevel = existingNode.children;
+    });
+  });
+
+  return [stageNode];
+}

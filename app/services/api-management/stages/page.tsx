@@ -56,7 +56,8 @@ import CreateStageDialog from './components/CreateStageDialog';
 import { useAuthStore } from '@/store/store';
 import ModifyStageDialog from './components/ModifyStageDialog';
 import DeleteStageDialog from './components/DeleteStageDialog';
-import { useGetStagesDocData } from '@/hooks/use-stages';
+import { useGetStagesDocData, useGetDeployHistoryData } from '@/hooks/use-stages';
+import { buildTree } from '@/lib/etc';
 
 interface ApiResource {
   id: string;
@@ -115,161 +116,11 @@ export default function StagesPage() {
   const apiId = params.get('apiId');
 
   const { data: stagesDocData } = useGetStagesDocData('mTKvTZMgAABJ');
+  const { data: deploymentHistoryData } = useGetDeployHistoryData('lpGdnmCzAAAX', 0, 20);
 
-  console.log(stagesDocData);
-
-  const mockDeployments: DeploymentRecord[] = [
-    {
-      id: '1',
-      stageName: 'hello',
-      date: 'July 16, 2025, 16:16 (UTC+09:00)',
-      status: 'inactive',
-      description: '',
-      deploymentId: 'fbzwb8',
-      resources: [
-        {
-          id: 'root',
-          path: '/',
-          name: '/',
-          methods: [],
-          children: [
-            {
-              id: 'rnd',
-              path: '/rnd',
-              name: '/rnd',
-              methods: [
-                {
-                  id: 'get-rnd',
-                  type: 'GET',
-                  path: '/rnd',
-                  endpointUrl: 'https://example.com/hello/rnd',
-                  description: 'Get random data',
-                },
-              ],
-            },
-            {
-              id: 'users',
-              path: '/users',
-              name: '/users',
-              methods: [
-                {
-                  id: 'get-users',
-                  type: 'GET',
-                  path: '/users',
-                  endpointUrl: 'https://example.com/hello/users',
-                  description: 'Get all users',
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: '2',
-      stageName: 'hello',
-      date: 'July 08, 2025, 17:43 (UTC+09:00)',
-      status: 'active',
-      description: '',
-      deploymentId: 'jrdv3n',
-      resources: [
-        {
-          id: 'root',
-          path: '/',
-          name: '/',
-          methods: [],
-          children: [
-            {
-              id: 'rnd',
-              path: '/rnd',
-              name: '/rnd',
-              methods: [
-                {
-                  id: 'get-rnd',
-                  type: 'GET',
-                  path: '/rnd',
-                  endpointUrl: 'https://example.com/hello/rnd',
-                  description: 'Get random data',
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: '3',
-      stageName: 'hello',
-      date: 'July 08, 2025, 17:34 (UTC+09:00)',
-      status: 'inactive',
-      description: '',
-      deploymentId: 'pbrpcg',
-    },
-    {
-      id: '4',
-      stageName: 'hello',
-      date: 'July 08, 2025, 17:10 (UTC+09:00)',
-      status: 'inactive',
-      description: '',
-      deploymentId: '4v6m5i',
-    },
-    {
-      id: '5',
-      stageName: 'hello',
-      date: 'July 08, 2025, 17:00 (UTC+09:00)',
-      status: 'inactive',
-      description: '',
-      deploymentId: 'h7kft4',
-    },
-    {
-      id: '6',
-      stageName: 'hello',
-      date: 'July 08, 2025, 16:26 (UTC+09:00)',
-      status: 'inactive',
-      description: '',
-      deploymentId: 'x371br',
-    },
-    {
-      id: '7',
-      stageName: 'hello',
-      date: 'July 04, 2025, 11:02 (UTC+09:00)',
-      status: 'inactive',
-      description: 'test',
-      deploymentId: 'l7u5is',
-    },
-    {
-      id: '8',
-      stageName: 'hello',
-      date: 'July 03, 2025, 08:26 (UTC+09:00)',
-      status: 'inactive',
-      description: '',
-      deploymentId: 'eemowu',
-    },
-    {
-      id: '9',
-      stageName: 'nexfron',
-      date: 'July 03, 2025, 08:26 (UTC+09:00)',
-      status: 'inactive',
-      description: '',
-      deploymentId: 'jjes6x',
-    },
-    {
-      id: '10',
-      stageName: 'hello',
-      date: 'July 02, 2025, 17:44 (UTC+09:00)',
-      status: 'inactive',
-      description: '',
-      deploymentId: 'xfd0pg',
-    },
-    {
-      id: '11',
-      stageName: 'nexfron',
-      date: 'July 02, 2025, 17:42 (UTC+09:00)',
-      status: 'inactive',
-      description: '',
-      deploymentId: 'ussiri',
-    },
-  ];
+  // console.log(deploymentHistoryData);
+  // const resourceTree = buildTree(stagesDocData?.openApiDocument?.paths);
+  // console.log(resourceTree);
 
   const [apiResources] = useState<ApiResource[]>([
     {
@@ -466,15 +317,15 @@ export default function StagesPage() {
   };
 
   // 배포 기록 관련 함수들
-  const filteredDeployments = mockDeployments.filter(
+  const filteredDeployments = deploymentHistoryData?.filter(
     (deployment) =>
       deployment.deploymentId.toLowerCase().includes(deploymentSearchTerm.toLowerCase()) ||
       deployment.description.toLowerCase().includes(deploymentSearchTerm.toLowerCase())
   );
 
-  const totalPages = Math.ceil(filteredDeployments.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredDeployments?.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedDeployments = filteredDeployments.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedDeployments = filteredDeployments?.slice(startIndex, startIndex + itemsPerPage);
 
   const handleDeploymentSelect = (deploymentId: string) => {
     setSelectedDeployment(deploymentId);
@@ -497,7 +348,7 @@ export default function StagesPage() {
 
   const confirmActiveDeploymentChange = () => {
     if (selectedDeployment) {
-      const deployment = mockDeployments.find((d) => d.id === selectedDeployment);
+      const deployment = deploymentHistoryData?.find((d) => d.deploymentId === selectedDeployment);
       toast.success(`배포 ${deployment?.deploymentId}로 활성 배포가 변경되었습니다.`);
       setIsActiveDeploymentModalOpen(false);
       setSelectedDeployment(null);
@@ -595,7 +446,7 @@ export default function StagesPage() {
         </div>
         {resource.methods && resource.methods.length > 0 && (
           <div className="ml-4 space-y-1">
-            {resource.methods.map((method) => (
+            {resource.methods?.map((method) => (
               <div key={method.id} className="flex items-center gap-2 py-1">
                 <span
                   className={`px-2 py-1 rounded text-xs font-mono ${
@@ -622,9 +473,9 @@ export default function StagesPage() {
   };
 
   // Get current active deployment
-  const currentActiveDeployment = mockDeployments.find((d) => d.status === 'active');
+  const currentActiveDeployment = deploymentHistoryData?.find((d) => d.status === 'ACTIVE');
   const selectedDeploymentData = selectedDeployment
-    ? mockDeployments.find((d) => d.id === selectedDeployment)
+    ? deploymentHistoryData?.find((d) => d.deploymentId === selectedDeployment)
     : null;
 
   return (
@@ -679,7 +530,7 @@ export default function StagesPage() {
                 </Button>
               </div>
               <div className="space-y-1">
-                {apiResources.map((resource) => renderResourceTree(resource))}
+                {apiResources?.map((resource) => renderResourceTree(resource))}
               </div>
             </div>
           </div>
@@ -752,7 +603,7 @@ export default function StagesPage() {
                         </Label>
                         {selectedResource.resource.methods.length > 0 ? (
                           <div className="mt-2 space-y-2">
-                            {selectedResource.resource.methods.map((method) => (
+                            {selectedResource.resource.methods?.map((method) => (
                               <div
                                 key={method.id}
                                 className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
@@ -873,7 +724,7 @@ export default function StagesPage() {
                 <div className="border-b border-gray-200 dark:border-gray-700 p-4">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      배포 ({filteredDeployments.length})
+                      배포 ({filteredDeployments?.length})
                     </h2>
                     <Button
                       onClick={handleActiveDeploymentChange}
@@ -916,10 +767,9 @@ export default function StagesPage() {
                     </div>
                     <div className="col-span-1"></div>
                   </div>
-
                   {/* Deployment Rows */}
                   <div className="space-y-0">
-                    {paginatedDeployments.map((deployment) => (
+                    {paginatedDeployments?.map((deployment) => (
                       <Collapsible
                         key={deployment.id}
                         open={expandedDeployments.has(deployment.id)}
@@ -940,10 +790,10 @@ export default function StagesPage() {
                             />
                           </div>
                           <div className="col-span-3 text-sm text-gray-900 dark:text-white">
-                            {deployment.date}
+                            {deployment.deployedAt}
                           </div>
                           <div className="col-span-2">
-                            {deployment.status === 'active' ? (
+                            {deployment.status === 'ACTIVE' ? (
                               <div className="flex items-center gap-1">
                                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                                 <span className="text-sm text-green-700">활성</span>
@@ -990,7 +840,7 @@ export default function StagesPage() {
                                   리소스 목록
                                 </h5>
                                 <div className="bg-white dark:bg-gray-800 rounded border p-3">
-                                  {deployment.resources.map((resource) =>
+                                  {deployment.resources?.map((resource) =>
                                     renderDeploymentResourceTree(resource)
                                   )}
                                 </div>
@@ -1006,8 +856,8 @@ export default function StagesPage() {
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                     <div className="text-sm text-gray-600 dark:text-gray-400">
                       {startIndex + 1}-
-                      {Math.min(startIndex + itemsPerPage, filteredDeployments.length)} of{' '}
-                      {filteredDeployments.length}
+                      {Math.min(startIndex + itemsPerPage, filteredDeployments?.length)} of{' '}
+                      {filteredDeployments?.length}
                     </div>
                     <div className="flex items-center gap-2">
                       <Button

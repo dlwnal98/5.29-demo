@@ -34,6 +34,26 @@ export function useGetStagesDocData(apiId: string) {
   });
 }
 
+// 조직별 전체 배포이력 조회
+const getDeployHistoryData = async (organizationId: string, page?: number, size?: number) => {
+  const res = await requestGet(
+    `/api/v1/deployments/history?organizationId=${organizationId}&page=${page}&size=${size}`
+  );
+  return res;
+};
+
+export function useGetDeployHistoryData(organizationId: string, page?: number, size?: number) {
+  return useQuery({
+    queryKey: ['getStatesList', organizationId], // pathId별 캐싱
+    queryFn: () => getDeployHistoryData(organizationId, page, size),
+    enabled: !!organizationId, // pathId 있을 때만 실행
+    staleTime: Infinity, // 데이터 오래 유지
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+}
+
 // 스테이지 상세내용 조회 (전체 조회 response랑 데이터가 같아서 화면 구성에 따라 요청하면 됨)
 const getStateDetailList = async (stageId: string): Promise<StagesData[]> => {
   const res = await requestGet(`/api/v1/stages/${stageId}`);
