@@ -39,10 +39,14 @@ export default function DeleteStageDialog({
     },
   });
 
-  console.log(selectedStage);
+  console.log(userKey, selectedStage);
 
   const handleDeleteStage = () => {
-    deleteStage(selectedStage?.id, userKey);
+    if (userKey && selectedStage)
+      deleteStage({
+        stageId: selectedStage?.stageId,
+        deletedBy: userKey,
+      });
   };
 
   return (

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { toast, Toaster } from 'sonner';
+import { useModifyStage } from '@/hooks/use-stages';
 
 interface ModifyStageDialogProps {
   open: boolean;
@@ -44,7 +45,32 @@ export default function ModifyStageDialog({
     clientCertificate: '없음',
   });
 
-  const handleEditSave = () => {};
+  useEffect(() => {
+    if (selectedStage)
+      setEditForm({
+        ...editForm,
+        name: selectedStage.name,
+        description: selectedStage.description,
+      });
+  }, [selectedStage]);
+
+  const { mutate: modifyStage } = useModifyStage({
+    onSuccess: () => {
+      toast.success('스테이지가 수정되었습니다.');
+      onOpenChange(false);
+    },
+    onError: () => {
+      toast.error('스테이지를 수정하는 데에 실패하였습니다.');
+    },
+  });
+
+  const handleEditSave = () => {
+    if (selectedStage)
+      modifyStage({
+        stageId: selectedStage.stageId,
+        description: editForm.description,
+      });
+  };
 
   return (
     <>

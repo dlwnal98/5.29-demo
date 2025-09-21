@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { createStage } from '@/hooks/use-stages';
+import { createStage, useCreateStage } from '@/hooks/use-stages';
 import { toast, Toaster } from 'sonner';
 
 interface CreateStageDialogProps {
@@ -29,6 +29,7 @@ interface CreateStageDialogProps {
   organizationId: string;
   userKey: string;
   apiId: string;
+  deploymentHistoryData: any;
 }
 
 export default function CreateStageDialog({
@@ -37,6 +38,7 @@ export default function CreateStageDialog({
   organizationId,
   userKey,
   apiId,
+  deploymentHistoryData,
 }: CreateStageDialogProps) {
   const [createStageForm, setCreateStageForm] = useState({
     name: '',
@@ -45,43 +47,23 @@ export default function CreateStageDialog({
   const [selectedDeploymentRecord, setSelectedDeploymentRecord] = useState('');
 
   const [isDirectUrlInput, setIsDirectUrlInput] = useState(false);
-  const mockDeploymentRecords = [
-    {
-      id: '1',
-      stageName: 'hello',
-      date: 'July 03, 2025, 08:26 (UTC+09:00)',
-      status: 'inactive',
-      description: 'Initial deployment',
-      deploymentId: 'eemowu',
-    },
-    {
-      id: '2',
-      stageName: 'nexfron',
-      date: 'July 03, 2025, 08:26 (UTC+09:00)',
-      status: 'inactive',
-      description: 'Production update',
-      deploymentId: 'jje6x',
-    },
-    {
-      id: '3',
-      stageName: 'hello',
-      date: 'July 02, 2025, 17:44 (UTC+09:00)',
-      status: 'active',
-      description: 'Bug fix deployment',
-      deploymentId: 'xf40pg',
-    },
-    {
-      id: '4',
-      stageName: 'nexfron',
-      date: 'July 02, 2025, 17:42 (UTC+09:00)',
-      status: 'inactive',
-      description: 'Feature rollback',
-      deploymentId: 'ussiri',
-    },
-  ];
 
-  const handleCreateStage = async () => {
-    const res = await createStage({
+  const { mutate: createStage } = useCreateStage({
+    onSuccess: () => {
+      setCreateStageForm({ name: '', description: '' });
+      setSelectedDeploymentRecord('');
+      toast.success('스테이지가 생성되었습니다.');
+      onOpenChange(false);
+    },
+    onError: () => {
+      setCreateStageForm({ name: '', description: '' });
+      setSelectedDeploymentRecord('');
+      toast.error('스테이지 생성에 실패하였습니다.');
+    },
+  });
+
+  const handleCreateStage = () => {
+    createStage({
       organizationId: organizationId,
       stageName: createStageForm.name,
       description: createStageForm.description,
@@ -91,20 +73,8 @@ export default function CreateStageDialog({
       apiId: apiId,
       sourceDeploymentId: selectedDeploymentRecord,
     });
-
-    if (res) {
-      setCreateStageForm({ name: '', description: '' });
-      setSelectedDeploymentRecord('');
-      toast.success('스테이지가 생성되었습니다.');
-      onOpenChange(false);
-      //그리고 스테이지 목록 갱신 되어야함
-    } else {
-      setCreateStageForm({ name: '', description: '' });
-      setSelectedDeploymentRecord('');
-      toast.error('스테이지 생성에 실패하였습니다.');
-    }
   };
-
+  console.log(deploymentHistoryData);
   return (
     <>
       <Toaster expand={true} richColors position="bottom-center" />
@@ -170,14 +140,14 @@ export default function CreateStageDialog({
                     <SelectValue placeholder="배포 기록을 선택하세요" />
                   </SelectTrigger>
                   <SelectContent>
-                    {mockDeploymentRecords.map((record) => (
-                      <SelectItem key={record.id} value={record.deploymentId}>
+                    {deploymentHistoryData.map((record) => (
+                      <SelectItem key={record.deploymentId} value={record.deploymentId}>
                         <div className="flex flex-col">
                           <span className="font-medium">
-                            {record.stageName} - {record.deploymentId}
+                            {record.openApiDocument.info.title} - {record.deploymentId}
                           </span>
                           <span className="text-xs text-gray-500">
-                            {record.date} ({record.status})
+                            {record.deployedAt.toLocaleString()} ({record.status})
                           </span>
                         </div>
                       </SelectItem>

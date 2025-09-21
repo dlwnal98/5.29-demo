@@ -19,12 +19,13 @@ interface StagesData {
 // 전체 스테이지 목록 조회 Open API문서
 const getStatesDocData = async (apiId: string) => {
   const res = await requestGet(`/api/v1/stages/api/${apiId}`);
+
   return res;
 };
 
 export function useGetStagesDocData(apiId: string) {
   return useQuery({
-    queryKey: ['getStatesList', apiId], // pathId별 캐싱
+    queryKey: ['getStatesDocData', apiId], // pathId별 캐싱
     queryFn: () => getStatesDocData(apiId),
     enabled: !!apiId, // pathId 있을 때만 실행
     staleTime: Infinity, // 데이터 오래 유지
@@ -95,21 +96,21 @@ export const createStage = async (data: CreateStageProps) => {
   return res;
 };
 
-// export function useCreateStage(options?: UseMutationOptions<any, Error, CreateStageProps>) {
-//   const queryClient = useQueryClient();
+export function useCreateStage(options?: UseMutationOptions<any, Error, CreateStageProps>) {
+  const queryClient = useQueryClient();
 
-//   return useMutation({
-//     ...options,
-//     mutationFn: (data: CreateStageProps) => createStage(data),
-//     onSuccess: (data, variables, context) => {
-//       queryClient.invalidateQueries({
-//         queryKey: ['getStagesList'],
-//       });
+  return useMutation({
+    ...options,
+    mutationFn: (data: CreateStageProps) => createStage(data),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: ['getStatesDocData'],
+      });
 
-//       options?.onSuccess?.(data, variables, context);
-//     },
-//   });
-// }
+      options?.onSuccess?.(data, variables, context);
+    },
+  });
+}
 
 interface handleStageStatusProps {
   status: string;
@@ -135,7 +136,7 @@ export function useHandleStageStatus() {
       handleStageStatus(stageId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['getStagesList'],
+        queryKey: ['getStatesDocData'],
       });
     },
   });
@@ -143,7 +144,7 @@ export function useHandleStageStatus() {
 
 // 스테이지 삭제
 const deleteStage = async (stageId: string, deletedBy: string) => {
-  const res = await requestPost(`/api/v1/stages/${stageId}?deletedBy=${deletedBy}`);
+  const res = await requestDelete(`/api/v1/stages/${stageId}?deletedBy=${deletedBy}`);
 
   return res;
 };
@@ -159,7 +160,36 @@ export function useDeleteStage(
       deleteStage(stageId, deletedBy),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
-        queryKey: ['getStagesList'],
+        queryKey: ['getStatesDocData'],
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+  });
+}
+
+// 스테이지 수정(설명만)
+const modifyStage = async (stageId: string, description: string) => {
+  const res = await requestPut(`/api/v1/stages/${stageId}/config`, {
+    body: {
+      description: description,
+    },
+  });
+
+  return res;
+};
+
+export function useModifyStage(
+  options?: UseMutationOptions<any, Error, { stageId: string; description: string }>
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: ({ stageId, description }: { stageId: string; description: string }) =>
+      modifyStage(stageId, description),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: ['getStatesDocData'],
       });
       options?.onSuccess?.(data, variables, context);
     },

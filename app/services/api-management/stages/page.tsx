@@ -76,6 +76,7 @@ interface ApiMethod {
 }
 
 interface Stage {
+  stageId?: string;
   id: string;
   name: string;
   description: string;
@@ -104,10 +105,10 @@ interface SelectedMethod {
   url: string;
 }
 
-interface SelectedResource {
-  resource: ApiResource;
-  type: 'stage' | 'resource';
-}
+// interface SelectedResource {
+//   resource: ApiResource;
+//   type: 'stage' | 'resource';
+// }
 
 export default function StagesPage() {
   const router = useRouter();
@@ -115,102 +116,13 @@ export default function StagesPage() {
   const params = useSearchParams();
   const apiId = params.get('apiId');
 
-  const { data: stagesDocData } = useGetStagesDocData('mTKvTZMgAABJ');
+  const { data: stagesDocData = [] } = useGetStagesDocData(apiId || '');
   const { data: deploymentHistoryData } = useGetDeployHistoryData('lpGdnmCzAAAX', 0, 20);
 
-  // console.log(deploymentHistoryData);
-  // const resourceTree = buildTree(stagesDocData?.openApiDocument?.paths);
-  // console.log(resourceTree);
-
-  const [apiResources] = useState<ApiResource[]>([
-    {
-      id: 'hello',
-      path: '/',
-      name: 'hello',
-      methods: [],
-      children: [
-        {
-          id: 'root',
-          path: '/',
-          name: '/',
-          methods: [],
-          children: [
-            {
-              id: 'rnd',
-              path: '/rnd',
-              name: '/rnd',
-              methods: [
-                {
-                  id: 'get-rnd',
-                  type: 'GET',
-                  path: '/rnd',
-                  endpointUrl:
-                    'https://ynr5g5hoch.execute-api.ap-northeast-2.amazonaws.com/hello/rnd',
-                  description: 'Get random data',
-                },
-              ],
-            },
-            {
-              id: 'users',
-              path: '/users',
-              name: '/users',
-              methods: [
-                {
-                  id: 'get-users',
-                  type: 'GET',
-                  path: '/users',
-                  endpointUrl:
-                    'https://ynr5g5hoch.execute-api.ap-northeast-2.amazonaws.com/hello/users',
-                  description: 'Get all users',
-                },
-                {
-                  id: 'post-users',
-                  type: 'POST',
-                  path: '/users',
-                  endpointUrl:
-                    'https://ynr5g5hoch.execute-api.ap-northeast-2.amazonaws.com/hello/users',
-                  description: 'Create new user',
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'nexfron',
-      path: '/nexfron',
-      name: 'nexfron',
-      methods: [],
-      children: [
-        {
-          id: 'root',
-          path: '/',
-          name: '/',
-          methods: [],
-          children: [
-            {
-              id: 'rnd',
-              path: '/rnd',
-              name: '/rnd',
-              methods: [
-                {
-                  id: 'get-rnd',
-                  type: 'GET',
-                  path: '/rnd',
-                  endpointUrl:
-                    'https://ynr5g5hoch.execute-api.ap-northeast-2.amazonaws.com/hello/rnd',
-                  description: 'Get random data',
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ]);
+  const resourceTree = buildTree(stagesDocData);
 
   const [selectedStage, setSelectedStage] = useState<Stage>({
+    stageId: '',
     id: 'hello',
     name: 'hello',
     description: '',
@@ -222,8 +134,8 @@ export default function StagesPage() {
     deploymentId: 'xf40bg',
   });
 
-  const [selectedResource, setSelectedResource] = useState<SelectedResource>({
-    resource: apiResources[0],
+  const [selectedResource, setSelectedResource] = useState<any>({
+    resource: resourceTree[0],
     type: 'stage',
   });
 
@@ -277,10 +189,13 @@ export default function StagesPage() {
     toast.success('메서드 URL이 클립보드에 복사되었습니다.');
   };
 
-  const handleResourceClick = (resource: ApiResource, type: 'stage' | 'resource') => {
+  const handleResourceClick = (resource: any, type: 'stage' | 'resource') => {
+    console.log(resource);
     if (type === 'stage') {
       setSelectedStage({
         ...selectedStage,
+        stageId: resource.stageId,
+        description: resource.description,
         id: resource.id,
         name: resource.name,
       });
@@ -288,6 +203,7 @@ export default function StagesPage() {
     setSelectedResource({ resource, type });
     setSelectedMethod(null);
   };
+  console.log(selectedStage);
 
   const handleMethodClick = (method: ApiMethod, resource: ApiResource) => {
     const methodUrl = `${selectedStage.url}${method.path}`;
@@ -355,7 +271,7 @@ export default function StagesPage() {
     }
   };
 
-  const renderResourceTree = (resource: ApiResource, level = 0, parentPath = '') => {
+  const renderResourceTree = (resource: any, level = 0, parentPath = '') => {
     const resourceKey = getResourceKey(resource, parentPath);
     const isExpanded = expandedPaths.has(resourceKey);
     const hasChildren =
@@ -368,7 +284,7 @@ export default function StagesPage() {
         <Toaster position="bottom-center" richColors expand={true} />
         <div
           className={`flex items-center gap-2 py-1 mb-1 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-sm ${
-            selectedResource.resource.id === resource.id
+            selectedResource.id === resource.id
               ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
               : ''
           }`}
@@ -390,7 +306,7 @@ export default function StagesPage() {
           {!hasChildren && <div className="w-3" />}
 
           <span
-            className={`font-medium ${selectedResource.resource.id !== resource.id ? '' : 'text-blue-700 dark:text-gray-300'}`}>
+            className={`font-medium ${selectedResource.id !== resource.id ? '' : 'text-blue-700 dark:text-gray-300'}`}>
             {resource.name}
           </span>
         </div>
@@ -423,7 +339,7 @@ export default function StagesPage() {
                     }`}>
                     {method.type}
                   </span>
-                  <span className="text-[12px]">- {method.summary}</span>
+                  <span className="text-[12px]">- {method.info.summary}</span>
                 </div>
                 {selectedMethod?.method.id === method.id && <Eye width={'14px'} />}
               </div>
@@ -530,7 +446,7 @@ export default function StagesPage() {
                 </Button>
               </div>
               <div className="space-y-1">
-                {apiResources?.map((resource) => renderResourceTree(resource))}
+                {resourceTree?.map((resource) => renderResourceTree(resource))}
               </div>
             </div>
           </div>
@@ -545,7 +461,7 @@ export default function StagesPage() {
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center gap-2">
                         <span
-                          className={`px-2 py-1 rounded text-sm font-mono ${
+                          className={`px-2 py-1 rounded text-xl font-mono ${
                             selectedMethod.method.type === 'GET'
                               ? 'bg-green-100 text-green-800'
                               : selectedMethod.method.type === 'POST'
@@ -563,14 +479,14 @@ export default function StagesPage() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div>
+                    {/* <div>
                       <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         설명
                       </Label>
                       <div className="mt-1 text-sm text-gray-900 dark:text-white">
                         {selectedMethod.method.description}
                       </div>
-                    </div>
+                    </div> */}
                     <div>
                       <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         엔드포인트 URL
@@ -593,23 +509,21 @@ export default function StagesPage() {
                 /* Resource Detail View */
                 <Card>
                   <CardHeader>
-                    <CardTitle>리소스 상세 정보 - {selectedResource.resource.path}</CardTitle>
+                    <CardTitle>메서드 - {selectedResource.resource.path}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       <div>
                         <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                          메서드 ({selectedResource.resource.methods.length})
+                          메서드 ({selectedResource?.resource?.methods?.length})
                         </Label>
-                        {selectedResource.resource.methods.length > 0 ? (
+                        {selectedResource?.resource?.methods?.length > 0 ? (
                           <div className="mt-2 space-y-2">
-                            {selectedResource.resource.methods?.map((method) => (
+                            {selectedResource?.resource?.methods?.map((method) => (
                               <div
                                 key={method.id}
                                 className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
-                                onClick={() =>
-                                  handleMethodClick(method, selectedResource.resource)
-                                }>
+                                onClick={() => handleMethodClick(method, selectedResource)}>
                                 <div className="flex items-center gap-3">
                                   <span
                                     className={`px-2 py-1 rounded text-sm font-mono ${
@@ -626,9 +540,9 @@ export default function StagesPage() {
                                     {method.type}
                                   </span>
                                   <div>
-                                    <div className="font-medium">{method.path}</div>
+                                    <div className="font-medium">{method.resourcePath}</div>
                                     <div className="text-sm text-gray-600 dark:text-gray-400">
-                                      {method.description}
+                                      {method.info.summary}
                                     </div>
                                   </div>
                                 </div>
@@ -699,8 +613,21 @@ export default function StagesPage() {
                         </div>
                       </div>
                     </div>
-
-                    <div className="mt-6 space-y-4">
+                    <div className="grid grid-cols-3 gap-6">
+                      <div>
+                        <div className="space-y-4">
+                          <div>
+                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                              스테이지 설명
+                            </Label>
+                            <div className="mt-1 text-blue-600 font-medium">
+                              {selectedStage.description}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-3 space-y-4">
                       <div>
                         <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                           URL 호출
@@ -749,7 +676,7 @@ export default function StagesPage() {
                   {/* Table Header */}
                   <div className="grid grid-cols-12 gap-4 py-3 border-b border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300">
                     <div className="col-span-1"></div>
-                    <div className="col-span-3">
+                    <div className="col-span-5">
                       배포 날짜
                       <ChevronDown className="inline h-4 w-4 ml-1" />
                     </div>
@@ -757,10 +684,7 @@ export default function StagesPage() {
                       상태
                       <ChevronDown className="inline h-4 w-4 ml-1" />
                     </div>
-                    <div className="col-span-2">
-                      설명
-                      <ChevronDown className="inline h-4 w-4 ml-1" />
-                    </div>
+
                     <div className="col-span-3">
                       배포 ID
                       <ChevronDown className="inline h-4 w-4 ml-1" />
@@ -789,7 +713,7 @@ export default function StagesPage() {
                               className="h-4 w-4 hover:cursor-pointer ext-blue-600 focus:ring-blue-500 border-gray-300"
                             />
                           </div>
-                          <div className="col-span-3 text-sm text-gray-900 dark:text-white">
+                          <div className="col-span-5 text-sm text-gray-900 dark:text-white">
                             {deployment.deployedAt}
                           </div>
                           <div className="col-span-2">
@@ -802,9 +726,7 @@ export default function StagesPage() {
                               <span className="text-sm text-gray-500">-</span>
                             )}
                           </div>
-                          <div className="col-span-2 text-sm text-gray-600 dark:text-gray-400">
-                            {deployment.description || '-'}
-                          </div>
+
                           <div className="col-span-3 text-sm font-mono text-gray-900 dark:text-white">
                             {deployment.deploymentId}
                           </div>
@@ -826,14 +748,6 @@ export default function StagesPage() {
                             <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
                               배포 상세 설명
                             </h4>
-                            <div className="space-y-2">
-                              {deployment.description && (
-                                <div className="text-sm">
-                                  <span className="ml-2">{deployment.description}</span>
-                                </div>
-                              )}
-                            </div>
-
                             {deployment.resources && deployment.resources.length > 0 && (
                               <div className="mt-4">
                                 <h5 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
@@ -954,6 +868,7 @@ export default function StagesPage() {
           organizationId={userData?.organizationId || ''}
           userKey={userData?.userKey || ''}
           apiId={apiId || ''}
+          deploymentHistoryData={deploymentHistoryData}
         />
 
         {/* Rollback Modal */}
