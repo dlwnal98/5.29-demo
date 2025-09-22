@@ -111,14 +111,11 @@ export function MethodRequestEdit({
     }
   }, [selectedMethod]);
 
-  console.log(queryParameters);
-
   useEffect(() => {
     if (apiKeyList && selectedMethod) {
       const existingAPIKeyData = apiKeyList.filter(
         (key, i) => key.keyId === selectedMethod?.info['x-api-key-id']
       );
-      console.log(existingAPIKeyData);
 
       setApiKeyContent(existingAPIKeyData[0]?.key);
     }

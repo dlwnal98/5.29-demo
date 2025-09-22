@@ -33,7 +33,6 @@ export default function ApiResourcesPage() {
   const userData = useAuthStore((state) => state.user);
 
   const { data: openAPIDocData, refetch } = useGetOpenAPIDoc(currentApiId || '');
-  console.log(openAPIDocData);
 
   // interface Resource {
   //   id: number;
@@ -44,6 +43,7 @@ export default function ApiResourcesPage() {
   //   children?: Resource[];
   //   methods?: Method[];
   // }
+
   function buildTree(flatData) {
     const excludedKeys = ['x-cors-policy', 'x-resource-id', 'summary', 'description', 'parameters'];
 
@@ -56,6 +56,7 @@ export default function ApiResourcesPage() {
       id: 'node-root',
       name: '/',
       path: '/',
+      resourceId: flatData['/']?.['x-resource-id'],
       methods: Object.entries(flatData[rootPath])
         .filter(([type]) => !excludedKeys.includes(type))
         .map(([type, methodObj], mIdx) => ({
@@ -213,9 +214,6 @@ export default function ApiResourcesPage() {
   //   // 상태 업데이트
   //   setExpandedResources(newExpanded);
   // };
-
-  console.log(selectedResource);
-  console.log(resources);
 
   // const [resources, setResources] = useState<Resource[]>([]);
   // const [selectedResource, setSelectedResource] = useState<Resource | null>(null);

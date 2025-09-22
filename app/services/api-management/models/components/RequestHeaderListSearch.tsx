@@ -81,8 +81,6 @@ export default function RequestHeaderListSearch({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  console.log(search);
-
   return (
     <div className="w-100 relative">
       <label htmlFor="autocomplete-input" className="sr-only">

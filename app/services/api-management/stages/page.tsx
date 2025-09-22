@@ -4,25 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -38,9 +20,7 @@ import {
   ChevronDown,
   Copy,
   Download,
-  RotateCcw,
   Trash2,
-  AlertTriangle,
   SquarePlus,
   SquareMinus,
   Settings,
@@ -56,13 +36,10 @@ import CreateStageDialog from './components/CreateStageDialog';
 import { useAuthStore } from '@/store/store';
 import ModifyStageDialog from './components/ModifyStageDialog';
 import DeleteStageDialog from './components/DeleteStageDialog';
-import {
-  useGetStagesDocData,
-  useGetDeployHistoryData,
-  useActivatePreviousDeployment,
-} from '@/hooks/use-stages';
+import { useGetStagesDocData, useGetDeployHistoryData } from '@/hooks/use-stages';
 import { buildTree } from '@/lib/etc';
-
+import { usePathname } from 'next/navigation';
+import ActiveDeploymentChangeDialog from './components/ActiveDeloymentChangeDialog';
 interface ApiResource {
   id: string;
   path: string;
@@ -84,11 +61,7 @@ interface Stage {
   id: string;
   name: string;
   description: string;
-  cacheEnabled: boolean;
-  throttleRate: number;
-  burstRate: number;
   url: string;
-  lastDeployed: string;
   deploymentId: string;
 }
 
@@ -109,46 +82,26 @@ interface SelectedMethod {
   url: string;
 }
 
-// interface SelectedResource {
-//   resource: ApiResource;
-//   type: 'stage' | 'resource';
-// }
-
 export default function StagesPage() {
   const router = useRouter();
   const userData = useAuthStore((state) => state.user);
   const params = useSearchParams();
   const apiId = params.get('apiId');
+  const pathname = usePathname();
 
-  const { data: stagesDocData = [] } = useGetStagesDocData(apiId || '');
+  const { data: stagesDocData = [] } = useGetStagesDocData(apiId || '', pathname);
   const { data: deploymentHistoryData } = useGetDeployHistoryData(
     userData?.organizationId || '',
     0,
     20
   );
 
-  //활성배포 변경
-  const { mutate: changeDeployment } = useActivatePreviousDeployment({
-    onSuccess: () => {
-      toast.success('배포가 성공적으로 변경되었습니다.');
-      setIsActiveDeploymentModalOpen(false);
-      setSelectedDeployment(null);
-    },
-    onError: () => {
-      toast.error('배포 변경에 실패하였습니다.');
-    },
-  });
-
   const [selectedStage, setSelectedStage] = useState<Stage>({
     stageId: '',
-    id: 'hello',
-    name: 'hello',
+    id: '',
+    name: '',
     description: '',
-    cacheEnabled: false,
-    throttleRate: 10000,
-    burstRate: 5000,
-    url: 'https://ynr5g5hoch.execute-api.ap-northeast-2.amazonaws.com/hello',
-    lastDeployed: 'July 02, 2025, 17:44 (UTC+09:00)',
+    url: '',
     deploymentId: '',
   });
 
@@ -163,16 +116,28 @@ export default function StagesPage() {
     setSelectedResource({ ...selectedResource, resource: resourceTree[0] });
   }, [apiId, selectedStage]);
 
+  useEffect(() => {
+    if (resourceTree) {
+      setSelectedStage({
+        ...selectedStage,
+        stageId: resourceTree[0]?.stageId,
+        id: resourceTree[0]?.id,
+        name: resourceTree[0]?.name,
+        description: resourceTree[0]?.description,
+        url: resourceTree[0]?.path,
+        deploymentId: resourceTree[0]?.deploymentId,
+      });
+    }
+  }, [apiId]);
+
+  console.log(selectedStage);
+
   const [selectedMethod, setSelectedMethod] = useState<SelectedMethod | null>(null);
 
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set(['hello']));
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateStageModalOpen, setIsCreateStageModalOpen] = useState(false);
   const [isDeleteStageDialogOpen, setIsDeleteStageDialogOpen] = useState(false);
-  const [isRevokeDeploymentDialogOpen, setIsRevokeDeploymentDialogOpen] = useState(false);
-  const [isRollbackModalOpen, setIsRollbackModalOpen] = useState(false);
-  const [selectedRollbackDeployment, setSelectedRollbackDeployment] =
-    useState<DeploymentRecord | null>(null);
 
   // 새로운 배포 기록 관련 상태
   const [selectedDeployment, setSelectedDeployment] = useState<string | null>(null);
@@ -214,7 +179,6 @@ export default function StagesPage() {
   };
 
   const handleResourceClick = (resource: any, type: 'stage' | 'resource') => {
-    console.log(resource);
     if (type === 'stage') {
       setSelectedStage({
         ...selectedStage,
@@ -228,7 +192,6 @@ export default function StagesPage() {
     setSelectedResource({ resource, type });
     setSelectedMethod(null);
   };
-  console.log(selectedStage);
 
   const handleMethodClick = (method: ApiMethod, resource: ApiResource) => {
     const methodUrl = `${selectedStage.url}${method.path}`;
@@ -242,19 +205,6 @@ export default function StagesPage() {
 
   const handleExportApi = () => {
     toast.success('API 내보내기가 시작되었습니다.');
-  };
-
-  const handleRevokeDeployment = () => {
-    setIsRevokeDeploymentDialogOpen(false);
-    toast.success('배포가 회수되었습니다.');
-  };
-
-  const handleRollbackConfirm = () => {
-    if (selectedRollbackDeployment) {
-      toast.success(`배포 ${selectedRollbackDeployment.deploymentId}로 롤백되었습니다.`);
-      setIsRollbackModalOpen(false);
-      setSelectedRollbackDeployment(null);
-    }
   };
 
   // 배포 기록 관련 함수들
@@ -287,17 +237,7 @@ export default function StagesPage() {
     setIsActiveDeploymentModalOpen(true);
   };
 
-  const confirmActiveDeploymentChange = () => {
-    if (selectedStage.stageId && selectedDeployment) {
-      // const deployment = deploymentHistoryData?.find((d) => d.deploymentId === selectedDeployment);
-      changeDeployment({
-        stageId: selectedStage.stageId,
-        targetDeploymentId: selectedDeployment,
-        reason: '테스트 배포변경',
-        activatedBy: userData?.userKey || '',
-      });
-    }
-  };
+  console.log(selectedResource);
 
   const renderResourceTree = (resource: any, level = 0, parentPath = '') => {
     const resourceKey = getResourceKey(resource, parentPath);
@@ -307,12 +247,14 @@ export default function StagesPage() {
       (resource.methods && resource.methods.length > 0);
     const isStage = level === 0;
 
+    console.log(resource, isExpanded, hasChildren);
+
     return (
       <div key={resource.id}>
         <Toaster position="bottom-center" richColors expand={true} />
         <div
           className={`flex items-center gap-2 py-1 mb-1 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-sm ${
-            selectedResource.id === resource.id
+            selectedResource?.resource?.id === resource.id
               ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
               : ''
           }`}
@@ -335,13 +277,12 @@ export default function StagesPage() {
 
           <span
             className={`font-medium ${selectedResource.id !== resource.id ? '' : 'text-blue-700 dark:text-gray-300'}`}>
-            {resource.name}
+            {isStage ? resource.name : resource.name === '/' ? '/' : `/${resource.name}`}
           </span>
         </div>
-
         {hasChildren && isExpanded && (
           <div className=" space-y-1">
-            {resource.children?.map((child) => renderResourceTree(child, level + 1, resourceKey))}
+            {/* ✅ methods 먼저 */}
             {resource.methods?.map((method, index) => (
               <div
                 key={`${resource.id}-${method.id}-${index}`}
@@ -372,6 +313,9 @@ export default function StagesPage() {
                 {selectedMethod?.method.id === method.id && <Eye width={'14px'} />}
               </div>
             ))}
+
+            {/* ✅ children 나중에 */}
+            {resource.children?.map((child) => renderResourceTree(child, level + 1, resourceKey))}
           </div>
         )}
       </div>
@@ -450,13 +394,6 @@ export default function StagesPage() {
             </Button>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Stages</h1>
           </div>
-          {/* <div className="flex items-center gap-3">
-            <Button
-              className="bg-orange-500 hover:bg-orange-600 text-white"
-              onClick={() => setIsCreateStageModalOpen(true)}>
-              스테이지 생성
-            </Button>
-          </div> */}
         </div>
 
         <div className="grid grid-cols-12 gap-6">
@@ -467,7 +404,6 @@ export default function StagesPage() {
                 <Button
                   size={'sm'}
                   variant={'outline'}
-                  // className="bg-orange-500 hover:bg-orange-600 text-white"
                   className="rounded-full h-[25px] !gap-1 border-2 border-blue-500 text-[#0F74E1] font-bold hover:text-blue-700 hover:bg-blue-50"
                   onClick={() => setIsCreateStageModalOpen(true)}>
                   스테이지 생성
@@ -507,14 +443,6 @@ export default function StagesPage() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {/* <div>
-                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        설명
-                      </Label>
-                      <div className="mt-1 text-sm text-gray-900 dark:text-white">
-                        {selectedMethod.method.description}
-                      </div>
-                    </div> */}
                     <div>
                       <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         엔드포인트 URL
@@ -828,58 +756,16 @@ export default function StagesPage() {
         </div>
 
         {/* Active Deployment Change Modal */}
-        <Dialog open={isActiveDeploymentModalOpen} onOpenChange={setIsActiveDeploymentModalOpen}>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <div className="flex items-center justify-between">
-                <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-                  활성 배포 변경
-                </DialogTitle>
-              </div>
-            </DialogHeader>
-
-            <div className="space-y-4 py-4">
-              <div className="text-sm text-gray-700 dark:text-gray-300">
-                '{selectedStage.name}' 스테이지의 활성 배포를 업데이트하시겠습니까?
-              </div>
-
-              <div className="space-y-3">
-                <div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                    현재 활성 배포
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {currentActiveDeployment?.deploymentId} - {currentActiveDeployment?.date}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                    새 활성 배포
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {selectedDeploymentData?.deploymentId} - {selectedDeploymentData?.date}
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                현재 활성 배포가 즉시 새 배포로 교체됩니다.
-              </div>
-            </div>
-
-            <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => setIsActiveDeploymentModalOpen(false)}>
-                취소
-              </Button>
-              <Button
-                onClick={confirmActiveDeploymentChange}
-                className="bg-orange-500 hover:bg-orange-600 text-white">
-                활성 배포 변경
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <ActiveDeploymentChangeDialog
+          open={isActiveDeploymentModalOpen}
+          onOpenChange={setIsActiveDeploymentModalOpen}
+          userKey={userData?.userKey || ''}
+          selectedStage={selectedStage}
+          currentActiveDeployment={currentActiveDeployment}
+          selectedDeploymentData={selectedDeploymentData}
+          setSelectedDeployment={setSelectedDeployment}
+          selectedDeployment={selectedDeployment}
+        />
 
         {/* Edit Stage Modal */}
         <ModifyStageDialog
@@ -901,59 +787,6 @@ export default function StagesPage() {
           deploymentHistoryData={deploymentHistoryData}
         />
 
-        {/* Rollback Modal */}
-        <Dialog open={isRollbackModalOpen} onOpenChange={setIsRollbackModalOpen}>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-              <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-                활성 배포 변경
-              </DialogTitle>
-            </DialogHeader>
-
-            <div className="space-y-4">
-              <div className="text-sm text-gray-700 dark:text-gray-300">
-                '{selectedRollbackDeployment?.stageName}' 스테이지의 활성 배포를
-                업데이트하시겠습니까?
-              </div>
-
-              <div className="space-y-3">
-                <div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                    현재 활성 배포
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {currentActiveDeployment?.deploymentId} - {currentActiveDeployment?.date}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                    새 활성 배포
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {selectedRollbackDeployment?.deploymentId} - {selectedRollbackDeployment?.date}
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                현재 활성 배포가 즉시 새 배포로 교체됩니다.
-              </div>
-            </div>
-
-            <DialogFooter className="gap-2 pt-4">
-              <Button variant="outline" onClick={() => setIsRollbackModalOpen(false)}>
-                취소
-              </Button>
-              <Button
-                onClick={handleRollbackConfirm}
-                className="bg-orange-500 hover:bg-orange-600 text-white">
-                활성 배포 변경
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
         {/* Delete Stage Confirmation Dialog */}
         <DeleteStageDialog
           open={isDeleteStageDialogOpen}
@@ -961,43 +794,6 @@ export default function StagesPage() {
           userKey={userData?.userKey || ''}
           selectedStage={selectedStage}
         />
-
-        {/* Revoke Deployment Confirmation Dialog */}
-        <AlertDialog
-          open={isRevokeDeploymentDialogOpen}
-          onOpenChange={setIsRevokeDeploymentDialogOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle className="flex items-center gap-2 text-orange-600">
-                <RotateCcw className="h-5 w-5" />
-                배포 회수 확인
-              </AlertDialogTitle>
-              <AlertDialogDescription className="text-gray-600">
-                <div className="space-y-2">
-                  <p>
-                    스테이지{' '}
-                    <span className="font-mono bg-gray-100 px-2 py-1 rounded">
-                      {selectedStage.name}
-                    </span>
-                    의 현재 배포를 회수하시겠습니까?
-                  </p>
-                  <p className="text-sm text-orange-600">
-                    • 현재 활성화된 배포가 중단됩니다
-                    <br />• API 엔드포인트가 일시적으로 사용할 수 없게 됩니다
-                  </p>
-                </div>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>취소</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleRevokeDeployment}
-                className="bg-orange-600 hover:bg-orange-700 text-white">
-                회수하기
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </div>
     </AppLayout>
   );

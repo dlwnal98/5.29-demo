@@ -53,26 +53,6 @@ export default function DeployResourceDialog({
     return { id: i, label: data.name, value: data.stageId };
   });
 
-  console.log(stageList);
-
-  // const stageList = [
-  //   {
-  //     id: 1,
-  //     label: 'Deployment',
-  //     value: 'STG123145',
-  //   },
-  //   {
-  //     id: 2,
-  //     label: 'Staging',
-  //     value: 'STG1231456',
-  //   },
-  //   {
-  //     id: 3,
-  //     label: 'Production',
-  //     value: 'STG123147345',
-  //   },
-  // ];
-
   const [deploymentData, setDeploymentData] = useState<deployData>({
     stage: '',
     version: '',
@@ -85,12 +65,7 @@ export default function DeployResourceDialog({
   const { mutate: handleDeploy } = useDeployAPI({
     onSuccess: () => {
       toast.success('성공적으로 배포되었습니다.');
-      setDeploymentData({
-        stage: '',
-        version: '',
-        description: '',
-        newStageName: '',
-      });
+
       router.push(`/services/api-management/stages?apiId=${apiId}`);
     },
   });

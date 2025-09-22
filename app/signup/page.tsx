@@ -56,8 +56,6 @@ export default function SignupPage() {
   const handleIdCheck = async (userId: string) => {
     const res = await requestGet(`/api/v1/users/exists?userId=${userId}`);
 
-    console.log(res);
-
     if (res.data === false) {
       setIdValid(true);
       setIdValidMsg('사용가능한 아이디입니다.');
@@ -68,7 +66,6 @@ export default function SignupPage() {
   };
 
   const validateUserId = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);
     if (userIdRegex.test(e.target.value)) {
       setIdValid(true);
       setIdValidMsg('유효한 아이디입니다. 중복확인을 해주세요.');
@@ -83,7 +80,6 @@ export default function SignupPage() {
       setPasswordValid(false);
       setPasswordValidMsg('최소 4자 이상 입력해주세요.');
     }
-    console.log(passwordRegex.test(e.target.value));
     if (passwordRegex.test(e.target.value)) {
       setPasswordValid(true);
       setPasswordValidMsg('유효한 비밀번호입니다.');

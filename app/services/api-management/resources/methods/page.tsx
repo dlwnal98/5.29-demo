@@ -167,8 +167,30 @@ export default function CreateMethodPage() {
         return;
       }
     }
-    if (isDirectUrlInput)
-      if (onSave(methodForm.customEndpointUrl)) {
+    if (resourceId)
+      if (isDirectUrlInput)
+        if (onSave(methodForm.customEndpointUrl)) {
+          createMethod({
+            resourceId: resourceId || '',
+            createdBy: userData?.userKey || '',
+            httpMethod: methodForm.methodType,
+            methodName: methodForm.methodName,
+            description: methodForm.description,
+            apiKeyId: selectedApiKeyId,
+            requiresApiKey: apiKeyToggle,
+            backendServiceUrl: methodForm.customEndpointUrl
+              ? methodForm.customEndpointUrl
+              : methodForm.endpointUrl,
+            // requestModelIds: [],
+            // responseModelId: '',
+            queryParameters: queryParameters,
+            headerParameters: headers,
+            requestValidator: methodForm.requestValidator,
+          });
+        } else {
+          toast.error('유효하지 않은 엔드포인트 URL입니다.');
+        }
+      else
         createMethod({
           resourceId: resourceId || '',
           createdBy: userData?.userKey || '',
@@ -186,9 +208,6 @@ export default function CreateMethodPage() {
           headerParameters: headers,
           requestValidator: methodForm.requestValidator,
         });
-      } else {
-        toast.error('유효하지 않은 엔드포인트 URL입니다.');
-      }
   };
 
   const toggleSection = (section: keyof typeof openSections) => {

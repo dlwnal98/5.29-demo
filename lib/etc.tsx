@@ -169,11 +169,20 @@ export function buildTree(openAPIData: any[]) {
     if (paths.length === 0) return null;
 
     // ✅ root node: 무조건 생성
+    const rootPath = paths[0];
     const rootNode = {
       id: `node-root-${sIdx}`,
       name: '/',
       path: '/',
-      methods: [],
+      resourceId: pathsData[rootPath]?.['x-resource-id'],
+      methods: Object.entries(pathsData[rootPath])
+        .filter(([type]) => !excludedKeys.includes(type))
+        .map(([type, methodObj], mIdx) => ({
+          id: `${sIdx}-${rootPath}-method-${mIdx}`,
+          type: type?.toUpperCase(),
+          resourcePath: rootPath,
+          info: methodObj,
+        })),
       children: [] as any[],
     };
 

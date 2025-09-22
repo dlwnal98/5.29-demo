@@ -43,13 +43,10 @@ export default function CommitsPage() {
     fileName // 파일 이름
   );
 
-  console.log(fileName);
-
   const latestCommitArr = commitListData?.[0];
   const latestCommit = latestCommitArr?.sha?.slice(0, 6);
 
   const handleCommitClick = (commitHash: any) => {
-    console.log(commitHash);
     const params = new URLSearchParams();
     params.set('branch', branch);
     params.set('file', fileName);
@@ -125,8 +122,7 @@ export default function CommitsPage() {
               <Button
                 variant="outline"
                 onClick={handleBack}
-                className="border-blue-200 hover:bg-blue-50"
-              >
+                className="border-blue-200 hover:bg-blue-50">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
               </Button>
@@ -193,8 +189,7 @@ export default function CommitsPage() {
                     Array.from({ length: 5 }).map((_, index) => (
                       <TableRow
                         key={index}
-                        className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
-                      >
+                        className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200">
                         <TableCell>
                           <div className="flex items-center">
                             <Skeleton className="h-7 w-7 rounded-full" />
@@ -217,8 +212,7 @@ export default function CommitsPage() {
                       {commitListData.map((commit, index) => (
                         <TableRow
                           key={commit.sha}
-                          className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
-                        >
+                          className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200">
                           <TableCell className=" flex items-center">
                             <Avatar className="h-7 w-7 flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs font-bold">
                               {commit.authorName.charAt(0).toUpperCase()}
@@ -236,8 +230,7 @@ export default function CommitsPage() {
                           <TableCell>
                             <button
                               onClick={() => handleCommitClick(commit.sha.slice(0, 6))}
-                              className="text-sm hover:text-blue-600 transition-colors text-left w-full"
-                            >
+                              className="text-sm hover:text-blue-600 transition-colors text-left w-full">
                               {commit.message}
                             </button>
                           </TableCell>

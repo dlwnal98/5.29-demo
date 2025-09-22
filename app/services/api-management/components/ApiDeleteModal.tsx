@@ -31,13 +31,12 @@ export function ApiDeleteModal({
       toast.success('API가 삭제되었습니다.');
       onOpenChange(false);
     },
-    onError: (err) => {
-      toast.error(err);
+    onError: () => {
+      toast.error('API 삭제에 실패하였습니다.');
     },
   });
 
   const handleDeleteApi = () => {
-    console.log(userKey);
     if (userKey) {
       deleteAPI({ apiId: selectedAPIId, userKey: userKey });
     }

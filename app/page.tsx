@@ -38,7 +38,6 @@ export default function LoginPage() {
   // };
 
   const validateUserId = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);
     if (userIdRegex.test(e.target.value)) {
       setIdValid(true);
       setIdValidMsg('유효한 아이디입니다.');
@@ -74,8 +73,6 @@ export default function LoginPage() {
         userPassword: password,
         redirectUri: `/auth-callback`,
       });
-
-      console.log(res);
 
       // 로그인 성공했을 때
       if (!res?.data?.code) {

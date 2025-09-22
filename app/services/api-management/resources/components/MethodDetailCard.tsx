@@ -66,7 +66,6 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
   const [requestHeaders, setRequestHeaders] = useState<RequestHeader[]>([]);
   const [requestBodyModels, setRequestBodyModels] = useState<RequestBodyModel[]>([]);
 
-  console.log(requestHeaders);
   useEffect(() => {
     if (!selectedMethod) return;
 

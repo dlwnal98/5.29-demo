@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useRef } from "react";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useRef } from 'react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   Server,
   Activity,
@@ -13,15 +13,10 @@ import {
   XCircle,
   Network,
   Database,
-} from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { useEurekaInstances } from "@/hooks/useEurekaData";
-import { ServicesInstance, EurekaServices } from "@/types/eureka";
+} from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useEurekaInstances } from '@/hooks/useEurekaData';
+import { ServicesInstance, EurekaServices } from '@/types/eureka';
 
 interface ModalProps {
   selectedInstance: ServicesInstance;
@@ -34,19 +29,17 @@ export default function InstanceDetailModal({
   onOpenChange,
   eurekaServicesData,
 }: ModalProps) {
-  const { data: instanceData } = useEurekaInstances(
-    selectedInstance?.instanceId
-  );
+  const { data: instanceData } = useEurekaInstances(selectedInstance?.instanceId);
 
   const modalContentRef = useRef<HTMLDivElement>(null);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "UP":
+      case 'UP':
         return <CheckCircle className="w-4 h-4" />;
-      case "DOWN":
+      case 'DOWN':
         return <XCircle className="w-4 h-4" />;
-      case "OUT_OF_SERVICE":
+      case 'OUT_OF_SERVICE':
         return <AlertCircle className="w-4 h-4" />;
       default:
         return <AlertCircle className="w-4 h-4" />;
@@ -55,15 +48,8 @@ export default function InstanceDetailModal({
 
   const StatusBadge = ({ status }: { status: string }) => (
     <Badge
-      variant={
-        status === "UP"
-          ? "default"
-          : status === "DOWN"
-          ? "destructive"
-          : "secondary"
-      }
-      className="flex items-center gap-1"
-    >
+      variant={status === 'UP' ? 'default' : status === 'DOWN' ? 'destructive' : 'secondary'}
+      className="flex items-center gap-1">
       {getStatusIcon(status)}
       {status}
     </Badge>
@@ -77,29 +63,21 @@ export default function InstanceDetailModal({
     // 다음 렌더링 후 스크롤 이동
     setTimeout(() => {
       if (modalContentRef.current) {
-        modalContentRef.current.scrollTo({ top: 0, behavior: "smooth" });
+        modalContentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }, 100);
   };
 
-  console.log(`modal : ${selectedInstance}`);
-
   return (
     instanceData && (
-      <Dialog
-        open={!!selectedInstance}
-        onOpenChange={() => onOpenChange(false)}
-      >
+      <Dialog open={!!selectedInstance} onOpenChange={() => onOpenChange(false)}>
         <DialogContent
           ref={modalContentRef}
-          className="max-w-4xl max-h-[80vh] overflow-y-auto rounded-lg"
-        >
+          className="max-w-4xl max-h-[80vh] overflow-y-auto rounded-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Database className="w-5 h-5" />
-              <span>
-                {instanceData.appName || "서비스"} - 인스턴스 상세 정보
-              </span>
+              <span>{instanceData.appName || '서비스'} - 인스턴스 상세 정보</span>
               {selectedInstance && (
                 <Badge variant="outline" className="ml-2">
                   {instanceData.instanceId}
@@ -118,23 +96,15 @@ export default function InstanceDetailModal({
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      현재 상태
-                    </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">현재 상태</span>
                     <StatusBadge status={instanceData.status} />
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      덮어쓴 상태
-                    </span>
-                    <Badge variant="secondary">
-                      {instanceData.overriddenStatus}
-                    </Badge>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">덮어쓴 상태</span>
+                    <Badge variant="secondary">{instanceData.overriddenStatus}</Badge>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      마지막 이벤트
-                    </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">마지막 이벤트</span>
                     <Badge variant="outline">{instanceData.actionType}</Badge>
                   </div>
                   <div className="flex justify-between">
@@ -143,34 +113,21 @@ export default function InstanceDetailModal({
                     </span>
                     <Badge
                       variant={
-                        instanceData.isCoordinatingDiscoveryServer
-                          ? "default"
-                          : "secondary"
-                      }
-                    >
-                      {instanceData.isCoordinatingDiscoveryServer
-                        ? "예"
-                        : "아니오"}
+                        instanceData.isCoordinatingDiscoveryServer ? 'default' : 'secondary'
+                      }>
+                      {instanceData.isCoordinatingDiscoveryServer ? '예' : '아니오'}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      최근 갱신
-                    </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">최근 갱신</span>
                     <span className="text-sm font-medium">
-                      {new Date(
-                        instanceData.lastUpdatedTimestamp
-                      ).toLocaleString()}
+                      {new Date(instanceData.lastUpdatedTimestamp).toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      마지막 Dirty
-                    </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">마지막 Dirty</span>
                     <span className="text-sm font-medium">
-                      {new Date(
-                        instanceData.lastDirtyTimestamp
-                      ).toLocaleString()}
+                      {new Date(instanceData.lastDirtyTimestamp).toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -184,29 +141,17 @@ export default function InstanceDetailModal({
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      IP 주소
-                    </span>
-                    <span className="text-sm font-medium">
-                      {instanceData.ipAddr}
-                    </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">IP 주소</span>
+                    <span className="text-sm font-medium">{instanceData.ipAddr}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      호스트명
-                    </span>
-                    <span className="text-sm font-medium">
-                      {instanceData.hostName}
-                    </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">호스트명</span>
+                    <span className="text-sm font-medium">{instanceData.hostName}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      HTTP 포트
-                    </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">HTTP 포트</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">
-                        {instanceData.port}
-                      </span>
+                      <span className="text-sm font-medium">{instanceData.port}</span>
                       {instanceData.isPortEnabled ? (
                         <CheckCircle className="w-4 h-4 text-green-500" />
                       ) : (
@@ -215,13 +160,9 @@ export default function InstanceDetailModal({
                     </div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      HTTPS 포트
-                    </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">HTTPS 포트</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">
-                        {instanceData.securePort}
-                      </span>
+                      <span className="text-sm font-medium">{instanceData.securePort}</span>
                       {instanceData.isSecurePortEnabled ? (
                         <CheckCircle className="w-4 h-4 text-green-500" />
                       ) : (
@@ -230,12 +171,8 @@ export default function InstanceDetailModal({
                     </div>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      데이터센터
-                    </span>
-                    <span className="text-sm font-medium">
-                      {instanceData.dataCenter}
-                    </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">데이터센터</span>
+                    <span className="text-sm font-medium">{instanceData.dataCenter}</span>
                   </div>
                 </div>
               </Card>
@@ -273,9 +210,7 @@ export default function InstanceDetailModal({
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                        VIP 주소
-                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">VIP 주소</div>
                       <div className="text-sm font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
                         {instanceData.vipAddress}
                       </div>
@@ -301,14 +236,9 @@ export default function InstanceDetailModal({
                   {Object.entries(instanceData.metadata).map(([key, value]) => (
                     <div
                       key={key}
-                      className="flex justify-between items-center bg-gray-0 dark:bg-gray-800/50 rounded"
-                    >
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        {key}
-                      </span>
-                      <span className="text-sm font-medium">
-                        {String(value)}
-                      </span>
+                      className="flex justify-between items-center bg-gray-0 dark:bg-gray-800/50 rounded">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{key}</span>
+                      <span className="text-sm font-medium">{String(value)}</span>
                     </div>
                   ))}
                 </div>
@@ -332,25 +262,20 @@ export default function InstanceDetailModal({
                     <Badge
                       key={instance.instanceId}
                       variant={
-                        instance.instanceId === selectedInstance.instanceId
-                          ? "default"
-                          : "outline"
+                        instance.instanceId === selectedInstance.instanceId ? 'default' : 'outline'
                       }
                       className={`cursor-pointer transition-all duration-200 hover:scale-105 ${
                         instance.instanceId === selectedInstance.instanceId
-                          ? "bg-blue-600 text-white"
-                          : "hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                          ? 'bg-blue-600 text-white'
+                          : 'hover:bg-blue-50 dark:hover:bg-blue-900/30'
                       }`}
-                      onClick={() => handleInstanceChange(instance)}
-                    >
+                      onClick={() => handleInstanceChange(instance)}>
                       <div
                         className={`w-2 h-2 rounded-full mr-2 ${
-                          instance.status === "UP"
-                            ? "bg-green-500"
-                            : "bg-red-500"
+                          instance.status === 'UP' ? 'bg-green-500' : 'bg-red-500'
                         }`}
                       />
-                      {instance.instanceId.split("-").pop()}
+                      {instance.instanceId.split('-').pop()}
                     </Badge>
                   ))}
               </div>

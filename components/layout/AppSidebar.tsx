@@ -511,7 +511,6 @@ export function AppSidebar({
 
   useEffect(() => {
     if (tokenInfo.accessToken) {
-      console.log(1);
       setTokens(tokenInfo.accessToken, tokenInfo.refreshToken, tokenInfo.expiresAt); // 디코딩 후 상태에 저장
       // useAuthStore.getState().setTokens(accessToken, refreshToken, String(expiresAt));
     }
