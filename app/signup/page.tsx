@@ -115,6 +115,8 @@ export default function SignupPage() {
         email //email
       );
 
+      // console.log(res);
+
       if (res.code == 200) {
         setSignUpSuccess(true);
       } else {

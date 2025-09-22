@@ -78,12 +78,12 @@ export default function LoginPage() {
       console.log(res);
 
       // 로그인 성공했을 때
-      if (res?.data?.success === undefined) {
+      if (!res?.data?.code) {
         localStorage.setItem('userId', userId);
         window.location.href = res.request.responseURL;
 
         // 로그인 실패했을 때
-      } else if (!res?.data?.success) {
+      } else {
         toast.error(res.data.message);
 
         // 멤버 최초 로그인 성공해서 비밀번호 설정해야할 때
@@ -250,7 +250,9 @@ export default function LoginPage() {
             <div className="text-center">
               <p className="text-sm text-gray-600">
                 계정이 없으신가요?
-                <Link href="/signup" className="ml-[5px] text-blue-600 hover:text-blue-700 font-medium hover:underline">
+                <Link
+                  href="/signup"
+                  className="ml-[5px] text-blue-600 hover:text-blue-700 font-medium hover:underline">
                   가입하세요!
                 </Link>
               </p>

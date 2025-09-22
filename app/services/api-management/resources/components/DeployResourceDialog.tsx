@@ -24,6 +24,7 @@ import { toast, Toaster } from 'sonner';
 import { createStage } from '@/hooks/use-stages';
 import { useDeployAPI } from '@/hooks/use-resources';
 import { useRouter } from 'next/navigation';
+import { useGetStagesDocData } from '@/hooks/use-stages';
 
 interface deployData {
   stage: string;
@@ -47,6 +48,31 @@ export default function DeployResourceDialog({
   userKey,
   organizationId,
 }: deployResourceProps) {
+  const { data: stagesDocData = [] } = useGetStagesDocData(apiId || '');
+  const stageList = stagesDocData.map((data: any, i: number) => {
+    return { id: i, label: data.name, value: data.stageId };
+  });
+
+  console.log(stageList);
+
+  // const stageList = [
+  //   {
+  //     id: 1,
+  //     label: 'Deployment',
+  //     value: 'STG123145',
+  //   },
+  //   {
+  //     id: 2,
+  //     label: 'Staging',
+  //     value: 'STG1231456',
+  //   },
+  //   {
+  //     id: 3,
+  //     label: 'Production',
+  //     value: 'STG123147345',
+  //   },
+  // ];
+
   const [deploymentData, setDeploymentData] = useState<deployData>({
     stage: '',
     version: '',
@@ -136,24 +162,6 @@ export default function DeployResourceDialog({
     });
   };
 
-  const stageList = [
-    {
-      id: 1,
-      label: 'Deployment',
-      value: 'STG123145',
-    },
-    {
-      id: 2,
-      label: 'Staging',
-      value: 'STG1231456',
-    },
-    {
-      id: 3,
-      label: 'Production',
-      value: 'STG123147345',
-    },
-  ];
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -182,7 +190,7 @@ export default function DeployResourceDialog({
                 <SelectValue placeholder="스테이지 선택" />
               </SelectTrigger>
               <SelectContent>
-                {stageList.map((stage, i) => {
+                {stageList.map((stage: any, i: number) => {
                   return <SelectItem value={stage.value}>{stage.label}</SelectItem>;
                 })}
                 <SelectItem value="new">

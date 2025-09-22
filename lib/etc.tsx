@@ -182,6 +182,7 @@ export function buildTree(openAPIData: any[]) {
       id: `stage-root-${sIdx}`,
       stageId: stage.stageId,
       description: stage.description,
+      deploymentId: stage.deploymentId,
       name: stage.name,
       path: '/',
       methods: [],

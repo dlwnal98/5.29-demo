@@ -45,7 +45,7 @@ const getDeployHistoryData = async (organizationId: string, page?: number, size?
 
 export function useGetDeployHistoryData(organizationId: string, page?: number, size?: number) {
   return useQuery({
-    queryKey: ['getStatesList', organizationId], // pathId별 캐싱
+    queryKey: ['getDeployHistoryData', organizationId], // pathId별 캐싱
     queryFn: () => getDeployHistoryData(organizationId, page, size),
     enabled: !!organizationId, // pathId 있을 때만 실행
     staleTime: Infinity, // 데이터 오래 유지
@@ -236,33 +236,37 @@ export function useDeactivateDeployment() {
   });
 }
 
+interface PreviousDeploymentProps {
+  stageId: string;
+  targetDeploymentId: string;
+  reason?: string | null;
+  activatedBy?: string | null;
+}
+
 // 이전 배포 활성화
-const activatePreviousDeployment = async (
-  currentDeploymentId: string,
-  targetDeploymentId: string,
-  reason?: string
-) => {
+const activatePreviousDeployment = async (data: PreviousDeploymentProps) => {
   const res = await requestPost(
-    `/api/v1/deployments/${currentDeploymentId}/activate-previous?targetDeploymentId=${targetDeploymentId}&reason=${reason}`
+    `/api/v1/deployments/stages/${data.stageId}/activate-previous?targetDeploymentId=${data.targetDeploymentId}&reason=${data.reason}&activatedBy=${data.activatedBy}`
   );
 
-  if (res.code == 200) {
-    return res.data;
-  }
+  return res;
 };
 
-export function useActivatePreviousDeployment() {
+export function useActivatePreviousDeployment(
+  options?: UseMutationOptions<any, Error, PreviousDeploymentProps>
+) {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: ({
-      currentDeploymentId,
-      targetDeploymentId,
-      reason,
-    }: {
-      currentDeploymentId: string;
-      targetDeploymentId: string;
-      reason?: string;
-    }) => activatePreviousDeployment(currentDeploymentId, targetDeploymentId, reason),
-    onSuccess: () => {},
+    ...options,
+    mutationFn: (data: PreviousDeploymentProps) => activatePreviousDeployment(data),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: ['getDeployHistoryData'],
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
   });
 }
 

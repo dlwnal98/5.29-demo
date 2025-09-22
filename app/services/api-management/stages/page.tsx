@@ -48,7 +48,7 @@ import {
   ChevronLeft,
   Eye,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast, Toaster } from 'sonner';
 import { useClipboard } from 'use-clipboard-copy';
@@ -56,7 +56,11 @@ import CreateStageDialog from './components/CreateStageDialog';
 import { useAuthStore } from '@/store/store';
 import ModifyStageDialog from './components/ModifyStageDialog';
 import DeleteStageDialog from './components/DeleteStageDialog';
-import { useGetStagesDocData, useGetDeployHistoryData } from '@/hooks/use-stages';
+import {
+  useGetStagesDocData,
+  useGetDeployHistoryData,
+  useActivatePreviousDeployment,
+} from '@/hooks/use-stages';
 import { buildTree } from '@/lib/etc';
 
 interface ApiResource {
@@ -117,9 +121,23 @@ export default function StagesPage() {
   const apiId = params.get('apiId');
 
   const { data: stagesDocData = [] } = useGetStagesDocData(apiId || '');
-  const { data: deploymentHistoryData } = useGetDeployHistoryData('lpGdnmCzAAAX', 0, 20);
+  const { data: deploymentHistoryData } = useGetDeployHistoryData(
+    userData?.organizationId || '',
+    0,
+    20
+  );
 
-  const resourceTree = buildTree(stagesDocData);
+  //활성배포 변경
+  const { mutate: changeDeployment } = useActivatePreviousDeployment({
+    onSuccess: () => {
+      toast.success('배포가 성공적으로 변경되었습니다.');
+      setIsActiveDeploymentModalOpen(false);
+      setSelectedDeployment(null);
+    },
+    onError: () => {
+      toast.error('배포 변경에 실패하였습니다.');
+    },
+  });
 
   const [selectedStage, setSelectedStage] = useState<Stage>({
     stageId: '',
@@ -131,13 +149,19 @@ export default function StagesPage() {
     burstRate: 5000,
     url: 'https://ynr5g5hoch.execute-api.ap-northeast-2.amazonaws.com/hello',
     lastDeployed: 'July 02, 2025, 17:44 (UTC+09:00)',
-    deploymentId: 'xf40bg',
+    deploymentId: '',
   });
 
   const [selectedResource, setSelectedResource] = useState<any>({
-    resource: resourceTree[0],
+    // resource: resourceTree[0],
+    resource: {},
     type: 'stage',
   });
+  const resourceTree = buildTree(stagesDocData);
+
+  useEffect(() => {
+    setSelectedResource({ ...selectedResource, resource: resourceTree[0] });
+  }, [apiId, selectedStage]);
 
   const [selectedMethod, setSelectedMethod] = useState<SelectedMethod | null>(null);
 
@@ -195,6 +219,7 @@ export default function StagesPage() {
       setSelectedStage({
         ...selectedStage,
         stageId: resource.stageId,
+        deploymentId: resource.deploymentId,
         description: resource.description,
         id: resource.id,
         name: resource.name,
@@ -263,11 +288,14 @@ export default function StagesPage() {
   };
 
   const confirmActiveDeploymentChange = () => {
-    if (selectedDeployment) {
-      const deployment = deploymentHistoryData?.find((d) => d.deploymentId === selectedDeployment);
-      toast.success(`배포 ${deployment?.deploymentId}로 활성 배포가 변경되었습니다.`);
-      setIsActiveDeploymentModalOpen(false);
-      setSelectedDeployment(null);
+    if (selectedStage.stageId && selectedDeployment) {
+      // const deployment = deploymentHistoryData?.find((d) => d.deploymentId === selectedDeployment);
+      changeDeployment({
+        stageId: selectedStage.stageId,
+        targetDeploymentId: selectedDeployment,
+        reason: '테스트 배포변경',
+        activatedBy: userData?.userKey || '',
+      });
     }
   };
 
@@ -693,14 +721,14 @@ export default function StagesPage() {
                   </div>
                   {/* Deployment Rows */}
                   <div className="space-y-0">
-                    {paginatedDeployments?.map((deployment) => (
+                    {paginatedDeployments?.map((deployment: any) => (
                       <Collapsible
-                        key={deployment.id}
-                        open={expandedDeployments.has(deployment.id)}
-                        onOpenChange={() => toggleDeploymentExpansion(deployment.id)}>
+                        key={deployment.deploymentId}
+                        open={expandedDeployments.has(deployment.deploymentId)}
+                        onOpenChange={() => toggleDeploymentExpansion(deployment.deploymentId)}>
                         <div
                           className={
-                            selectedDeployment === deployment.id
+                            selectedDeployment === deployment.deploymentId
                               ? 'grid grid-cols-12 gap-4 py-3 px-3  cursor-pointer bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500'
                               : 'grid grid-cols-12 gap-4 py-3 px-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer'
                           }>
@@ -708,8 +736,8 @@ export default function StagesPage() {
                             <input
                               type="radio"
                               name="deployment"
-                              checked={selectedDeployment === deployment.id}
-                              onChange={() => handleDeploymentSelect(deployment.id)}
+                              checked={selectedDeployment === deployment.deploymentId}
+                              onChange={() => handleDeploymentSelect(deployment.deploymentId)}
                               className="h-4 w-4 hover:cursor-pointer ext-blue-600 focus:ring-blue-500 border-gray-300"
                             />
                           </div>
@@ -717,7 +745,7 @@ export default function StagesPage() {
                             {deployment.deployedAt}
                           </div>
                           <div className="col-span-2">
-                            {deployment.status === 'ACTIVE' ? (
+                            {selectedStage.deploymentId === deployment.deploymentId ? (
                               <div className="flex items-center gap-1">
                                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                                 <span className="text-sm text-green-700">활성</span>
@@ -735,7 +763,9 @@ export default function StagesPage() {
                               <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
                                 <ChevronDown
                                   className={`h-4 w-4 transition-transform ${
-                                    expandedDeployments.has(deployment.id) ? 'rotate-180' : ''
+                                    expandedDeployments.has(deployment.deploymentId)
+                                      ? 'rotate-180'
+                                      : ''
                                   }`}
                                 />
                               </Button>
