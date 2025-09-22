@@ -132,15 +132,14 @@ export default function UsersPage() {
   // 조직 내 멤버 생성 mutate
   const { mutate: addMember } = useAddMember({
     onSuccess: (data) => {
-      if (!data.success) {
-        toast.error(data.message);
-        setMemberId('');
-        setIdValid(false);
-        setIdValidMsg('');
-      } else {
-        toast.success('멤버 계정이 생성되었습니다.');
-        setFirstMemberPw(data.data.password);
-      }
+      toast.success('멤버 계정이 생성되었습니다.');
+      setFirstMemberPw(data.data.password);
+    },
+    onError: () => {
+      toast.error('멤버 계정 생성에 실패하였습니다.');
+      setMemberId('');
+      setIdValid(false);
+      setIdValidMsg('');
     },
   });
 
