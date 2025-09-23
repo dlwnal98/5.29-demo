@@ -31,8 +31,9 @@ export function ApiDeleteModal({
       toast.success('API가 삭제되었습니다.');
       onOpenChange(false);
     },
-    onError: () => {
-      toast.error('API 삭제에 실패하였습니다.');
+    onError: (error: any) => {
+      const serverMessage = error?.response?.data?.message ?? 'API 삭제에 실패하였습니다.';
+      toast.error(serverMessage);
     },
   });
 

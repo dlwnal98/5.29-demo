@@ -1,5 +1,5 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
-import { requestGet, requestPatch, requestPost } from '@/lib/apiClient';
+import { requestGet, requestPatch, requestPost, requestDelete } from '@/lib/apiClient';
 
 interface OpenAPIData {
   openapi: string;
@@ -54,7 +54,7 @@ export function useCreateResource(options?: UseMutationOptions<any, Error, Creat
     onSuccess: (data, variables, context) => {
       // 브랜치 생성 성공 시 목록 invalidate
       queryClient.invalidateQueries({
-        queryKey: ['getResourceList'],
+        queryKey: ['getOpenAPIDoc'],
       });
       // 외부 onSuccess 실행
       options?.onSuccess?.(data, variables, context);
@@ -139,6 +139,30 @@ export function useModifyResourceCorsSettings(
       data: ModifyResourceProps;
     }) => modifyResourceCorsSettings(resourceId, enableCors, data),
     onSuccess: (data, variables, context) => {
+      options?.onSuccess?.(data, variables, context);
+    },
+  });
+}
+
+//리소스 삭제 + 리소스 목록 갱신
+const deleteResource = async (resourceId: string) => {
+  const res = await requestDelete(`/api/v1/resources/${resourceId}`);
+
+  return res;
+};
+
+export function useDeleteResource(options?: UseMutationOptions<any, Error, string>) {
+  const queryClient = useQueryClient();
+
+  return useMutation<any, Error, string>({
+    ...options,
+    mutationFn: (resourceId: string) => deleteResource(resourceId),
+    onSuccess: (data, variables, context) => {
+      // 브랜치 생성 성공 시 목록 invalidate
+      queryClient.invalidateQueries({
+        queryKey: ['getOpenAPIDoc'],
+      });
+      // 외부 onSuccess 실행
       options?.onSuccess?.(data, variables, context);
     },
   });

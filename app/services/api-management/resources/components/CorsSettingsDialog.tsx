@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Globe } from 'lucide-react';
-import type { Resource } from '@/types/resource';
+import type { Method, Resource } from '@/types/resource';
 import { useModifyResourceCorsSettings } from '@/hooks/use-resources';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
@@ -41,6 +41,8 @@ export function CorsSettingsDialog({
     allowCredentials: false,
   });
 
+  console.log(selectedResource);
+
   // useEffect(() => {
   //   setCorsForm({
   //     allowMethods: selectedResource.cors.allowMethods.map((method) => method),
@@ -59,19 +61,19 @@ export function CorsSettingsDialog({
     },
   });
 
-  // const modifyCORSSettings = () => {
-  //   modifyCORSMutate({
-  //     resourceId: resourceId,
-  //     enableCors: selectedResource.corsEnabled,
-  //     data: {
-  //       allowedOrigins: selectedResource.cors.allowOrigins,
-  //       allowedHeaders: selectedResource.cors.allowHeaders,
-  //       exposedHeaders: selectedResource.cors.exposeHeaders,
-  //       maxAge: selectedResource.cors.maxAge,
-  //       allowCredentials: selectedResource.cors.allowCredentials,
-  //     },
-  //   });
-  // };
+  const modifyCORSSettings = () => {
+    // modifyCORSMutate({
+    //   resourceId: resourceId,
+    //   enableCors: selectedResource.corsEnabled,
+    //   data: {
+    //     allowedOrigins: selectedResource.cors.allowOrigins,
+    //     allowedHeaders: selectedResource.cors.allowHeaders,
+    //     exposedHeaders: selectedResource.cors.exposeHeaders,
+    //     maxAge: selectedResource.cors.maxAge,
+    //     allowCredentials: selectedResource.cors.allowCredentials,
+    //   },
+    // });
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -92,30 +94,17 @@ export function CorsSettingsDialog({
                   Access-Control-Allow-Methods
                 </Label>
                 <div className="space-y-1">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id={'Method_OPTIONS'}
-                      // checked={false}
-                      // onCheckedChange={(checked) => handleSaveId(checked as boolean)}
-                      className="bg-white border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-                    />
-                    <Label
-                      htmlFor={'Method_OPTIONS'}
-                      className="text-sm text-gray-600 cursor-pointer">
-                      OPTIONS
-                    </Label>
-                  </div>
                   {/* 리소스에서 생성한 메서드 종류가 체크박스 옵션으로 나와야함 */}
-                  {corsForm.allowMethods.map((method: string) => (
+                  {selectedResource.methods.map((method: Method) => (
                     <div className="flex items-center space-x-2">
                       <Checkbox
-                        id={method}
+                        id={method.type}
                         // checked={false}
                         // onCheckedChange={(checked) => handleSaveId(checked as boolean)}
                         className="bg-white border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                       />
-                      <Label htmlFor={method} className="text-sm text-gray-600 cursor-pointer">
-                        {method.toUpperCase()}
+                      <Label htmlFor={method.type} className="text-sm text-gray-600 cursor-pointer">
+                        {method.type.toUpperCase()}
                       </Label>
                     </div>
                   ))}
@@ -180,9 +169,9 @@ export function CorsSettingsDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             취소
           </Button>
-          {/* <Button onClick={modifyCORSSettings} className="bg-blue-500 hover:bg-blue-600 text-white">
+          <Button onClick={modifyCORSSettings} className="bg-blue-500 hover:bg-blue-600 text-white">
             저장
-          </Button> */}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

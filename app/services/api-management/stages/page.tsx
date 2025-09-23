@@ -40,6 +40,7 @@ import { useGetStagesDocData, useGetDeployHistoryData } from '@/hooks/use-stages
 import { buildTree } from '@/lib/etc';
 import { usePathname } from 'next/navigation';
 import ActiveDeploymentChangeDialog from './components/ActiveDeloymentChangeDialog';
+import { useDeployStore } from '@/store/deployStore';
 interface ApiResource {
   id: string;
   path: string;
@@ -611,7 +612,7 @@ export default function StagesPage() {
                     </h2>
                     <Button
                       onClick={handleActiveDeploymentChange}
-                      className="bg-blue-500 hover:bg-blue-600 text-white">
+                      className="rounded-full h-[25px] bg-white !gap-1 border-2 border-blue-500 text-[#0F74E1] font-bold hover:text-blue-700 hover:bg-blue-50">
                       활성 배포 변경
                     </Button>
                   </div>

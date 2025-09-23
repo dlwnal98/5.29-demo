@@ -1,109 +1,97 @@
-import React from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import type { Method } from '@/types/resource';
+import { SquareMinus, SquarePlus, Eye } from 'lucide-react';
+import { getMethodStyle } from '@/lib/etc';
+import type { Resource, Method } from '@/types/resource';
 
-interface ResourceTreeProps {
-  mockData2: any;
-  selectedPath: string | null;
-  setSelectedPath: (path: string | null) => void;
-  selectedMethod: Method | null;
-  setSelectedMethod: (method: Method | null) => void;
-  getMethodStyle: (method: string) => string;
-  HttpMethod: any;
-  setActiveTab: (tab: string) => void;
-  setIsEditMode: (edit: boolean) => void;
+interface Props {
+  resources: Resource[];
+  expandedResources: string[];
+  selectedResourceId: string | null;
+  selectedMethodId: string | null;
+  onResourceClick: (id: string) => void;
+  onMethodClick: (id: string) => void;
+  onToggleExpand: (id: string) => void;
 }
 
-export function ResourceTree({
-  mockData2,
-  selectedPath,
-  setSelectedPath,
-  selectedMethod,
-  setSelectedMethod,
-  getMethodStyle,
-  HttpMethod,
-  setActiveTab,
-  setIsEditMode,
-}: ResourceTreeProps) {
-  const renderResourcePaths = Object.entries((mockData2?.spec?.paths || {}) as Record<string, any>);
-  return (
-    <div>
-      <div className="font-mono pl-1">/</div>
-      {renderResourcePaths.map(([path, methods]) => {
-        const isPathSelected = selectedPath === path && !selectedMethod;
-        return (
-          <div key={path}>
-            <div
-              className={`flex items-center gap-2 py-1 px-2 mb-1 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md ${
-                isPathSelected
-                  ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                  : ''
-              }`}
-              style={{ paddingLeft: `0` }}
-              onClick={() => {
-                setSelectedPath(path);
-                setSelectedMethod(null);
-              }}
-            >
-              <div className="pl-3" />
-              <span className="font-mono font-medium text-[15px]">{path}</span>
+export default function ResourceTree({
+  resources,
+  expandedResources,
+  selectedResourceId,
+  selectedMethodId,
+  onResourceClick,
+  onMethodClick,
+  onToggleExpand,
+}: Props) {
+  const renderTree = (list: Resource[]) => {
+    return (
+      <div className="space-y-1">
+        {list.map((res) => {
+          const isExpanded = expandedResources.includes(res.id);
+          const isSelected = selectedResourceId === res.id;
+
+          return (
+            <div key={res.id}>
+              <div
+                className={`flex items-center gap-2 py-1 px-2 mb-1 cursor-pointer rounded ${
+                  isSelected
+                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                    : ''
+                }`}
+                onClick={() => onResourceClick(res.id)}>
+                {(res.children?.length ?? 0) > 0 || (res.methods?.length ?? 0) > 0 ? (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleExpand(res.id);
+                    }}>
+                    {isExpanded ? (
+                      <SquareMinus className="h-3 w-3" />
+                    ) : (
+                      <SquarePlus className="h-3 w-3" />
+                    )}
+                  </button>
+                ) : (
+                  <div className="w-2" />
+                )}
+                <span className="font-medium text-sm">
+                  {res.name === '/' ? '/' : `/${res.name}`}
+                </span>
+              </div>
+
+              {/* methods */}
+              {isExpanded && res.methods?.length > 0 && (
+                <div className="ml-6 space-y-1">
+                  {res.methods.map((m: Method) => {
+                    const isMethodSelected = selectedMethodId === m.id;
+                    return (
+                      <div
+                        key={m.id}
+                        className={`flex items-center gap-2 py-1 px-2 cursor-pointer ${
+                          isMethodSelected
+                            ? 'bg-white dark:bg-gray-900/30 text-gray-700 dark:text-gray-300'
+                            : 'text-gray-600 dark:text-gray-400'
+                        }`}
+                        onClick={() => onMethodClick(m.id)}>
+                        <span
+                          className={`${getMethodStyle(m.type)} !font-mono !font-medium !text-xs !px-1.5 !py-0.5 rounded`}>
+                          {m.type}
+                        </span>
+                        {isMethodSelected && <Eye className="w-3 h-3" />}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* children */}
+              {isExpanded && res.children?.length > 0 && (
+                <div className="ml-4">{renderTree(res.children)}</div>
+              )}
             </div>
-            {selectedPath === path && (
-              <ul>
-                {Object.keys(methods).map((method) => {
-                  const isMethodSelected = selectedMethod?.id === method;
-                  return (
-                    <li
-                      key={method}
-                      className={`flex items-center gap-2 py-1 px-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-green-900/20 rounded-md ${
-                        isMethodSelected
-                          ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                          : 'text-gray-600 dark:text-gray-400'
-                      }`}
-                      style={{ paddingLeft: `10px` }}
-                      onClick={() => {
-                        const openApiMethod = (methods as any)[method];
-                        const convertedMethod: Method = {
-                          id: `method-${path}-${method}`,
-                          type: method.toUpperCase(),
-                          permissions: openApiMethod['x-permissions'] || '-',
-                          apiKey: openApiMethod['x-apiKeyId'] || '-',
-                          resourcePath: path,
-                          endpointUrl: (mockData2.spec.servers?.[0]?.url || '') + path,
-                          summary: openApiMethod.summary || '',
-                          description: openApiMethod.description || '',
-                          parameters: openApiMethod.parameters || [],
-                          requestBody: openApiMethod.requestBody || null,
-                          responses: openApiMethod.responses || {},
-                          security: openApiMethod.security || null,
-                          requestValidator: '없음',
-                        };
-                        setSelectedMethod(convertedMethod);
-                        setActiveTab('method-request');
-                        setIsEditMode(false);
-                      }}
-                    >
-                      <div className="w-4" />
-                      <span className={`${getMethodStyle(method?.toUpperCase())}`}>
-                        {method.toUpperCase()}
-                      </span>
-                      <span className=" text-[12px]">- {(methods as any)[method].summary}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
+          );
+        })}
+      </div>
+    );
+  };
+
+  return <>{renderTree(resources)}</>;
 }

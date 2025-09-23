@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -60,13 +60,27 @@ export default function DeployResourceDialog({
     newStageName: '',
   });
 
+  useEffect(() => {
+    if (open) {
+      setDeploymentData({
+        stage: '',
+        version: '',
+        description: '',
+        newStageName: '',
+      });
+    }
+  }, [open]);
+
   const router = useRouter();
 
   const { mutate: handleDeploy } = useDeployAPI({
     onSuccess: () => {
       toast.success('성공적으로 배포되었습니다.');
-
       router.push(`/services/api-management/stages?apiId=${apiId}`);
+    },
+    onError: (error: any) => {
+      const serverMessage = error?.response?.data?.message ?? '배포에 실패하였습니다.';
+      toast.error(serverMessage);
     },
   });
 

@@ -24,13 +24,14 @@ import { requestGet } from '@/lib/apiClient';
 import { CreateResourceProps, useCreateResource } from '@/hooks/use-resources';
 import { toast } from 'sonner';
 import { isValidInput } from '@/lib/etc';
+import { Resource } from '@/types/resource';
 
 interface ResourceCreateDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   apiId: string;
   userKey: string;
-  onCreated: () => void;
+  setCreatedResourceId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export function ResourceCreateDialog({
@@ -38,79 +39,80 @@ export function ResourceCreateDialog({
   onOpenChange,
   apiId,
   userKey,
-  onCreated,
+  setCreatedResourceId,
 }: ResourceCreateDialogProps) {
   const [createResourceForm, setCreateResourceForm] = useState({
-    apiId: apiId,
+    apiId,
     resourceName: '',
     description: '',
     path: '/',
     enableCors: false,
     resourceType: 'REST',
-    createdBy: userKey,
+    createdBy: userKey ?? '',
   });
 
-  const [resourcePaths, setResourcePaths] = useState([]);
-  const [pathPattern, setPathPattern] = useState('');
+  const [resourcePaths, setResourcePaths] = useState<string[]>([]);
+  const [pathPattern, setPathPattern] = useState('/');
   const [checkUrl, setCheckUrl] = useState(false);
 
+  // 🔹 모달 열릴 때마다 상태 초기화 + path 목록 갱신
   useEffect(() => {
-    setCreateResourceForm({
-      apiId: apiId,
-      resourceName: '',
-      description: '',
-      path: '/',
-      enableCors: false,
-      resourceType: 'REST',
-      createdBy: userKey,
-    });
-  }, []);
+    if (open) {
+      setCreateResourceForm({
+        apiId,
+        resourceName: '',
+        description: '',
+        path: '/',
+        enableCors: false,
+        resourceType: 'REST',
+        createdBy: userKey ?? '',
+      });
+      setPathPattern('/');
+      setCheckUrl(false);
+      fetchResourcePaths();
+    }
+  }, [open, apiId, userKey]);
 
-  useEffect(() => {
-    if (userKey) setCreateResourceForm({ ...createResourceForm, createdBy: userKey });
-  }, [userKey]);
-
-  useEffect(() => {
-    getResourcePaths(apiId);
-  }, [apiId]);
-
-  const getResourcePaths = async (apiId: string) => {
-    const res = await requestGet(`/api/v1/resources/api/${apiId}/paths`);
-
-    if (res) {
-      setResourcePaths(res);
+  const fetchResourcePaths = async () => {
+    try {
+      const res = await requestGet(`/api/v1/resources/api/${apiId}/paths`);
+      if (res) setResourcePaths(res);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const { mutate: createResourceMutate } = useCreateResource({
     onSuccess: () => {
+      const resourcePath =
+        pathPattern === '/'
+          ? `${pathPattern}${createResourceForm.resourceName}`
+          : `${pathPattern}/${createResourceForm.resourceName}`;
+      setCreatedResourceId(`node-${resourcePath}`);
       toast.success('리소스가 생성되었습니다.');
       onOpenChange(false);
-      onCreated();
+    },
+    onError: (error: any) => {
+      const serverMessage = error?.response?.data?.message ?? 'API 삭제에 실패하였습니다.';
+      toast.error(serverMessage);
     },
   });
 
-  const createResource = async (data: CreateResourceProps) => {
+  const createResource = (data: CreateResourceProps) => {
     const resourcePath =
       pathPattern === '/'
         ? `${pathPattern}${data.resourceName}`
         : `${pathPattern}/${data.resourceName}`;
 
-    if (isValidInput(data.resourceName)) createResourceMutate({ ...data, path: resourcePath });
-    else toast.error('유효하지 않은 리소스 이름입니다.');
+    if (isValidInput(data.resourceName)) {
+      createResourceMutate({ ...data, path: resourcePath });
+    } else {
+      toast.error('유효하지 않은 리소스 이름입니다.');
+    }
   };
 
   const handleCancel = () => {
     onOpenChange(false);
-    setCreateResourceForm({
-      apiId: apiId,
-      resourceName: '',
-      description: '',
-      path: '/',
-      enableCors: false,
-      resourceType: 'REST',
-      createdBy: userKey,
-    });
   };
 
   return (
@@ -156,7 +158,7 @@ export function ResourceCreateDialog({
                 onChange={(e) => {
                   if (isValidInput(e.target.value)) {
                     setCheckUrl(false);
-                    setCreateResourceForm({ ...createResourceForm, resourceName: e.target.value });
+                    setCreateResourceForm((prev) => ({ ...prev, resourceName: e.target.value }));
                   } else setCheckUrl(true);
                 }}
               />
@@ -178,7 +180,7 @@ export function ResourceCreateDialog({
                 placeholder=""
                 value={createResourceForm.description}
                 onChange={(e) => {
-                  setCreateResourceForm({ ...createResourceForm, description: e.target.value });
+                  setCreateResourceForm((prev) => ({ ...prev, description: e.target.value }));
                 }}
                 className="min-h-[50px] text-sm resize-none"
               />
@@ -201,10 +203,10 @@ export function ResourceCreateDialog({
               id="cors-toggle"
               checked={createResourceForm.enableCors}
               onCheckedChange={(checked) =>
-                setCreateResourceForm({
-                  ...createResourceForm,
+                setCreateResourceForm((prev) => ({
+                  ...prev,
                   enableCors: checked,
-                })
+                }))
               }
             />
           </div>

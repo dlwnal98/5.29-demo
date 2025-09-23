@@ -14,13 +14,13 @@ import type { Method, Resource } from '@/types/resource';
 import { toast, Toaster } from 'sonner';
 import { requestDelete } from '@/lib/apiClient';
 import { useQueryClient } from '@tanstack/react-query';
+import { useDeleteMethod } from '@/hooks/use-methods';
 interface DeleteMethodDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   setMethodToDelete: (method: Method | null) => void;
   methodToDelete: Method | null;
   userKey: string;
-  onRemoved: () => void;
   apiId: string;
   selectedResource: Resource;
   setSelectedResource: (resource: Resource) => void;
@@ -32,52 +32,31 @@ export function DeleteMethodDialog({
   methodToDelete,
   userKey,
   setMethodToDelete,
-  onRemoved,
   apiId,
   selectedResource,
   setSelectedResource,
 }: DeleteMethodDialogProps) {
   console.log(methodToDelete);
-  const queryClient = useQueryClient();
 
-  // const handleDeleteMethod = async () => {
-  //   if (!methodToDelete || !userKey) return;
-  //   await requestDelete(`/api/v1/methods/${methodToDelete?.info['x-method-id']}`, {
-  //     headers: { 'X-User-Id': userKey },
-  //   });
-  //   toast.success(`메서드 '${methodToDelete.type} ${methodToDelete.resourcePath}' 삭제됨.`);
-  //   queryClient.invalidateQueries({ queryKey: ['getOpenAPIDoc', apiId] });
-  //   // 선택된 메서드가 삭제된 경우 null 처리
-  //   if (methodToDelete?.info['x-method-id'] === methodToDelete?.info['x-method-id']) {
-  //   setMethodToDelete(null);
-  //   }
-  //   onOpenChange(false);
-  // };
+  const { mutate: deleteMethod } = useDeleteMethod({
+    onSuccess: () => {
+      toast.success(`메서드 '${methodToDelete.type} ${methodToDelete.resourcePath}' 삭제됨.`);
+      // selectedResource 안에서 삭제된 method 제거
+      setSelectedResource((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          methods: prev.methods.filter(
+            (m) => m.info['x-method-id'] !== methodToDelete.info['x-method-id']
+          ),
+        };
+      });
+      onOpenChange(false);
+    },
+  });
 
   const handleDeleteMethod = async () => {
-    if (!methodToDelete || !userKey) return;
-
-    await requestDelete(`/api/v1/methods/${methodToDelete.info['x-method-id']}`, {
-      headers: { 'X-User-Id': userKey },
-    });
-
-    toast.success(`메서드 '${methodToDelete.type} ${methodToDelete.resourcePath}' 삭제됨.`);
-    onRemoved?.();
-    // selectedResource 안에서 삭제된 method 제거
-    setSelectedResource((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        methods: prev.methods.filter(
-          (m) => m.info['x-method-id'] !== methodToDelete.info['x-method-id']
-        ),
-      };
-    });
-
-    // 필요하면 전체 resources도 같이 업데이트 가능
-    // setResources(prev => ...);
-
-    onOpenChange(false);
+    deleteMethod({ methodId: methodToDelete.info['x-method-id'], userKey: userKey });
   };
 
   return (

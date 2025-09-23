@@ -213,3 +213,36 @@ const getValidatorList = async (codeType = 'REQUEST_VALIDATOR'): Promise<Methods
 
   return res;
 };
+
+interface DeleteMethodProps {
+  methodId: string;
+  userKey: string;
+}
+
+// ✅ API 요청 함수
+const deleteMethod = async (data: DeleteMethodProps) => {
+  const res = await requestDelete(`/api/v1/methods/${data.methodId}`, {
+    body: {
+      headers: { 'X-User-Id': data.userKey },
+    },
+  });
+
+  return res;
+};
+
+// ✅ 메서드 삭제
+export function useDeleteMethod(options?: UseMutationOptions<any, Error, DeleteMethodProps>) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: (data: DeleteMethodProps) => deleteMethod(data),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: ['getMethodsList'],
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+  });
+}

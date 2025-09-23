@@ -12,13 +12,14 @@ import {
 import { AlertTriangle } from 'lucide-react';
 import { requestDelete } from '@/lib/apiClient';
 import { toast, Toaster } from 'sonner';
+import { useDeleteResource } from '@/hooks/use-resources';
 
 interface DeleteResourceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   resourceId: string;
   selectedResource: { path: string };
-  onRemoved: () => void;
+  setCreatedResourceId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export function DeleteResourceDialog({
@@ -26,14 +27,18 @@ export function DeleteResourceDialog({
   onOpenChange,
   resourceId,
   selectedResource,
-  onRemoved,
+  setCreatedResourceId,
 }: DeleteResourceDialogProps) {
-  const deleteResource = async () => {
-    await requestDelete(`/api/v1/resources/${resourceId}`);
+  const { mutate: deleteResource } = useDeleteResource({
+    onSuccess: () => {
+      setCreatedResourceId('');
+      toast.success('리소스가 삭제되었습니다');
+      onOpenChange(false);
+    },
+  });
 
-    toast.success('리소스가 삭제되었습니다');
-    onRemoved?.();
-    onOpenChange(false);
+  const handleDeleteResource = () => {
+    deleteResource(resourceId);
   };
 
   return (
@@ -67,7 +72,7 @@ export function DeleteResourceDialog({
           <AlertDialogFooter>
             <AlertDialogCancel>취소</AlertDialogCancel>
             <AlertDialogAction
-              onClick={deleteResource}
+              onClick={handleDeleteResource}
               className="bg-red-600 hover:bg-red-700 text-white">
               삭제하기
             </AlertDialogAction>

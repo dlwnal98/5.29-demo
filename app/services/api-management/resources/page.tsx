@@ -11,7 +11,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { ArrowLeft, SquarePlus, SquareMinus, Eye } from 'lucide-react';
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Toaster } from 'sonner';
 import type { Resource, Method } from '@/types/resource';
@@ -22,6 +22,7 @@ import MethodDetailCard from './components/MethodDetailCard';
 import { ResourceCreateDialog } from './components/ResourceCreateDialog';
 import { useGetOpenAPIDoc } from '@/hooks/use-resources';
 import { useAuthStore } from '@/store/store';
+import { resoureceBuildTree } from '@/lib/etc';
 
 export default function ApiResourcesPage() {
   const router = useRouter();
@@ -34,82 +35,7 @@ export default function ApiResourcesPage() {
 
   const { data: openAPIDocData, refetch } = useGetOpenAPIDoc(currentApiId || '');
 
-  // interface Resource {
-  //   id: number;
-  //   path: string;
-  //   name: string;
-  //   description?: string;
-  //   cors?: any;
-  //   children?: Resource[];
-  //   methods?: Method[];
-  // }
-
-  function buildTree(flatData) {
-    const excludedKeys = ['x-cors-policy', 'x-resource-id', 'summary', 'description', 'parameters'];
-
-    const paths = Object.keys(flatData);
-    if (paths.length === 0) return [];
-
-    // 1️⃣ 첫 번째 path를 root로 고정
-    const rootPath = paths[0];
-    const rootNode = {
-      id: 'node-root',
-      name: '/',
-      path: '/',
-      resourceId: flatData['/']?.['x-resource-id'],
-      methods: Object.entries(flatData[rootPath])
-        .filter(([type]) => !excludedKeys.includes(type))
-        .map(([type, methodObj], mIdx) => ({
-          id: `root-method-${mIdx}`,
-          type: type?.toUpperCase(),
-          resourcePath: rootPath,
-          info: methodObj,
-        })),
-      children: [],
-    };
-
-    // 2️⃣ 나머지 path들을 children으로 계층적 추가
-    paths.slice(1).forEach((path) => {
-      const segments = path.split('/').filter(Boolean);
-      let currentLevel = rootNode.children;
-
-      segments.forEach((segment, idx) => {
-        const fullPath = '/' + segments.slice(0, idx + 1).join('/');
-        let existingNode = currentLevel.find((node) => node.path === fullPath);
-
-        if (!existingNode) {
-          existingNode = {
-            id: `node-${fullPath}`,
-            name: segment,
-            path: fullPath,
-            description: flatData[path]?.description || '',
-            resourceId: flatData[path]?.['x-resource-id'],
-            cors: flatData[path]?.['x-cors-policy'],
-            methods:
-              idx === segments.length - 1
-                ? Object.entries(flatData[path])
-                    .filter(([type]) => !excludedKeys.includes(type))
-                    .map(([type, methodObj], mIdx) => ({
-                      id: `${fullPath}-method-${mIdx}`,
-                      type: type?.toUpperCase(),
-                      resourcePath: path,
-                      info: methodObj,
-                    }))
-                : [],
-            children: [],
-          };
-          currentLevel.push(existingNode);
-        }
-
-        // 다음 레벨로 내려가기
-        currentLevel = existingNode.children;
-      });
-    });
-
-    return [rootNode];
-  }
-
-  const tree = buildTree(openAPIDocData?.paths ?? {});
+  const tree = resoureceBuildTree(openAPIDocData?.paths ?? {});
 
   const [resources, setResources] = useState<Resource[]>(tree);
 
@@ -119,33 +45,13 @@ export default function ApiResourcesPage() {
   const [activeTab, setActiveTab] = useState('method-request');
   const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [deploymentData, setDeploymentData] = useState({
-    stage: '',
-    version: '',
-    description: '',
-    newStageName: '',
-  });
+  const [createdResourceId, setCreatedResourceId] = useState('');
 
   useEffect(() => {
     if (openAPIDocData?.paths) {
       setResources(tree);
     }
   }, [openAPIDocData]);
-
-  // ✅ 모든 리소스를 한 번만 펼치는 로직
-  useEffect(() => {
-    if (resources.length > 0) {
-      // 새로고침 시 루트 선택
-      setSelectedResource((prev) => prev ?? resources.find((r) => r.path === '/'));
-
-      // expandedResources 업데이트
-      setExpandedResources((prev) => {
-        const prevExpanded = prev ?? [];
-        const newIds = resources.map((r) => r.id).filter((id) => !prevExpanded.includes(id));
-        return [...prevExpanded, ...newIds];
-      });
-    }
-  }, [resources]);
 
   // Sync heights
   useEffect(() => {
@@ -181,92 +87,79 @@ export default function ApiResourcesPage() {
     setActiveTab('method-request');
   };
 
-  // 리소스 클릭 핸들러 수정
-  // const handleResourceClick = (resource: Resource) => {
-  //   setSelectedResource(resource);
-  //   setSelectedMethod(null); // 메서드 선택 해제
-  //   toggleResourceExpansion(resource.id);
-  // };
-
   const handleDeploy = () => {
-    setDeploymentData({
-      stage: '',
-      version: '',
-      description: '',
-      newStageName: '',
-    });
     setIsDeployModalOpen(true);
   };
-
-  // // 리소스 확장/축소 토글 함수
-  // const toggleResourceExpansion = (resourceId: number) => {
-  //   let newExpanded = [...(expandedResources ?? [])];
-  //   console.log(resourceId, newExpanded);
-
-  //   if (newExpanded.includes(resourceId)) {
-  //     // 이미 있으면 제거
-  //     newExpanded = newExpanded.filter((id) => id !== resourceId);
-  //   } else {
-  //     // 없으면 추가
-  //     newExpanded.push(resourceId);
-  //   }
-
-  //   // 상태 업데이트
-  //   setExpandedResources(newExpanded);
-  // };
-
-  // const [resources, setResources] = useState<Resource[]>([]);
-  // const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
-  // const [selectedMethod, setSelectedMethod] = useState<Method | null>(null);
-  // const [expandedResources, setExpandedResources] = useState<string[]>([]); // id는 string(fullPath)로
 
   // OpenAPI 데이터 들어오면 트리로 변환
   useEffect(() => {
     if (openAPIDocData?.paths) {
-      const tree = buildTree(openAPIDocData.paths);
+      const tree = resoureceBuildTree(openAPIDocData.paths);
       setResources(tree);
     }
   }, [openAPIDocData]);
 
-  // 1️⃣ 루트 기본 선택 & 2️⃣ 모든 노드 expand
+  const findInTree = (list: Resource[], id: string): boolean => {
+    for (const res of list) {
+      if (res.id === id) return true;
+      if (res.children && findInTree(res.children, id)) return true;
+    }
+    return false;
+  };
+
   useEffect(() => {
-    if (resources.length === 0) return;
+    if (!resources.length) return;
 
     const root = resources[0];
-    setSelectedResource(root);
 
-    // 모든 노드 id 수집 (재귀)
-    const collectAllIds = (list: Resource[], acc: string[] = []) => {
+    // 모든 노드 expand
+    const collectAllIds = (list: Resource[], acc: string[] = []): string[] => {
       list.forEach((res) => {
         acc.push(res.id);
         if (res.children?.length) collectAllIds(res.children, acc);
       });
       return acc;
     };
-
     setExpandedResources(collectAllIds([root]));
-  }, [resources]);
 
-  // 3️⃣ 새 리소스 생성 시 마지막 노드 선택 + methods 있으면 expand
-  useEffect(() => {
-    if (resources.length === 0) return;
+    // ✅ 생성된 리소스가 있는 경우 → 그걸 선택
+    if (createdResourceId) {
+      const findResourceById = (list: Resource[]): Resource | null => {
+        for (const res of list) {
+          if (res.id === createdResourceId) return res;
+          if (res.children) {
+            const child = findResourceById(res.children);
+            if (child) return child;
+          }
+        }
+        return null;
+      };
 
-    const root = resources[0];
-    const lastChild = root.children[root.children.length - 1];
-    if (!lastChild) return;
-
-    setSelectedResource(lastChild);
-
-    if (lastChild.methods?.length) {
-      setExpandedResources((prev) => [...new Set([...(prev ?? []), lastChild.id])]);
+      const newSelected = findResourceById(resources);
+      if (newSelected) {
+        setSelectedResource(newSelected);
+        setCreatedResourceId('');
+        return;
+      }
     }
-  }, [resources]);
+
+    // ✅ 삭제된 경우 → 선택된 리소스가 현재 리스트에 없으면 루트로
+    if (selectedResource && !findInTree(resources, selectedResource.id)) {
+      setSelectedResource(root);
+      return;
+    }
+
+    // ✅ 최초 렌더일 때 → 루트 선택
+    if (!selectedResource) {
+      setSelectedResource(root);
+    }
+  }, [resources, createdResourceId]);
 
   // 리소스 클릭
   const handleResourceClick = (res: Resource) => {
     setSelectedResource(res);
     setSelectedMethod(null);
-    toggleResourceExpansion(res.id);
+    // toggleResourceExpansion(res.id);
   };
 
   // expand toggle
@@ -285,7 +178,6 @@ export default function ApiResourcesPage() {
           const isSelected = selectedResource?.id === res.id;
 
           return (
-            // <div key={res.id} className={res.path === '/' ? '' : 'pl-2'}>
             <div key={res.id}>
               <div
                 className={`flex items-center gap-2 py-1 px-2 mb-1 cursor-pointer rounded ${
@@ -388,7 +280,7 @@ export default function ApiResourcesPage() {
             <Button
               size="sm"
               onClick={() => handleDeploy()}
-              className="text-sm rounded-full !px-4 h-[28px] bg-orange-500 hover:bg-orange-600 text-white text-xs lg:text-sm">
+              className="h-[77vh] text-sm rounded-full !px-4 h-[28px] bg-orange-500 hover:bg-orange-600 text-white text-xs lg:text-sm">
               API 배포
             </Button>
           </div>
@@ -398,7 +290,7 @@ export default function ApiResourcesPage() {
           <div className="col-span-3">
             <div
               ref={leftSidebarRef}
-              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-2 overflow-auto">
+              className=" h-[77vh] bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-2 overflow-auto">
               <div className="flex items-center justify-end p-2 gap-2">
                 <Button
                   size="sm"
@@ -422,7 +314,7 @@ export default function ApiResourcesPage() {
                   setSelectedResource={setSelectedResource}
                   handleMethodClick={handleMethodClick}
                   apiId={currentApiId || ''}
-                  onRemoved={refetch}
+                  setCreatedResourceId={setCreatedResourceId}
                 />
               )}
             </div>
@@ -436,6 +328,7 @@ export default function ApiResourcesPage() {
         apiId={currentApiId || ''}
         userKey={userData?.userKey || ''}
         onCreated={refetch}
+        setCreatedResourceId={setCreatedResourceId}
       />
 
       <DeployResourceDialog

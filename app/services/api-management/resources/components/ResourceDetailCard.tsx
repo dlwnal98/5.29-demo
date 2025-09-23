@@ -26,7 +26,7 @@ interface ResourceDetailCardProps {
   setSelectedResource: (resource: Resource) => void;
   handleMethodClick: (method: Method, resource: Resource) => void;
   apiId: string;
-  onRemoved: () => void;
+  setCreatedResourceId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export function ResourceDetailCard({
@@ -34,7 +34,7 @@ export function ResourceDetailCard({
   setSelectedResource,
   handleMethodClick,
   apiId,
-  onRemoved,
+  setCreatedResourceId,
 }: ResourceDetailCardProps) {
   const userData = useAuthStore((state) => state.user);
 
@@ -68,7 +68,7 @@ export function ResourceDetailCard({
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="h-[77vh] bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         {/* Resource Details Header */}
         <div className="border-b border-gray-200 dark:border-gray-700 p-6  space-y-3">
           <div className="flex items-center justify-between mb-4">
@@ -247,7 +247,6 @@ export function ResourceDetailCard({
         methodToDelete={methodToDelete}
         apiId={apiId}
         userKey={userData?.userKey || ''}
-        onRemoved={onRemoved}
         setMethodToDelete={setMethodToDelete}
         selectedResource={selectedResource}
         setSelectedResource={setSelectedResource}
@@ -258,7 +257,7 @@ export function ResourceDetailCard({
         onOpenChange={setIsDeleteDialogOpen}
         resourceId={selectedResource?.resourceId}
         selectedResource={selectedResource}
-        onRemoved={onRemoved}
+        setCreatedResourceId={setCreatedResourceId}
       />
     </>
   );
