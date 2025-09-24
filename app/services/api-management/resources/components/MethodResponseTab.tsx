@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { MethodResponseEdit } from './MethodResponseEdit';
 import type { MethodResponse, Model } from '@/types/resource';
+import { useMethodEditStore } from '@/store/store';
 
 interface MethodResponseTabProps {
   methodResponses: MethodResponse[];
@@ -22,7 +23,9 @@ export function MethodResponseTab({
   availableModels,
   deleteModel,
 }: MethodResponseTabProps) {
-  const [isEditMode, setIsEditMode] = useState(false);
+  const isEditMode = useMethodEditStore((state) => state.isEdit);
+  const setIsEditMode = useMethodEditStore((state) => state.setIsEdit);
+
   const [editingResponse, setEditingResponse] = useState<MethodResponse | null>(null);
 
   const handleStartEdit = (response: MethodResponse) => {

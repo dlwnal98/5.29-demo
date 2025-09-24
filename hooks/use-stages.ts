@@ -1,21 +1,6 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
 import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from '@/lib/apiClient';
 
-interface StagesData {
-  stageId: string;
-  apiId: string;
-  name: string;
-  description: string;
-  environmentType: string;
-  isDefault: boolean;
-  status: string;
-  deployedDocId: string;
-  version: string;
-  createdAt: string;
-  lastDeployedAt: string;
-  lastDeployedBy: string;
-}
-
 // 전체 스테이지 목록 조회 Open API문서
 const getStatesDocData = async (apiId: string, path?: string) => {
   const res = await requestGet(`/api/v1/stages/api/${apiId}`);
@@ -85,16 +70,12 @@ export function useCreateStage(options?: UseMutationOptions<any, Error, CreateSt
       queryClient.invalidateQueries({
         queryKey: ['getStatesDocData'],
       });
-
+      queryClient.invalidateQueries({
+        queryKey: ['getDeployHistoryData'],
+      });
       options?.onSuccess?.(data, variables, context);
     },
   });
-}
-
-interface handleStageStatusProps {
-  status: string;
-  reason: string;
-  updatedBy: string;
 }
 
 // 스테이지 삭제
@@ -149,12 +130,6 @@ export function useModifyStage(
       options?.onSuccess?.(data, variables, context);
     },
   });
-}
-
-interface activateDeploymentProps {
-  activatedBy: string;
-  activationNotes: string;
-  immediateActivation: boolean;
 }
 
 interface PreviousDeploymentProps {

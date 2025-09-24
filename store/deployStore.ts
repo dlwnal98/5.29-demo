@@ -2,11 +2,11 @@
 import { create } from 'zustand';
 
 interface DeployState {
-  selectedStageId: string | null;
-  setSelectedStageId: (id: string | null) => void;
+  createdStageDeploymentId: string | null;
+  setCreateStageDeploymentId: (id: string | null) => void;
 }
 
 export const useDeployStore = create<DeployState>((set) => ({
-  selectedStageId: null,
-  setSelectedStageId: (id) => set({ selectedStageId: id }),
+  createdStageDeploymentId: null,
+  setCreateStageDeploymentId: (id) => set({ createdStageDeploymentId: id }),
 }));

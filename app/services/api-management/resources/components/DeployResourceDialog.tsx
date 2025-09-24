@@ -25,6 +25,8 @@ import { createStage } from '@/hooks/use-stages';
 import { useDeployAPI } from '@/hooks/use-resources';
 import { useRouter } from 'next/navigation';
 import { useGetStagesDocData } from '@/hooks/use-stages';
+import { useQueryClient } from '@tanstack/react-query';
+import { useDeployStore } from '@/store/deployStore';
 
 interface deployData {
   stage: string;
@@ -49,9 +51,6 @@ export default function DeployResourceDialog({
   organizationId,
 }: deployResourceProps) {
   const { data: stagesDocData = [] } = useGetStagesDocData(apiId || '');
-  const stageList = stagesDocData.map((data: any, i: number) => {
-    return { id: i, label: data.name, value: data.stageId };
-  });
 
   const [deploymentData, setDeploymentData] = useState<deployData>({
     stage: '',
@@ -60,29 +59,48 @@ export default function DeployResourceDialog({
     newStageName: '',
   });
 
+  const [stageForDeployment, setStageForDeployment] = useState([]);
   useEffect(() => {
-    if (open) {
+    if (open && stagesDocData.length) {
       setDeploymentData({
         stage: '',
         version: '',
         description: '',
         newStageName: '',
       });
+
+      const stageList = stagesDocData.map((data: any, i: number) => ({
+        id: i,
+        label: data.name,
+        value: data.stageId,
+      }));
+
+      setStageForDeployment(stageList);
     }
-  }, [open]);
+  }, [open, stagesDocData]);
 
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const { mutate: handleDeploy } = useDeployAPI({
     onSuccess: () => {
       toast.success('성공적으로 배포되었습니다.');
-      router.push(`/services/api-management/stages?apiId=${apiId}`);
+      handleNavigateStage();
     },
     onError: (error: any) => {
       const serverMessage = error?.response?.data?.message ?? '배포에 실패하였습니다.';
       toast.error(serverMessage);
     },
   });
+
+  const handleNavigateStage = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['getStatesDocData', apiId] });
+    await queryClient.refetchQueries({ queryKey: ['getStatesDocData', apiId] });
+
+    await queryClient.invalidateQueries({ queryKey: ['getDeployHistoryData', organizationId] });
+    await queryClient.refetchQueries({ queryKey: ['getDeployHistoryData', organizationId] });
+    router.push(`/services/api-management/stages?apiId=${apiId}`);
+  };
 
   const handleCreateAndDeploy = async () => {
     const res = await createStage({
@@ -179,7 +197,7 @@ export default function DeployResourceDialog({
                 <SelectValue placeholder="스테이지 선택" />
               </SelectTrigger>
               <SelectContent>
-                {stageList.map((stage: any, i: number) => {
+                {stageForDeployment.map((stage: any, i: number) => {
                   return <SelectItem value={stage.value}>{stage.label}</SelectItem>;
                 })}
                 <SelectItem value="new">

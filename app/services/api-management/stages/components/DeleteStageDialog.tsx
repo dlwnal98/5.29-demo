@@ -20,9 +20,8 @@ interface DeleteStageDialogProps {
   onOpenChange: (open: boolean) => void;
   userKey: string;
   selectedStage: {
-    id?: string;
     name: string;
-    description: string;
+    stageId: string;
   };
 }
 

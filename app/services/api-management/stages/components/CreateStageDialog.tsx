@@ -22,6 +22,8 @@ import {
 } from '@/components/ui/select';
 import { createStage, useCreateStage } from '@/hooks/use-stages';
 import { toast, Toaster } from 'sonner';
+import { useGetDeployHistoryData } from '@/hooks/use-stages';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface CreateStageDialogProps {
   open: boolean;
@@ -29,7 +31,6 @@ interface CreateStageDialogProps {
   organizationId: string;
   userKey: string;
   apiId: string;
-  deploymentHistoryData: any;
 }
 
 export default function CreateStageDialog({
@@ -38,15 +39,15 @@ export default function CreateStageDialog({
   organizationId,
   userKey,
   apiId,
-  deploymentHistoryData,
 }: CreateStageDialogProps) {
   const [createStageForm, setCreateStageForm] = useState({
     name: '',
     description: '',
   });
-  const [selectedDeploymentRecord, setSelectedDeploymentRecord] = useState('');
 
-  const [isDirectUrlInput, setIsDirectUrlInput] = useState(false);
+  const { data: deploymentHistoryData } = useGetDeployHistoryData(organizationId || '', 0, 20);
+
+  const [selectedDeploymentRecord, setSelectedDeploymentRecord] = useState('');
 
   const { mutate: createStage } = useCreateStage({
     onSuccess: () => {
@@ -127,35 +128,32 @@ export default function CreateStageDialog({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <Label className="text-sm text-gray-600">배포 기록 선택 여부</Label>
-                <Switch checked={isDirectUrlInput} onCheckedChange={setIsDirectUrlInput} />
+                <Label className="text-sm text-gray-600">
+                  배포 기록 선택<span className="text-red-500">*</span>
+                </Label>
               </div>
             </div>
-            {isDirectUrlInput && (
-              <div>
-                <Select
-                  value={selectedDeploymentRecord}
-                  onValueChange={setSelectedDeploymentRecord}>
-                  <SelectTrigger className="mt-2">
-                    <SelectValue placeholder="배포 기록을 선택하세요" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {deploymentHistoryData.map((record) => (
-                      <SelectItem key={record.deploymentId} value={record.deploymentId}>
-                        <div className="flex flex-col">
-                          <span className="font-medium">
-                            {record.openApiDocument.info.title} - {record.deploymentId}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            {record.deployedAt.toLocaleString()} ({record.status})
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            <div>
+              <Select value={selectedDeploymentRecord} onValueChange={setSelectedDeploymentRecord}>
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder="배포 기록을 선택하세요" />
+                </SelectTrigger>
+                <SelectContent>
+                  {deploymentHistoryData?.map((record) => (
+                    <SelectItem key={record.deploymentId} value={record.deploymentId}>
+                      <div className="flex flex-col">
+                        <span className="font-medium">
+                          {record.openApiDocument.info.title} - {record.deploymentId}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {record.deployedAt.toLocaleString()} ({record.status})
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <DialogFooter className="gap-2">
             <Button

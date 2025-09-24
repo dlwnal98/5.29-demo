@@ -115,9 +115,9 @@ export function useCreateMethod(options?: UseMutationOptions<any, Error, CreateM
     ...options,
     mutationFn: (data: CreateMethodProps) => createMethod(data),
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: ['getMethodsList'],
-      });
+      // queryClient.invalidateQueries({
+      //   queryKey: ['getOpenAPIDoc'],
+      // });
 
       options?.onSuccess?.(data, variables, context);
     },
@@ -239,7 +239,7 @@ export function useDeleteMethod(options?: UseMutationOptions<any, Error, DeleteM
     mutationFn: (data: DeleteMethodProps) => deleteMethod(data),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
-        queryKey: ['getMethodsList'],
+        queryKey: ['getOpenAPIDoc'],
       });
 
       options?.onSuccess?.(data, variables, context);

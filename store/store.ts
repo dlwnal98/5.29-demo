@@ -68,3 +68,15 @@ function parseJwt(token: string): any {
     return null;
   }
 }
+
+// 메서드 편집 모드 변경
+
+interface MethodEditState {
+  isEdit: boolean;
+  setIsEdit: (value: boolean) => void;
+}
+
+export const useMethodEditStore = create<MethodEditState>((set) => ({
+  isEdit: false,
+  setIsEdit: (value) => set({ isEdit: value }),
+}));

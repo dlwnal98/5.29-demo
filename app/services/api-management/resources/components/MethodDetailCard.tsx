@@ -23,6 +23,7 @@ import { useClipboard } from 'use-clipboard-copy';
 import { toast, Toaster } from 'sonner';
 import { useSearchParams } from 'next/navigation';
 import { getMethodStyle } from '@/lib/etc';
+import { useMethodEditStore } from '@/store/store';
 
 export default function MethodDetailCard({ selectedMethod }: { selectedMethod: Method }) {
   console.log(selectedMethod);
@@ -30,13 +31,12 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
   const [activeTab, setActiveTab] = useState('method-request');
   const [selectedFlowStep, setSelectedFlowStep] = useState('');
   const [isMethodDeleteDialogOpen, setIsMethodDeleteDialogOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [methodToDelete, setMethodToDelete] = useState<Method | null>(null);
 
-  const searchParams = useSearchParams();
-  const apiId = searchParams.get('apiId');
-  const resourceId = searchParams.get('resourceId');
-  const resourcePath = searchParams.get('resourcePath');
+  const isEditMode = useMethodEditStore((state) => state.isEdit);
+  const setIsEditMode = useMethodEditStore((state) => state.setIsEdit);
+
+  // const [isEditMode, setIsEditMode] = useState(false);
+  const [methodToDelete, setMethodToDelete] = useState<Method | null>(null);
 
   // Test Tab States
   const [testSettings, setTestSettings] = useState({
@@ -192,6 +192,8 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
     }
   };
 
+  console.log(isEditMode);
+
   const handleEditMethod = () => {
     setIsEditMode(true);
   };
@@ -278,86 +280,6 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
 
   const handleDeleteResponse = (response: MethodResponse) => {
     toast.success('응답이 삭제되었습니다.');
-  };
-
-  // Query Parameter functions
-  const addQueryParameter = () => {
-    const newParam: QueryParameter = {
-      id: Date.now().toString(),
-      name: '',
-      description: '',
-      type: 'string',
-      required: false,
-      cacheKey: false,
-    };
-    setQueryParameters([...queryParameters, newParam]);
-  };
-
-  const updateQueryParameter = (id: string, field: keyof QueryParameter, value: any) => {
-    setQueryParameters(
-      queryParameters.map((param) => (param.id === id ? { ...param, [field]: value } : param))
-    );
-  };
-
-  const removeQueryParameter = (id: string) => {
-    setQueryParameters(queryParameters.filter((param) => param.id !== id));
-  };
-
-  // Request Header functions
-  const addRequestHeader = () => {
-    const newHeader: RequestHeader = {
-      id: Date.now().toString(),
-      name: '',
-      description: '',
-      type: 'string',
-      required: false,
-    };
-    setRequestHeaders([...requestHeaders, newHeader]);
-  };
-
-  const updateRequestHeader = (id: string, field: keyof RequestHeader, value: any) => {
-    setRequestHeaders(
-      requestHeaders.map((header) => (header.id === id ? { ...header, [field]: value } : header))
-    );
-  };
-
-  const removeRequestHeader = (id: string) => {
-    // Don't allow removing Content-Type header
-    const header = requestHeaders.find((h) => h.id === id);
-    if (header?.name === 'Content-Type') {
-      toast.error('Content-Type 헤더는 삭제할 수 없습니다.');
-      return;
-    }
-    setRequestHeaders(requestHeaders.filter((header) => header.id !== id));
-  };
-
-  // Request Body Model functions
-  const addRequestBodyModel = () => {
-    const newModel: RequestBodyModel = {
-      id: Date.now().toString(),
-      contentType: 'application/json',
-      modelName: '',
-      modelId: '',
-    };
-    setRequestBodyModels([...requestBodyModels, newModel]);
-  };
-
-  const updateRequestBodyModel = (id: string, field: keyof RequestBodyModel, value: any) => {
-    setRequestBodyModels(
-      requestBodyModels.map((model) => (model.id === id ? { ...model, [field]: value } : model))
-    );
-  };
-
-  const removeRequestBodyModel = (id: string) => {
-    setRequestBodyModels(requestBodyModels.filter((model) => model.id !== id));
-  };
-
-  // Model management functions
-  const deleteModel = (modelId: string) => {
-    setAvailableModels(availableModels.filter((model) => model.id !== modelId));
-    // Also remove from request body models if used
-    setRequestBodyModels(requestBodyModels.filter((model) => model.modelId !== modelId));
-    toast.success('모델이 삭제되었습니다.');
   };
 
   return (
@@ -489,7 +411,13 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
 
         {/* Method Tabs */}
         <div className="p-6">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) => {
+              setActiveTab(value);
+              setIsEditMode(false);
+            }}
+            className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="method-request">메서드 요청</TabsTrigger>
               <TabsTrigger value="method-response">메서드 응답</TabsTrigger>

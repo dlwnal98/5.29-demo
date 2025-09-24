@@ -48,6 +48,7 @@ import { useGetEndpointsList } from '@/hooks/use-endpoints';
 import { requestGet } from '@/lib/apiClient';
 import { useClipboard } from 'use-clipboard-copy';
 import { onInputChange, onSave } from '@/lib/etc';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function CreateMethodPage() {
   const searchParams = useSearchParams();
@@ -61,8 +62,6 @@ export default function CreateMethodPage() {
   const { data: apiKeyList } = useGetAPIKeyList(userData?.organizationId || '');
   const { data: endpointList } = useGetEndpointsList(userData?.organizationId || '');
   // const {data : modelList} = useGetModelList('dasdf'); // API Id 들어가야함
-
-  console.log(endpointList);
 
   const { mutate: createMethod } = useCreateMethod({
     onSuccess: () => {
@@ -145,7 +144,11 @@ export default function CreateMethodPage() {
     getValidatorList();
   }, []);
 
-  const handleBack = () => {
+  const queryClient = useQueryClient();
+
+  const handleBack = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['getOpenAPIDoc', apiId] });
+    await queryClient.refetchQueries({ queryKey: ['getOpenAPIDoc', apiId] });
     router.push(`/services/api-management/resources?apiId=${apiId}&apiName=${apiName}`);
   };
 
@@ -252,8 +255,6 @@ export default function CreateMethodPage() {
     setQueryParameters((prev) => prev.filter((param) => param.id !== id));
   };
 
-  console.log(queryParameters);
-
   const nextHeaderIdRef = useRef<number>(0);
   // 추가: 생성순으로 id 부여
   const addHeader = () => {
@@ -282,8 +283,6 @@ export default function CreateMethodPage() {
   const removeHeader = (id: number) => {
     setHeaders((prev) => prev.filter((h) => h.id !== id));
   };
-
-  console.log(headers);
 
   const addBodyModel = () => {
     const newModel: BodyModel = {
@@ -314,6 +313,8 @@ export default function CreateMethodPage() {
     clipboard.copy(apiKey);
     toast.success('API Key가 복사되었습니다.');
   };
+
+  console.log(headers);
 
   return (
     <>
@@ -737,6 +738,7 @@ export default function CreateMethodPage() {
                                       updateHeader={(field, value) =>
                                         updateHeader(header.id, field, value)
                                       }
+                                      existingSearch={header.name}
                                     />
                                   </div>
 

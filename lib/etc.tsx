@@ -224,18 +224,23 @@ export function resoureceBuildTree(flatData) {
 
   return [rootNode];
 }
-
-//stage - 리소스 목록 생성
+// stage - 리소스 목록 생성 (순서 안정화)
 export function buildTree(openAPIData: any[]) {
   const excludedKeys = ['x-cors-policy', 'x-resource-id', 'summary', 'description', 'parameters'];
 
-  // openAPIData 배열 각각을 stage로 변환
-  const stageNodes = openAPIData.map((stage, sIdx) => {
+  // Stage 순서를 deployedAt 기준으로 내림차순 정렬 (최신이 위)
+  const sortedStages = [...openAPIData].sort((a, b) => {
+    const aTime = new Date(a.deployedAt || 0).getTime();
+    const bTime = new Date(b.deployedAt || 0).getTime();
+    return bTime - aTime; // 최신이 먼저
+  });
+
+  const stageNodes = sortedStages.map((stage, sIdx) => {
     const pathsData = stage?.openApiDocument?.paths ?? {};
-    const paths = Object.keys(pathsData);
+    const paths = Object.keys(pathsData); // 순서 그대로 유지
     if (paths.length === 0) return null;
 
-    // ✅ root node: 무조건 생성
+    // Root node 생성
     const rootPath = paths[0];
     const rootNode = {
       id: `node-root-${sIdx}`,
@@ -253,19 +258,20 @@ export function buildTree(openAPIData: any[]) {
       children: [] as any[],
     };
 
-    // ✅ stage node: rootNode를 children으로 가짐
+    // Stage node 생성
     const stageNode = {
       id: `stage-root-${sIdx}`,
       stageId: stage.stageId,
       description: stage.description,
       deploymentId: stage.deploymentId,
+      deployedAt: stage.deployedAt,
       name: stage.name,
       path: '/',
       methods: [],
       children: [rootNode],
     };
 
-    // ✅ paths 전부 rootNode.children에 재귀적으로 추가
+    // paths 재귀 처리
     paths.forEach((path) => {
       const segments = path.split('/').filter(Boolean);
       let currentLevel = rootNode.children;

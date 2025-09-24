@@ -24,6 +24,7 @@ interface ModifyStageDialogProps {
   selectedStage: {
     name: string;
     description: string;
+    stageId: string;
   };
 }
 

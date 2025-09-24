@@ -21,7 +21,7 @@ import { ResourceDetailCard } from './components/ResourceDetailCard';
 import MethodDetailCard from './components/MethodDetailCard';
 import { ResourceCreateDialog } from './components/ResourceCreateDialog';
 import { useGetOpenAPIDoc } from '@/hooks/use-resources';
-import { useAuthStore } from '@/store/store';
+import { useAuthStore, useMethodEditStore } from '@/store/store';
 import { resoureceBuildTree } from '@/lib/etc';
 
 export default function ApiResourcesPage() {
@@ -32,6 +32,7 @@ export default function ApiResourcesPage() {
   const currentApiId = searchParams.get('apiId');
   const currentApiName = searchParams.get('apiName');
   const userData = useAuthStore((state) => state.user);
+  const setIsMethodEdit = useMethodEditStore((state) => state.setIsEdit);
 
   const { data: openAPIDocData, refetch } = useGetOpenAPIDoc(currentApiId || '');
 
@@ -222,6 +223,7 @@ export default function ApiResourcesPage() {
                         onClick={() => {
                           setSelectedMethod(m);
                           setSelectedResource(res);
+                          setIsMethodEdit(false);
                         }}>
                         <span
                           className={`${getMethodStyle(m.type)} !font-mono !font-medium !text-xs !px-1.5 !py-0.5 rounded`}>
