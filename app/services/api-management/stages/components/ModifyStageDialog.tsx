@@ -18,9 +18,6 @@ import { useModifyStage } from '@/hooks/use-stages';
 interface ModifyStageDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  organizationId: string;
-  userKey: string;
-  apiId: string;
   selectedStage: {
     name: string;
     description: string;
@@ -31,9 +28,6 @@ interface ModifyStageDialogProps {
 export default function ModifyStageDialog({
   open,
   onOpenChange,
-  organizationId,
-  userKey,
-  apiId,
   selectedStage,
 }: ModifyStageDialogProps) {
   const [editForm, setEditForm] = useState({
@@ -77,7 +71,7 @@ export default function ModifyStageDialog({
     <>
       <Toaster expand={true} richColors position="bottom-center" />
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
               스테이지 편집
@@ -85,10 +79,7 @@ export default function ModifyStageDialog({
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                스테이지 세부 정보
-              </h3>
+            <div className="space-y-5">
               <div>
                 <Label
                   htmlFor="stage-name"
@@ -99,7 +90,7 @@ export default function ModifyStageDialog({
                   id="stage-name"
                   value={editForm.name}
                   onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  className="mt-1"
+                  className="mt-2"
                   disabled
                 />
               </div>
@@ -113,7 +104,7 @@ export default function ModifyStageDialog({
                   id="stage-description"
                   value={editForm.description}
                   onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                  className="mt-1 min-h-[100px]"
+                  className="mt-2 min-h-[100px]"
                 />
               </div>
             </div>
@@ -123,7 +114,10 @@ export default function ModifyStageDialog({
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               취소
             </Button>
-            <Button onClick={handleEditSave} className="bg-blue-500 hover:bg-blue-600 text-white">
+            <Button
+              onClick={handleEditSave}
+              disabled={!editForm.description}
+              className="bg-blue-500 hover:bg-blue-600 text-white">
               저장
             </Button>
           </DialogFooter>

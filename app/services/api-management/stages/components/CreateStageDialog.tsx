@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -20,10 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { createStage, useCreateStage } from '@/hooks/use-stages';
+import { useCreateStage } from '@/hooks/use-stages';
 import { toast, Toaster } from 'sonner';
 import { useGetDeployHistoryData } from '@/hooks/use-stages';
-import { useQueryClient } from '@tanstack/react-query';
 
 interface CreateStageDialogProps {
   open: boolean;
@@ -49,6 +47,11 @@ export default function CreateStageDialog({
 
   const [selectedDeploymentRecord, setSelectedDeploymentRecord] = useState('');
 
+  useEffect(() => {
+    setCreateStageForm({ name: '', description: '' });
+    setSelectedDeploymentRecord('');
+  }, [open]);
+
   const { mutate: createStage } = useCreateStage({
     onSuccess: () => {
       setCreateStageForm({ name: '', description: '' });
@@ -56,10 +59,11 @@ export default function CreateStageDialog({
       toast.success('스테이지가 생성되었습니다.');
       onOpenChange(false);
     },
-    onError: () => {
+    onError: (error: any) => {
       setCreateStageForm({ name: '', description: '' });
       setSelectedDeploymentRecord('');
-      toast.error('스테이지 생성에 실패하였습니다.');
+      const serverMessage = error?.response?.data?.message ?? '스테이지가 생성에 실패하였습니다.';
+      toast.error(serverMessage);
     },
   });
 
@@ -75,7 +79,6 @@ export default function CreateStageDialog({
       sourceDeploymentId: selectedDeploymentRecord,
     });
   };
-  console.log(deploymentHistoryData);
   return (
     <>
       <Toaster expand={true} richColors position="bottom-center" />
@@ -87,7 +90,7 @@ export default function CreateStageDialog({
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <div className="space-y-5 py-4">
             <div>
               <Label
                 htmlFor="create-stage-name"
@@ -104,7 +107,7 @@ export default function CreateStageDialog({
                   })
                 }
                 placeholder="스테이지 이름을 입력하세요"
-                className="mt-1"
+                className="mt-2"
               />
             </div>
             <div>
@@ -123,30 +126,35 @@ export default function CreateStageDialog({
                   })
                 }
                 placeholder="스테이지 설명을 입력하세요 (선택사항)"
-                className="mt-1"
+                className="mt-2"
               />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <Label className="text-sm text-gray-600">
-                  배포 기록 선택<span className="text-red-500">*</span>
-                </Label>
-              </div>
-            </div>
-            <div>
+              <Label className="text-sm text-gray-600 block">
+                배포 기록 선택 <span className="text-red-500">*</span>
+              </Label>
+
               <Select value={selectedDeploymentRecord} onValueChange={setSelectedDeploymentRecord}>
-                <SelectTrigger className="mt-2">
+                <SelectTrigger className="mt-2 h-[48px]">
                   <SelectValue placeholder="배포 기록을 선택하세요" />
                 </SelectTrigger>
                 <SelectContent>
                   {deploymentHistoryData?.map((record) => (
-                    <SelectItem key={record.deploymentId} value={record.deploymentId}>
+                    <SelectItem
+                      key={record.deploymentId}
+                      value={record.deploymentId}
+                      className="cursor-pointer">
                       <div className="flex flex-col">
-                        <span className="font-medium">
-                          {record.openApiDocument.info.title} - {record.deploymentId}
-                        </span>
+                        <div className="flex items-center text-left">
+                          <div
+                            className={`rounded-[999px] w-2 h-2 mr-2${record.status === 'ACTIVE' ? ' bg-green-500' : 'bg-red-500'} `}></div>
+                          <span className="font-medium text-left">
+                            {record.stageName} - {record.deploymentId}
+                          </span>
+                        </div>
+
                         <span className="text-xs text-gray-500">
-                          {record.deployedAt.toLocaleString()} ({record.status})
+                          {new Date(record.deployedAt).toLocaleString()}
                         </span>
                       </div>
                     </SelectItem>
@@ -167,7 +175,9 @@ export default function CreateStageDialog({
             </Button>
             <Button
               onClick={handleCreateStage}
-              className="bg-orange-500 hover:bg-orange-600 text-white">
+              disabled={!selectedDeploymentRecord || !createStageForm.name}
+              variant={'default'}
+              className="transition-colors duration-200 ease-in-out">
               생성
             </Button>
           </DialogFooter>

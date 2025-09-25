@@ -230,8 +230,8 @@ export function buildTree(openAPIData: any[]) {
 
   // Stage 순서를 deployedAt 기준으로 내림차순 정렬 (최신이 위)
   const sortedStages = [...openAPIData].sort((a, b) => {
-    const aTime = new Date(a.deployedAt || 0).getTime();
-    const bTime = new Date(b.deployedAt || 0).getTime();
+    const aTime = new Date(a.createdAt || 0).getTime();
+    const bTime = new Date(b.createdAt || 0).getTime();
     return bTime - aTime; // 최신이 먼저
   });
 

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { ReactNode } from 'react';
 import Providers from '@/components/providers';
+import AuthGuard from '@/components/AuthGuard';
 
 export const metadata: Metadata = {
   title: 'Clalink',
@@ -24,6 +25,9 @@ export default function RootLayout({
         />
       </head>
       <body>
+        {/* <Providers>
+          <AuthGuard>{children}</AuthGuard>
+        </Providers> */}
         <Providers>{children}</Providers>
       </body>
     </html>

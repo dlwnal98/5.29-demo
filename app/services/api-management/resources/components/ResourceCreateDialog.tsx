@@ -93,7 +93,7 @@ export function ResourceCreateDialog({
       onOpenChange(false);
     },
     onError: (error: any) => {
-      const serverMessage = error?.response?.data?.message ?? 'API 삭제에 실패하였습니다.';
+      const serverMessage = error?.response?.data?.message ?? '리소스 생성에 실패하였습니다.';
       toast.error(serverMessage);
     },
   });

@@ -40,6 +40,25 @@ export function useGetDeployHistoryData(organizationId: string, page?: number, s
   });
 }
 
+// 특정 배포 이력 Open API문서 (스냅샷 리소스 트리 조회)
+const getDeploymentResourceTreeData = async (deploymentId: string) => {
+  const res = await requestGet(`/api/v1/deployments/${deploymentId}/snapshot`);
+
+  return res;
+};
+
+export function useGetDeploymentResourceTreeData(deploymentId: string) {
+  return useQuery({
+    queryKey: ['getDeploymentResourceTreeData', deploymentId], // pathId별 캐싱
+    queryFn: () => getDeploymentResourceTreeData(deploymentId),
+    enabled: !!deploymentId, // pathId 있을 때만 실행
+    staleTime: Infinity, // 데이터 오래 유지
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+}
+
 interface CreateStageProps {
   organizationId: string;
   stageName: string;
@@ -158,8 +177,12 @@ export function useActivatePreviousDeployment(
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ['getDeployHistoryData'],
+        exact: false,
       });
-
+      queryClient.invalidateQueries({
+        queryKey: ['getStatesDocData'],
+        exact: false,
+      });
       options?.onSuccess?.(data, variables, context);
     },
   });
