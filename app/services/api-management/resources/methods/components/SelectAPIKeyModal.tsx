@@ -53,13 +53,12 @@ export function SelectAPIKeyModal({
 
   const { mutate: createAPIKey } = useCreateAPIKey({
     onSuccess: (data) => {
-      toast.success('성공');
-      onOpenChange(false);
       // setNewApiKeyForm({ name: '', description: '' });
-      console.log(data);
       setApiKeyToggle(true);
       setSelectedApiKey(data.key);
-      // setSelectedApiKeyId('');
+      setSelectedApiKeyId(data.keyId);
+      toast.success('성공');
+      onOpenChange(false);
     },
     onError: () => {
       toast.error('실패');
