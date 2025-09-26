@@ -1,5 +1,5 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
-import { requestGet, requestPatch, requestPost, requestDelete } from '@/lib/apiClient';
+import { requestGet, requestPatch, requestPost, requestDelete, requestPut } from '@/lib/apiClient';
 
 interface OpenAPIData {
   openapi: string;
@@ -105,40 +105,32 @@ interface ModifyResourceProps {
   exposedHeaders?: string[];
   maxAge?: number;
   allowCredentials?: boolean;
+  updatedBy: string;
 }
 
-const modifyResourceCorsSettings = async (
-  resourceId: string,
-  enableCors: boolean,
-  data: ModifyResourceProps
-) => {
-  const res = await requestPatch(
-    `/api/v1/resources/${resourceId}/cors?enabledCors=${enableCors}`,
-    data
-  );
+const modifyResourceCorsSettings = async (resourceId: string, data: ModifyResourceProps) => {
+  const res = await requestPut(`/api/v1/resources/${resourceId}/cors`, {
+    body: data,
+  });
 
   return res;
 };
 
 export function useModifyResourceCorsSettings(
-  options?: UseMutationOptions<
-    any,
-    Error,
-    { resourceId: string; enableCors: boolean; data: ModifyResourceProps }
-  >
+  options?: UseMutationOptions<any, Error, { resourceId: string; data: ModifyResourceProps }>
 ) {
+  const queryClient = useQueryClient();
+
   return useMutation({
     ...options,
-    mutationFn: ({
-      resourceId,
-      enableCors,
-      data,
-    }: {
-      resourceId: string;
-      enableCors: boolean;
-      data: ModifyResourceProps;
-    }) => modifyResourceCorsSettings(resourceId, enableCors, data),
+    mutationFn: ({ resourceId, data }: { resourceId: string; data: ModifyResourceProps }) =>
+      modifyResourceCorsSettings(resourceId, data),
     onSuccess: (data, variables, context) => {
+      // 브랜치 생성 성공 시 목록 invalidate
+      queryClient.invalidateQueries({
+        queryKey: ['getOpenAPIDoc'],
+      });
+      // 외부 onSuccess 실행
       options?.onSuccess?.(data, variables, context);
     },
   });

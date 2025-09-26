@@ -44,6 +44,7 @@ export default function ApiManagementPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
   const [isMethodDeleteDialogOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedApiName, setSelectedApiName] = useState('');
   const [selectedAPIId, setSelectedAPIId] = useState('');
   const [modifyApiForm, setModifyApiForm] = useState({
     name: '',
@@ -136,6 +137,7 @@ export default function ApiManagementPage() {
                     <TableHead className="w-[10%]">ID</TableHead>
                     <TableHead className="w-[25%]">이름</TableHead>
                     <TableHead className="w-auto">설명</TableHead>
+                    <TableHead className="w-[10%]">수정일자</TableHead>
                     <TableHead className="w-[8%] text-center">작업</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -156,6 +158,9 @@ export default function ApiManagementPage() {
                           </div>
                         </TableCell>
                         <TableCell className="max-w-xs truncate">{plan.description}</TableCell>
+                        <TableCell className="max-w-xs truncate">
+                          {new Date(plan.updatedAt).toLocaleDateString()}
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center justify-end space-x-2">
                             <Button
@@ -179,8 +184,9 @@ export default function ApiManagementPage() {
                               className="hover:bg-destructive"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setIsDeleteModalOpen(true);
                                 setSelectedAPIId(plan.apiId);
+                                setSelectedApiName(plan.name);
+                                setIsDeleteModalOpen(true);
                               }}>
                               <Trash2 />
                             </Button>
@@ -230,6 +236,7 @@ export default function ApiManagementPage() {
             onOpenChange={setIsDeleteModalOpen}
             selectedAPIId={selectedAPIId}
             userKey={userData?.userKey || ''}
+            apiName={selectedApiName}
           />
         </div>
       </AppLayout>

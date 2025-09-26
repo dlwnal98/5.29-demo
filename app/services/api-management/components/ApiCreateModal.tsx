@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -172,6 +172,17 @@ const ApiCreateModal = ({
     setCreateApiForm((prev) => ({ ...prev, name: '', description: '' }));
     setCopyApiId('');
   };
+
+  const isValidCreateApi = useMemo(() => {
+    switch (apiType) {
+      case 'new':
+        return createApiForm.name.trim().length > 0;
+      case 'copy':
+        return createApiForm.name.trim().length > 0 && Boolean(copyApiId);
+      default:
+        return false;
+    }
+  }, [apiType, createApiForm.name, copyApiId]);
 
   // 타입별 입력 UI
   const renderCreateApiContent = () => {
@@ -395,7 +406,10 @@ const ApiCreateModal = ({
           <Button variant="outline" onClick={handleCancel}>
             취소
           </Button>
-          <Button onClick={handleCreateApi} className="bg-blue-500 hover:bg-blue-600 text-white">
+          <Button
+            onClick={handleCreateApi}
+            disabled={!isValidCreateApi}
+            className="bg-blue-500 hover:bg-blue-600 text-white">
             생성
           </Button>
         </DialogFooter>

@@ -38,6 +38,7 @@ export default function TargetEndpointsPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedId, setSelectedId] = useState('');
+  const [selectedUrl, setSelectedUrl] = useState('');
   const [formData, setFormData] = useState({
     targetId: '',
     url: '',
@@ -67,6 +68,7 @@ export default function TargetEndpointsPage() {
 
   const handleDeleteSingle = (endpoint: EndpointsData) => {
     setSelectedId(endpoint.targetId);
+    setSelectedUrl(endpoint.targetEndpoint);
     setIsDeleteModalOpen(true);
   };
 
@@ -131,10 +133,10 @@ export default function TargetEndpointsPage() {
             <Table>
               <TableHeader className="hover:bg-white">
                 <TableRow className="hover:bg-white">
-                  <TableHead>Target ID</TableHead>
-                  <TableHead>URL</TableHead>
+                  <TableHead className="w-12">Target ID</TableHead>
+                  <TableHead className="w-[30%]">URL</TableHead>
                   <TableHead>설명</TableHead>
-                  <TableHead>생성일자</TableHead>
+                  <TableHead className="w-[10%]">생성일자</TableHead>
 
                   <TableHead className="text-center w-3">수정</TableHead>
                 </TableRow>
@@ -201,6 +203,7 @@ export default function TargetEndpointsPage() {
           isDeleteModalOpen={isDeleteModalOpen}
           handleModalClose={handleModalClose}
           targetId={selectedId || ''}
+          targetUrl={selectedUrl || ''}
         />
       </div>
     </AppLayout>

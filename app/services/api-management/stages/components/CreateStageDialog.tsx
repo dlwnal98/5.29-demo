@@ -85,9 +85,7 @@ export default function CreateStageDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
-              스테이지 생성
-            </DialogTitle>
+            <DialogTitle className="text-xl font-bold text-blue-600">스테이지 생성</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-5 py-4">

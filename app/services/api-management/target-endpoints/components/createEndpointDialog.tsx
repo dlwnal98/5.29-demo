@@ -64,12 +64,14 @@ export default function CreateEndpointDialog({
       <Dialog open={isCreateModalOpen} onOpenChange={handleModalClose}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="mb-2">Target Endpoint 생성</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-blue-600 mb-2">
+              Target Endpoint 생성
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
               <Label htmlFor="create-url" className="text-sm font-medium">
-                Endpoint URL *
+                Endpoint URL <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="create-url"
@@ -104,7 +106,9 @@ export default function CreateEndpointDialog({
             <Button variant="outline" onClick={handleModalClose}>
               취소
             </Button>
-            <Button onClick={handleCreateEndpoint}>생성</Button>
+            <Button onClick={handleCreateEndpoint} disabled={!endpointForm.url}>
+              생성
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

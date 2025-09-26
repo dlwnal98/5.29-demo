@@ -33,7 +33,7 @@ import {
   Trash2,
   CheckCircle,
 } from 'lucide-react';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { toast, Toaster } from 'sonner';
 import { QueryParameter, Header, BodyModel, Model } from '@/types/methods';
@@ -313,8 +313,14 @@ export default function CreateMethodPage() {
     clipboard.copy(apiKey);
     toast.success('API Key가 복사되었습니다.');
   };
-
-  console.log(headers);
+  const isValidCreateMethod = useMemo(() => {
+    return Boolean(
+      methodForm.methodName &&
+        methodForm.methodType &&
+        methodForm.integrationType &&
+        (isDirectUrlInput ? methodForm.customEndpointUrl : methodForm.endpointUrl)
+    );
+  }, [methodForm, isDirectUrlInput]);
 
   return (
     <>
@@ -359,9 +365,7 @@ export default function CreateMethodPage() {
               <Button variant="outline" onClick={handleBack}>
                 취소
               </Button>
-              <Button
-                onClick={handleCreateMethod}
-                className="bg-orange-500 hover:bg-orange-600 text-white">
+              <Button onClick={handleCreateMethod} disabled={!isValidCreateMethod}>
                 저장
               </Button>
             </div>
@@ -380,6 +384,7 @@ export default function CreateMethodPage() {
                       <Input
                         id="new-method-name"
                         placeholder="예 : 사용자 정보 조회"
+                        type="text"
                         value={methodForm.methodName}
                         onChange={(e) =>
                           setMethodForm({ ...methodForm, methodName: e.target.value })

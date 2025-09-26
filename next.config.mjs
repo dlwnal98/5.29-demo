@@ -96,8 +96,8 @@ const nextConfig = {
         destination: 'http://1.224.162.188:58084/api/v1/common-codes/:path*',
       },
       {
-        source: '/api/v1/gateway/:path*',
-        destination: 'http://1.224.162.188:18080/api/v1/gateway/:path*',
+        source: '/api/v1/gateway/stage/:path*',
+        destination: 'http://192.168.123.102:18080/api/v1/gateway/stage/:path*',
       },
     ];
   },

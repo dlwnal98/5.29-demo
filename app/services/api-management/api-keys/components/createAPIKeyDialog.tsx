@@ -41,19 +41,19 @@ export default function CreateAPIKeyDialog({
     <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>API Key 생성</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-blue-600 mb-2">API Key 생성</DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
           <div>
             <Label htmlFor="keyName" className="text-sm font-medium">
-              이름
+              이름 <span className="text-red-500">*</span>
             </Label>
             <Input
               id="keyName"
               value={keyName}
               onChange={(e) => setNewApiKey({ ...newApiKey, keyName: e.target.value })}
               placeholder=""
-              className="mt-1"
+              className="mt-2"
             />
           </div>
           <div>
@@ -70,7 +70,7 @@ export default function CreateAPIKeyDialog({
                 })
               }
               placeholder=""
-              className="mt-1 min-h-[80px]"
+              className="mt-2 min-h-[80px]"
             />
           </div>
 
@@ -78,10 +78,7 @@ export default function CreateAPIKeyDialog({
             <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
               취소
             </Button>
-            <Button
-              onClick={() => handleCreateAPIKey()}
-              className="bg-orange-500 hover:bg-orange-600 text-white"
-              disabled={keyName.length === 0}>
+            <Button onClick={() => handleCreateAPIKey()} disabled={!keyName}>
               발급
             </Button>
           </div>

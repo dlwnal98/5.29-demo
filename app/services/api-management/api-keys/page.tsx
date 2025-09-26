@@ -128,10 +128,10 @@ export default function ApiKeysPage() {
   const clipboard = useClipboard();
 
   // // 비밀번호 복사 함수
-  const handleCopyApiKey = (apiKey: string) => {
+  const handleCopyApiKey = (apiKeyName: string, apiKey: string) => {
     setCopyApiKey(apiKey);
     clipboard.copy(apiKey);
-    toast.success('API Key가 복사되었습니다.');
+    toast.success(`[${apiKeyName}] API Key가 복사되었습니다.`);
     // setIsCopyModalOpen(true);
   };
 
@@ -210,7 +210,7 @@ export default function ApiKeysPage() {
                   <TableHead className="w-12">ID</TableHead>
                   <TableHead>이름</TableHead>
                   <TableHead>설명</TableHead>
-                  <TableHead>수정일</TableHead>
+                  <TableHead className="w-[10%]">생성일자</TableHead>
                   <TableHead className="text-center w-3">작업</TableHead>
                 </TableRow>
               </TableHeader>
@@ -233,13 +233,13 @@ export default function ApiKeysPage() {
                           </TableCell>
                           <TableCell className="font-medium">{apiKey.name}</TableCell>
                           <TableCell>{apiKey.description}</TableCell>
-                          <TableCell>{apiKey.updatedAt?.split('T')[0]}</TableCell>
+                          <TableCell>{new Date(apiKey.createdAt).toLocaleDateString()}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-2">
                               <Button
                                 className="text-white hover:text-white bg-amber-500 hover:bg-amber-500"
                                 size="sm"
-                                onClick={() => handleCopyApiKey(apiKey.key)}>
+                                onClick={() => handleCopyApiKey(apiKey.name, apiKey.key)}>
                                 <Copy className="h-4 w-4" />
                               </Button>
                               <Button

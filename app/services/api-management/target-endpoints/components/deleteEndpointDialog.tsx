@@ -16,12 +16,14 @@ interface deleteEndpointProps {
   isDeleteModalOpen: boolean;
   handleModalClose: any;
   targetId: string;
+  targetUrl: string;
 }
 
 export default function DeleteEndpointDialog({
   isDeleteModalOpen,
   handleModalClose,
   targetId,
+  targetUrl,
 }: deleteEndpointProps) {
   const { mutate: deleteEndpoint } = useDeleteEndpoint({
     onSuccess: () => {
@@ -55,7 +57,7 @@ export default function DeleteEndpointDialog({
                 ⚠️ 이 작업은 실행 취소할 수 없습니다.
               </p>
               <p className="text-red-700 text-sm mb-3">
-                선택된 Target Endpoint가 영구적으로 삭제됩니다.
+                <strong>{targetUrl}</strong> 주소의 Target Endpoint가 영구적으로 삭제됩니다.
                 <br />
                 연결된 모든 API와 설정이 영향을 받을 수 있습니다.
               </p>

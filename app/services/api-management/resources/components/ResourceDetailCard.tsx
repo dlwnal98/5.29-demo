@@ -97,7 +97,7 @@ export function ResourceDetailCard({
             </div>
           </div>
           <div className="grid grid-cols-3 gap-6">
-            <div className="col-span-1">
+            <div className={`${selectedResource?.description ? 'col-span-1' : 'col-span-3'}`}>
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 리소스 이름
               </Label>
@@ -105,12 +105,14 @@ export function ResourceDetailCard({
                 {selectedResource?.name}
               </div>
             </div>
-            <div className="col-span-2">
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">설명</Label>
-              <div className="mt-1 text-sm font-mono text-gray-900 dark:text-white">
-                {selectedResource?.description}
+            {selectedResource?.description && (
+              <div className="col-span-2">
+                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">설명</Label>
+                <div className="mt-1 text-sm font-mono text-gray-900 dark:text-white">
+                  {selectedResource?.description}
+                </div>
               </div>
-            </div>
+            )}
           </div>
           <div className="grid grid-cols-3 gap-6">
             <div>
@@ -239,6 +241,7 @@ export function ResourceDetailCard({
         selectedResource={selectedResource}
         setSelectedResource={setSelectedResource}
         resourceId={selectedResource?.resourceId}
+        userKey={userData?.userKey || ''}
       />
 
       <DeleteMethodDialog

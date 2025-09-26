@@ -33,7 +33,7 @@ export default function ModifyAPIKeyDialog({
     <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>API Key 수정</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-blue-600 mb-2">API Key 수정</DialogTitle>
         </DialogHeader>
         {editingApiKey && (
           <div className="space-y-6">
@@ -94,8 +94,7 @@ export default function ModifyAPIKeyDialog({
                     editingApiKey.description
                   )
                 }
-                className="bg-orange-500 hover:bg-orange-600 text-white"
-              >
+                className="bg-orange-500 hover:bg-orange-600 text-white">
                 수정
               </Button>
             </div>

@@ -10,17 +10,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Globe } from 'lucide-react';
+import { Globe, Check } from 'lucide-react';
 import type { Method, Resource } from '@/types/resource';
 import { useModifyResourceCorsSettings } from '@/hooks/use-resources';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
+import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 
 interface CorsSettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   resourceId: string;
+  userKey: string;
   selectedResource: Resource;
   setSelectedResource: (resource: Resource) => void;
 }
@@ -30,29 +32,50 @@ export function CorsSettingsDialog({
   onOpenChange,
   resourceId,
   selectedResource,
+  userKey,
   setSelectedResource,
 }: CorsSettingsDialogProps) {
   const [corsForm, setCorsForm] = useState({
     allowMethods: [],
-    allowHeaders: [],
-    allowOrigin: '',
-    exposeHeaders: [],
-    maxAge: '',
-    allowCredentials: false,
+    allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowOrigins: ['*'],
+    exposeHeaders: ['X-Total-Count', 'X-Request-Id'],
+    maxAge: 3600,
+    allowCredentials: true,
   });
+  const [selectedMethods, setSelectedMethods] = useState<any[]>([]);
 
   console.log(selectedResource);
+  useEffect(() => {
+    if (!selectedResource?.cors) return;
 
-  // useEffect(() => {
-  //   setCorsForm({
-  //     allowMethods: selectedResource.cors.allowMethods.map((method) => method),
-  //     allowHeaders: selectedResource.cors.allowHeaders.map((header) => header),
-  //     allowOrigin: '',
-  //     exposeHeaders: selectedResource.cors.exposeHeaders.map((header) => header),
-  //     maxAge: selectedResource.cors.maxAge,
-  //     allowCredentials: selectedResource.cors?.allowCredentials,
-  //   });
-  // }, [selectedResource]);
+    const cors = selectedResource.cors;
+
+    setCorsForm({
+      allowMethods: Array.isArray(cors.allowMethods)
+        ? cors.allowMethods
+        : cors.allowMethods
+          ? cors.allowMethods.split(',').map((s) => s.trim())
+          : [],
+      allowHeaders: Array.isArray(cors.allowHeaders)
+        ? cors.allowHeaders
+        : cors.allowHeaders
+          ? cors.allowHeaders.split(',').map((s) => s.trim())
+          : [],
+      allowOrigins: Array.isArray(cors.allowOrigins)
+        ? cors.allowOrigins
+        : cors.allowOrigins
+          ? cors.allowOrigins.split(',').map((s) => s.trim())
+          : [],
+      exposeHeaders: Array.isArray(cors.exposeHeaders)
+        ? cors.exposeHeaders
+        : cors.exposeHeaders
+          ? cors.exposeHeaders.split(',').map((s) => s.trim())
+          : [],
+      maxAge: cors.maxAge ?? 3600,
+      allowCredentials: cors.allowCredentials ?? true,
+    });
+  }, [selectedResource]);
 
   const { mutate: modifyCORSMutate } = useModifyResourceCorsSettings({
     onSuccess: () => {
@@ -62,25 +85,43 @@ export function CorsSettingsDialog({
   });
 
   const modifyCORSSettings = () => {
-    // modifyCORSMutate({
-    //   resourceId: resourceId,
-    //   enableCors: selectedResource.corsEnabled,
-    //   data: {
-    //     allowedOrigins: selectedResource.cors.allowOrigins,
-    //     allowedHeaders: selectedResource.cors.allowHeaders,
-    //     exposedHeaders: selectedResource.cors.exposeHeaders,
-    //     maxAge: selectedResource.cors.maxAge,
-    //     allowCredentials: selectedResource.cors.allowCredentials,
-    //   },
-    // });
+    modifyCORSMutate({
+      resourceId: resourceId,
+      data: {
+        allowedOrigins: corsForm.allowOrigins,
+        allowedHeaders: corsForm.allowHeaders,
+        allowedMethods: corsForm.allowMethods,
+        exposedHeaders: corsForm.exposeHeaders,
+        maxAge: corsForm.maxAge,
+        allowCredentials: corsForm.allowCredentials,
+        updatedBy: userKey,
+      },
+    });
   };
+  console.log(selectedResource?.methods);
+  const handleCheckedChange = (method: Method, checked: boolean) => {
+    setCorsForm((prev) => {
+      const prevMethods = prev.allowMethods || [];
+      if (checked) {
+        // 이미 포함되어 있지 않으면 추가
+        if (!prevMethods.includes(method.type)) {
+          return { ...prev, allowMethods: [...prevMethods, method.type] };
+        }
+        return prev;
+      } else {
+        // 체크 해제 시 제거
+        return { ...prev, allowMethods: prevMethods.filter((m) => m !== method.type) };
+      }
+    });
+  };
+
+  console.log(corsForm);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-scroll-y">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-blue-600 flex items-center gap-2">
-            <Globe className="h-5 w-5" />
+          <DialogTitle className="text-xl font-bold text-blue-600 flex items-center gap-2 mb-2">
             CORS 활성화 설정
           </DialogTitle>
         </DialogHeader>
@@ -95,14 +136,18 @@ export function CorsSettingsDialog({
                 </Label>
                 <div className="space-y-1">
                   {/* 리소스에서 생성한 메서드 종류가 체크박스 옵션으로 나와야함 */}
-                  {selectedResource.methods.map((method: Method) => (
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
+                  {selectedResource?.methods?.map((method: Method) => (
+                    <div className="flex items-center space-x-2" key={method.id}>
+                      <CheckboxPrimitive.Root
                         id={method.type}
-                        // checked={false}
-                        // onCheckedChange={(checked) => handleSaveId(checked as boolean)}
-                        className="bg-white border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-                      />
+                        checked={corsForm?.allowMethods?.includes(method.type)}
+                        onCheckedChange={(checked) => handleCheckedChange(method, checked === true)}
+                        className="w-5 h-5 border border-gray-300 rounded data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 flex items-center justify-center">
+                        <CheckboxPrimitive.Indicator>
+                          <Check className="w-4 h-4 text-white" />
+                        </CheckboxPrimitive.Indicator>
+                      </CheckboxPrimitive.Root>
+
                       <Label htmlFor={method.type} className="text-sm text-gray-600 cursor-pointer">
                         {method.type.toUpperCase()}
                       </Label>
@@ -116,8 +161,16 @@ export function CorsSettingsDialog({
                 </Label>
                 <Input
                   value={corsForm.allowHeaders}
-                  onChange={(e) => setCorsForm({ ...corsForm, allowHeaders: e.target.value })}
-                  placeholder="content-type,x-ncp-apigw-api-key,x-ncp-apigw-timestamp"
+                  onChange={(e) =>
+                    setCorsForm({
+                      ...corsForm,
+                      allowHeaders: e.target.value
+                        .split(',') // 쉼표로 문자열 분리
+                        .map((s) => s.trim()) // 앞뒤 공백 제거
+                        .filter((s) => s), // 빈 문자열 제거
+                    })
+                  }
+                  placeholder={corsForm.allowHeaders.join(',')}
                 />
               </div>
               <div>
@@ -125,9 +178,17 @@ export function CorsSettingsDialog({
                   Access-Control-Allow-Origin
                 </Label>
                 <Input
-                  value={corsForm.allowOrigin}
-                  onChange={(e) => setCorsForm({ ...corsForm, allowOrigin: e.target.value })}
-                  placeholder="*"
+                  value={corsForm.allowOrigins}
+                  onChange={(e) =>
+                    setCorsForm({
+                      ...corsForm,
+                      allowOrigins: e.target.value
+                        .split(',') // 쉼표로 문자열 분리
+                        .map((s) => s.trim()) // 앞뒤 공백 제거
+                        .filter((s) => s), // 빈 문자열 제거
+                    })
+                  }
+                  placeholder={corsForm.allowOrigins.join(',')}
                 />
               </div>
 
@@ -137,8 +198,16 @@ export function CorsSettingsDialog({
                 </Label>
                 <Input
                   value={corsForm.exposeHeaders}
-                  onChange={(e) => setCorsForm({ ...corsForm, exposeHeaders: e.target.value })}
-                  placeholder="헤더 이름들을 쉼표로 구분"
+                  onChange={(e) =>
+                    setCorsForm({
+                      ...corsForm,
+                      exposeHeaders: e.target.value
+                        .split(',') // 쉼표로 문자열 분리
+                        .map((s) => s.trim()) // 앞뒤 공백 제거
+                        .filter((s) => s), // 빈 문자열 제거
+                    })
+                  }
+                  placeholder={corsForm.exposeHeaders.join(',')}
                 />
               </div>
               <div>

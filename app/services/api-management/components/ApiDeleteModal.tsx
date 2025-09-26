@@ -17,6 +17,7 @@ interface DeleteMethodDialogProps {
   selectedAPIId: string;
   userKey: string;
   open: boolean;
+  apiName: string;
   onOpenChange: (open: boolean) => void;
 }
 
@@ -25,6 +26,7 @@ export function ApiDeleteModal({
   open,
   onOpenChange,
   userKey,
+  apiName,
 }: DeleteMethodDialogProps) {
   const { mutate: deleteAPI } = useDeleteAPI({
     onSuccess: () => {
@@ -58,7 +60,7 @@ export function ApiDeleteModal({
                   🚨 위험: 이 작업은 되돌릴 수 없습니다!
                 </p>
                 <p className="text-red-700 text-sm">
-                  Api <strong>해당 API</strong>를 영구적으로 삭제합니다.
+                  <strong>{apiName}</strong> Api를 영구적으로 삭제합니다.
                 </p>
               </div>
               <div className="text-sm text-red-600 space-y-1">

@@ -89,6 +89,7 @@ export default function StagesPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateStageModalOpen, setIsCreateStageModalOpen] = useState(false);
   const [isDeleteStageDialogOpen, setIsDeleteStageDialogOpen] = useState(false);
+  const [selectedStageEndpointUrl, setSelectedStageEndpointUrl] = useState('');
 
   const resourceTree = useMemo(() => buildTree(stagesDocData), [stagesDocData]);
 
@@ -97,9 +98,10 @@ export default function StagesPage() {
   // }, [stagesDocData]);
 
   const getFinalEndpoint = async (stageId: string) => {
-    const res = await requestGet(`/api/v1/gateway/stage/${stageId}`);
+    // const res = await requestGet(`/api/v1/gateway/stage/${stageId}`);
+    const res = await requestGet(`/api/v1/gateway/stage/${'nEBJGwKdAAAk'}`);
 
-    console.log(res);
+    setSelectedStageEndpointUrl(res.baseUrl);
   };
 
   const prevLengthRef = useRef(0);
@@ -165,7 +167,10 @@ export default function StagesPage() {
   };
 
   const handleMethodClick = (method: ApiMethod, resource: ApiResource) => {
-    const methodUrl = `${selectedWholeStageInfo.resource.path}${method.path}`;
+    console.log(selectedWholeStageInfo.resource.path, method.path, resource.path);
+
+    // const methodUrl = `${selectedWholeStageInfo.resource.path}${method.path}`;
+    const methodUrl = `${selectedStageEndpointUrl}${resource.path}`;
     setSelectedMethod({
       resourceId: resource.id,
       resourcePath: resource.path,
@@ -269,6 +274,8 @@ export default function StagesPage() {
     );
   };
 
+  console.log(selectedWholeStageInfo);
+
   return (
     <AppLayout>
       <div className="container mx-auto px-4 py-6">
@@ -325,17 +332,9 @@ export default function StagesPage() {
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center gap-2">
                         <span
-                          className={`px-2 py-1 rounded text-xl font-mono ${
-                            selectedMethod.method.type === 'GET'
-                              ? 'bg-green-100 text-green-800'
-                              : selectedMethod.method.type === 'POST'
-                                ? 'bg-blue-100 text-blue-800'
-                                : selectedMethod.method.type === 'PUT'
-                                  ? 'bg-yellow-100 text-yellow-800'
-                                  : selectedMethod.method.type === 'DELETE'
-                                    ? 'bg-red-100 text-red-800'
-                                    : 'bg-gray-100 text-gray-800'
-                          }`}>
+                          className={`px-2 py-1 rounded text-xl font-mono ${getMethodStyle(
+                            selectedMethod.method.type
+                          )}`}>
                           {selectedMethod.method.type}
                         </span>
                         {selectedMethod.method.path} - 메서드 상세
@@ -386,7 +385,7 @@ export default function StagesPage() {
                                     {method.type}
                                   </span>
                                   <div>
-                                    <div className="font-medium">{method.resourcePath}</div>
+                                    {/* <div className="font-medium">{method.resourcePath}</div> */}
                                     <div className="text-sm text-gray-600 dark:text-gray-400">
                                       {method.info.summary}
                                     </div>
@@ -445,20 +444,26 @@ export default function StagesPage() {
                   </div>
 
                   <div className="p-4 space-y-2">
-                    <div className="grid grid-cols-3 gap-6">
-                      <div>
-                        <div className="space-y-4">
-                          <div>
-                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                              스테이지 이름
-                            </Label>
-                            <div className="mt-1 text-blue-600 font-medium">
-                              {selectedWholeStageInfo.resource.name}
+                    {selectedWholeStageInfo.resource.name ? (
+                      <div className="grid grid-cols-3 gap-6">
+                        <div>
+                          <div className="space-y-4">
+                            <div>
+                              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                스테이지 이름
+                              </Label>
+                              <div className="mt-1 text-blue-600 font-medium">
+                                {selectedWholeStageInfo.resource.name}
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="py-3 px-1 text-[15px]">
+                        생성된 스테이지가 존재하지 않습니다.
+                      </div>
+                    )}
                     {selectedWholeStageInfo.resource.description && (
                       <div className="grid grid-cols-3 gap-6">
                         <div>
@@ -479,14 +484,14 @@ export default function StagesPage() {
                       <div className="mt-3 space-y-4">
                         <div>
                           <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            URL 호출
+                            URL
                           </Label>
                           <div className="mt-1 flex items-center gap-2">
                             <button
                               onClick={handleCopyUrl}
                               className="text-blue-600 hover:text-blue-700 text-sm font-mono flex items-center gap-1">
-                              {selectedWholeStageInfo.resource.path}
-                              <Copy className="h-3 w-3" />
+                              {selectedStageEndpointUrl}
+                              <Copy className="ml-2 h-3 w-3" />
                             </button>
                           </div>
                         </div>

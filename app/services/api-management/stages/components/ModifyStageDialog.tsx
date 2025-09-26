@@ -73,9 +73,7 @@ export default function ModifyStageDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
-              스테이지 편집
-            </DialogTitle>
+            <DialogTitle className="text-xl font-bold text-blue-600">스테이지 수정</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-6 py-4">
@@ -98,7 +96,7 @@ export default function ModifyStageDialog({
                 <Label
                   htmlFor="stage-description"
                   className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  스테이지 설명 - <span className="text-gray-500">선택 사항</span>
+                  스테이지 설명
                 </Label>
                 <Textarea
                   id="stage-description"

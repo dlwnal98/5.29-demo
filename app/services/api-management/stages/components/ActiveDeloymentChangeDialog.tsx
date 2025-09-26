@@ -62,8 +62,8 @@ export default function ActiveDeploymentChangeDialog({
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <div className="flex items-center justify-between">
-              <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-                활성 배포 변경
+              <DialogTitle className="text-xl font-bold text-blue-600 mb-2">
+                활성배포 변경
               </DialogTitle>
             </div>
           </DialogHeader>
@@ -74,6 +74,9 @@ export default function ActiveDeploymentChangeDialog({
                 {selectedStage.name}
               </span>
               스테이지의 활성 배포를 업데이트하시겠습니까?
+              <div className="text-xs text-red-400 dark:text-red-400 font-medium mt-2">
+                * 현재 활성 배포가 즉시 새 배포로 교체됩니다.
+              </div>
             </div>
 
             <div className="flex items-center bg-blue-50 p-5 px-8 rounded">
@@ -98,10 +101,6 @@ export default function ActiveDeploymentChangeDialog({
                   {selectedDeploymentData?.deploymentId}
                 </div>
               </div>
-            </div>
-
-            <div className="text-xs text-red-400 dark:text-red-400 font-medium">
-              * 현재 활성 배포가 즉시 새 배포로 교체됩니다.
             </div>
           </div>
 

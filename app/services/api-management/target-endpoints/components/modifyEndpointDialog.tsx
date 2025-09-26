@@ -80,12 +80,14 @@ export default function ModifyEndpointDialog({
       <Dialog open={isEditModalOpen} onOpenChange={handleModalClose}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="mb-2">Target Endpoint 수정</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-blue-600 mb-2">
+              Target Endpoint 수정
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
               <Label htmlFor="edit-url" className="text-sm font-medium">
-                Endpoint URL *
+                Endpoint URL <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="edit-url"

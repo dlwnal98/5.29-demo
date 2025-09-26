@@ -324,10 +324,14 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                       {selectedMethod?.info['x-method-name'] ?? ''}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2  mb-2">
-                    <div className="w-20 text-sm text-gray-600 dark:text-gray-400">메서드 설명</div>
-                    <div className="font-semibold text-sm">{selectedMethod?.info?.summary}</div>
-                  </div>
+                  {selectedMethod?.info?.summary && (
+                    <div className="flex items-center gap-2  mb-2">
+                      <div className="w-20 text-sm text-gray-600 dark:text-gray-400">
+                        메서드 설명
+                      </div>
+                      <div className="font-semibold text-sm">{selectedMethod?.info?.summary}</div>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2">
                     <span className="w-20 text-sm text-gray-600 dark:text-gray-400">URL</span>
                     <div className="flex items-center gap-2">

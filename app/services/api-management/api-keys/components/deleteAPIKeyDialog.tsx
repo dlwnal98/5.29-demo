@@ -39,18 +39,20 @@ export default function DeleteAPIKeyDialog({
                   <strong className="text-red-600">경고:</strong> 이 작업은 되돌릴 수 없습니다.
                 </div>
                 <div className="text-gray-700 dark:text-gray-300">
-                  API Key <strong className="text-red-600">"{deletingApiKey.name}"</strong>이 영구적으로 삭제됩니다.
+                  API Key <strong className="text-red-600">"{deletingApiKey.name}"</strong>이
+                  영구적으로 삭제됩니다.
                 </div>
                 <div className="text-gray-700 dark:text-gray-300">
                   삭제된 API Key를 사용하는 모든 애플리케이션과 서비스는 즉시 액세스가 차단됩니다.
                 </div>
                 <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-md border border-red-200 dark:border-red-800">
-                  <div className="text-sm text-red-800 dark:text-red-200 font-medium">삭제될 API Key:</div>
+                  <div className="text-sm text-red-800 dark:text-red-200 font-medium">
+                    삭제될 API Key Id:
+                  </div>
                   <div className="mt-2 text-sm text-red-700 dark:text-red-300">
                     <div className="flex items-center gap-2">
                       <span>•</span>
-                      <span className="font-mono">{deletingApiKey.keyId}</span>
-                      <span>({deletingApiKey.name})</span>
+                      <span className="font-mono font-bold">{deletingApiKey.keyId}</span>
                     </div>
                   </div>
                 </div>

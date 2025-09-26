@@ -211,12 +211,13 @@ export function ResourceCreateDialog({
             />
           </div>
         </div>
-        <DialogFooter className="gap-2">
+        <DialogFooter>
           <Button variant="outline" onClick={handleCancel}>
             취소
           </Button>
           <Button
             onClick={() => createResource(createResourceForm)}
+            disabled={!createResourceForm.resourceName}
             className="bg-blue-500 hover:bg-blue-600 text-white">
             생성
           </Button>

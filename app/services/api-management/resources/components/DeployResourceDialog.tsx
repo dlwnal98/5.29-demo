@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -27,6 +27,7 @@ import { useRouter } from 'next/navigation';
 import { useGetStagesDocData } from '@/hooks/use-stages';
 import { useQueryClient } from '@tanstack/react-query';
 import { useDeployStore } from '@/store/deployStore';
+import { de } from 'date-fns/locale';
 
 interface deployData {
   stage: string;
@@ -168,6 +169,16 @@ export default function DeployResourceDialog({
       newStageName: '',
     });
   };
+  const isValidDeploy = useMemo(() => {
+    if (deploymentData.stage === 'new') {
+      return deploymentData.newStageName.trim().length > 0;
+    }
+    return deploymentData.stage.trim().length > 0;
+  }, [deploymentData]);
+
+  <Button onClick={handleDeploySubmit} disabled={!isValidDeploy}>
+    배포
+  </Button>;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -181,7 +192,7 @@ export default function DeployResourceDialog({
         <div className="space-y-4">
           <div>
             <Label htmlFor="deploy-stage" className="text-sm font-medium">
-              배포 할 스테이지
+              배포 할 스테이지 <span className="text-red-500">*</span>
             </Label>
             <Select
               value={deploymentData.stage}
@@ -193,14 +204,18 @@ export default function DeployResourceDialog({
                   newStageName: '',
                 })
               }>
-              <SelectTrigger className="mt-1">
+              <SelectTrigger className="mt-2">
                 <SelectValue placeholder="스테이지 선택" />
               </SelectTrigger>
               <SelectContent>
                 {stageForDeployment.map((stage: any, i: number) => {
-                  return <SelectItem value={stage.value}>{stage.label}</SelectItem>;
+                  return (
+                    <SelectItem value={stage.value} className={'cursor-pointer'}>
+                      {stage.label}
+                    </SelectItem>
+                  );
                 })}
-                <SelectItem value="new">
+                <SelectItem value="new" className={'cursor-pointer'}>
                   <div className="flex items-center gap-2">
                     <Plus className="h-4 w-4" />새 스테이지 생성
                   </div>
@@ -230,7 +245,7 @@ export default function DeployResourceDialog({
                     })
                   }
                   placeholder="새 스테이지 이름을 입력하세요"
-                  className="mt-1"
+                  className="mt-2"
                 />
               </div>
             </div>
@@ -260,6 +275,7 @@ export default function DeployResourceDialog({
           </Button>
           <Button
             onClick={handleDeploySubmit}
+            disabled={!isValidDeploy}
             className="bg-orange-500 hover:bg-orange-600 text-white">
             {/* <Rocket className="h-4 w-4 mr-2" /> */}
             배포
