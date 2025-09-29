@@ -74,6 +74,8 @@ export default function LoginPage() {
         redirectUri: `/auth-callback`,
       });
 
+      console.log(res);
+
       // 로그인 성공했을 때
       if (!res?.data?.code) {
         localStorage.setItem('userId', userId);

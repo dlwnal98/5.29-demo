@@ -133,12 +133,12 @@ export default function TargetEndpointsPage() {
             <Table>
               <TableHeader className="hover:bg-white">
                 <TableRow className="hover:bg-white">
-                  <TableHead className="w-12">Target ID</TableHead>
+                  <TableHead className="w-[10%]">Target ID</TableHead>
                   <TableHead className="w-[30%]">URL</TableHead>
                   <TableHead>설명</TableHead>
                   <TableHead className="w-[10%]">생성일자</TableHead>
 
-                  <TableHead className="text-center w-3">수정</TableHead>
+                  <TableHead className="w-[8%] text-center">수정</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

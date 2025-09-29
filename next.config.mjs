@@ -97,7 +97,7 @@ const nextConfig = {
       },
       {
         source: '/api/v1/gateway/stage/:path*',
-        destination: 'http://192.168.123.102:18080/api/v1/gateway/stage/:path*',
+        destination: 'http://192.168.123.102:18082/api/v1/gateway/stage/:path*',
       },
     ];
   },

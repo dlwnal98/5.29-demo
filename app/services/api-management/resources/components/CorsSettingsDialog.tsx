@@ -10,12 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Globe, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import type { Method, Resource } from '@/types/resource';
 import { useModifyResourceCorsSettings } from '@/hooks/use-resources';
-import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 
 interface CorsSettingsDialogProps {
@@ -43,7 +41,6 @@ export function CorsSettingsDialog({
     maxAge: 3600,
     allowCredentials: true,
   });
-  const [selectedMethods, setSelectedMethods] = useState<any[]>([]);
 
   console.log(selectedResource);
   useEffect(() => {
@@ -142,7 +139,7 @@ export function CorsSettingsDialog({
                         id={method.type}
                         checked={corsForm?.allowMethods?.includes(method.type)}
                         onCheckedChange={(checked) => handleCheckedChange(method, checked === true)}
-                        className="w-5 h-5 border border-gray-300 rounded data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 flex items-center justify-center">
+                        className="w-5 h-5 border border-gray-300 bg-white rounded data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 flex items-center justify-center">
                         <CheckboxPrimitive.Indicator>
                           <Check className="w-4 h-4 text-white" />
                         </CheckboxPrimitive.Indicator>
@@ -160,7 +157,7 @@ export function CorsSettingsDialog({
                   Access-Control-Allow-Headers
                 </Label>
                 <Input
-                  value={corsForm.allowHeaders}
+                  value={corsForm.allowHeaders.join(', ')}
                   onChange={(e) =>
                     setCorsForm({
                       ...corsForm,
@@ -178,7 +175,7 @@ export function CorsSettingsDialog({
                   Access-Control-Allow-Origin
                 </Label>
                 <Input
-                  value={corsForm.allowOrigins}
+                  value={corsForm.allowOrigins.join(', ')}
                   onChange={(e) =>
                     setCorsForm({
                       ...corsForm,
@@ -197,16 +194,16 @@ export function CorsSettingsDialog({
                   Access-Control-Expose-Headers
                 </Label>
                 <Input
-                  value={corsForm.exposeHeaders}
-                  onChange={(e) =>
+                  value={corsForm.exposeHeaders.join(', ')} // 배열 → 문자열
+                  onChange={(e) => {
                     setCorsForm({
                       ...corsForm,
                       exposeHeaders: e.target.value
-                        .split(',') // 쉼표로 문자열 분리
+                        .split(',') // 쉼표로 분리
                         .map((s) => s.trim()) // 앞뒤 공백 제거
-                        .filter((s) => s), // 빈 문자열 제거
-                    })
-                  }
+                        .filter((s) => s.length), // 빈 문자열 제거
+                    });
+                  }}
                   placeholder={corsForm.exposeHeaders.join(',')}
                 />
               </div>

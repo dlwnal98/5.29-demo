@@ -24,7 +24,6 @@ interface SeleceAPIKeyProps {
   isCreatingNewApiKey: boolean;
   setIsCreatingNewApiKey: React.Dispatch<SetStateAction<boolean>>;
   apiKeyList: ApiKey[];
-  selectedApiKeyId: string;
   setSelectedApiKeyId: React.Dispatch<SetStateAction<string>>;
   setSelectedApiKey: React.Dispatch<SetStateAction<string>>;
   newApiKeyForm: { name: string; description: string };
@@ -39,7 +38,6 @@ export function SelectAPIKeyModal({
   onOpenChange,
   isCreatingNewApiKey,
   setIsCreatingNewApiKey,
-  selectedApiKeyId,
   setSelectedApiKeyId,
   setSelectedApiKey,
   apiKeyList,

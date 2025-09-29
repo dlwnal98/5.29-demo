@@ -207,11 +207,11 @@ export default function ApiKeysPage() {
             <Table>
               <TableHeader className="hover:bg-white">
                 <TableRow className="hover:bg-white">
-                  <TableHead className="w-12">ID</TableHead>
+                  <TableHead className="w-[10%]">ID</TableHead>
                   <TableHead>이름</TableHead>
                   <TableHead>설명</TableHead>
                   <TableHead className="w-[10%]">생성일자</TableHead>
-                  <TableHead className="text-center w-3">작업</TableHead>
+                  <TableHead className="text-center w-[8%]">작업</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

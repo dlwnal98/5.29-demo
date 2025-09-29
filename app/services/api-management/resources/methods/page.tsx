@@ -885,7 +885,6 @@ export default function CreateMethodPage() {
             isCreatingNewApiKey={isCreatingNewApiKey}
             setIsCreatingNewApiKey={setIsCreatingNewApiKey}
             apiKeyList={apiKeyList || []}
-            selectedApiKeyId={selectedApiKeyId}
             setSelectedApiKeyId={setSelectedApiKeyId}
             newApiKeyForm={newApiKeyForm}
             setNewApiKeyForm={setNewApiKeyForm}

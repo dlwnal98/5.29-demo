@@ -6,6 +6,7 @@ import { AppSidebar } from './AppSidebar';
 import { useState, useEffect, Suspense, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import ProtectedRoute from '../ProtectedRoute';
+import { useRouter } from 'next/navigation';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -36,6 +37,25 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
     setSidebarCollapsed((prev) => !prev);
   }, []);
 
+  // 토큰 확인해서 리다이렉트
+  // const accessToken = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+  // const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refresh_token') : null;
+
+  // if (!accessToken || !refreshToken) {
+  //   redirect('/'); // 로그인 페이지로 강제 이동
+  // }
+
+  // const router = useRouter();
+
+  // useEffect(() => {
+  //   const accessToken = localStorage.getItem('access_token');
+  //   const refreshToken = localStorage.getItem('refresh_token');
+
+  //   if (!accessToken || !refreshToken) {
+  //     router.replace('/'); // 로그인 페이지로 이동
+  //   }
+  // }, [router]);
+
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <ProtectedRoute>
@@ -46,8 +66,12 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
               setSidebarCollapsed={handleSidebarCollapsed}
               projectSlug={projectSlug}
             />
-            <main className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-[250px]'}`}>
-              <AppHeader sidebarCollapsed={sidebarCollapsed} setSidebarCollapsed={handleSidebarCollapsed} />
+            <main
+              className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-[250px]'}`}>
+              <AppHeader
+                sidebarCollapsed={sidebarCollapsed}
+                setSidebarCollapsed={handleSidebarCollapsed}
+              />
               {children}
             </main>
           </div>
