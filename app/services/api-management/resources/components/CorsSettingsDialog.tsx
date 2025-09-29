@@ -96,20 +96,20 @@ export function CorsSettingsDialog({
     });
   };
   console.log(selectedResource?.methods);
+  const [selectedMethods, setSelectedMethods] = useState<string[]>([]);
+
   const handleCheckedChange = (method: Method, checked: boolean) => {
-    setCorsForm((prev) => {
-      const prevMethods = prev.allowMethods || [];
-      if (checked) {
-        // 이미 포함되어 있지 않으면 추가
-        if (!prevMethods.includes(method.type)) {
-          return { ...prev, allowMethods: [...prevMethods, method.type] };
-        }
-        return prev;
-      } else {
-        // 체크 해제 시 제거
-        return { ...prev, allowMethods: prevMethods.filter((m) => m !== method.type) };
-      }
-    });
+    setSelectedMethods((prev) =>
+      checked ? [...prev, method.type] : prev.filter((m) => m !== method.type)
+    );
+
+    // 원하면 corsForm도 업데이트
+    setCorsForm((prev) => ({
+      ...prev,
+      allowMethods: checked
+        ? [...(prev.allowMethods || []), method.type]
+        : (prev.allowMethods || []).filter((m) => m !== method.type),
+    }));
   };
 
   console.log(corsForm);
@@ -162,7 +162,7 @@ export function CorsSettingsDialog({
                     <div className="flex items-center space-x-2" key={method.id}>
                       <CheckboxPrimitive.Root
                         id={method.type}
-                        checked={corsForm?.allowMethods?.includes(method.type)}
+                        checked={selectedMethods.includes(method.type)} // ✅ 선택한 것만 체크
                         onCheckedChange={(checked) => handleCheckedChange(method, checked === true)}
                         className="w-5 h-5 border border-gray-300 bg-white rounded data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 flex items-center justify-center">
                         <CheckboxPrimitive.Indicator>
