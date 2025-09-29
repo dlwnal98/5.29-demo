@@ -114,6 +114,31 @@ export function CorsSettingsDialog({
 
   console.log(corsForm);
 
+  const handleCommaSeparatedInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    key: 'allowHeaders' | 'allowOrigins' | 'exposeHeaders'
+  ) => {
+    const raw = e.target.value;
+    const items = raw.split(',').map((s) => s.trim());
+
+    let newArray = items.filter(Boolean); // 일반 아이템
+
+    // 마지막이 쉼표면 빈 문자열 유지
+    if (raw.endsWith(',')) {
+      newArray.push('');
+    }
+
+    // 백스페이스로 쉼표 지우면 마지막 빈 문자열 제거
+    if (newArray.length > 0 && newArray[newArray.length - 1] === '' && !raw.endsWith(',')) {
+      newArray.pop();
+    }
+
+    setCorsForm((prev) => ({
+      ...prev,
+      [key]: newArray,
+    }));
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-scroll-y">
@@ -158,15 +183,7 @@ export function CorsSettingsDialog({
                 </Label>
                 <Input
                   value={corsForm.allowHeaders.join(', ')}
-                  onChange={(e) =>
-                    setCorsForm({
-                      ...corsForm,
-                      allowHeaders: e.target.value
-                        .split(',') // 쉼표로 문자열 분리
-                        .map((s) => s.trim()) // 앞뒤 공백 제거
-                        .filter((s) => s), // 빈 문자열 제거
-                    })
-                  }
+                  onChange={(e) => handleCommaSeparatedInputChange(e, 'allowHeaders')}
                   placeholder={corsForm.allowHeaders.join(',')}
                 />
               </div>
@@ -176,15 +193,7 @@ export function CorsSettingsDialog({
                 </Label>
                 <Input
                   value={corsForm.allowOrigins.join(', ')}
-                  onChange={(e) =>
-                    setCorsForm({
-                      ...corsForm,
-                      allowOrigins: e.target.value
-                        .split(',') // 쉼표로 문자열 분리
-                        .map((s) => s.trim()) // 앞뒤 공백 제거
-                        .filter((s) => s), // 빈 문자열 제거
-                    })
-                  }
+                  onChange={(e) => handleCommaSeparatedInputChange(e, 'allowOrigins')}
                   placeholder={corsForm.allowOrigins.join(',')}
                 />
               </div>
@@ -195,15 +204,7 @@ export function CorsSettingsDialog({
                 </Label>
                 <Input
                   value={corsForm.exposeHeaders.join(', ')} // 배열 → 문자열
-                  onChange={(e) => {
-                    setCorsForm({
-                      ...corsForm,
-                      exposeHeaders: e.target.value
-                        .split(',') // 쉼표로 분리
-                        .map((s) => s.trim()) // 앞뒤 공백 제거
-                        .filter((s) => s.length), // 빈 문자열 제거
-                    });
-                  }}
+                  onChange={(e) => handleCommaSeparatedInputChange(e, 'exposeHeaders')}
                   placeholder={corsForm.exposeHeaders.join(',')}
                 />
               </div>
