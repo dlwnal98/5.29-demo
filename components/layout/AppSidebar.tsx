@@ -497,9 +497,9 @@ export function AppSidebar({
 
   const getStoredTokenInfo = () => {
     if (typeof window !== 'undefined') {
-      const accessToken = localStorage.getItem('access_token');
-      const refreshToken = localStorage.getItem('refresh_token');
-      const expiresAt = localStorage.getItem('expires_at');
+      const accessToken = sessionStorage.getItem('access_token');
+      const refreshToken = sessionStorage.getItem('refresh_token');
+      const expiresAt = sessionStorage.getItem('expires_at');
       return { accessToken: accessToken, refreshToken: refreshToken, expiresAt: expiresAt };
     }
     return { accessToken: null, refreshToken: null, expiresAt: null };

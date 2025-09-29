@@ -16,9 +16,9 @@ export default function AuthGuard({ children }: AuthGuardProps) {
 
   useEffect(() => {
     const publicPaths = ['/', '/signup', '/signup/member']; // 로그인 페이지만 public
-    const accessToken = localStorage.getItem('access_token');
-    const refreshToken = localStorage.getItem('refresh_token');
-    const expiresAt = localStorage.getItem('expires_at');
+    const accessToken = sessionStorage.getItem('access_token');
+    const refreshToken = sessionStorage.getItem('refresh_token');
+    const expiresAt = sessionStorage.getItem('expires_at');
     const isTokenExpired = expiresAt ? Date.now() > Number(expiresAt) : true;
 
     // public path면 바로 렌더

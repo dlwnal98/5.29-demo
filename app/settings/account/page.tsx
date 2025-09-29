@@ -61,7 +61,7 @@ export default function AccountPage() {
       const res = await requestDelete(`/api/v1/users/${userData?.userKey}`);
 
       if (res.code == 200) {
-        localStorage.clear();
+        sessionStorage.clear();
         window.scrollTo({ top: 0, behavior: 'smooth' });
         setShowCompleteDeleted(true);
       }

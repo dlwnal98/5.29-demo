@@ -56,8 +56,8 @@ export default function CreateMethodPage() {
   const resourceId = searchParams.get('resourceId');
   const resourcePath = searchParams.get('resourcePath');
   const userData = useAuthStore((state) => state.user);
-  const apiId = localStorage.getItem('selectedApiId');
-  const apiName = localStorage.getItem('selectedApiName');
+  const apiId = sessionStorage.getItem('selectedApiId');
+  const apiName = sessionStorage.getItem('selectedApiName');
 
   const { data: apiKeyList } = useGetAPIKeyList(userData?.organizationId || '');
   const { data: endpointList } = useGetEndpointsList(userData?.organizationId || '');

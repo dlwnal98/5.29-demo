@@ -77,7 +77,7 @@ export default function ApiManagementPage() {
   const currentUsers = safeFilteredUsers?.slice(startIndex, endIndex);
 
   const handleApiClick = (api: APIListData) => {
-    // API 정보를 localStorage에 저장하고 사이드바에 설정
+    // API 정보를 sessionStorage에 저장하고 사이드바에 설정
     setSelectedApiInfo(api.name, api.apiId);
 
     setSelectedAPIId(api.apiId);

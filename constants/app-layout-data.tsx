@@ -46,30 +46,30 @@ export const projectsData: Project[] = [
   },
 ];
 
-// localStorage에서 API 정보 가져오기
+// sessionStorage에서 API 정보 가져오기
 const getStoredApiInfo = () => {
   if (typeof window !== 'undefined') {
-    const storedName = localStorage.getItem('selectedApiName');
-    const storedId = localStorage.getItem('selectedApiId');
+    const storedName = sessionStorage.getItem('selectedApiName');
+    const storedId = sessionStorage.getItem('selectedApiId');
     return { name: storedName, id: storedId };
   }
   return { name: null, id: null };
 };
 
-// localStorage에 API 정보 저장하기
+// sessionStorage에 API 정보 저장하기
 const setStoredApiInfo = (name: string | null, id: string | null) => {
   if (typeof window !== 'undefined') {
     if (name && id) {
-      localStorage.setItem('selectedApiName', name);
-      localStorage.setItem('selectedApiId', id);
+      sessionStorage.setItem('selectedApiName', name);
+      sessionStorage.setItem('selectedApiId', id);
     } else {
-      localStorage.removeItem('selectedApiName');
-      localStorage.removeItem('selectedApiId');
+      sessionStorage.removeItem('selectedApiName');
+      sessionStorage.removeItem('selectedApiId');
     }
   }
 };
 
-// 초기값을 localStorage에서 가져오기
+// 초기값을 sessionStorage에서 가져오기
 const initialApiInfo = getStoredApiInfo();
 export let selectedApiName: string | null = initialApiInfo.name;
 export let selectedApiId: string | null = initialApiInfo.id;

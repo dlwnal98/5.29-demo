@@ -10,16 +10,16 @@ export const getReJWTToken = async () => {
 
   const res = await requestPost('/api/v1/access-token/reissue', {
     body: {
-      accessToken: localStorage.getItem('access_token'),
-      refreshToken: localStorage.getItem('refresh_token'),
+      accessToken: sessionStorage.getItem('access_token'),
+      refreshToken: sessionStorage.getItem('refresh_token'),
     },
   });
 
   if (res.code == 200) {
     const expiresAt = Date.now() + EXPIRES_IN * 1000; // Date.now()랑 expires의 시간 단위가 달라서 *1000 적용
-    localStorage.setItem('access_token', res.data.accessToken);
-    localStorage.setItem('refresh_token', res.data.refreshToken);
-    localStorage.setItem('expires_at', String(expiresAt));
+    sessionStorage.setItem('access_token', res.data.accessToken);
+    sessionStorage.setItem('refresh_token', res.data.refreshToken);
+    sessionStorage.setItem('expires_at', String(expiresAt));
     // window.location.reload();
   }
 };

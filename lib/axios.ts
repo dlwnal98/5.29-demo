@@ -3,9 +3,9 @@ import axios from 'axios';
 // 요청 전 인터셉터
 axios.interceptors.request.use(
   async (config) => {
-    const accessToken = localStorage.getItem('access_token');
-    const refreshToken = localStorage.getItem('refresh_token');
-    const expiresAt = localStorage.getItem('expires_at');
+    const accessToken = sessionStorage.getItem('access_token');
+    const refreshToken = sessionStorage.getItem('refresh_token');
+    const expiresAt = sessionStorage.getItem('expires_at');
 
     if (accessToken && expiresAt) {
       const currentTime = Date.now();
@@ -22,13 +22,13 @@ axios.interceptors.request.use(
           const EXPIRES_IN = 3600;
           const newExpiresAt = Date.now() + EXPIRES_IN * 1000;
 
-          localStorage.setItem('access_token', newAccessToken);
-          localStorage.setItem('refresh_token', newRefreshToken);
-          localStorage.setItem('expires_at', String(newExpiresAt));
+          sessionStorage.setItem('access_token', newAccessToken);
+          sessionStorage.setItem('refresh_token', newRefreshToken);
+          sessionStorage.setItem('expires_at', String(newExpiresAt));
 
           config.headers.Authorization = `Bearer ${newAccessToken}`;
         } catch (err) {
-          localStorage.clear();
+          sessionStorage.clear();
           window.location.replace('/'); // ✅ 수정된 부분
           return Promise.reject(err);
         }
@@ -47,8 +47,8 @@ axios.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    const refresh_token = localStorage.getItem('refresh_token');
-    const access_token = localStorage.getItem('access_token');
+    const refresh_token = sessionStorage.getItem('refresh_token');
+    const access_token = sessionStorage.getItem('access_token');
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
@@ -64,14 +64,14 @@ axios.interceptors.response.use(
         const EXPIRES_IN = 3600;
         const newExpiresAt = Date.now() + EXPIRES_IN * 1000;
 
-        localStorage.setItem('access_token', newAccessToken);
-        localStorage.setItem('refresh_token', newRefreshToken);
-        localStorage.setItem('expires_at', String(newExpiresAt));
+        sessionStorage.setItem('access_token', newAccessToken);
+        sessionStorage.setItem('refresh_token', newRefreshToken);
+        sessionStorage.setItem('expires_at', String(newExpiresAt));
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return axios(originalRequest);
       } catch (refreshError) {
-        localStorage.clear();
+        sessionStorage.clear();
         window.location.replace('/'); // ✅ 수정된 부분
         return Promise.reject(refreshError);
       }

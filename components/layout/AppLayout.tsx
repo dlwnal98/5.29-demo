@@ -38,8 +38,8 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
   }, []);
 
   // 토큰 확인해서 리다이렉트
-  // const accessToken = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  // const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refresh_token') : null;
+  // const accessToken = typeof window !== 'undefined' ? sessionStorage.getItem('access_token') : null;
+  // const refreshToken = typeof window !== 'undefined' ? sessionStorage.getItem('refresh_token') : null;
 
   // if (!accessToken || !refreshToken) {
   //   redirect('/'); // 로그인 페이지로 강제 이동
@@ -48,8 +48,8 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
   // const router = useRouter();
 
   // useEffect(() => {
-  //   const accessToken = localStorage.getItem('access_token');
-  //   const refreshToken = localStorage.getItem('refresh_token');
+  //   const accessToken = sessionStorage.getItem('access_token');
+  //   const refreshToken = sessionStorage.getItem('refresh_token');
 
   //   if (!accessToken || !refreshToken) {
   //     router.replace('/'); // 로그인 페이지로 이동

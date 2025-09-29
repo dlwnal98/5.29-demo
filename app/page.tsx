@@ -31,9 +31,9 @@ export default function LoginPage() {
   //   setRememberMe(checked);
 
   //   if (checked) {
-  //     localStorage.setItem('userId', userId);
+  //     sessionStorage.setItem('userId', userId);
   //   } else {
-  //     localStorage.removeItem('userId');
+  //     sessionStorage.removeItem('userId');
   //   }
   // };
 
@@ -76,7 +76,7 @@ export default function LoginPage() {
 
       // 로그인 성공했을 때
       if (!res?.data?.code) {
-        localStorage.setItem('userId', userId);
+        sessionStorage.setItem('userId', userId);
         window.location.href = res.request.responseURL;
 
         // 로그인 실패했을 때
@@ -85,7 +85,7 @@ export default function LoginPage() {
 
         // 멤버 최초 로그인 성공해서 비밀번호 설정해야할 때
         if (res.data.code === 3005) {
-          localStorage.setItem('userId', userId);
+          sessionStorage.setItem('userId', userId);
           window.location.href = '/signup/member';
         }
       }

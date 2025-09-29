@@ -9,7 +9,7 @@ export default function AuthCallbackClient() {
   const searchParams = useSearchParams();
   const code = searchParams.get('code');
   const router = useRouter();
-  const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
+  const userId = typeof window !== 'undefined' ? sessionStorage.getItem('userId') : null;
 
   const getJWTToken = async () => {
     const EXPIRES_IN = 3600;
@@ -28,9 +28,9 @@ export default function AuthCallbackClient() {
     if (res?.code == 200) {
       const expiresAt = Date.now() + EXPIRES_IN * 1000; // Date.now()랑 expires의 시간 단위가 달라서 *1000 적용
 
-      localStorage.setItem('access_token', res.data.accessToken);
-      localStorage.setItem('refresh_token', res.data.refreshToken);
-      localStorage.setItem('expires_at', String(expiresAt));
+      sessionStorage.setItem('access_token', res.data.accessToken);
+      sessionStorage.setItem('refresh_token', res.data.refreshToken);
+      sessionStorage.setItem('expires_at', String(expiresAt));
       router.push('/dashboard');
     }
   };

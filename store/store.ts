@@ -29,9 +29,9 @@ export const useAuthStore = create<AuthState>()((set) => ({
   expiresAt: null,
   user: null,
   setTokens: (accessToken, refreshToken, expiresAt) => {
-    localStorage.setItem('access_token', accessToken);
-    localStorage.setItem('refresh_token', refreshToken);
-    localStorage.setItem('expires_at', expiresAt);
+    sessionStorage.setItem('access_token', accessToken);
+    sessionStorage.setItem('refresh_token', refreshToken);
+    sessionStorage.setItem('expires_at', expiresAt);
 
     const decodedData = parseJwt(accessToken);
     set({
@@ -43,7 +43,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   },
 
   clearAuth: () => {
-    localStorage.clear();
+    sessionStorage.clear();
     set({ accessToken: null, refreshToken: null, expiresAt: null, user: null });
   },
 }));

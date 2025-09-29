@@ -12,7 +12,7 @@ import { createMemberInit } from '@/hooks/use-signup';
 import { passwordRegex } from '@/lib/etc';
 import PolicyDialog from './components/policyDialog';
 export default function SignupMemberPage() {
-  const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
+  const userId = typeof window !== 'undefined' ? sessionStorage.getItem('userId') : null;
 
   const [formData, setFormData] = useState({
     name: '',
@@ -85,7 +85,12 @@ export default function SignupMemberPage() {
   };
 
   const signUpCondition =
-    name.length > 0 && id.length > 0 && email.length > 0 && passwordValid && password === confirmPassword && agreeTerms;
+    name.length > 0 &&
+    id.length > 0 &&
+    email.length > 0 &&
+    passwordValid &&
+    password === confirmPassword &&
+    agreeTerms;
   if (signUpSuccess) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
@@ -283,9 +288,12 @@ export default function SignupMemberPage() {
                 onClick={() => setIsTermAndPolicyModalOpen(true)}
                 className="border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 mt-1"
               />
-              <Label htmlFor="terms" className="hover:underline text-sm text-gray-600 cursor-pointer leading-relaxed">
+              <Label
+                htmlFor="terms"
+                className="hover:underline text-sm text-gray-600 cursor-pointer leading-relaxed">
                 <span className="text-blue-600 hover:text-blue-700">서비스 약관</span> 및{' '}
-                <span className="text-blue-600 hover:text-blue-700">개인정보처리방침</span>에 동의합니다.
+                <span className="text-blue-600 hover:text-blue-700">개인정보처리방침</span>에
+                동의합니다.
               </Label>
             </div>
 

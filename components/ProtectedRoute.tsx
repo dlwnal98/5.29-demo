@@ -13,7 +13,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // if (localStorage.getItem('access_token')) {
+    // if (sessionStorage.getItem('access_token')) {
     //   setLoading(false);
     // } else {
     //   router.replace('/'); // 인증 실패 → 로그인 페이지로 이동
