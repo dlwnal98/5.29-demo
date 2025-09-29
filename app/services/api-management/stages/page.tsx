@@ -101,7 +101,7 @@ export default function StagesPage() {
     const res = await requestGet(`/api/v1/gateway/stage/${stageId}`);
     // const res = await requestGet(`/api/v1/gateway/stage/${'nEBJGwKdAAAk'}`);
 
-    setSelectedStageEndpointUrl(res.baseUrl);
+    setSelectedStageEndpointUrl(res.data.baseUrl);
   };
 
   const prevLengthRef = useRef(0);
