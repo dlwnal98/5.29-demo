@@ -263,7 +263,7 @@ export default function ApiResourcesPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>리소스 : {currentApiName}</BreadcrumbPage>
+              <BreadcrumbPage>Resource : {currentApiName}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -276,7 +276,7 @@ export default function ApiResourcesPage() {
               onClick={() => router.push('/services/api-management')}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">리소스</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Resources</h1>
           </div>
           <div className="flex items-center justify-end p-2 gap-2">
             <Button

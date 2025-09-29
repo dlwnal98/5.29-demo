@@ -131,7 +131,13 @@ export default function ApiKeysPage() {
   const handleCopyApiKey = (apiKeyName: string, apiKey: string) => {
     setCopyApiKey(apiKey);
     clipboard.copy(apiKey);
-    toast.success(`[${apiKeyName}] API Key가 복사되었습니다.`);
+    toast.success(
+      <>
+        [{apiKeyName}] API Key가 복사되었습니다. <br />
+        http(s) 헤더에 <b>X-API-Key</b> 항목을 추가하여 <br />
+        복사된 키 값을 넣어 요청하면 됩니다.
+      </>
+    );
     // setIsCopyModalOpen(true);
   };
 

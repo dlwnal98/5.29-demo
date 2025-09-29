@@ -369,7 +369,7 @@ export default function ModelsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">모델</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Models</h1>
             <p className="text-gray-600 mt-1">
               모델을 사용하여 API에서 사용하는 다양한 요청 및 응답의 본문 형식을 정의합니다.
             </p>

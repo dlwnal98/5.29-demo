@@ -98,8 +98,8 @@ export default function StagesPage() {
   // }, [stagesDocData]);
 
   const getFinalEndpoint = async (stageId: string) => {
-    // const res = await requestGet(`/api/v1/gateway/stage/${stageId}`);
-    const res = await requestGet(`/api/v1/gateway/stage/${'nEBJGwKdAAAk'}`);
+    const res = await requestGet(`/api/v1/gateway/stage/${stageId}`);
+    // const res = await requestGet(`/api/v1/gateway/stage/${'nEBJGwKdAAAk'}`);
 
     setSelectedStageEndpointUrl(res.baseUrl);
   };
@@ -291,7 +291,7 @@ export default function StagesPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>스테이지</BreadcrumbPage>
+              <BreadcrumbPage>Stages</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -299,7 +299,7 @@ export default function StagesPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white ml-2">스테이지</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white ml-2">Stages</h1>
           </div>
         </div>
 

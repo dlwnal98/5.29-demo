@@ -85,7 +85,6 @@ export default function DeployResourceDialog({
 
   const { mutate: handleDeploy } = useDeployAPI({
     onSuccess: () => {
-      toast.success('성공적으로 배포되었습니다.');
       handleNavigateStage();
     },
     onError: (error: any) => {
@@ -93,13 +92,25 @@ export default function DeployResourceDialog({
       toast.error(serverMessage);
     },
   });
-
   const handleNavigateStage = async () => {
-    await queryClient.invalidateQueries({ queryKey: ['getStatesDocData', apiId] });
-    await queryClient.refetchQueries({ queryKey: ['getStatesDocData', apiId] });
+    // ✅ 모달을 바로 닫음
+    onOpenChange(false);
 
-    await queryClient.invalidateQueries({ queryKey: ['getDeployHistoryData', organizationId] });
-    await queryClient.refetchQueries({ queryKey: ['getDeployHistoryData', organizationId] });
+    await toast.promise(
+      (async () => {
+        await queryClient.invalidateQueries({ queryKey: ['getStatesDocData', apiId] });
+        await queryClient.refetchQueries({ queryKey: ['getStatesDocData', apiId] });
+
+        await queryClient.invalidateQueries({ queryKey: ['getDeployHistoryData', organizationId] });
+        await queryClient.refetchQueries({ queryKey: ['getDeployHistoryData', organizationId] });
+      })(),
+      {
+        loading: '스테이지 생성 중...',
+        success: '스테이지가 성공적으로 생성되어 배포되었습니다.',
+        error: '스테이지 생성 후 배포에 실패했습니다.',
+      }
+    );
+
     router.push(`/services/api-management/stages?apiId=${apiId}`);
   };
 
@@ -127,6 +138,8 @@ export default function DeployResourceDialog({
           reviewer: '',
         },
       });
+    } else if (res.statusCode == 400) {
+      toast.error(res.message);
     } else {
       toast.error('새로운 스테이지 생성에 실패하였습니다\n 재입력이 필요합니다.');
     }

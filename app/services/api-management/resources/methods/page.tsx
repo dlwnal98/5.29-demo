@@ -65,7 +65,6 @@ export default function CreateMethodPage() {
 
   const { mutate: createMethod } = useCreateMethod({
     onSuccess: () => {
-      toast.success('메서드가 성공적으로 생성되었습니다.');
       handleBack();
     },
     onError: () => {
@@ -147,11 +146,20 @@ export default function CreateMethodPage() {
   const queryClient = useQueryClient();
 
   const handleBack = async () => {
-    await queryClient.invalidateQueries({ queryKey: ['getOpenAPIDoc', apiId] });
-    await queryClient.refetchQueries({ queryKey: ['getOpenAPIDoc', apiId] });
+    await toast.promise(
+      (async () => {
+        await queryClient.invalidateQueries({ queryKey: ['getOpenAPIDoc', apiId] });
+        await queryClient.refetchQueries({ queryKey: ['getOpenAPIDoc', apiId] });
+      })(),
+      {
+        loading: '메서드 생성 중...',
+        success: '메서드가 성공적으로 생성되었습니다.',
+        error: '메서드 생성에 실패했습니다.',
+      }
+    );
+
     router.push(`/services/api-management/resources?apiId=${apiId}&apiName=${apiName}`);
   };
-
   const handleCreateMethod = () => {
     if (!methodForm.methodType) {
       toast.error('메서드 유형을 선택해주세요.');
@@ -505,7 +513,10 @@ export default function CreateMethodPage() {
                                     <Copy className="h-4 w-4 ml-2" />
                                   </button>
                                 </div>
-
+                                <p className="text-red-500 text-xs mb-2">
+                                  *http(s) 헤더에 <strong>X-API-Key</strong> 항목을 추가하여 복사된
+                                  키 값을 넣어 요청하면 됩니다.
+                                </p>
                                 <div className="bg-white dark:bg-gray-800 p-2 rounded border">
                                   <p className="text-xs font-mono text-gray-700 dark:text-gray-300 break-all">
                                     {selectedApiKey}
@@ -560,18 +571,26 @@ export default function CreateMethodPage() {
                                 setMethodForm({ ...methodForm, endpointUrl: value })
                               }>
                               <SelectTrigger>
-                                <SelectValue placeholder="엔드포인트 URL 선택" />
+                                <SelectValue
+                                  placeholder={
+                                    endpointList?.length > 0
+                                      ? '엔드포인트 URL 선택'
+                                      : '생성된 엔드포인트 URL이 존재하지 않습니다.'
+                                  }
+                                />
                               </SelectTrigger>
-                              <SelectContent>
-                                {endpointList?.map((url, id) => (
-                                  <SelectItem
-                                    key={id}
-                                    value={url.targetEndpoint}
-                                    className="hover:cursor-pointer">
-                                    {url.targetEndpoint}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
+                              {endpointList?.length > 0 && (
+                                <SelectContent>
+                                  {endpointList?.map((url, id) => (
+                                    <SelectItem
+                                      key={id}
+                                      value={url.targetEndpoint}
+                                      className="hover:cursor-pointer">
+                                      {url.targetEndpoint}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              )}
                             </Select>
                           </div>
                         )}
@@ -885,12 +904,12 @@ export default function CreateMethodPage() {
             isCreatingNewApiKey={isCreatingNewApiKey}
             setIsCreatingNewApiKey={setIsCreatingNewApiKey}
             apiKeyList={apiKeyList || []}
+            setSelectedApiKey={setSelectedApiKey}
             setSelectedApiKeyId={setSelectedApiKeyId}
             newApiKeyForm={newApiKeyForm}
             setNewApiKeyForm={setNewApiKeyForm}
             userKey={userData?.userKey || ''}
             setApiKeyToggle={setApiKeyToggle}
-            setSelectedApiKey={setSelectedApiKey}
             organizationId={userData?.organizationId || ''}
           />
         </div>

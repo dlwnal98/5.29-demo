@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/select';
 import { Copy, Trash2, CheckCircle } from 'lucide-react';
 import type { QueryParameter, RequestHeader, RequestBodyModel, Model } from '@/types/resource';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 import RequestHeaderListSearch from '../../models/components/RequestHeaderListSearch';
 import { SelectAPIKeyModal } from '../methods/components/SelectAPIKeyModal';
 import { useAuthStore } from '@/store/store';
@@ -43,10 +43,10 @@ export function MethodRequestEdit({
 
   const { mutate: modifyMethod } = useModifyMethod({
     onSuccess: () => {
-      alert('수정완료');
+      toast.success('메서드 요청 설정이 변경되었습니다.');
     },
     onError: () => {
-      alert('수정 실패');
+      toast.error('메서드 요청 설정 변경에 실패하였습니다.');
     },
   });
 
@@ -354,240 +354,248 @@ export function MethodRequestEdit({
   console.log(apiKeyToggle, newApiKeyForm, methodEditForm, selectedMethod);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between px-2">
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white">메서드 요청 편집</h3>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleCancelEdit}>
-            취소
-          </Button>
-          <Button
-            onClick={handleModifyMedthod}
-            className="bg-blue-500 hover:bg-blue-600 text-white">
-            저장
-          </Button>
+    <>
+      <Toaster expand={true} position="bottom-center" richColors />
+      <div className="space-y-6">
+        <div className="flex items-center justify-between px-2">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white">메서드 요청 편집</h3>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleCancelEdit}>
+              취소
+            </Button>
+            <Button
+              onClick={handleModifyMedthod}
+              className="bg-blue-500 hover:bg-blue-600 text-white">
+              저장
+            </Button>
+          </div>
         </div>
-      </div>
-      {/* Method Request Settings Edit */}
-      <Card className="!mt-3">
-        <CardHeader>
-          <CardTitle className="!text-lg">메서드 요청 설정</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Label className="text-sm font-medium">API 키가 필요함</Label>
-            <Switch checked={apiKeyToggle} onCheckedChange={handleApiKeyToggle} />
-          </div>
-          {apiKeyToggle && (
-            <div className="mt-4 p-4 bg-green-50 dark:bg-green-950/20 border border-green-200 rounded-lg">
-              <div className="flex items-start gap-3">
-                <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <h4 className="font-semibold text-green-900 dark:text-green-100">
-                      선택된 API 키
-                    </h4>
-                    <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-xs rounded-full font-medium">
-                      활성화됨
-                    </span>
-                    <button
-                      className="hover:underline"
-                      onClick={() => handleCopyAPIKey(apiKeyContent)}>
-                      <Copy className="h-4 w-4 ml-2" />
-                    </button>
-                  </div>
-                  <div className="bg-white dark:bg-gray-800 p-2 rounded border">
-                    <p className="text-xs font-mono text-gray-700 dark:text-gray-300 break-all">
-                      {apiKeyContent}
+        {/* Method Request Settings Edit */}
+        <Card className="!mt-3">
+          <CardHeader>
+            <CardTitle className="!text-lg">메서드 요청 설정</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Label className="text-sm font-medium">API 키가 필요함</Label>
+              <Switch checked={apiKeyToggle} onCheckedChange={handleApiKeyToggle} />
+            </div>
+            {apiKeyToggle && (
+              <div className="mt-4 p-4 bg-green-50 dark:bg-green-950/20 border border-green-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className="font-semibold text-green-900 dark:text-green-100">
+                        선택된 API 키
+                      </h4>
+                      <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-xs rounded-full font-medium">
+                        활성화됨
+                      </span>
+                      <button
+                        className="hover:underline"
+                        onClick={() => handleCopyAPIKey(apiKeyContent)}>
+                        <Copy className="h-4 w-4 ml-2" />
+                      </button>
+                    </div>
+                    <p className="text-red-500 text-xs mb-2">
+                      *http(s) 헤더에 <strong>X-API-Key</strong> 항목을 추가하여 복사된 키 값을 넣어
+                      요청하면 됩니다.
                     </p>
+                    <div className="bg-white dark:bg-gray-800 p-2 rounded border">
+                      <p className="text-xs font-mono text-gray-700 dark:text-gray-300 break-all">
+                        {apiKeyContent}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-          <div>
+            )}
             <div>
-              <Label className="text-sm font-medium">요청 검사기</Label>
-              <Select
-                value={methodEditForm?.requestValidator}
-                onValueChange={(value) =>
-                  setMethodEditForm({ ...methodEditForm, requestValidator: value })
-                }>
-                <SelectTrigger className="mt-2">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {validatorList.map((validator, i) => (
-                    <SelectItem key={i} value={validator?.code} className="hover:cursor-pointer">
-                      {validator?.description}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div>
+                <Label className="text-sm font-medium">요청 검사기</Label>
+                <Select
+                  value={methodEditForm?.requestValidator}
+                  onValueChange={(value) =>
+                    setMethodEditForm({ ...methodEditForm, requestValidator: value })
+                  }>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {validatorList.map((validator, i) => (
+                      <SelectItem key={i} value={validator?.code} className="hover:cursor-pointer">
+                        {validator?.description}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-      {/* URL Query String Parameters Edit */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center !text-lg  gap-3">
-            URL 쿼리 문자열 파라미터
-            <Button
-              size="sm"
-              variant={'outline'}
-              className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
-              onClick={addQueryParameter}>
-              <span className="font-bold">추가</span>
-            </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {queryParameters.map((param) => (
-              <div key={param.id} className="grid grid-cols-12 gap-4 items-center mb-3">
-                <div className="col-span-10">
-                  <Input
-                    value={param.name}
-                    onChange={(e) => updateQueryParameter(param.id, 'name', e.target.value)}
-                    placeholder="파라미터 이름"
-                  />
-                </div>
-                <div className="col-span-2 gap-1 flex items-center">
-                  <div className="flex items-center space-x-2">
-                    <Label className="text-xs">필수</Label>
-                    <Switch
-                      checked={param.required}
-                      onCheckedChange={(checked) =>
-                        updateQueryParameter(param.id, 'required', checked)
-                      }
+          </CardContent>
+        </Card>
+        {/* URL Query String Parameters Edit */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center !text-lg  gap-3">
+              URL 쿼리 문자열 파라미터
+              <Button
+                size="sm"
+                variant={'outline'}
+                className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
+                onClick={addQueryParameter}>
+                <span className="font-bold">추가</span>
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {queryParameters.map((param) => (
+                <div key={param.id} className="grid grid-cols-12 gap-4 items-center mb-3">
+                  <div className="col-span-10">
+                    <Input
+                      value={param.name}
+                      onChange={(e) => updateQueryParameter(param.id, 'name', e.target.value)}
+                      placeholder="파라미터 이름"
                     />
                   </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-0 hover:bg-transparent bg-transparent cursor-pointer"
-                    onClick={() => removeQueryParameter(param.id)}>
-                    <Trash2 className="h-5 w-5" />
-                  </Button>
+                  <div className="col-span-2 gap-1 flex items-center">
+                    <div className="flex items-center space-x-2">
+                      <Label className="text-xs">필수</Label>
+                      <Switch
+                        checked={param.required}
+                        onCheckedChange={(checked) =>
+                          updateQueryParameter(param.id, 'required', checked)
+                        }
+                      />
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-0 hover:bg-transparent bg-transparent cursor-pointer"
+                      onClick={() => removeQueryParameter(param.id)}>
+                      <Trash2 className="h-5 w-5" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ))}
-            {queryParameters.length === 0 && (
-              <div className="text-center py-6 text-gray-500">
-                쿼리 파라미터가 없습니다. 추가 버튼을 클릭하여 새 파라미터를 추가하세요.
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-      {/* HTTP Request Headers Edit */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center  gap-3 !text-lg">
-            HTTP 요청 헤더
-            <Button
-              size="sm"
-              variant={'outline'}
-              className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
-              onClick={addRequestHeader}>
-              <span className="font-bold">추가</span>
-            </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {requestHeaders.map((header) => (
-              <div
-                key={header.id}
-                // className="grid grid-cols-12 gap-3 mt-3 items-center">
-                className={`grid grid-cols-12 gap-3 mt-3 ${openId === header.id ? 'items-start' : 'items-center  mb-3'}`}>
-                <div className="col-span-10">
-                  <RequestHeaderListSearch
-                    // updateHeader={updateRequestHeader}
-                    updateHeader={(field, value) => updateRequestHeader(header.id, field, value)}
-                    key={header.id}
-                    isOpen={openId === header.id}
-                    setIsOpen={(val) => setOpenId(val ? header.id : null)}
-                    existingSearch={header.name}
-                  />
+              ))}
+              {queryParameters.length === 0 && (
+                <div className="text-center py-6 text-gray-500">
+                  쿼리 파라미터가 없습니다. 추가 버튼을 클릭하여 새 파라미터를 추가하세요.
                 </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+        {/* HTTP Request Headers Edit */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center  gap-3 !text-lg">
+              HTTP 요청 헤더
+              <Button
+                size="sm"
+                variant={'outline'}
+                className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
+                onClick={addRequestHeader}>
+                <span className="font-bold">추가</span>
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {requestHeaders.map((header) => (
                 <div
-                  className={`col-span-2 gap-1 flex items-center ${openId === header.id ? 'mt-1' : ''}`}>
-                  {/* className={`col-span-2 gap-1 flex items-center mt-1`}> */}
-                  <div className="flex items-center space-x-2">
-                    <Label className="text-xs">필수</Label>
-                    <Switch
-                      checked={header.required}
-                      onCheckedChange={(checked) =>
-                        updateRequestHeader(header.id, 'required', checked)
-                      }
-                      // disabled={header.name === 'Content-Type'}
+                  key={header.id}
+                  // className="grid grid-cols-12 gap-3 mt-3 items-center">
+                  className={`grid grid-cols-12 gap-3 mt-3 ${openId === header.id ? 'items-start' : 'items-center  mb-3'}`}>
+                  <div className="col-span-10">
+                    <RequestHeaderListSearch
+                      // updateHeader={updateRequestHeader}
+                      updateHeader={(field, value) => updateRequestHeader(header.id, field, value)}
+                      key={header.id}
+                      isOpen={openId === header.id}
+                      setIsOpen={(val) => setOpenId(val ? header.id : null)}
+                      existingSearch={header.name}
                     />
                   </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => removeRequestHeader(header.id)}
-                    className="border-0 hover:bg-transparent bg-transparent cursor-pointer"
-                    // disabled={header.name === 'Content-Type'}
-                  >
-                    <Trash2 className="h-5 w-5" />
-                  </Button>
+                  <div
+                    className={`col-span-2 gap-1 flex items-center ${openId === header.id ? 'mt-1' : ''}`}>
+                    {/* className={`col-span-2 gap-1 flex items-center mt-1`}> */}
+                    <div className="flex items-center space-x-2">
+                      <Label className="text-xs">필수</Label>
+                      <Switch
+                        checked={header.required}
+                        onCheckedChange={(checked) =>
+                          updateRequestHeader(header.id, 'required', checked)
+                        }
+                        // disabled={header.name === 'Content-Type'}
+                      />
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => removeRequestHeader(header.id)}
+                      className="border-0 hover:bg-transparent bg-transparent cursor-pointer"
+                      // disabled={header.name === 'Content-Type'}
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ))}
-            {requestHeaders.length === 0 && (
-              <div className="text-center py-6 text-gray-500">
-                요청 헤더가 없습니다. 추가 버튼을 클릭하여 새로운 요청 헤더를 추가하세요.
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-      {/* Request Body Edit */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3 !text-lg">
-            요청 본문
-            <Button
-              size="sm"
-              variant={'outline'}
-              className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
-              onClick={addRequestBodyModel}>
-              <span className="font-bold">추가</span>
-            </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {requestBodyModels.map((model) => (
-              <div key={model.id} className="grid grid-cols-12 gap-3 items-center mb-3">
-                <div className="col-span-5">
-                  <Input
-                    value={model.modelName}
-                    onChange={(e) => updateRequestBodyModel(model.id, 'modelName', e.target.value)}
-                    placeholder="콘텐츠 유형"
-                  />
+              ))}
+              {requestHeaders.length === 0 && (
+                <div className="text-center py-6 text-gray-500">
+                  요청 헤더가 없습니다. 추가 버튼을 클릭하여 새로운 요청 헤더를 추가하세요.
                 </div>
-                <div className="col-span-5">
-                  <Select
-                    value={model.modelId}
-                    onValueChange={(value) => {
-                      const selectedModel = availableModels.find((m) => m.id === value);
-                      updateRequestBodyModel(model.id, 'modelId', value);
-                      if (selectedModel) {
-                        updateRequestBodyModel(model.id, 'modelName', selectedModel.name);
+              )}
+            </div>
+          </CardContent>
+        </Card>
+        {/* Request Body Edit */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3 !text-lg">
+              요청 본문
+              <Button
+                size="sm"
+                variant={'outline'}
+                className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
+                onClick={addRequestBodyModel}>
+                <span className="font-bold">추가</span>
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {requestBodyModels.map((model) => (
+                <div key={model.id} className="grid grid-cols-12 gap-3 items-center mb-3">
+                  <div className="col-span-5">
+                    <Input
+                      value={model.modelName}
+                      onChange={(e) =>
+                        updateRequestBodyModel(model.id, 'modelName', e.target.value)
                       }
-                    }}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="모델 선택" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableModels.map((availableModel) => (
-                        <SelectItem key={availableModel.id} value={availableModel.id}>
-                          {availableModel.name}
-                          {/* <Button
+                      placeholder="콘텐츠 유형"
+                    />
+                  </div>
+                  <div className="col-span-5">
+                    <Select
+                      value={model.modelId}
+                      onValueChange={(value) => {
+                        const selectedModel = availableModels.find((m) => m.id === value);
+                        updateRequestBodyModel(model.id, 'modelId', value);
+                        if (selectedModel) {
+                          updateRequestBodyModel(model.id, 'modelName', selectedModel.name);
+                        }
+                      }}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="모델 선택" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableModels.map((availableModel) => (
+                          <SelectItem key={availableModel.id} value={availableModel.id}>
+                            {availableModel.name}
+                            {/* <Button
                               size="sm"
                               variant="ghost"
                               onClick={(e) => {
@@ -597,46 +605,47 @@ export function MethodRequestEdit({
                               className="ml-2 h-6 w-6 p-0 text-red-500 hover:text-red-700">
                               <Trash2 className="h-3 w-3" />
                             </Button> */}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="col-span-2 flex justify-start">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-0 hover:bg-transparent bg-transparent cursor-pointer"
+                      onClick={() => removeRequestBodyModel(model.id)}>
+                      <Trash2 className="h-5 w-5" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="col-span-2 flex justify-start">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-0 hover:bg-transparent bg-transparent cursor-pointer"
-                    onClick={() => removeRequestBodyModel(model.id)}>
-                    <Trash2 className="h-5 w-5" />
-                  </Button>
+              ))}
+              {requestBodyModels.length === 0 && (
+                <div className="text-center py-6 text-gray-500">
+                  요청 본문이 없습니다. 추가 버튼을 클릭하여 새 요청 본문을 추가하세요.
                 </div>
-              </div>
-            ))}
-            {requestBodyModels.length === 0 && (
-              <div className="text-center py-6 text-gray-500">
-                요청 본문이 없습니다. 추가 버튼을 클릭하여 새 요청 본문을 추가하세요.
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
-      <SelectAPIKeyModal
-        open={isApiKeyModalOpen}
-        onOpenChange={setIsApiKeyModalOpen}
-        isCreatingNewApiKey={isCreatingNewApiKey}
-        setIsCreatingNewApiKey={setIsCreatingNewApiKey}
-        apiKeyList={apiKeyList || []}
-        selectedApiKeyId={selectedApiKeyId}
-        setSelectedApiKeyId={setSelectedApiKeyId}
-        newApiKeyForm={newApiKeyForm}
-        setNewApiKeyForm={setNewApiKeyForm}
-        userKey={userData?.userKey || ''}
-        organizationId={userData?.organizationId || ''}
-        setApiKeyToggle={setApiKeyToggle}
-        setSelectedApiKey={setApiKeyContent}
-      />
-    </div>
+        <SelectAPIKeyModal
+          open={isApiKeyModalOpen}
+          onOpenChange={setIsApiKeyModalOpen}
+          isCreatingNewApiKey={isCreatingNewApiKey}
+          setIsCreatingNewApiKey={setIsCreatingNewApiKey}
+          apiKeyList={apiKeyList || []}
+          selectedApiKeyId={selectedApiKeyId}
+          setSelectedApiKeyId={setSelectedApiKeyId}
+          newApiKeyForm={newApiKeyForm}
+          setNewApiKeyForm={setNewApiKeyForm}
+          userKey={userData?.userKey || ''}
+          organizationId={userData?.organizationId || ''}
+          setApiKeyToggle={setApiKeyToggle}
+          setSelectedApiKey={setApiKeyContent}
+        />
+      </div>
+    </>
   );
 }
