@@ -148,13 +148,13 @@ export default function ApiManagementPage() {
                         key={plan.apiId}
                         onClick={() => handleApiClick(plan)}
                         className="hover:cursor-pointer">
-                        <TableCell className="font-mono text-sm">{plan.apiId}</TableCell>
+                        <TableCell className="font-mono text-sm text-blue-600">
+                          {plan.apiId}
+                        </TableCell>
 
                         <TableCell>
                           <div className="flex items-center space-x-2">
-                            <span className="text-blue-600 font-medium hover:cursor-pointer">
-                              {plan.name}
-                            </span>
+                            <span className=" font-medium hover:cursor-pointer">{plan.name}</span>
                           </div>
                         </TableCell>
                         <TableCell className="max-w-xs truncate">{plan.description}</TableCell>

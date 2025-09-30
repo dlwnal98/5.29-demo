@@ -12,29 +12,20 @@ import { toast, Toaster } from 'sonner';
 import { Trash2, AlertTriangle } from 'lucide-react';
 import { useDeleteModel } from '@/hooks/use-model';
 
-interface Model {
-  id: string;
-  name: string;
-  contentType: string;
-  description: string;
-  schema: string;
-  createdAt: string;
-  updatedAt: string;
-  usageCount: number;
-}
-
 interface DeleteModelDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  selectModels: string[];
-  modelToDelete: Model | null;
+  modelId: string;
+  modelName: string;
+  userKey: string;
 }
 
 export default function DeleteModelDialog({
   open,
   onOpenChange,
-  selectedModels,
-  modelToDelete,
+  modelId,
+  modelName,
+  userKey,
 }: DeleteModelDialogProps) {
   const { mutate: deleteModel } = useDeleteModel({
     onSuccess: () => {
@@ -44,7 +35,7 @@ export default function DeleteModelDialog({
   });
 
   const handleDeleteModel = () => {
-    deleteModel(modelToDelete?.id);
+    deleteModel({ modelId: modelId, userKey: userKey });
   };
 
   return (
@@ -62,25 +53,11 @@ export default function DeleteModelDialog({
                 <p className="font-semibold text-red-800 mb-2">
                   ⚠️ 이 작업은 실행 취소할 수 없습니다.
                 </p>
-                {selectedModels.length > 1 ? (
-                  <p className="text-red-700 text-sm">
-                    선택된 <strong>{selectedModels.length}개의 모델</strong>이 영구적으로
-                    삭제됩니다.
-                    <br />이 모델들을 사용하는 모든 API 메서드에 영향을 줄 수 있습니다.
-                  </p>
-                ) : (
-                  <p className="text-red-700 text-sm">
-                    <strong>'{modelToDelete?.name}'</strong> 모델이 영구적으로 삭제됩니다.
-                    <br />이 모델을 사용하는 모든 API 메서드에 영향을 줄 수 있습니다.
-                  </p>
-                )}
-                {modelToDelete && modelToDelete.usageCount > 0 && (
-                  <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded">
-                    <p className="text-yellow-800 text-sm font-medium">
-                      현재 {modelToDelete.usageCount}개의 API에서 사용 중입니다.
-                    </p>
-                  </div>
-                )}
+
+                <p className="text-red-700 text-sm">
+                  <strong>'{modelName}'</strong> 모델이 영구적으로 삭제됩니다.
+                  <br />이 모델을 사용하는 모든 API 메서드에 영향을 줄 수 있습니다.
+                </p>
               </div>
             </DialogDescription>
           </DialogHeader>
@@ -90,7 +67,6 @@ export default function DeleteModelDialog({
               variant="outline"
               onClick={() => {
                 onOpenChange(false);
-                //   setModelToDelete(null);
               }}>
               취소
             </Button>

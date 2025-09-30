@@ -145,7 +145,9 @@ export default function TargetEndpointsPage() {
                 {filteredEndpoints?.length > 0 ? (
                   filteredEndpoints?.map((endpoint, id) => (
                     <TableRow key={id} className="hover:bg-white">
-                      <TableCell className="font-medium">{endpoint.targetId}</TableCell>
+                      <TableCell className="font-medium  text-blue-600">
+                        {endpoint.targetId}
+                      </TableCell>
                       <TableCell className="font-mono text-sm">{endpoint.targetEndpoint}</TableCell>
                       <TableCell>{endpoint.description}</TableCell>
                       <TableCell>{new Date(endpoint.createdAt).toLocaleDateString()}</TableCell>
