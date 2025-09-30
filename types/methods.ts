@@ -20,10 +20,10 @@ export interface FormData {
 }
 
 export interface BodyModel {
-  id: string;
-  name: string;
-  description: string;
-  model: string;
+  id?: string;
+  modelName: string;
+  modelId: string;
+  type: string;
 }
 
 export interface MockHeader {
@@ -41,11 +41,5 @@ export interface ApiKey {
 
 export interface Model {
   modelId: string;
-  apiId: string;
   modelName: string;
-  modelType: string;
-  description: string;
-  enabled: boolean;
-  createdAt: string;
-  createdBy: string;
 }

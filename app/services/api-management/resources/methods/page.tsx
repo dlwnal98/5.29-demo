@@ -59,9 +59,9 @@ export default function CreateMethodPage() {
   const apiId = sessionStorage.getItem('selectedApiId');
   const apiName = sessionStorage.getItem('selectedApiName');
 
-  const { data: apiKeyList } = useGetAPIKeyList(userData?.organizationId || '');
-  const { data: endpointList } = useGetEndpointsList(userData?.organizationId || '');
-  // const {data : modelList} = useGetModelList('dasdf'); // API Id 들어가야함
+  const { data: apiKeyList = [] } = useGetAPIKeyList(userData?.organizationId || '');
+  const { data: endpointList = [] } = useGetEndpointsList(userData?.organizationId || '');
+  const { data: modelList = [] } = useGetModelList(apiId || '');
 
   const { mutate: createMethod } = useCreateMethod({
     onSuccess: () => {
@@ -85,18 +85,12 @@ export default function CreateMethodPage() {
     requestValidator: 'NONE',
   });
 
-  const [modelList, setModelList] = useState<Model[]>([
-    {
-      modelId: '',
-      modelName: 'User',
-      description: '사용자 정보 모델',
-      apiId: '',
-      modelType: '',
-      enabled: true,
-      createdAt: '',
-      createdBy: '',
-    },
-  ]);
+  // const [modelList, setModelList] = useState<Model[]>([
+  //   {
+  //     modelId: '',
+  //     modelName: '',
+  //   },
+  // ]);
 
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [isDirectUrlInput, setIsDirectUrlInput] = useState(false);
@@ -124,10 +118,10 @@ export default function CreateMethodPage() {
 
   const [bodyModels, setBodyModels] = useState<BodyModel[]>([
     {
-      id: '1',
-      name: '',
-      description: '',
-      model: '',
+      id: '',
+      modelName: '',
+      modelId: '',
+      type: '',
     },
   ]);
 
@@ -142,6 +136,14 @@ export default function CreateMethodPage() {
   useEffect(() => {
     getValidatorList();
   }, []);
+  // useEffect(() => {
+  //   if (modelData)
+  //     setModelList(
+  //       modelData?.map((model) => ({ modelId: model.modelId, modelName: model.modelName }))
+  //     );
+  // }, []);
+
+  console.log(modelList);
 
   const queryClient = useQueryClient();
 
@@ -178,6 +180,8 @@ export default function CreateMethodPage() {
         return;
       }
     }
+
+    const requestModelIds = bodyModels.map((model) => model?.modelId);
     if (resourceId)
       if (isDirectUrlInput)
         if (onSave(methodForm.customEndpointUrl)) {
@@ -192,7 +196,7 @@ export default function CreateMethodPage() {
             backendServiceUrl: methodForm.customEndpointUrl
               ? methodForm.customEndpointUrl
               : methodForm.endpointUrl,
-            // requestModelIds: [],
+            requestModelIds: requestModelIds || [],
             // responseModelId: '',
             queryParameters: queryParameters,
             headerParameters: headers,
@@ -213,13 +217,15 @@ export default function CreateMethodPage() {
           backendServiceUrl: methodForm.customEndpointUrl
             ? methodForm.customEndpointUrl
             : methodForm.endpointUrl,
-          // requestModelIds: [],
+          requestModelIds: requestModelIds || [],
           // responseModelId: '',
           queryParameters: queryParameters,
           headerParameters: headers,
           requestValidator: methodForm.requestValidator,
         });
   };
+
+  console.log(bodyModels.map((model) => model.modelId));
 
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections((prev) => ({
@@ -276,11 +282,6 @@ export default function CreateMethodPage() {
     setHeaders((prev) => [...prev, newHeader]);
   };
 
-  // 수정: id 기준으로 업데이트
-  // const updateHeader = (id: number, field: keyof Header, value: any) => {
-  //   setHeaders((prev) => prev.map((h) => (h.id === id ? { ...h, [field]: value } : h)));
-  // };
-
   const updateHeader = (id: string, field: keyof Header, value: any) => {
     setHeaders(
       headers.map((header) => (header.id === id ? { ...header, [field]: value } : header))
@@ -292,25 +293,30 @@ export default function CreateMethodPage() {
     setHeaders((prev) => prev.filter((h) => h.id !== id));
   };
 
+  const [bodyModelCounter, setBodyModelCounter] = useState(0); // 순차 id 관리용
+
   const addBodyModel = () => {
     const newModel: BodyModel = {
-      id: Date.now().toString(),
-      name: '',
-      description: '',
-      model: '',
+      id: (bodyModelCounter + 1).toString(),
+      modelName: '',
+      modelId: '',
+      type: '',
     };
-    setBodyModels([...bodyModels, newModel]);
+    setBodyModels((prev) => [...prev, newModel]);
+    setBodyModelCounter((prev) => prev + 1);
   };
 
   const updateBodyModel = (id: string, field: keyof BodyModel, value: any) => {
-    setBodyModels(
-      bodyModels.map((model) => (model.id === id ? { ...model, [field]: value } : model))
+    setBodyModels((prev) =>
+      prev.map((model) => (model.id === id ? { ...model, [field]: value } : model))
     );
   };
 
   const removeBodyModel = (id: string) => {
-    setBodyModels(bodyModels.filter((model) => model.id !== id));
+    setBodyModels((prev) => prev.filter((model) => model.id !== id));
   };
+
+  console.log(bodyModels);
 
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -841,35 +847,34 @@ export default function CreateMethodPage() {
                               <div
                                 key={model.id}
                                 className="grid grid-cols-12 gap-3 items-center mb-3">
-                                <div className="col-span-5">
+                                {/* <div className="col-span-5">
                                   <Input
                                     placeholder="콘텐츠 유형"
-                                    value={model.name}
+                                    value={model.type}
                                     onChange={(e) =>
-                                      updateBodyModel(model.id, 'name', e.target.value)
+                                      updateBodyModel(model.id, 'type', e.target.value)
                                     }
                                   />
-                                </div>
+                                </div> */}
 
-                                <div className="col-span-5">
+                                <div className="col-span-10">
                                   <Select
-                                    value={model.model}
+                                    value={model.modelId}
                                     onValueChange={(value) => {
                                       if (value === 'create-new') {
                                         handleModelSelect(value);
                                       } else {
-                                        updateBodyModel(model.id, 'model', value);
+                                        updateBodyModel(model.id, 'modelId', value);
                                       }
                                     }}>
                                     <SelectTrigger>
                                       <SelectValue placeholder="모델" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                      {modelList.map((availableModel, i) => (
+                                      {modelList.map((availableModel) => (
                                         <SelectItem
-                                          key={i}
-                                          value={availableModel.modelName}
-                                          className="hover:cursor-pointer">
+                                          key={availableModel.modelId}
+                                          value={availableModel.modelId}>
                                           {availableModel.modelName}
                                         </SelectItem>
                                       ))}
