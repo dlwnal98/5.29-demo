@@ -171,7 +171,7 @@ export default function DeploymentList({ selectedStage }: DeploymentListProps) {
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
             <div className="text-sm text-gray-600 dark:text-gray-400">
               {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredDeployments?.length)} of{' '}
               {filteredDeployments?.length}

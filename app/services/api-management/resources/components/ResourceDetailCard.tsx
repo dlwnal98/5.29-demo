@@ -72,7 +72,7 @@ export function ResourceDetailCard({
 
   return (
     <>
-      <div className="h-[77vh] bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="min-h-[77vh] bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         {/* Resource Details Header */}
         <div className="border-b border-gray-200 dark:border-gray-700 p-6  space-y-3">
           <div className="flex items-center justify-between mb-4">

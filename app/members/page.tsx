@@ -231,22 +231,20 @@ export default function UsersPage() {
           {/* 페이지 헤더 */}
           <div className="flex justify-between sm:flex-row gap-4 mt-4">
             {/* {!loadingUsers || currentUsers.length !== 0 ? ( */}
-            {currentUsers?.length !== 0 ? (
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Members ({filteredUsers?.length})
-                </h1>
-                <p className="text-gray-600 mt-1">Member들을 관리하세요</p>
-              </div>
-            ) : (
-              <Skeleton className="h-6 w-[100px] bg-gray-200" />
-            )}
+
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Members ({filteredUsers?.length})
+              </h1>
+              <p className="text-gray-600 mt-1">Member들을 관리하세요</p>
+            </div>
+
             <div className="flex items-center space-x-2">
               {/* Search Input */}
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
-                  placeholder={`Search by ${searchType}...`}
+                  placeholder={`${searchType} 검색`}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyUp={(e) => {
@@ -459,11 +457,9 @@ export default function UsersPage() {
                           </TableRow>
                         </React.Fragment>
                       ))
-                    : Array.from({ length: 5 }).map((_, index) => (
-                        <TableRow
-                          key={index}
-                          className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200">
-                          <TableCell className="w-12" colSpan={7}>
+                    : Array.from({ length: 1 }).map((_, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="w-12 text-center !py-8 text-gray-500" colSpan={7}>
                             {/* <Skeleton className="h-6 w-full bg-gray-200" /> */}
                             현재 조직 내에 멤버가 존재하지 않습니다.
                           </TableCell>

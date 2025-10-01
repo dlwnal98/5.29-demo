@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Plus, AlertCircle, Key, Settings } from 'lucide-react';
-import { SetStateAction } from 'react';
+import { SetStateAction, useEffect } from 'react';
 import { ApiKey } from '@/hooks/use-apiKeys';
 import { useCreateAPIKey } from '@/hooks/use-apiKeys';
 import { useState } from 'react';
@@ -51,7 +51,7 @@ export function SelectAPIKeyModal({
 
   const { mutate: createAPIKey } = useCreateAPIKey({
     onSuccess: (data) => {
-      // setNewApiKeyForm({ name: '', description: '' });
+      console.log(data);
       setApiKeyToggle(true);
       setSelectedApiKey(data.key);
       setSelectedApiKeyId(data.keyId);
@@ -78,6 +78,11 @@ export function SelectAPIKeyModal({
       onOpenChange(false);
     }
   };
+
+  useEffect(() => {
+    setIsCreatingNewApiKey(false);
+    setNewApiKeyForm({ name: '', description: '' });
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

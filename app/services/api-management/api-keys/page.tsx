@@ -84,6 +84,7 @@ export default function ApiKeysPage() {
   // apikey 수정 mutate
   const { mutate: modifyAPIKey } = useModifyAPIKey({
     onSuccess: () => {
+      setIsEditModalOpen(false);
       toast.success('API키가 수정되었습니다.');
     },
   });
@@ -91,6 +92,7 @@ export default function ApiKeysPage() {
   // apikey 삭제 mutate
   const { mutate: deleteAPIKey } = useDeleteAPIKey({
     onSuccess: () => {
+      setIsEditModalOpen(false);
       toast.success('API키가 삭제되었습니다.');
     },
   });
@@ -177,8 +179,9 @@ export default function ApiKeysPage() {
 
         {/* 페이지 헤더 */}
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
+          <div className=" gap-2">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">API Keys</h1>
+            <p className="text-gray-600 mt-1">API Key들을 관리하세요</p>
           </div>
           <div className="flex items-center gap-1">
             <div className="flex items-center justify-between ">
@@ -224,7 +227,7 @@ export default function ApiKeysPage() {
                 {filteredApiKeys?.length === 0 ? (
                   <>
                     <TableRow className="dark:bg-blue-900/20 hover:bg-white">
-                      <TableCell colSpan={5} className="text-center">
+                      <TableCell colSpan={5} className=" text-center !py-8 text-gray-500">
                         생성된 API Key가 존재하지 않습니다.
                       </TableCell>
                     </TableRow>

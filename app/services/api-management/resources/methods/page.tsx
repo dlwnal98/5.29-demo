@@ -528,11 +528,11 @@ export default function CreateMethodPage() {
                                   *http(s) 헤더에 <strong>X-API-Key</strong> 항목을 추가하여 복사된
                                   키 값을 넣어 요청하면 됩니다.
                                 </p>
-                                <div className="bg-white dark:bg-gray-800 p-2 rounded border">
+                                {/* <div className="bg-white dark:bg-gray-800 p-2 rounded border">
                                   <p className="text-xs font-mono text-gray-700 dark:text-gray-300 break-all">
                                     {selectedApiKey}
                                   </p>
-                                </div>
+                                </div> */}
                               </div>
                             </div>
                           </div>

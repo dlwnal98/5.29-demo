@@ -45,8 +45,8 @@ export default function CreateMemberDialog({
       {firstMemberPw?.length === 0 ? (
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Add Member</DialogTitle>
-            <DialogDescription>Create organization member information.</DialogDescription>
+            <DialogTitle className="text-xl font-bold text-blue-600">Member 생성</DialogTitle>
+            <DialogDescription>Member ID를 생성합니다.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-1 gap-4">
@@ -98,8 +98,7 @@ export default function CreateMemberDialog({
               <div className="space-y-2">
                 <button
                   className=" w-[100%] flex justify-between items-center hover:underline"
-                  onClick={() => handleCopyPassword(firstMemberPw)}
-                >
+                  onClick={() => handleCopyPassword(firstMemberPw)}>
                   {/* {firstMemberPw} */}
 
                   <span className="block w-[90%] whitespace-normal break-words text-left">
@@ -116,8 +115,7 @@ export default function CreateMemberDialog({
               onClick={() => {
                 setTempPassword('');
                 setIsAddDialogOpen(false);
-              }}
-            >
+              }}>
               확인
             </Button>
           </DialogFooter>

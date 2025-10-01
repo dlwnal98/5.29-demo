@@ -165,7 +165,8 @@ interface ModifyMethodProps {
   ];
   enabled: boolean;
   requestValidator: string;
-  apiKeyRequired: false;
+  apiKeyRequired: boolean;
+  apiKeyId: string;
   updatedBy: string;
 }
 

@@ -76,7 +76,8 @@ export const createStage = async (data: CreateStageProps) => {
     body: data,
   });
 
-  return res;
+  if (res) return res;
+  else throw new Error();
 };
 
 export function useCreateStage(options?: UseMutationOptions<any, Error, CreateStageProps>) {

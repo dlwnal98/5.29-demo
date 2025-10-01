@@ -28,7 +28,7 @@ import { useGetStagesDocData } from '@/hooks/use-stages';
 import { useQueryClient } from '@tanstack/react-query';
 import { useDeployStore } from '@/store/deployStore';
 import { de } from 'date-fns/locale';
-
+import { AxiosError } from 'axios';
 interface deployData {
   stage: string;
   version: string;
@@ -115,33 +115,38 @@ export default function DeployResourceDialog({
   };
 
   const handleCreateAndDeploy = async () => {
-    const res = await createStage({
-      organizationId: organizationId,
-      stageName: deploymentData.newStageName,
-      description: deploymentData.description,
-      createdBy: userKey,
-      enabled: true,
-      deploymentSource: 'DRAFT',
-      apiId: apiId,
-      sourceDeploymentId: '',
-    });
-
-    if (res) {
-      handleDeploy({
-        apiId: apiId,
-        stageId: res.stageId,
-        version: '',
-        deployedBy: userKey,
+    try {
+      const res = await createStage({
+        organizationId: organizationId,
+        stageName: deploymentData.newStageName,
         description: deploymentData.description,
-        metadata: {
-          jiraTicket: '',
-          reviewer: '',
-        },
+        createdBy: userKey,
+        enabled: true,
+        deploymentSource: 'DRAFT',
+        apiId: apiId,
+        sourceDeploymentId: '',
       });
-    } else if (res.statusCode == 400) {
-      toast.error(res.message);
-    } else {
-      toast.error('새로운 스테이지 생성에 실패하였습니다\n 재입력이 필요합니다.');
+      console.log(res);
+      if (res) {
+        handleDeploy({
+          apiId: apiId,
+          stageId: res.stageId,
+          version: '',
+          deployedBy: userKey,
+          description: deploymentData.description,
+          metadata: {
+            jiraTicket: '',
+            reviewer: '',
+          },
+        });
+      } else if (res.statusCode == 400) {
+        toast.error(res.message);
+      } else {
+        toast.error('새로운 스테이지 생성에 실패하였습니다\n 재입력이 필요합니다.');
+      }
+    } catch (e) {
+      const err = e as AxiosError<{ fieldErrors?: { stageName?: string } }>;
+      toast.error(err.response?.data?.fieldErrors?.stageName);
     }
   };
 

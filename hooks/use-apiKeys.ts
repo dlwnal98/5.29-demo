@@ -60,6 +60,7 @@ const createAPIKey = async ({
   if (res.code == 200) {
     return res.data;
   }
+  return res.data;
 };
 
 export function useCreateAPIKey(options?: UseMutationOptions<any, Error, CreateAPIKeyVariables>) {

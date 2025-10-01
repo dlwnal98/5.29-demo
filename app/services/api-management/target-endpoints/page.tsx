@@ -110,7 +110,7 @@ export default function TargetEndpointsPage() {
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="엔드포인트 검색..."
+                placeholder="Enpoint 검색..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
