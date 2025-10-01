@@ -861,6 +861,7 @@ export default function CreateMethodPage() {
                                   <Select
                                     value={model.modelId}
                                     onValueChange={(value) => {
+                                      console.log(value);
                                       if (value === 'create-new') {
                                         handleModelSelect(value);
                                       } else {

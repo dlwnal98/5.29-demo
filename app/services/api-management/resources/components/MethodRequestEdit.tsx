@@ -25,6 +25,7 @@ import { requestGet } from '@/lib/apiClient';
 import { useClipboard } from 'use-clipboard-copy';
 import { Header } from '@/types/methods';
 import { useModifyMethod } from '@/hooks/use-methods';
+import { useMethodEditStore } from '@/store/store';
 
 interface MethodRequestEditProps {
   selectedMethod: Method;
@@ -38,12 +39,15 @@ export function MethodRequestEdit({
   handleSaveEdit,
 }: MethodRequestEditProps) {
   const userData = useAuthStore((state) => state.user);
+  const isEditMode = useMethodEditStore((state) => state.isEdit);
+  const setIsEditMode = useMethodEditStore((state) => state.setIsEdit);
 
   const { data: apiKeyList } = useGetAPIKeyList(userData?.organizationId || '');
 
   const { mutate: modifyMethod } = useModifyMethod({
     onSuccess: () => {
       toast.success('메서드 요청 설정이 변경되었습니다.');
+      setIsEditMode(false);
     },
     onError: () => {
       toast.error('메서드 요청 설정 변경에 실패하였습니다.');
@@ -233,8 +237,6 @@ export function MethodRequestEdit({
     setQueryParameters((prev) => prev.filter((param) => param.id !== id));
   };
 
-  console.log(queryParameters);
-
   const nextHeaderIdRef = useRef<number>(0);
   // 추가: 생성순으로 id 부여
   const addRequestHeader = () => {
@@ -258,8 +260,6 @@ export function MethodRequestEdit({
   const removeRequestHeader = (id: number) => {
     setRequestHeaders((prev) => prev.filter((h) => h.id !== id));
   };
-
-  console.log(requestHeaders);
 
   // Request Body Model functions
   const addRequestBodyModel = () => {
@@ -351,8 +351,6 @@ export function MethodRequestEdit({
     });
   };
 
-  console.log(apiKeyToggle, newApiKeyForm, methodEditForm, selectedMethod);
-
   return (
     <>
       <Toaster expand={true} position="bottom-center" richColors />
@@ -360,7 +358,7 @@ export function MethodRequestEdit({
         <div className="flex items-center justify-between px-2">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white">메서드 요청 편집</h3>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleCancelEdit}>
+            <Button variant="outline" onClick={() => setIsEditMode(false)}>
               취소
             </Button>
             <Button

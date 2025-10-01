@@ -26,8 +26,6 @@ import { getMethodStyle } from '@/lib/etc';
 import { useMethodEditStore } from '@/store/store';
 
 export default function MethodDetailCard({ selectedMethod }: { selectedMethod: Method }) {
-  console.log(selectedMethod);
-
   const [activeTab, setActiveTab] = useState('method-request');
   const [selectedFlowStep, setSelectedFlowStep] = useState('');
   const [isMethodDeleteDialogOpen, setIsMethodDeleteDialogOpen] = useState(false);
@@ -191,8 +189,6 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
       setActiveTab('method-response');
     }
   };
-
-  console.log(isEditMode);
 
   const handleEditMethod = () => {
     setIsEditMode(true);

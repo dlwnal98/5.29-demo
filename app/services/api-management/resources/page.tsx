@@ -11,7 +11,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { ArrowLeft, SquarePlus, SquareMinus, Eye } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Toaster } from 'sonner';
 import type { Resource, Method } from '@/types/resource';
@@ -33,26 +33,40 @@ export default function ApiResourcesPage() {
   const currentApiName = searchParams.get('apiName');
   const userData = useAuthStore((state) => state.user);
   const setIsMethodEdit = useMethodEditStore((state) => state.setIsEdit);
+  const isMethodEdit = useMethodEditStore((state) => state.isEdit);
 
   const { data: openAPIDocData, refetch } = useGetOpenAPIDoc(currentApiId || '');
 
-  const tree = resoureceBuildTree(openAPIDocData?.paths ?? {});
+  // const tree = resoureceBuildTree(openAPIDocData?.paths ?? {});
+  // console.log(isMethodEdit);
 
-  const [resources, setResources] = useState<Resource[]>(tree);
+  // useEffect(() => {
+  //   console.log(isMethodEdit);
+  //   if (openAPIDocData?.paths) {
+  //     setResources(tree);
+  //   }
+  // }, [openAPIDocData, isMethodEdit]);
 
-  const [selectedResource, setSelectedResource] = useState<Resource>(resources[0]);
-  const [selectedMethod, setSelectedMethod] = useState<Method | null>(null);
-  const [expandedResources, setExpandedResources] = useState<number[]>();
-  const [activeTab, setActiveTab] = useState('method-request');
-  const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [createdResourceId, setCreatedResourceId] = useState('');
+  const tree = useMemo(() => {
+    return resoureceBuildTree(openAPIDocData?.paths ?? {});
+  }, [openAPIDocData]);
 
   useEffect(() => {
     if (openAPIDocData?.paths) {
       setResources(tree);
     }
-  }, [openAPIDocData]);
+  }, [tree, isMethodEdit]);
+
+  const [resources, setResources] = useState<Resource[]>(tree);
+
+  const [selectedResource, setSelectedResource] = useState<Resource>(resources[0]);
+  const [selectedMethod, setSelectedMethod] = useState<Method | null>(null);
+  const [selectedMethodId, setSelectedMethodId] = useState('');
+  const [expandedResources, setExpandedResources] = useState<number[]>();
+  const [activeTab, setActiveTab] = useState('method-request');
+  const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [createdResourceId, setCreatedResourceId] = useState('');
 
   // Sync heights
   useEffect(() => {
@@ -84,6 +98,7 @@ export default function ApiResourcesPage() {
 
   const handleMethodClick = (method: Method, resource: Resource) => {
     setSelectedMethod(method);
+    setSelectedMethodId(method.id);
     setSelectedResource(resource);
     setActiveTab('method-request');
   };
@@ -92,13 +107,47 @@ export default function ApiResourcesPage() {
     setIsDeployModalOpen(true);
   };
 
-  // OpenAPI 데이터 들어오면 트리로 변환
+  // 메서드 수정 후 자동 재선택 로직
   useEffect(() => {
-    if (openAPIDocData?.paths) {
-      const tree = resoureceBuildTree(openAPIDocData.paths);
-      setResources(tree);
+    // selectedMethodId가 없거나 편집 모드일 때는 실행하지 않음
+    if (!selectedMethodId || isMethodEdit || !tree.length) return;
+
+    // tree에서 selectedMethodId와 일치하는 메서드를 재귀적으로 찾는 함수
+    const findMethodById = (resources: Resource[]): Method | null => {
+      for (const resource of resources) {
+        // 현재 리소스의 메서드들 검색
+        if (resource.methods && resource.methods.length > 0) {
+          const foundMethod = resource.methods.find((m) => m.id === selectedMethodId);
+          if (foundMethod) {
+            // 메서드를 찾으면 해당 리소스 정보도 함께 업데이트
+            setSelectedResource(resource);
+            return foundMethod;
+          }
+        }
+        // 자식 리소스에서 재귀 검색
+        if (resource.children && resource.children.length > 0) {
+          const foundMethod = findMethodById(resource.children);
+          if (foundMethod) return foundMethod;
+        }
+      }
+      return null;
+    };
+
+    // 갱신된 메서드 찾기
+    const updatedMethod = findMethodById(tree);
+    if (updatedMethod) {
+      // 새로운 메서드 객체로 상태 업데이트 (참조 변경으로 자식 컴포넌트 리렌더링 트리거)
+      setSelectedMethod(updatedMethod);
     }
-  }, [openAPIDocData]);
+  }, [tree, isMethodEdit, selectedMethodId]);
+
+  // OpenAPI 데이터 들어오면 트리로 변환
+  // useEffect(() => {
+  //   if (openAPIDocData?.paths) {
+  //     const tree = resoureceBuildTree(openAPIDocData.paths);
+  //     setResources(tree);
+  //   }
+  // }, [openAPIDocData, isMethodEdit]);
 
   const findInTree = (list: Resource[], id: string): boolean => {
     for (const res of list) {
@@ -222,6 +271,7 @@ export default function ApiResourcesPage() {
                         }`}
                         onClick={() => {
                           setSelectedMethod(m);
+                          setSelectedMethodId(m.id);
                           setSelectedResource(res);
                           setIsMethodEdit(false);
                         }}>

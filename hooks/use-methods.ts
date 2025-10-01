@@ -191,6 +191,10 @@ export function useModifyMethod(
       modifyMethod(methodId, data),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
+        queryKey: ['getOpenAPIDoc'],
+        exact: false,
+      });
+      queryClient.invalidateQueries({
         queryKey: ['getMethodsList'],
       });
       options?.onSuccess?.(data, variables, context);
