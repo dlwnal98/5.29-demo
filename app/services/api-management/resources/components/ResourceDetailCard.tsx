@@ -27,6 +27,8 @@ interface ResourceDetailCardProps {
   handleMethodClick: (method: Method, resource: Resource) => void;
   apiId: string;
   setCreatedResourceId: React.Dispatch<React.SetStateAction<string>>;
+  onMethodDeleted?: () => void;
+  onResourceDeleted?: () => void;
 }
 
 export function ResourceDetailCard({
@@ -35,6 +37,8 @@ export function ResourceDetailCard({
   handleMethodClick,
   apiId,
   setCreatedResourceId,
+  onMethodDeleted,
+  onResourceDeleted,
 }: ResourceDetailCardProps) {
   const userData = useAuthStore((state) => state.user);
 
@@ -253,6 +257,7 @@ export function ResourceDetailCard({
         setMethodToDelete={setMethodToDelete}
         selectedResource={selectedResource}
         setSelectedResource={setSelectedResource}
+        onMethodDeleted={onMethodDeleted}
       />
 
       <DeleteResourceDialog
@@ -261,6 +266,7 @@ export function ResourceDetailCard({
         resourceId={selectedResource?.resourceId}
         selectedResource={selectedResource}
         setCreatedResourceId={setCreatedResourceId}
+        onResourceDeleted={onResourceDeleted}
       />
     </>
   );

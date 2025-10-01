@@ -24,6 +24,7 @@ interface DeleteMethodDialogProps {
   apiId: string;
   selectedResource: Resource;
   setSelectedResource: (resource: Resource) => void;
+  onMethodDeleted?: () => void;
 }
 
 export function DeleteMethodDialog({
@@ -35,6 +36,7 @@ export function DeleteMethodDialog({
   apiId,
   selectedResource,
   setSelectedResource,
+  onMethodDeleted,
 }: DeleteMethodDialogProps) {
   console.log(methodToDelete);
 
@@ -51,6 +53,8 @@ export function DeleteMethodDialog({
           ),
         };
       });
+      // 메서드 삭제 후 콜백 실행
+      onMethodDeleted?.();
       onOpenChange(false);
     },
   });

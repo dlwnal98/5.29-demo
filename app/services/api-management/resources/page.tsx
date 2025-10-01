@@ -59,14 +59,24 @@ export default function ApiResourcesPage() {
 
   const [resources, setResources] = useState<Resource[]>(tree);
 
-  const [selectedResource, setSelectedResource] = useState<Resource>(resources[0]);
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [selectedMethod, setSelectedMethod] = useState<Method | null>(null);
   const [selectedMethodId, setSelectedMethodId] = useState('');
-  const [expandedResources, setExpandedResources] = useState<number[]>();
+  const [expandedResources, setExpandedResources] = useState<string[]>();
   const [activeTab, setActiveTab] = useState('method-request');
   const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createdResourceId, setCreatedResourceId] = useState('');
+  const [createdMethodId, setCreatedMethodId] = useState('');
+
+  // 페이지 진입시 sessionStorage에서 생성된 메서드 ID 확인
+  useEffect(() => {
+    const methodId = sessionStorage.getItem('createdMethodId');
+    if (methodId) {
+      setCreatedMethodId(methodId);
+      sessionStorage.removeItem('createdMethodId');
+    }
+  }, []);
 
   // Sync heights
   useEffect(() => {
@@ -138,6 +148,13 @@ export default function ApiResourcesPage() {
     if (updatedMethod) {
       // 새로운 메서드 객체로 상태 업데이트 (참조 변경으로 자식 컴포넌트 리렌더링 트리거)
       setSelectedMethod(updatedMethod);
+    } else {
+      // 메서드를 찾지 못한 경우 (삭제됨)
+      // selectedMethod가 있었는데 찾지 못했다면 삭제된 것으로 판단
+      if (selectedMethod) {
+        setSelectedMethod(null);
+        setSelectedMethodId('');
+      }
     }
   }, [tree, isMethodEdit, selectedMethodId]);
 
@@ -156,6 +173,40 @@ export default function ApiResourcesPage() {
     }
     return false;
   };
+
+  // createdMethodId가 있을 때 tree가 갱신되면 메서드 찾기
+  useEffect(() => {
+    if (!createdMethodId || !tree.length) return;
+
+    // tree에서 메서드 찾기
+    const findMethodById = (list: Resource[]): { method: Method; resource: Resource } | null => {
+      for (const resource of list) {
+        // 현재 리소스의 메서드들 검색
+        if (resource.methods && resource.methods.length > 0) {
+          const foundMethod = resource.methods.find(
+            (m) => m.info?.['x-method-id'] === createdMethodId || m.info?.methodId === createdMethodId
+          );
+          if (foundMethod) {
+            return { method: foundMethod, resource };
+          }
+        }
+        // 자식 리소스에서 재귀 검색
+        if (resource.children && resource.children.length > 0) {
+          const result = findMethodById(resource.children);
+          if (result) return result;
+        }
+      }
+      return null;
+    };
+
+    const result = findMethodById(tree);
+    if (result) {
+      setSelectedResource(result.resource);
+      setSelectedMethod(result.method);
+      setSelectedMethodId(result.method.id);
+      setCreatedMethodId(''); // 초기화
+    }
+  }, [tree, createdMethodId]);
 
   useEffect(() => {
     if (!resources.length) return;
@@ -188,6 +239,8 @@ export default function ApiResourcesPage() {
       const newSelected = findResourceById(resources);
       if (newSelected) {
         setSelectedResource(newSelected);
+        setSelectedMethod(null);
+        setSelectedMethodId('');
         setCreatedResourceId('');
         return;
       }
@@ -196,6 +249,8 @@ export default function ApiResourcesPage() {
     // ✅ 삭제된 경우 → 선택된 리소스가 현재 리스트에 없으면 루트로
     if (selectedResource && !findInTree(resources, selectedResource.id)) {
       setSelectedResource(root);
+      setSelectedMethod(null);
+      setSelectedMethodId('');
       return;
     }
 
@@ -360,14 +415,27 @@ export default function ApiResourcesPage() {
             <div ref={rightContentRef}>
               {selectedMethod ? (
                 <MethodDetailCard selectedMethod={selectedMethod} />
-              ) : (
+              ) : selectedResource ? (
                 <ResourceDetailCard
                   selectedResource={selectedResource}
                   setSelectedResource={setSelectedResource}
                   handleMethodClick={handleMethodClick}
                   apiId={currentApiId || ''}
                   setCreatedResourceId={setCreatedResourceId}
+                  onMethodDeleted={() => {
+                    setSelectedMethod(null);
+                    setSelectedMethodId('');
+                  }}
+                  onResourceDeleted={() => {
+                    setSelectedMethod(null);
+                    setSelectedMethodId('');
+                    setCreatedMethodId('');
+                  }}
                 />
+              ) : (
+                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                  <p className="text-gray-500 dark:text-gray-400">리소스를 선택해주세요.</p>
+                </div>
               )}
             </div>
           </div>

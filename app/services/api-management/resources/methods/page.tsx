@@ -64,7 +64,11 @@ export default function CreateMethodPage() {
   const { data: modelList = [] } = useGetModelList(apiId || '');
 
   const { mutate: createMethod } = useCreateMethod({
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // 생성된 메서드 ID를 sessionStorage에 저장
+      if (data?.methodId || data?.id) {
+        sessionStorage.setItem('createdMethodId', data.methodId || data.id);
+      }
       handleBack();
     },
     onError: () => {
@@ -162,6 +166,7 @@ export default function CreateMethodPage() {
 
     router.push(`/services/api-management/resources?apiId=${apiId}&apiName=${apiName}`);
   };
+
   const handleCreateMethod = () => {
     if (!methodForm.methodType) {
       toast.error('메서드 유형을 선택해주세요.');
@@ -196,7 +201,7 @@ export default function CreateMethodPage() {
             backendServiceUrl: methodForm.customEndpointUrl
               ? methodForm.customEndpointUrl
               : methodForm.endpointUrl,
-            requestModelIds: requestModelIds || [],
+            // requestModelIds: requestModelIds || [],
             // responseModelId: '',
             queryParameters: queryParameters,
             headerParameters: headers,
@@ -217,7 +222,7 @@ export default function CreateMethodPage() {
           backendServiceUrl: methodForm.customEndpointUrl
             ? methodForm.customEndpointUrl
             : methodForm.endpointUrl,
-          requestModelIds: requestModelIds || [],
+          // requestModelIds: requestModelIds || [],
           // responseModelId: '',
           queryParameters: queryParameters,
           headerParameters: headers,

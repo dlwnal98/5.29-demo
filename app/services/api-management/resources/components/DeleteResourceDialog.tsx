@@ -20,6 +20,7 @@ interface DeleteResourceDialogProps {
   resourceId: string;
   selectedResource: { path: string };
   setCreatedResourceId: React.Dispatch<React.SetStateAction<string>>;
+  onResourceDeleted?: () => void;
 }
 
 export function DeleteResourceDialog({
@@ -28,10 +29,12 @@ export function DeleteResourceDialog({
   resourceId,
   selectedResource,
   setCreatedResourceId,
+  onResourceDeleted,
 }: DeleteResourceDialogProps) {
   const { mutate: deleteResource } = useDeleteResource({
     onSuccess: () => {
       setCreatedResourceId('');
+      onResourceDeleted?.();
       toast.success('리소스가 삭제되었습니다');
       onOpenChange(false);
     },
