@@ -429,7 +429,11 @@ export default function ApiResourcesPage() {
                   onResourceDeleted={() => {
                     setSelectedMethod(null);
                     setSelectedMethodId('');
-                    setCreatedMethodId('');
+                    setCreatedResourceId('');
+                  }}
+                  onCorsSettingsSaved={() => {
+                    setSelectedMethod(null);
+                    setSelectedMethodId('');
                   }}
                 />
               ) : (

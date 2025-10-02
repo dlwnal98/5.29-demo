@@ -29,6 +29,7 @@ interface ResourceDetailCardProps {
   setCreatedResourceId: React.Dispatch<React.SetStateAction<string>>;
   onMethodDeleted?: () => void;
   onResourceDeleted?: () => void;
+  onCorsSettingsSaved?: () => void;
 }
 
 export function ResourceDetailCard({
@@ -39,6 +40,7 @@ export function ResourceDetailCard({
   setCreatedResourceId,
   onMethodDeleted,
   onResourceDeleted,
+  onCorsSettingsSaved,
 }: ResourceDetailCardProps) {
   const userData = useAuthStore((state) => state.user);
 
@@ -246,6 +248,7 @@ export function ResourceDetailCard({
         setSelectedResource={setSelectedResource}
         resourceId={selectedResource?.resourceId}
         userKey={userData?.userKey || ''}
+        onCorsSettingsSaved={onCorsSettingsSaved}
       />
 
       <DeleteMethodDialog
