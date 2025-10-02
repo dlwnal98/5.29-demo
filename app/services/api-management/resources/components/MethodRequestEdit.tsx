@@ -26,21 +26,22 @@ import { useClipboard } from 'use-clipboard-copy';
 import { Header } from '@/types/methods';
 import { useModifyMethod } from '@/hooks/use-methods';
 import { useMethodEditStore } from '@/store/store';
+import { set } from 'date-fns';
+import { useSearchParams } from 'next/navigation';
+import { ModelData } from '@/hooks/use-model';
 
 interface MethodRequestEditProps {
   selectedMethod: Method;
-  handleCancelEdit: () => void;
-  handleSaveEdit: () => void;
+  modelList: ModelData[];
 }
 
-export function MethodRequestEdit({
-  selectedMethod,
-  handleCancelEdit,
-  handleSaveEdit,
-}: MethodRequestEditProps) {
+export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEditProps) {
   const userData = useAuthStore((state) => state.user);
   const isEditMode = useMethodEditStore((state) => state.isEdit);
   const setIsEditMode = useMethodEditStore((state) => state.setIsEdit);
+
+  const params = useSearchParams();
+  const apiId = params.get('apiId');
 
   const { data: apiKeyList } = useGetAPIKeyList(userData?.organizationId || '');
 
@@ -75,8 +76,6 @@ export function MethodRequestEdit({
   });
   const [apiKeyContent, setApiKeyContent] = useState('');
 
-  console.log(apiKeyContent);
-
   const [methodEditForm, setMethodEditForm] = useState({
     selectedApiKey: '',
     requestValidator: 'NONE',
@@ -87,8 +86,11 @@ export function MethodRequestEdit({
   const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([]);
   const [requestHeaders, setRequestHeaders] = useState<RequestHeader[]>([]);
   const [requestBodyModels, setRequestBodyModels] = useState<RequestBodyModel[]>([]);
+  const [requestModelId, setRequestModelId] = useState<string>('');
 
   useEffect(() => {
+    console.log(selectedMethod);
+
     if (selectedMethod) {
       setApiKeyToggle(selectedMethod?.info['x-api-key-required']);
       setMethodEditForm({
@@ -114,8 +116,18 @@ export function MethodRequestEdit({
             }))
         );
       }
+      if (selectedMethod.info.requestBody) {
+        // $ref 값을 파싱하는 예시
+        const ref = selectedMethod.info.requestBody?.content?.['application/json']?.schema?.$ref;
+        const match = ref.match(/\/schemas\/([^\/]+)$/);
+        const id = match ? match[1] : undefined; // "mn7exE0xAAAo"
+
+        setRequestModelId(id);
+      }
     }
   }, [selectedMethod]);
+
+  console.log(requestModelId);
 
   useEffect(() => {
     if (apiKeyList && selectedMethod) {
@@ -277,13 +289,16 @@ export function MethodRequestEdit({
   };
 
   const updateRequestBodyModel = (id: string, field: keyof RequestBodyModel, value: any) => {
-    setRequestBodyModels(
-      requestBodyModels.map((model) => (model.id === id ? { ...model, [field]: value } : model))
-    );
+    // setRequestBodyModels(
+    //   requestBodyModels.map((model) => (model.id === id ? { ...model, [field]: value } : model))
+    // );
+
+    setRequestModelId(value);
   };
 
   const removeRequestBodyModel = (id: string) => {
-    setRequestBodyModels(requestBodyModels.filter((model) => model.id !== id));
+    // setRequestBodyModels(requestBodyModels.filter((model) => model.id !== id));
+    setRequestModelId('');
   };
 
   // Model management functions
@@ -329,6 +344,7 @@ export function MethodRequestEdit({
         apiKeyRequired: apiKeyToggle,
         updatedBy: userData?.userKey,
         apiKeyId: selectedApiKeyId,
+        requestModelId: requestModelId,
       },
     });
   };
@@ -536,46 +552,41 @@ export function MethodRequestEdit({
           <CardHeader>
             <CardTitle className="flex items-center gap-3 !text-lg">
               요청 본문
-              <Button
+              {/* <Button
                 size="sm"
                 variant={'outline'}
                 className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
+                disabled={requestModelId.length == 1}
                 onClick={addRequestBodyModel}>
                 <span className="font-bold">추가</span>
-              </Button>
+              </Button> */}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {requestBodyModels.map((model) => (
-                <div key={model.id} className="grid grid-cols-12 gap-3 items-center mb-3">
-                  <div className="col-span-5">
-                    <Input
-                      value={model.modelName}
-                      onChange={(e) =>
-                        updateRequestBodyModel(model.id, 'modelName', e.target.value)
-                      }
-                      placeholder="콘텐츠 유형"
-                    />
-                  </div>
-                  <div className="col-span-5">
-                    <Select
-                      value={model.modelId}
-                      onValueChange={(value) => {
-                        const selectedModel = availableModels.find((m) => m.id === value);
-                        updateRequestBodyModel(model.id, 'modelId', value);
-                        if (selectedModel) {
-                          updateRequestBodyModel(model.id, 'modelName', selectedModel.name);
+              <div className="grid grid-cols-12 gap-3 items-center mb-3">
+                <div className="col-span-10">
+                  <Select
+                    value={requestModelId}
+                    onValueChange={(value) => {
+                      // const selectedModel = availableModels.find((m) => m.id === value);
+                      updateRequestBodyModel(requestModelId, 'modelId', value);
+                      // if (selectedModel) {
+                      //   updateRequestBodyModel(model.id, 'modelName', selectedModel.name);
+                      // }
+                    }}>
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={
+                          modelList?.length > 0 ? '모델 선택' : '생성된 모델이 존재하지 않습니다.'
                         }
-                      }}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="모델 선택" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableModels.map((availableModel) => (
-                          <SelectItem key={availableModel.id} value={availableModel.id}>
-                            {availableModel.name}
-                            {/* <Button
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {modelList.map((model) => (
+                        <SelectItem key={model.modelId} value={model.modelId}>
+                          {model.modelName}
+                          {/* <Button
                               size="sm"
                               variant="ghost"
                               onClick={(e) => {
@@ -585,27 +596,26 @@ export function MethodRequestEdit({
                               className="ml-2 h-6 w-6 p-0 text-red-500 hover:text-red-700">
                               <Trash2 className="h-3 w-3" />
                             </Button> */}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="col-span-2 flex justify-start">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-0 hover:bg-transparent bg-transparent cursor-pointer"
-                      onClick={() => removeRequestBodyModel(model.id)}>
-                      <Trash2 className="h-5 w-5" />
-                    </Button>
-                  </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              ))}
-              {requestBodyModels.length === 0 && (
+                <div className="col-span-2 flex justify-start">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-0 hover:bg-transparent bg-transparent cursor-pointer"
+                    onClick={() => setRequestModelId('')}>
+                    <Trash2 className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+              {/* {requestBodyModels.length === 0 && (
                 <div className="text-center py-6 text-gray-500">
                   요청 본문이 없습니다. 추가 버튼을 클릭하여 새 요청 본문을 추가하세요.
                 </div>
-              )}
+              )} */}
             </div>
           </CardContent>
         </Card>

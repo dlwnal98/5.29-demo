@@ -11,6 +11,7 @@ interface MethodRequestViewProps {
   requestHeaders: RequestHeader[];
   requestBodyModels: RequestBodyModel[];
   handleEditMethod: () => void;
+  modelId: string;
 }
 
 export function MethodRequestView({
@@ -19,6 +20,7 @@ export function MethodRequestView({
   requestHeaders,
   requestBodyModels,
   handleEditMethod,
+  modelId,
 }: MethodRequestViewProps) {
   console.log(selectedMethod, queryParameters, requestHeaders);
 
@@ -202,31 +204,25 @@ export function MethodRequestView({
       {/* Request Body */}
       <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
         <div className="flex items-center justify-between mb-4">
-          <h4 className="text-md font-semibold text-gray-900 dark:text-white">
-            요청 본문 ({requestBodyModels.length})
-          </h4>
+          <h4 className="text-md font-semibold text-gray-900 dark:text-white">요청 본문</h4>
           <div className="flex items-center gap-2">
             <ChevronLeft className="h-4 w-4 text-gray-400" />
             <span className="text-sm text-gray-600 dark:text-gray-400">1</span>
             <ChevronRight className="h-4 w-4 text-gray-400" />
           </div>
         </div>
-        {requestBodyModels.length > 0 ? (
+        {modelId ? (
           <div className="space-y-2">
             <div className="grid grid-cols-2 gap-4 text-sm font-medium text-gray-600 dark:text-gray-400 border-b pb-2">
+              <div>ID</div>
               <div>콘텐츠 유형</div>
-              <div>이름</div>
             </div>
-            {requestBodyModels.map((model) => (
-              <div
-                key={model.id}
-                className="grid grid-cols-2 gap-4 p-3 bg-white dark:bg-gray-800 rounded border">
-                <div className="font-medium">{model.contentType}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {model.modelName || 'Empty'}
-                </div>
-              </div>
-            ))}
+            <div
+              key={modelId}
+              className="grid grid-cols-2 gap-4 p-3 bg-white dark:bg-gray-800 rounded border">
+              <div className="font-medium ">{modelId || 'Empty'}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">{'application/json'}</div>
+            </div>
           </div>
         ) : (
           <div className="text-center py-6">

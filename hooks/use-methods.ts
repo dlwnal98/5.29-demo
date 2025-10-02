@@ -80,7 +80,7 @@ export interface CreateMethodProps {
   methodName: string;
   description?: string;
   backendServiceUrl: string;
-  requestModelIds?: string[];
+  requestModelId?: string;
   responseModelId?: string;
   queryParameters: {
     name: string;
@@ -142,9 +142,8 @@ interface ModifyMethodProps {
   methodName: string;
   description: string;
   backendServiceUrl: string;
-  requestModelIds?: string[];
   responseModelId?: string;
-  requestModelId?: string[];
+  requestModelId?: string;
   queryParameters?: [
     {
       name?: string;

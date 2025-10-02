@@ -24,14 +24,17 @@ import { toast, Toaster } from 'sonner';
 import { useSearchParams } from 'next/navigation';
 import { getMethodStyle } from '@/lib/etc';
 import { useMethodEditStore } from '@/store/store';
+import { useGetModelList } from '@/hooks/use-model';
 
 export default function MethodDetailCard({ selectedMethod }: { selectedMethod: Method }) {
   const [activeTab, setActiveTab] = useState('method-request');
   const [selectedFlowStep, setSelectedFlowStep] = useState('');
   const [isMethodDeleteDialogOpen, setIsMethodDeleteDialogOpen] = useState(false);
-
+  const params = useSearchParams();
+  const apiId = params.get('apiId');
   const isEditMode = useMethodEditStore((state) => state.isEdit);
   const setIsEditMode = useMethodEditStore((state) => state.setIsEdit);
+  const { data: modelList = [] } = useGetModelList(apiId || '');
 
   // const [isEditMode, setIsEditMode] = useState(false);
   const [methodToDelete, setMethodToDelete] = useState<Method | null>(null);
@@ -63,6 +66,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
   const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([]);
   const [requestHeaders, setRequestHeaders] = useState<RequestHeader[]>([]);
   const [requestBodyModels, setRequestBodyModels] = useState<RequestBodyModel[]>([]);
+  const [requestModelId, setRequestModelId] = useState<string>('');
 
   useEffect(() => {
     if (!selectedMethod) return;
@@ -82,6 +86,17 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
         ...p,
         id: `header-${idx}-${p.name}`,
       }));
+
+    if (selectedMethod.info.requestBody) {
+      // $ref 값을 파싱하는 예시
+      const ref = selectedMethod.info.requestBody?.content?.['application/json']?.schema?.$ref;
+      const match = ref.match(/\/schemas\/([^\/]+)$/);
+      const id = match ? match[1] : undefined; // "mn7exE0xAAAo"
+
+      setRequestModelId(id);
+    } else {
+      setRequestModelId('');
+    }
 
     setQueryParameters(queries);
     setRequestHeaders(headers);
@@ -433,14 +448,11 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                   queryParameters={queryParameters}
                   requestHeaders={requestHeaders}
                   requestBodyModels={requestBodyModels}
+                  modelId={requestModelId}
                   handleEditMethod={handleEditMethod}
                 />
               ) : (
-                <MethodRequestEdit
-                  selectedMethod={selectedMethod}
-                  handleCancelEdit={handleCancelEdit}
-                  handleSaveEdit={handleSaveEdit}
-                />
+                <MethodRequestEdit selectedMethod={selectedMethod} modelList={modelList || []} />
               )}
             </TabsContent>
 

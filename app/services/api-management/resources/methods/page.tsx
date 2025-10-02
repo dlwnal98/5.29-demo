@@ -120,14 +120,7 @@ export default function CreateMethodPage() {
 
   const [headers, setHeaders] = useState<Header[]>([]);
 
-  const [bodyModels, setBodyModels] = useState<BodyModel[]>([
-    {
-      id: '',
-      modelName: '',
-      modelId: '',
-      type: '',
-    },
-  ]);
+  const [bodyModelId, setBodyModelId] = useState<string>('');
 
   const [validatorList, setValidatorList] = useState([]);
 
@@ -186,7 +179,6 @@ export default function CreateMethodPage() {
       }
     }
 
-    const requestModelIds = bodyModels.map((model) => model?.modelId);
     if (resourceId)
       if (isDirectUrlInput)
         if (onSave(methodForm.customEndpointUrl)) {
@@ -201,7 +193,7 @@ export default function CreateMethodPage() {
             backendServiceUrl: methodForm.customEndpointUrl
               ? methodForm.customEndpointUrl
               : methodForm.endpointUrl,
-            // requestModelIds: requestModelIds || [],
+            requestModelId: bodyModelId || '',
             // responseModelId: '',
             queryParameters: queryParameters,
             headerParameters: headers,
@@ -222,15 +214,14 @@ export default function CreateMethodPage() {
           backendServiceUrl: methodForm.customEndpointUrl
             ? methodForm.customEndpointUrl
             : methodForm.endpointUrl,
-          // requestModelIds: requestModelIds || [],
+          requestModelId: bodyModelId || '',
+
           // responseModelId: '',
           queryParameters: queryParameters,
           headerParameters: headers,
           requestValidator: methodForm.requestValidator,
         });
   };
-
-  console.log(bodyModels.map((model) => model.modelId));
 
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections((prev) => ({
@@ -299,6 +290,14 @@ export default function CreateMethodPage() {
   };
 
   const [bodyModelCounter, setBodyModelCounter] = useState(0); // 순차 id 관리용
+  const [bodyModel, setBodyModel] = useState<BodyModel[]>([
+    {
+      id: '',
+      modelName: '',
+      modelId: '',
+      type: '',
+    },
+  ]);
 
   const addBodyModel = () => {
     const newModel: BodyModel = {
@@ -307,21 +306,19 @@ export default function CreateMethodPage() {
       modelId: '',
       type: '',
     };
-    setBodyModels((prev) => [...prev, newModel]);
+    setBodyModel((prev) => [...prev, newModel]);
     setBodyModelCounter((prev) => prev + 1);
   };
 
   const updateBodyModel = (id: string, field: keyof BodyModel, value: any) => {
-    setBodyModels((prev) =>
-      prev.map((model) => (model.id === id ? { ...model, [field]: value } : model))
-    );
+    setBodyModelId(value);
   };
 
   const removeBodyModel = (id: string) => {
-    setBodyModels((prev) => prev.filter((model) => model.id !== id));
+    setBodyModelId('');
   };
 
-  console.log(bodyModels);
+  console.log(bodyModelId);
 
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -836,23 +833,20 @@ export default function CreateMethodPage() {
                       <div className="dark:bg-orange-950/20 rounded-lg">
                         <h4 className="flex items-center gap-3 font-semibold text-gray-900 dark:text-green-100 mb-4">
                           요청 모델
-                          <Button
-                            size="sm"
-                            variant={'outline'}
-                            className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
-                            onClick={addBodyModel}>
-                            <span className="font-bold">추가</span>
-                          </Button>
+                          {/* {modelList.length == 0 && (
+                            <Button
+                              size="sm"
+                              variant={'outline'}
+                              className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
+                              onClick={addBodyModel}
+                              disabled={bodyModelId.length == 1}>
+                              <span className="font-bold">추가</span>
+                            </Button>
+                          )} */}
                         </h4>
-                        {bodyModels.length == 0 ? (
-                          <p className="text-sm text-gray-500">모델을 찾을 수 없습니다.</p>
-                        ) : (
-                          <>
-                            {bodyModels.map((model, index) => (
-                              <div
-                                key={model.id}
-                                className="grid grid-cols-12 gap-3 items-center mb-3">
-                                {/* <div className="col-span-5">
+
+                        <div className="grid grid-cols-12 gap-3 items-center mb-3">
+                          {/* <div className="col-span-5">
                                   <Input
                                     placeholder="콘텐츠 유형"
                                     value={model.type}
@@ -862,44 +856,45 @@ export default function CreateMethodPage() {
                                   />
                                 </div> */}
 
-                                <div className="col-span-10">
-                                  <Select
-                                    value={model.modelId}
-                                    onValueChange={(value) => {
-                                      console.log(value);
-                                      if (value === 'create-new') {
-                                        handleModelSelect(value);
-                                      } else {
-                                        updateBodyModel(model.id, 'modelId', value);
-                                      }
-                                    }}>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="모델" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {modelList.map((availableModel) => (
-                                        <SelectItem
-                                          key={availableModel.modelId}
-                                          value={availableModel.modelId}>
-                                          {availableModel.modelName}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                                <div className="col-span-2 flex justify-start">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="border-0 hover:bg-transparent cursor-pointer"
-                                    onClick={() => removeBodyModel(model.id)}>
-                                    <Trash2 className="h-5 w-5" />
-                                  </Button>
-                                </div>
-                              </div>
-                            ))}
-                          </>
-                        )}
+                          <div className="col-span-10">
+                            <Select
+                              value={bodyModelId}
+                              onValueChange={(value) => {
+                                console.log(value);
+                                if (value === 'create-new') {
+                                  handleModelSelect(value);
+                                } else {
+                                  updateBodyModel(bodyModelId, 'modelId', value);
+                                }
+                              }}>
+                              <SelectTrigger>
+                                <SelectValue
+                                  placeholder={
+                                    modelList?.length > 0
+                                      ? '모델 선택'
+                                      : '생성된 모델이 존재하지 않습니다.'
+                                  }
+                                />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {modelList.map((model) => (
+                                  <SelectItem key={model.modelId} value={model.modelId}>
+                                    {model.modelName}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="col-span-2 flex justify-start">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-0 hover:bg-transparent cursor-pointer"
+                              onClick={() => setBodyModelId('')}>
+                              <Trash2 className="h-5 w-5" />
+                            </Button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </CollapsibleContent>
