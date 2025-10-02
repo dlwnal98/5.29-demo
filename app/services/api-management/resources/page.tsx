@@ -184,7 +184,8 @@ export default function ApiResourcesPage() {
         // 현재 리소스의 메서드들 검색
         if (resource.methods && resource.methods.length > 0) {
           const foundMethod = resource.methods.find(
-            (m) => m.info?.['x-method-id'] === createdMethodId || m.info?.methodId === createdMethodId
+            (m) =>
+              m.info?.['x-method-id'] === createdMethodId || m.info?.methodId === createdMethodId
           );
           if (foundMethod) {
             return { method: foundMethod, resource };
@@ -373,7 +374,7 @@ export default function ApiResourcesPage() {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <Button
               variant="outline"
@@ -381,7 +382,12 @@ export default function ApiResourcesPage() {
               onClick={() => router.push('/services/api-management')}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Resources</h1>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Resources</h1>
+              <p className="text-gray-600 mt-1">
+                API Gateway에서 엔드포인트 경로(URI)를 정의하는 객체들을 관리하세요.
+              </p>
+            </div>
           </div>
           <div className="flex items-center justify-end p-2 gap-2">
             <Button
@@ -413,7 +419,7 @@ export default function ApiResourcesPage() {
 
           <div className="col-span-9">
             <div ref={rightContentRef}>
-              {selectedMethod ? (
+              {/* {selectedMethod ? (
                 <MethodDetailCard selectedMethod={selectedMethod} />
               ) : selectedResource ? (
                 <ResourceDetailCard
@@ -429,17 +435,33 @@ export default function ApiResourcesPage() {
                   onResourceDeleted={() => {
                     setSelectedMethod(null);
                     setSelectedMethodId('');
-                    setCreatedResourceId('');
-                  }}
-                  onCorsSettingsSaved={() => {
-                    setSelectedMethod(null);
-                    setSelectedMethodId('');
+                    setCreatedMethodId('');
                   }}
                 />
               ) : (
                 <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
                   <p className="text-gray-500 dark:text-gray-400">리소스를 선택해주세요.</p>
                 </div>
+              )} */}
+              {selectedMethod ? (
+                <MethodDetailCard selectedMethod={selectedMethod} />
+              ) : (
+                <ResourceDetailCard
+                  selectedResource={selectedResource}
+                  setSelectedResource={setSelectedResource}
+                  handleMethodClick={handleMethodClick}
+                  apiId={currentApiId || ''}
+                  setCreatedResourceId={setCreatedResourceId}
+                  onMethodDeleted={() => {
+                    setSelectedMethod(null);
+                    setSelectedMethodId('');
+                  }}
+                  onResourceDeleted={() => {
+                    setSelectedMethod(null);
+                    setSelectedMethodId('');
+                    setCreatedMethodId('');
+                  }}
+                />
               )}
             </div>
           </div>
