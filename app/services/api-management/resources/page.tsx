@@ -416,7 +416,6 @@ export default function ApiResourcesPage() {
               {renderResourceTree(tree)}
             </div>
           </div>
-
           <div className="col-span-9">
             <div ref={rightContentRef}>
               {/* {selectedMethod ? (
