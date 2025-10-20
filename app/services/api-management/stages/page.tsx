@@ -93,13 +93,8 @@ export default function StagesPage() {
 
   const resourceTree = useMemo(() => buildTree(stagesDocData), [stagesDocData]);
 
-  // useEffect(() => {
-  //   if (stagesDocData.length === 0) return;
-  // }, [stagesDocData]);
-
   const getFinalEndpoint = async (stageId: string) => {
     const res = await requestGet(`/api/v1/gateway/stage/${stageId}`);
-    // const res = await requestGet(`/api/v1/gateway/stage/${'nEBJGwKdAAAk'}`);
 
     setSelectedStageEndpointUrl(res.data.baseUrl);
   };
@@ -144,8 +139,6 @@ export default function StagesPage() {
     }));
   }, [resourceTree]);
 
-  console.log(resourceTree, selectedWholeStageInfo);
-
   function findResourceById(tree: any[], id: string): any | null {
     for (const node of tree) {
       if (node.deploymentId === id) return node;
@@ -167,9 +160,6 @@ export default function StagesPage() {
   };
 
   const handleMethodClick = (method: ApiMethod, resource: ApiResource) => {
-    console.log(selectedWholeStageInfo.resource.path, method.path, resource.path);
-
-    // const methodUrl = `${selectedWholeStageInfo.resource.path}${method.path}`;
     const methodUrl = `${selectedStageEndpointUrl}${resource.path}`;
     setSelectedMethod({
       resourceId: resource.id,
@@ -273,8 +263,6 @@ export default function StagesPage() {
       </div>
     );
   };
-
-  console.log(selectedWholeStageInfo);
 
   return (
     <AppLayout>

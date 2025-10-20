@@ -3,14 +3,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  ChevronRight,
-  ChevronDown,
-  Search,
-  ChevronLeft,
-  FileCode2,
-  SearchCode,
-} from 'lucide-react';
+import { ChevronRight, ChevronDown, Search, ChevronLeft, SearchCode } from 'lucide-react';
 import { useAuthStore } from '@/store/store';
 import { useGetDeployHistoryData } from '@/hooks/use-stages';
 import ActiveDeploymentChangeDialog from './ActiveDeloymentChangeDialog';
@@ -68,7 +61,6 @@ export default function DeploymentList({ selectedStage }: DeploymentListProps) {
   };
 
   const handleDetailDeployment = (deploymentId: string, e: React.MouseEvent) => {
-    console.log(1, deploymentId);
     e.stopPropagation();
     setSelectedDeploymentId(deploymentId);
     setIsDeploymentResourceTreeOpen(true);

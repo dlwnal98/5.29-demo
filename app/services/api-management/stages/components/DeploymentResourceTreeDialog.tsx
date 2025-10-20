@@ -25,12 +25,8 @@ export default function DeploymentResourceTreeDialog({
   onOpenChange,
   selectedDeploymentId,
 }: DeploymentResourceTreeDialogProps) {
-  console.log(selectedDeploymentId);
   const { data: deploymentResourceTree } = useGetDeploymentResourceTreeData(selectedDeploymentId);
-
-  console.log(deploymentResourceTree);
   const resourceTree = resoureceBuildTree(deploymentResourceTree?.openApiDocument?.paths ?? {});
-  console.log(resourceTree);
 
   const renderDeploymentResourceTree = (resource: any, level = 0) => {
     const hasChildren =

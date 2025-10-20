@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Copy, Trash2, CheckCircle } from 'lucide-react';
-import type { QueryParameter, RequestHeader, RequestBodyModel, Model } from '@/types/resource';
+import type { QueryParameter, RequestHeader } from '@/types/resource';
 import { toast, Toaster } from 'sonner';
 import RequestHeaderListSearch from '../../models/components/RequestHeaderListSearch';
 import { SelectAPIKeyModal } from '../methods/components/SelectAPIKeyModal';
@@ -26,8 +26,6 @@ import { useClipboard } from 'use-clipboard-copy';
 import { Header } from '@/types/methods';
 import { useModifyMethod } from '@/hooks/use-methods';
 import { useMethodEditStore } from '@/store/store';
-import { set } from 'date-fns';
-import { useSearchParams } from 'next/navigation';
 import { ModelData } from '@/hooks/use-model';
 
 interface MethodRequestEditProps {
@@ -37,11 +35,8 @@ interface MethodRequestEditProps {
 
 export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEditProps) {
   const userData = useAuthStore((state) => state.user);
-  const isEditMode = useMethodEditStore((state) => state.isEdit);
   const setIsEditMode = useMethodEditStore((state) => state.setIsEdit);
-
-  const params = useSearchParams();
-  const apiId = params.get('apiId');
+  const clipboard = useClipboard();
 
   const { data: apiKeyList } = useGetAPIKeyList(userData?.organizationId || '');
 
@@ -85,12 +80,9 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
   const [openId, setOpenId] = useState<string | null>(null);
   const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([]);
   const [requestHeaders, setRequestHeaders] = useState<RequestHeader[]>([]);
-  const [requestBodyModels, setRequestBodyModels] = useState<RequestBodyModel[]>([]);
   const [requestModelId, setRequestModelId] = useState<string>('');
 
   useEffect(() => {
-    console.log(selectedMethod);
-
     if (selectedMethod) {
       setApiKeyToggle(selectedMethod?.info['x-api-key-required']);
       setMethodEditForm({
@@ -127,15 +119,11 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
     }
   }, [selectedMethod]);
 
-  console.log(requestModelId);
-
   useEffect(() => {
     if (apiKeyList && selectedMethod) {
       const existingAPIKeyData = apiKeyList.filter(
         (key, i) => key.keyId === selectedMethod?.info['x-api-key-id']
       );
-
-      console.log(existingAPIKeyData);
 
       setApiKeyContent(existingAPIKeyData[0]?.key);
     }
@@ -149,95 +137,13 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
     }
   };
 
-  const [availableModels, setAvailableModels] = useState<Model[]>([
-    {
-      id: '1',
-      name: 'User',
-      description: '사용자 정보 모델',
-      schema: `{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "integer",
-      "description": "사용자 ID"
-    },
-    "name": {
-      "type": "string",
-      "description": "사용자 이름"
-    },
-    "email": {
-      "type": "string",
-      "format": "email",
-      "description": "이메일 주소"
-    }
-  },
-  "required": ["id", "name", "email"]
-}`,
-    },
-    {
-      id: '2',
-      name: 'Product',
-      description: '상품 정보 모델',
-      schema: `{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "integer",
-      "description": "상품 ID"
-    },
-    "name": {
-      "type": "string",
-      "description": "상품명"
-    },
-    "price": {
-      "type": "number",
-      "minimum": 0,
-      "description": "가격"
-    }
-  },
-  "required": ["id", "name", "price"]
-}`,
-    },
-    {
-      id: '3',
-      name: 'Order',
-      description: '주문 정보 모델',
-      schema: `{
-  "type": "object",
-  "properties": {
-    "orderId": {
-      "type": "string",
-      "description": "주문 ID"
-    },
-    "userId": {
-      "type": "integer",
-      "description": "사용자 ID"
-    },
-    "items": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/Product"
-      }
-    },
-    "totalAmount": {
-      "type": "number",
-      "description": "총 금액"
-    }
-  },
-  "required": ["orderId", "userId", "items", "totalAmount"]
-}`,
-    },
-  ]);
-
-  // const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([]);
   const [paramCounter, setParamCounter] = useState(0); // 순차 id 관리용
 
   const addQueryParameter = () => {
     const newParam: QueryParameter = {
-      // id: (paramCounter + 1).toString(), // 고유하고 순차적인 id
+      id: (paramCounter + 1).toString(), // 고유하고 순차적인 id
       name: '',
       required: false,
-      id: `query-${queryParameters.length}`,
     };
     setQueryParameters((prev) => [...prev, newParam]);
     setParamCounter((prev) => prev + 1);
@@ -256,9 +162,8 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
   const nextHeaderIdRef = useRef<number>(0);
   // 추가: 생성순으로 id 부여
   const addRequestHeader = () => {
-    // const id = nextHeaderIdRef.current++;
     const newHeader: Header = {
-      id: `header-${requestHeaders.length}`,
+      id: nextHeaderIdRef.current++,
       name: '',
       required: false,
     };
@@ -276,40 +181,6 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
   const removeRequestHeader = (id: number) => {
     setRequestHeaders((prev) => prev.filter((h) => h.id !== id));
   };
-
-  // Request Body Model functions
-  const addRequestBodyModel = () => {
-    const newModel: RequestBodyModel = {
-      id: Date.now().toString(),
-      contentType: 'application/json',
-      modelName: '',
-      modelId: '',
-    };
-    setRequestBodyModels([...requestBodyModels, newModel]);
-  };
-
-  const updateRequestBodyModel = (id: string, field: keyof RequestBodyModel, value: any) => {
-    // setRequestBodyModels(
-    //   requestBodyModels.map((model) => (model.id === id ? { ...model, [field]: value } : model))
-    // );
-
-    setRequestModelId(value);
-  };
-
-  const removeRequestBodyModel = (id: string) => {
-    // setRequestBodyModels(requestBodyModels.filter((model) => model.id !== id));
-    setRequestModelId('');
-  };
-
-  // Model management functions
-  const deleteModel = (modelId: string) => {
-    setAvailableModels(availableModels.filter((model) => model.id !== modelId));
-    // Also remove from request body models if used
-    setRequestBodyModels(requestBodyModels.filter((model) => model.modelId !== modelId));
-    toast.success('모델이 삭제되었습니다.');
-  };
-
-  const clipboard = useClipboard();
 
   // 비밀번호 복사 함수
   const handleCopyAPIKey = (apiKey: string) => {
@@ -398,11 +269,6 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
                       *http(s) 헤더에 <strong>X-API-Key</strong> 항목을 추가하여 복사된 키 값을 넣어
                       요청하면 됩니다.
                     </p>
-                    {/* <div className="bg-white dark:bg-gray-800 p-2 rounded border">
-                      <p className="text-xs font-mono text-gray-700 dark:text-gray-300 break-all">
-                        {apiKeyContent}
-                      </p>
-                    </div> */}
                   </div>
                 </div>
               </div>
@@ -502,11 +368,9 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
               {requestHeaders.map((header) => (
                 <div
                   key={header.id}
-                  // className="grid grid-cols-12 gap-3 mt-3 items-center">
                   className={`grid grid-cols-12 gap-3 mt-3 ${openId === header.id ? 'items-start' : 'items-center  mb-3'}`}>
                   <div className="col-span-10">
                     <RequestHeaderListSearch
-                      // updateHeader={updateRequestHeader}
                       updateHeader={(field, value) => updateRequestHeader(header.id, field, value)}
                       key={header.id}
                       isOpen={openId === header.id}
@@ -516,7 +380,6 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
                   </div>
                   <div
                     className={`col-span-2 gap-1 flex items-center ${openId === header.id ? 'mt-1' : ''}`}>
-                    {/* className={`col-span-2 gap-1 flex items-center mt-1`}> */}
                     <div className="flex items-center space-x-2">
                       <Label className="text-xs">필수</Label>
                       <Switch
@@ -524,16 +387,13 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
                         onCheckedChange={(checked) =>
                           updateRequestHeader(header.id, 'required', checked)
                         }
-                        // disabled={header.name === 'Content-Type'}
                       />
                     </div>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => removeRequestHeader(header.id)}
-                      className="border-0 hover:bg-transparent bg-transparent cursor-pointer"
-                      // disabled={header.name === 'Content-Type'}
-                    >
+                      className="border-0 hover:bg-transparent bg-transparent cursor-pointer">
                       <Trash2 className="h-5 w-5" />
                     </Button>
                   </div>
@@ -550,17 +410,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
         {/* Request Body Edit */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-3 !text-lg">
-              요청 본문
-              {/* <Button
-                size="sm"
-                variant={'outline'}
-                className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
-                disabled={requestModelId.length == 1}
-                onClick={addRequestBodyModel}>
-                <span className="font-bold">추가</span>
-              </Button> */}
-            </CardTitle>
+            <CardTitle className="flex items-center gap-3 !text-lg">요청 본문</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -569,11 +419,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
                   <Select
                     value={requestModelId}
                     onValueChange={(value) => {
-                      // const selectedModel = availableModels.find((m) => m.id === value);
-                      updateRequestBodyModel(requestModelId, 'modelId', value);
-                      // if (selectedModel) {
-                      //   updateRequestBodyModel(model.id, 'modelName', selectedModel.name);
-                      // }
+                      setRequestModelId(value);
                     }}>
                     <SelectTrigger>
                       <SelectValue
@@ -586,16 +432,6 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
                       {modelList.map((model) => (
                         <SelectItem key={model.modelId} value={model.modelId}>
                           {model.modelName}
-                          {/* <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                deleteModel(availableModel.id);
-                              }}
-                              className="ml-2 h-6 w-6 p-0 text-red-500 hover:text-red-700">
-                              <Trash2 className="h-3 w-3" />
-                            </Button> */}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -611,11 +447,6 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
                   </Button>
                 </div>
               </div>
-              {/* {requestBodyModels.length === 0 && (
-                <div className="text-center py-6 text-gray-500">
-                  요청 본문이 없습니다. 추가 버튼을 클릭하여 새 요청 본문을 추가하세요.
-                </div>
-              )} */}
             </div>
           </CardContent>
         </Card>

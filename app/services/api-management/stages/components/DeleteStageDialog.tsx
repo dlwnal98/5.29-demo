@@ -38,8 +38,6 @@ export default function DeleteStageDialog({
     },
   });
 
-  console.log(userKey, selectedStage);
-
   const handleDeleteStage = () => {
     if (userKey && selectedStage)
       deleteStage({

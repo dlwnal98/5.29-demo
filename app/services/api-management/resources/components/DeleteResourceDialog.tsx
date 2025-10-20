@@ -10,7 +10,6 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { AlertTriangle } from 'lucide-react';
-import { requestDelete } from '@/lib/apiClient';
 import { toast, Toaster } from 'sonner';
 import { useDeleteResource } from '@/hooks/use-resources';
 

@@ -58,7 +58,7 @@ export default function CreateAPIKeyDialog({
           </div>
           <div>
             <Label htmlFor="description" className="text-sm font-medium">
-              설명 - 선택 사항
+              설명
             </Label>
             <Textarea
               id="description"

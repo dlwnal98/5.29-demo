@@ -249,15 +249,7 @@ export function SelectAPIKeyModal({
             }}>
             취소
           </Button>
-          <Button
-            onClick={handleCreateAPIKey}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-            // disabled={
-            //   isCreatingNewApiKey
-            //     ? !newApiKeyForm.name.trim()
-            //     : !selectedApiKeyId && apiKeyList?.length > 0
-            // }
-          >
+          <Button onClick={handleCreateAPIKey} className="bg-blue-600 hover:bg-blue-700 text-white">
             {isCreatingNewApiKey ? '생성 및 선택' : '선택'}
           </Button>
         </DialogFooter>

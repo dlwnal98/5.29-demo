@@ -1,11 +1,10 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Save, X } from 'lucide-react';
+import { Trash2, Save, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import {
   Select,
@@ -16,7 +15,6 @@ import {
 } from '@/components/ui/select';
 import type { MethodResponse, ResponseHeader, ResponseBody, Model } from '@/types/resource';
 import RequestHeaderListSearch from '../../models/components/RequestHeaderListSearch';
-import { requestHeaderList } from '@/lib/data';
 
 interface MethodResponseEditProps {
   methodResponses: MethodResponse[];
@@ -128,8 +126,6 @@ export function MethodResponseEdit({
 
   const models = availableModels ?? [];
   const [openId, setOpenId] = useState<string | null>(null);
-
-  console.log(editingResponse, editForm);
 
   return (
     <div className="space-y-6">

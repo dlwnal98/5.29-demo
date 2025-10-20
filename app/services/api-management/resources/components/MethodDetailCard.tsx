@@ -17,7 +17,6 @@ import type {
   Method,
   RequestHeader,
   RequestBodyModel,
-  Model,
 } from '@/types/resource';
 import { useClipboard } from 'use-clipboard-copy';
 import { toast, Toaster } from 'sonner';
@@ -34,9 +33,10 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
   const apiId = params.get('apiId');
   const isEditMode = useMethodEditStore((state) => state.isEdit);
   const setIsEditMode = useMethodEditStore((state) => state.setIsEdit);
+  const clipboard = useClipboard();
+
   const { data: modelList = [] } = useGetModelList(apiId || '');
 
-  // const [isEditMode, setIsEditMode] = useState(false);
   const [methodToDelete, setMethodToDelete] = useState<Method | null>(null);
 
   // Test Tab States
@@ -102,95 +102,6 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
     setRequestHeaders(headers);
   }, [selectedMethod]);
 
-  // const [editForm, setEditForm] = useState({
-  //   apiKeyRequired: false,
-  //   sdkOperationName: '',
-  //   requestValidator: '없음',
-  // });
-
-  // Available models
-  const [availableModels, setAvailableModels] = useState<Model[]>([
-    {
-      id: '1',
-      name: 'User',
-      description: '사용자 정보 모델',
-      schema: `{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "integer",
-      "description": "사용자 ID"
-    },
-    "name": {
-      "type": "string",
-      "description": "사용자 이름"
-    },
-    "email": {
-      "type": "string",
-      "format": "email",
-      "description": "이메일 주소"
-    }
-  },
-  "required": ["id", "name", "email"]
-}`,
-    },
-    {
-      id: '2',
-      name: 'Product',
-      description: '상품 정보 모델',
-      schema: `{
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "integer",
-      "description": "상품 ID"
-    },
-    "name": {
-      "type": "string",
-      "description": "상품명"
-    },
-    "price": {
-      "type": "number",
-      "minimum": 0,
-      "description": "가격"
-    }
-  },
-  "required": ["id", "name", "price"]
-}`,
-    },
-    {
-      id: '3',
-      name: 'Order',
-      description: '주문 정보 모델',
-      schema: `{
-  "type": "object",
-  "properties": {
-    "orderId": {
-      "type": "string",
-      "description": "주문 ID"
-    },
-    "userId": {
-      "type": "integer",
-      "description": "사용자 ID"
-    },
-    "items": {
-      "type": "array",
-      "items": {
-        "$ref": "#/components/schemas/Product"
-      }
-    },
-    "totalAmount": {
-      "type": "number",
-      "description": "총 금액"
-    }
-  },
-  "required": ["orderId", "userId", "items", "totalAmount"]
-}`,
-    },
-  ]);
-
-  const clipboard = useClipboard();
-
   const handleCopyEndpoint = () => {
     clipboard.copy(selectedMethod?.info['x-backend-endpoint'] ?? '');
     toast.success('ARN이 클립보드에 복사되었습니다.');
@@ -207,23 +118,6 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
 
   const handleEditMethod = () => {
     setIsEditMode(true);
-  };
-
-  const handleSaveEdit = () => {
-    setIsEditMode(false);
-    toast.success('메서드 설정이 저장되었습니다.');
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditMode(false);
-    // Reset form to original values
-    if (selectedMethod) {
-      // setEditForm({
-      //   apiKeyRequired: selectedMethod.apiKey !== '-',
-      //   sdkOperationName: selectedMethod.summary || '',
-      //   requestValidator: selectedMethod.requestValidator || '없음',
-      // });
-    }
   };
 
   const handleTest = async () => {
@@ -279,18 +173,6 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
     } finally {
       setIsTestLoading(false);
     }
-  };
-
-  const handleCreateResponse = () => {
-    toast.success('새 응답이 생성되었습니다.');
-  };
-
-  const handleEditResponse = (response: MethodResponse) => {
-    toast.success('응답 편집 모드로 전환되었습니다.');
-  };
-
-  const handleDeleteResponse = (response: MethodResponse) => {
-    toast.success('응답이 삭제되었습니다.');
   };
 
   return (
@@ -461,20 +343,20 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
               {!isEditMode ? (
                 <MethodResponseTab
                   methodResponses={methodResponses}
-                  handleCreateResponse={handleCreateResponse}
-                  handleEditResponse={handleEditResponse}
-                  handleDeleteResponse={handleDeleteResponse}
-                  availableModels={availableModels}
+                  handleCreateResponse={() => {}}
+                  handleEditResponse={() => {}}
+                  handleDeleteResponse={() => {}}
+                  availableModels={[]}
                 />
               ) : (
                 <MethodResponseEdit
                   methodResponses={methodResponses}
-                  handleCreateResponse={handleCreateResponse}
-                  handleEditResponse={handleEditResponse}
-                  handleDeleteResponse={handleDeleteResponse}
-                  handleCancelEdit={handleCancelEdit}
-                  handleSaveEdit={handleSaveEdit}
-                  availableModels={availableModels}
+                  handleCreateResponse={() => {}}
+                  handleEditResponse={() => {}}
+                  handleDeleteResponse={() => {}}
+                  handleCancelEdit={() => {}}
+                  handleSaveEdit={() => {}}
+                  availableModels={[]}
                 />
               )}
             </TabsContent>

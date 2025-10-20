@@ -35,7 +35,6 @@ export default function ModifyModelDialog({
   userKey,
   selectedModel,
 }: ModifyModelDialogProps) {
-  console.log(selectedModel);
   const { mutate: modifyModelSchema } = useModifyModel({
     onSuccess: () => {
       toast.success('모델이 성공적으로 생성되었습니다.');
@@ -91,12 +90,9 @@ export default function ModifyModelDialog({
           email: 'kim@example.com',
         },
       ], // 예제 데이터가 있으면 활용
-      //  examples: selectedModel.examples,
       updatedBy: userKey || '',
     }));
   }, [selectedModel]);
-
-  console.log(modelForm);
 
   const handleModifyModel = () => {
     try {
@@ -190,8 +186,6 @@ export default function ModifyModelDialog({
                 </Label>
                 <Input
                   id="content-type"
-                  // value={selectedModel?.['content-type']}
-                  // onChange={(e) => setModelForm({ ...modelForm, contentType: e.target.value })}
                   className="w-full bg-gray-50"
                   placeholder="application/json"
                   disabled

@@ -51,14 +51,6 @@ export function ResourceDetailCard({
   const [methodToDelete, setMethodToDelete] = useState<Method | null>(null);
   const [isMethodDeleteDialogOpen, setIsMethodDeleteDialogOpen] = useState(false);
 
-  // CORS 버튼 클릭 핸들러 수정
-  const handleCorsButtonClick = () => {
-    // if (selectedResource.corsEnabled && selectedResource.corsSettings) {
-    // setCorsForm(selectedResource.corsSettings);
-    // }
-    setIsCorsModalOpen(true);
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
@@ -69,8 +61,6 @@ export function ResourceDetailCard({
         return 'bg-amber-100 text-amber-700 border-amber-200';
     }
   };
-
-  console.log(selectedResource);
 
   return (
     <>
@@ -84,7 +74,7 @@ export function ResourceDetailCard({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={handleCorsButtonClick}
+                  onClick={() => setIsCorsModalOpen(true)}
                   title="리소스 수정"
                   className="rounded-full h-[25px] !gap-1 border-2 border-blue-500 text-[#0F74E1] font-bold hover:text-blue-700 hover:bg-blue-50">
                   CORS 활성화 설정

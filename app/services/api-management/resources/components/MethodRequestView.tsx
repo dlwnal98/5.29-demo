@@ -22,8 +22,6 @@ export function MethodRequestView({
   handleEditMethod,
   modelId,
 }: MethodRequestViewProps) {
-  console.log(selectedMethod, queryParameters, requestHeaders);
-
   const convertValidator = (data: string) => {
     switch (data) {
       case 'ALL':

@@ -21,7 +21,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Plus, RefreshCw, Search, Edit, Trash2, Copy } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast, Toaster } from 'sonner';
 import { useClipboard } from 'use-clipboard-copy';
 import { useAuthStore } from '@/store/store';
@@ -121,11 +121,14 @@ export default function ApiKeysPage() {
   };
 
   //프론트에서 검색기능 처리
-  const filteredApiKeys = apiKeyData?.filter(
-    (apiKey) =>
-      apiKey.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      apiKey.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredApiKeys = useMemo(() => {
+    if (!apiKeyData) return [];
+    return apiKeyData.filter(
+      (apiKey) =>
+        apiKey.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        apiKey.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [apiKeyData, searchTerm]);
 
   const clipboard = useClipboard();
 
@@ -144,16 +147,23 @@ export default function ApiKeysPage() {
   };
 
   // 페이지네이션
-  const safeFilteredUsers = apiKeyData ?? [];
 
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
 
-  const totalPages = Math.ceil(safeFilteredUsers.length / usersPerPage);
+  const totalPages = Math.ceil(filteredApiKeys?.length / usersPerPage);
 
   const startIndex = (currentPage - 1) * usersPerPage;
   const endIndex = startIndex + usersPerPage;
-  const currentUsers = safeFilteredUsers?.slice(startIndex, endIndex);
+  const currentApiKeys = useMemo(() => {
+    const startIndex = (currentPage - 1) * usersPerPage;
+    const endIndex = startIndex + usersPerPage;
+    return filteredApiKeys.slice(startIndex, endIndex);
+  }, [filteredApiKeys, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   return (
     <AppLayout>
@@ -210,21 +220,21 @@ export default function ApiKeysPage() {
         </div>
 
         {/* API Keys 리스트 */}
-        <Card>
+        <Card className="mb-4">
           <div className="pt-4"></div>
           <CardContent>
             <Table>
               <TableHeader className="hover:bg-white">
                 <TableRow className="hover:bg-white">
                   <TableHead className="w-[10%]">ID</TableHead>
-                  <TableHead>이름</TableHead>
-                  <TableHead>설명</TableHead>
+                  <TableHead className="w-[30%]">이름</TableHead>
+                  <TableHead className="w-[auto]">설명</TableHead>
                   <TableHead className="w-[10%]">생성일자</TableHead>
                   <TableHead className="text-center w-[8%]">작업</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredApiKeys?.length === 0 ? (
+                {currentApiKeys?.length === 0 ? (
                   <>
                     <TableRow className="dark:bg-blue-900/20 hover:bg-white">
                       <TableCell colSpan={5} className=" text-center !py-8 text-gray-500">
@@ -234,7 +244,7 @@ export default function ApiKeysPage() {
                   </>
                 ) : (
                   <>
-                    {filteredApiKeys?.map((apiKey, index) => (
+                    {currentApiKeys?.map((apiKey, index) => (
                       <>
                         <TableRow key={index} className="dark:bg-blue-900/20 hover:bg-white">
                           <TableCell className="font-medium text-blue-600">

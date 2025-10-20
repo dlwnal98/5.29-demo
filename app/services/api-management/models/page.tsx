@@ -81,7 +81,6 @@ export default function ModelsPage() {
           <div className="flex items-center space-x-2">
             <Button
               onClick={() => {
-                // resetForm();
                 setIsCreateModalOpen(true);
               }}
               // className="bg-orange-500 hover:bg-orange-600 text-white"

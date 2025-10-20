@@ -118,7 +118,6 @@ export default function RequestHeaderListSearch({
           id="autocomplete-list"
           ref={listRef}
           role="listbox"
-          //   className="relative !z-999 w-full p-1 bg-white border rounded-md shadow max-h-48 overflow-auto mt-1">
           className={`relative z-50 w-full p-1 bg-white border rounded-md shadow max-h-48 overflow-auto mt-1 transform origin-top transition-all duration-200 ${isOpen ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-95 pointer-events-none'}`}>
           {filtered.length > 0 ? (
             filtered.map((opt, idx) => (

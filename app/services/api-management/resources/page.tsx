@@ -37,16 +37,6 @@ export default function ApiResourcesPage() {
 
   const { data: openAPIDocData, refetch } = useGetOpenAPIDoc(currentApiId || '');
 
-  // const tree = resoureceBuildTree(openAPIDocData?.paths ?? {});
-  // console.log(isMethodEdit);
-
-  // useEffect(() => {
-  //   console.log(isMethodEdit);
-  //   if (openAPIDocData?.paths) {
-  //     setResources(tree);
-  //   }
-  // }, [openAPIDocData, isMethodEdit]);
-
   const tree = useMemo(() => {
     return resoureceBuildTree(openAPIDocData?.paths ?? {});
   }, [openAPIDocData]);
@@ -157,14 +147,6 @@ export default function ApiResourcesPage() {
       }
     }
   }, [tree, isMethodEdit, selectedMethodId]);
-
-  // OpenAPI 데이터 들어오면 트리로 변환
-  // useEffect(() => {
-  //   if (openAPIDocData?.paths) {
-  //     const tree = resoureceBuildTree(openAPIDocData.paths);
-  //     setResources(tree);
-  //   }
-  // }, [openAPIDocData, isMethodEdit]);
 
   const findInTree = (list: Resource[], id: string): boolean => {
     for (const res of list) {
@@ -418,30 +400,6 @@ export default function ApiResourcesPage() {
           </div>
           <div className="col-span-9">
             <div ref={rightContentRef}>
-              {/* {selectedMethod ? (
-                <MethodDetailCard selectedMethod={selectedMethod} />
-              ) : selectedResource ? (
-                <ResourceDetailCard
-                  selectedResource={selectedResource}
-                  setSelectedResource={setSelectedResource}
-                  handleMethodClick={handleMethodClick}
-                  apiId={currentApiId || ''}
-                  setCreatedResourceId={setCreatedResourceId}
-                  onMethodDeleted={() => {
-                    setSelectedMethod(null);
-                    setSelectedMethodId('');
-                  }}
-                  onResourceDeleted={() => {
-                    setSelectedMethod(null);
-                    setSelectedMethodId('');
-                    setCreatedMethodId('');
-                  }}
-                />
-              ) : (
-                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                  <p className="text-gray-500 dark:text-gray-400">리소스를 선택해주세요.</p>
-                </div>
-              )} */}
               {selectedMethod ? (
                 <MethodDetailCard selectedMethod={selectedMethod} />
               ) : (

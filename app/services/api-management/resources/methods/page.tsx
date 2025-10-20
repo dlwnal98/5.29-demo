@@ -36,12 +36,12 @@ import {
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { toast, Toaster } from 'sonner';
-import { QueryParameter, Header, BodyModel, Model } from '@/types/methods';
+import { QueryParameter, Header } from '@/types/methods';
 import RequestHeaderListSearch from '../../models/components/RequestHeaderListSearch';
 import { useAuthStore } from '@/store/store';
 import { useGetAPIKeyList } from '@/hooks/use-apiKeys';
 import { SelectAPIKeyModal } from './components/SelectAPIKeyModal';
-import { exampleMethodList, checkerOptionList } from '@/lib/data';
+import { exampleMethodList } from '@/lib/data';
 import { useCreateMethod } from '@/hooks/use-methods';
 import { useGetModelList } from '@/hooks/use-model';
 import { useGetEndpointsList } from '@/hooks/use-endpoints';
@@ -58,6 +58,7 @@ export default function CreateMethodPage() {
   const userData = useAuthStore((state) => state.user);
   const apiId = sessionStorage.getItem('selectedApiId');
   const apiName = sessionStorage.getItem('selectedApiName');
+  const clipboard = useClipboard();
 
   const { data: apiKeyList = [] } = useGetAPIKeyList(userData?.organizationId || '');
   const { data: endpointList = [] } = useGetEndpointsList(userData?.organizationId || '');
@@ -89,13 +90,6 @@ export default function CreateMethodPage() {
     requestValidator: 'NONE',
   });
 
-  // const [modelList, setModelList] = useState<Model[]>([
-  //   {
-  //     modelId: '',
-  //     modelName: '',
-  //   },
-  // ]);
-
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [isDirectUrlInput, setIsDirectUrlInput] = useState(false);
   const [selectedApiKeyId, setSelectedApiKeyId] = useState('');
@@ -117,12 +111,10 @@ export default function CreateMethodPage() {
   });
 
   const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([]);
-
   const [headers, setHeaders] = useState<Header[]>([]);
-
   const [bodyModelId, setBodyModelId] = useState<string>('');
-
   const [validatorList, setValidatorList] = useState([]);
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const getValidatorList = async (codeType = 'REQUEST_VALIDATOR') => {
     const res = await requestGet(`/api/v1/common-codes/${codeType}`);
@@ -133,14 +125,6 @@ export default function CreateMethodPage() {
   useEffect(() => {
     getValidatorList();
   }, []);
-  // useEffect(() => {
-  //   if (modelData)
-  //     setModelList(
-  //       modelData?.map((model) => ({ modelId: model.modelId, modelName: model.modelName }))
-  //     );
-  // }, []);
-
-  console.log(modelList);
 
   const queryClient = useQueryClient();
 
@@ -215,7 +199,6 @@ export default function CreateMethodPage() {
             ? methodForm.customEndpointUrl
             : methodForm.endpointUrl,
           requestModelId: bodyModelId || '',
-
           // responseModelId: '',
           queryParameters: queryParameters,
           headerParameters: headers,
@@ -240,9 +223,6 @@ export default function CreateMethodPage() {
     }
   };
 
-  const handleModelSelect = (modelId: string) => {};
-
-  // const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([]);
   const [paramCounter, setParamCounter] = useState(0); // 순차 id 관리용
 
   const addQueryParameter = () => {
@@ -289,46 +269,12 @@ export default function CreateMethodPage() {
     setHeaders((prev) => prev.filter((h) => h.id !== id));
   };
 
-  const [bodyModelCounter, setBodyModelCounter] = useState(0); // 순차 id 관리용
-  const [bodyModel, setBodyModel] = useState<BodyModel[]>([
-    {
-      id: '',
-      modelName: '',
-      modelId: '',
-      type: '',
-    },
-  ]);
-
-  const addBodyModel = () => {
-    const newModel: BodyModel = {
-      id: (bodyModelCounter + 1).toString(),
-      modelName: '',
-      modelId: '',
-      type: '',
-    };
-    setBodyModel((prev) => [...prev, newModel]);
-    setBodyModelCounter((prev) => prev + 1);
-  };
-
-  const updateBodyModel = (id: string, field: keyof BodyModel, value: any) => {
-    setBodyModelId(value);
-  };
-
-  const removeBodyModel = (id: string) => {
-    setBodyModelId('');
-  };
-
-  console.log(bodyModelId);
-
-  const [openId, setOpenId] = useState<string | null>(null);
-
-  const clipboard = useClipboard();
-
   // 비밀번호 복사 함수
   const handleCopyAPIKey = (apiKey: string) => {
     clipboard.copy(apiKey);
     toast.success('API Key가 복사되었습니다.');
   };
+
   const isValidCreateMethod = useMemo(() => {
     return Boolean(
       methodForm.methodName &&
@@ -525,11 +471,6 @@ export default function CreateMethodPage() {
                                   *http(s) 헤더에 <strong>X-API-Key</strong> 항목을 추가하여 복사된
                                   키 값을 넣어 요청하면 됩니다.
                                 </p>
-                                {/* <div className="bg-white dark:bg-gray-800 p-2 rounded border">
-                                  <p className="text-xs font-mono text-gray-700 dark:text-gray-300 break-all">
-                                    {selectedApiKey}
-                                  </p>
-                                </div> */}
                               </div>
                             </div>
                           </div>
@@ -827,45 +768,18 @@ export default function CreateMethodPage() {
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <div className="p-6 bg-white dark:bg-gray-900 space-y-6">
-                      {/* Form Data Section */}
-
                       {/* Body Models Section */}
                       <div className="dark:bg-orange-950/20 rounded-lg">
                         <h4 className="flex items-center gap-3 font-semibold text-gray-900 dark:text-green-100 mb-4">
                           요청 모델
-                          {/* {modelList.length == 0 && (
-                            <Button
-                              size="sm"
-                              variant={'outline'}
-                              className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
-                              onClick={addBodyModel}
-                              disabled={bodyModelId.length == 1}>
-                              <span className="font-bold">추가</span>
-                            </Button>
-                          )} */}
                         </h4>
 
                         <div className="grid grid-cols-12 gap-3 items-center mb-3">
-                          {/* <div className="col-span-5">
-                                  <Input
-                                    placeholder="콘텐츠 유형"
-                                    value={model.type}
-                                    onChange={(e) =>
-                                      updateBodyModel(model.id, 'type', e.target.value)
-                                    }
-                                  />
-                                </div> */}
-
                           <div className="col-span-10">
                             <Select
                               value={bodyModelId}
                               onValueChange={(value) => {
-                                console.log(value);
-                                if (value === 'create-new') {
-                                  handleModelSelect(value);
-                                } else {
-                                  updateBodyModel(bodyModelId, 'modelId', value);
-                                }
+                                setBodyModelId(value);
                               }}>
                               <SelectTrigger>
                                 <SelectValue

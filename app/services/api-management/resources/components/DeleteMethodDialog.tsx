@@ -12,8 +12,6 @@ import {
 import { AlertTriangle } from 'lucide-react';
 import type { Method, Resource } from '@/types/resource';
 import { toast, Toaster } from 'sonner';
-import { requestDelete } from '@/lib/apiClient';
-import { useQueryClient } from '@tanstack/react-query';
 import { useDeleteMethod } from '@/hooks/use-methods';
 interface DeleteMethodDialogProps {
   open: boolean;
@@ -38,8 +36,6 @@ export function DeleteMethodDialog({
   setSelectedResource,
   onMethodDeleted,
 }: DeleteMethodDialogProps) {
-  console.log(methodToDelete);
-
   const { mutate: deleteMethod } = useDeleteMethod({
     onSuccess: () => {
       toast.success(`메서드 '${methodToDelete.type} ${methodToDelete.resourcePath}' 삭제됨.`);

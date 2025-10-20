@@ -24,7 +24,6 @@ import { requestGet } from '@/lib/apiClient';
 import { CreateResourceProps, useCreateResource } from '@/hooks/use-resources';
 import { toast } from 'sonner';
 import { isValidInput } from '@/lib/etc';
-import { Resource } from '@/types/resource';
 
 interface ResourceCreateDialogProps {
   open: boolean;

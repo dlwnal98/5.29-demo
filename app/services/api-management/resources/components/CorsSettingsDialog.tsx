@@ -53,7 +53,6 @@ export function CorsSettingsDialog({
     allowCredentials: true,
   });
 
-  console.log(selectedResource);
   useEffect(() => {
     if (!selectedResource?.cors) return;
 
@@ -103,24 +102,6 @@ export function CorsSettingsDialog({
       },
     });
   };
-  console.log(selectedResource?.methods);
-  const [selectedMethods, setSelectedMethods] = useState<string[]>([]);
-
-  const handleCheckedChange = (method: Method, checked: boolean) => {
-    setSelectedMethods((prev) =>
-      checked ? [...prev, method.type] : prev.filter((m) => m !== method.type)
-    );
-
-    // 원하면 corsForm도 업데이트
-    setCorsForm((prev) => ({
-      ...prev,
-      allowMethods: checked
-        ? [...(prev.allowMethods || []), method.type]
-        : (prev.allowMethods || []).filter((m) => m !== method.type),
-    }));
-  };
-
-  console.log(corsForm);
 
   const handleCommaSeparatedInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,

@@ -126,7 +126,6 @@ export default function DeployResourceDialog({
         apiId: apiId,
         sourceDeploymentId: '',
       });
-      console.log(res);
       if (res) {
         handleDeploy({
           apiId: apiId,
@@ -295,7 +294,6 @@ export default function DeployResourceDialog({
             onClick={handleDeploySubmit}
             disabled={!isValidDeploy}
             className="bg-orange-500 hover:bg-orange-600 text-white">
-            {/* <Rocket className="h-4 w-4 mr-2" /> */}
             배포
           </Button>
         </DialogFooter>
