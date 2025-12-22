@@ -25,7 +25,7 @@ import { getReJWTToken } from '@/hooks/use-settings-account';
 import { useAuthStore } from '@/store/store';
 import { passwordRegex } from '@/lib/etc';
 import { requestDelete, requestPut, requestPost } from '@/lib/apiClient';
-import DeleteAccountDialog from './components/deleteAccountDialog';
+import DeleteAccountDialog from '@/components/deleteAccountDialog';
 
 export default function AccountPage() {
 
