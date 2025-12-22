@@ -48,9 +48,9 @@ import { userIdRegex } from '@/lib/etc';
 import { useClipboard } from 'use-clipboard-copy';
 import { requestPost } from '@/lib/apiClient';
 import CommonPagination from '@/components/common-pagination';
-import CreateMemberDialog from './components/createMemberDialog';
-import ResetPasswordDialog from './components/resetPasswordDialog';
-import DeleteMemberDialog from './components/deleteMemberDialog';
+import CreateMemberDialog from '@/components/CreateMemberDialog';
+import ResetPasswordDialog from '@/components/ResetPasswordDialog';
+import DeleteMemberDialog from '@/components/DeleteMemberDialog';
 
 interface selectMemberInfo {
   userId: string;
@@ -298,173 +298,172 @@ export default function UsersPage() {
                   {/* {!loadingUsers || currentUsers?.length !== 0 */}
                   {currentUsers?.length !== 0
                     ? currentUsers?.map((user) => (
-                        <React.Fragment key={user.userId}>
-                          <TableRow
-                            className={`transition-colors ${
-                              expandedUser === user.userId
-                                ? 'bg-blue-50 hover:bg-blue-50 border-l-4 border-b-0 border-blue-500'
-                                : 'hover:bg-blue-50'
+                      <React.Fragment key={user.userId}>
+                        <TableRow
+                          className={`transition-colors ${expandedUser === user.userId
+                            ? 'bg-blue-50 hover:bg-blue-50 border-l-4 border-b-0 border-blue-500'
+                            : 'hover:bg-blue-50'
                             }`}
-                            onClick={() => {
-                              setExpandedUser(expandedUser === user.userId ? null : user.userId);
-                              setPasswordOpenAuth(false);
-                            }}
-                            style={{ cursor: 'pointer' }}>
-                            <TableCell className="flex items-center gap-3">
-                              <Avatar className="h-7 w-7 ring-3 ring-blue-100 dark:ring-blue-900/50">
-                                <AvatarImage src="/placeholder-user.jpg" />
-                                <AvatarFallback className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold">
-                                  {user?.fullName === null ? '' : user?.fullName?.slice(0, 1)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span className="font-medium text-blue-600">
-                                {user?.fullName === null ? '없음' : user.fullName}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              {user?.email === null ? '등록된 정보가 없습니다.' : user.email}
-                            </TableCell>
-                            <TableCell>{user.userId}</TableCell>
-                            <TableCell>
-                              <Badge variant={'outline'} className="bg-white">
-                                {user.role}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>{getStatusBadge(user?.enabled)}</TableCell>
-                            <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
-                            <TableCell>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setExpandedUser(
-                                    expandedUser === user.userId ? null : user.userId
-                                  );
-                                }}
-                                className="h-8 w-8 p-0">
-                                {expandedUser === user.userId ? (
-                                  <ChevronDown className="h-4 w-4 text-gray-400" />
-                                ) : (
-                                  <ChevronRight className="h-4 w-4 text-gray-400" />
-                                )}
-                              </Button>
-                            </TableCell>
-                          </TableRow>
+                          onClick={() => {
+                            setExpandedUser(expandedUser === user.userId ? null : user.userId);
+                            setPasswordOpenAuth(false);
+                          }}
+                          style={{ cursor: 'pointer' }}>
+                          <TableCell className="flex items-center gap-3">
+                            <Avatar className="h-7 w-7 ring-3 ring-blue-100 dark:ring-blue-900/50">
+                              <AvatarImage src="/placeholder-user.jpg" />
+                              <AvatarFallback className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold">
+                                {user?.fullName === null ? '' : user?.fullName?.slice(0, 1)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="font-medium text-blue-600">
+                              {user?.fullName === null ? '없음' : user.fullName}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            {user?.email === null ? '등록된 정보가 없습니다.' : user.email}
+                          </TableCell>
+                          <TableCell>{user.userId}</TableCell>
+                          <TableCell>
+                            <Badge variant={'outline'} className="bg-white">
+                              {user.role}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{getStatusBadge(user?.enabled)}</TableCell>
+                          <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                          <TableCell>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setExpandedUser(
+                                  expandedUser === user.userId ? null : user.userId
+                                );
+                              }}
+                              className="h-8 w-8 p-0">
+                              {expandedUser === user.userId ? (
+                                <ChevronDown className="h-4 w-4 text-gray-400" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4 text-gray-400" />
+                              )}
+                            </Button>
+                          </TableCell>
+                        </TableRow>
 
-                          {/* 확장 상세 정보 */}
-                          <TableRow
-                            className={
-                              expandedUser === user.userId
-                                ? '!bg-muted/50 table-row'
-                                : '!bg-muted/50 hidden'
-                            }>
-                            <TableCell colSpan={8} className="p-0">
-                              <div className="bg-muted/20 border-t p-6">
-                                {/* User Details */}
-                                <Card className="border-border">
-                                  <CardContent className="space-y-4 pt-6">
-                                    <div className="grid xl:grid-cols-5 grid-cols-1 gap-4 ">
-                                      <div className="col-span-3 xl:border-r xl:border-gray-300 border-b xl:border-b-0 pb-4 xl:pb-0">
-                                        <div className="mb-3 tracking-tight text-lg font-semibold text-foreground flex items-center">
-                                          <User className="h-5 w-5 mr-2" />
-                                          유저 상세정보
-                                          <div className="flex items-center space-x-2">
-                                            <Switch
-                                              checked={user.enabled === 1}
-                                              onCheckedChange={(checked) => {
-                                                handleStatusToggle(user.userKey, checked);
-                                              }}
-                                              className="ml-2 data-[state=checked]:bg-emerald-300 data-[state=unchecked]:bg-red-300"
-                                            />
-                                          </div>
-                                        </div>
-                                        <div className="grid grid-cols-4 gap-4">
-                                          <div>
-                                            <Label className="text-sm font-semibold text-muted-foreground">
-                                              ID
-                                            </Label>
-                                            <p className="text-foreground">{user.userId}</p>
-                                          </div>
-                                          <div>
-                                            <Label className="text-sm font-semibold text-muted-foreground">
-                                              Email
-                                            </Label>
-                                            <p className="text-foreground">{user.email}</p>
-                                          </div>
-
-                                          <div>
-                                            <Label className="text-sm font-semibold text-muted-foreground">
-                                              userKey
-                                            </Label>
-                                            <p className="text-foreground">{user.userKey}</p>
-                                          </div>
-                                          <div>
-                                            <Label className="text-sm font-semibold text-muted-foreground">
-                                              Last Update
-                                            </Label>
-                                            <p className="text-foreground">
-                                              {new Date(user.updatedAt).toLocaleDateString()}
-                                            </p>
-                                          </div>
+                        {/* 확장 상세 정보 */}
+                        <TableRow
+                          className={
+                            expandedUser === user.userId
+                              ? '!bg-muted/50 table-row'
+                              : '!bg-muted/50 hidden'
+                          }>
+                          <TableCell colSpan={8} className="p-0">
+                            <div className="bg-muted/20 border-t p-6">
+                              {/* User Details */}
+                              <Card className="border-border">
+                                <CardContent className="space-y-4 pt-6">
+                                  <div className="grid xl:grid-cols-5 grid-cols-1 gap-4 ">
+                                    <div className="col-span-3 xl:border-r xl:border-gray-300 border-b xl:border-b-0 pb-4 xl:pb-0">
+                                      <div className="mb-3 tracking-tight text-lg font-semibold text-foreground flex items-center">
+                                        <User className="h-5 w-5 mr-2" />
+                                        유저 상세정보
+                                        <div className="flex items-center space-x-2">
+                                          <Switch
+                                            checked={user.enabled === 1}
+                                            onCheckedChange={(checked) => {
+                                              handleStatusToggle(user.userKey, checked);
+                                            }}
+                                            className="ml-2 data-[state=checked]:bg-emerald-300 data-[state=unchecked]:bg-red-300"
+                                          />
                                         </div>
                                       </div>
-                                      <div className="pl-15">
-                                        <div className="mb-3 tracking-tight text-lg font-semibold text-foreground flex items-center">
-                                          <Wrench className="h-4 w-4 mr-2" />
-                                          작업
+                                      <div className="grid grid-cols-4 gap-4">
+                                        <div>
+                                          <Label className="text-sm font-semibold text-muted-foreground">
+                                            ID
+                                          </Label>
+                                          <p className="text-foreground">{user.userId}</p>
                                         </div>
-                                        <div className="flex items-center justify-between space-x-2 sm:justify-start">
+                                        <div>
+                                          <Label className="text-sm font-semibold text-muted-foreground">
+                                            Email
+                                          </Label>
+                                          <p className="text-foreground">{user.email}</p>
+                                        </div>
+
+                                        <div>
+                                          <Label className="text-sm font-semibold text-muted-foreground">
+                                            userKey
+                                          </Label>
+                                          <p className="text-foreground">{user.userKey}</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-sm font-semibold text-muted-foreground">
+                                            Last Update
+                                          </Label>
+                                          <p className="text-foreground">
+                                            {new Date(user.updatedAt).toLocaleDateString()}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="pl-15">
+                                      <div className="mb-3 tracking-tight text-lg font-semibold text-foreground flex items-center">
+                                        <Wrench className="h-4 w-4 mr-2" />
+                                        작업
+                                      </div>
+                                      <div className="flex items-center justify-between space-x-2 sm:justify-start">
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleAction(
+                                              'resetPassword',
+                                              user?.userKey,
+                                              user?.userId
+                                            );
+                                          }}
+                                          className="border rounded-2 text-blue-700 hover:text-blue-700 hover:bg-blue-50 border-blue-300">
+                                          <RotateCcw className="h-4 w-4" />
+                                          임시 비밀번호 발급
+                                        </Button>
+                                        {!isSuper && (
                                           <Button
                                             variant="ghost"
                                             size="sm"
                                             onClick={(e) => {
                                               e.stopPropagation();
                                               handleAction(
-                                                'resetPassword',
+                                                'deleteAccount',
                                                 user?.userKey,
                                                 user?.userId
                                               );
                                             }}
-                                            className="border rounded-2 text-blue-700 hover:text-blue-700 hover:bg-blue-50 border-blue-300">
-                                            <RotateCcw className="h-4 w-4" />
-                                            임시 비밀번호 발급
+                                            className="border border-red-300 rounded-2 text-red-600 hover:text-red-600 hover:bg-red-50">
+                                            <Trash2 className="h-4 w-4" />
+                                            멤버 제외
                                           </Button>
-                                          {!isSuper && (
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleAction(
-                                                  'deleteAccount',
-                                                  user?.userKey,
-                                                  user?.userId
-                                                );
-                                              }}
-                                              className="border border-red-300 rounded-2 text-red-600 hover:text-red-600 hover:bg-red-50">
-                                              <Trash2 className="h-4 w-4" />
-                                              멤버 제외
-                                            </Button>
-                                          )}
-                                        </div>
+                                        )}
                                       </div>
                                     </div>
-                                  </CardContent>
-                                </Card>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        </React.Fragment>
-                      ))
-                    : Array.from({ length: 1 }).map((_, index) => (
-                        <TableRow key={index}>
-                          <TableCell className="w-12 text-center !py-8 text-gray-500" colSpan={7}>
-                            {/* <Skeleton className="h-6 w-full bg-gray-200" /> */}
-                            현재 조직 내에 멤버가 존재하지 않습니다.
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            </div>
                           </TableCell>
                         </TableRow>
-                      ))}
+                      </React.Fragment>
+                    ))
+                    : Array.from({ length: 1 }).map((_, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="w-12 text-center !py-8 text-gray-500" colSpan={7}>
+                          {/* <Skeleton className="h-6 w-full bg-gray-200" /> */}
+                          현재 조직 내에 멤버가 존재하지 않습니다.
+                        </TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
             </CardContent>

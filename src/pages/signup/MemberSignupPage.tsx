@@ -10,8 +10,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { AlertCircle, Eye, EyeOff, Waves, CheckCircle } from 'lucide-react';
 import { createMemberInit } from '@/hooks/use-signup';
 import { passwordRegex } from '@/lib/etc';
-import PolicyDialog from './components/policyDialog';
+import PolicyDialog from '@/components/PolicyDialog';
 export default function SignupMemberPage() {
+
   const userId = typeof window !== 'undefined' ? sessionStorage.getItem('userId') : null;
 
   const [formData, setFormData] = useState({
