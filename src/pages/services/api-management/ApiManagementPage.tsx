@@ -23,13 +23,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Plus, Search, Settings, Trash2 } from 'lucide-react';
-import { useRouter } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { setSelectedApiInfo } from '@/constants/app-layout-data';
 import { Suspense } from 'react';
-import ApiCreateModal from './components/ApiCreateModal';
-import ApiModifyModal from './components/ApiModifyModal';
-import { ApiDeleteModal } from './components/ApiDeleteModal';
+import ApiCreateDialog from './components/ApiCreateDialog';
+import ApiModifyDialog from './components/ApiModifyDialog';
+import ApiDeleteDialog from './components/ApiDeleteDialog';
 import CommonPagination from '@/components/common-pagination';
 import { useAuthStore } from '@/store/store';
 import { useGetAPIList } from '@/hooks/use-apimanagement';
@@ -215,7 +215,7 @@ export default function ApiManagementPage() {
             />
           )}
 
-          <ApiCreateModal
+          <ApiCreateDialog
             userKey={userData?.userKey || ''}
             organizationId={userData?.organizationId || ''}
             open={isCreateModalOpen}
@@ -223,7 +223,7 @@ export default function ApiManagementPage() {
             apiList={safeFilteredUsers}
           />
 
-          <ApiModifyModal
+          <ApiModifyDialog
             open={isModifyModalOpen}
             onOpenChange={setIsModifyModalOpen}
             existingValue={modifyApiForm}
@@ -231,7 +231,7 @@ export default function ApiManagementPage() {
             userKey={userData?.userKey || ''}
           />
 
-          <ApiDeleteModal
+          <ApiDeleteDialog
             open={isMethodDeleteDialogOpen}
             onOpenChange={setIsDeleteModalOpen}
             selectedAPIId={selectedAPIId}
