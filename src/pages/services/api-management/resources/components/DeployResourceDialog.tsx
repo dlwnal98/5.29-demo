@@ -1,0 +1,303 @@
+
+
+import { useState, useEffect, useMemo } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Rocket, Plus } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { toast, Toaster } from 'sonner';
+import { createStage } from '@/hooks/use-stages';
+import { useDeployAPI } from '@/hooks/use-resources';
+import { useRouter } from 'react-router-dom';
+import { useGetStagesDocData } from '@/hooks/use-stages';
+import { useQueryClient } from '@tanstack/react-query';
+import { useDeployStore } from '@/store/deployStore';
+import { de } from 'date-fns/locale';
+import { AxiosError } from 'axios';
+interface deployData {
+  stage: string;
+  version: string;
+  description: string;
+  newStageName: string;
+}
+
+interface deployResourceProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  apiId: string;
+  userKey: string;
+  organizationId: string;
+}
+
+export default function DeployResourceDialog({
+  open,
+  onOpenChange,
+  apiId,
+  userKey,
+  organizationId,
+}: deployResourceProps) {
+  const { data: stagesDocData = [] } = useGetStagesDocData(apiId || '');
+
+  const [deploymentData, setDeploymentData] = useState<deployData>({
+    stage: '',
+    version: '',
+    description: '',
+    newStageName: '',
+  });
+
+  const [stageForDeployment, setStageForDeployment] = useState([]);
+  useEffect(() => {
+    if (open && stagesDocData.length) {
+      setDeploymentData({
+        stage: '',
+        version: '',
+        description: '',
+        newStageName: '',
+      });
+
+      const stageList = stagesDocData.map((data: any, i: number) => ({
+        id: i,
+        label: data.name,
+        value: data.stageId,
+      }));
+
+      setStageForDeployment(stageList);
+    }
+  }, [open, stagesDocData]);
+
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { mutate: handleDeploy } = useDeployAPI({
+    onSuccess: () => {
+      handleNavigateStage();
+    },
+    onError: (error: any) => {
+      const serverMessage = error?.response?.data?.message ?? '배포에 실패하였습니다.';
+      toast.error(serverMessage);
+    },
+  });
+  const handleNavigateStage = async () => {
+    // ✅ 모달을 바로 닫음
+    onOpenChange(false);
+
+    await toast.promise(
+      (async () => {
+        await queryClient.invalidateQueries({ queryKey: ['getStatesDocData', apiId] });
+        await queryClient.refetchQueries({ queryKey: ['getStatesDocData', apiId] });
+
+        await queryClient.invalidateQueries({ queryKey: ['getDeployHistoryData', organizationId] });
+        await queryClient.refetchQueries({ queryKey: ['getDeployHistoryData', organizationId] });
+      })(),
+      {
+        loading: '스테이지 생성 중...',
+        success: '스테이지가 성공적으로 생성되어 배포되었습니다.',
+        error: '스테이지 생성 후 배포에 실패했습니다.',
+      }
+    );
+
+    navigate(`/services/api-management/stages?apiId=${apiId}`);
+  };
+
+  const handleCreateAndDeploy = async () => {
+    try {
+      const res = await createStage({
+        organizationId: organizationId,
+        stageName: deploymentData.newStageName,
+        description: deploymentData.description,
+        createdBy: userKey,
+        enabled: true,
+        deploymentSource: 'DRAFT',
+        apiId: apiId,
+        sourceDeploymentId: '',
+      });
+      if (res) {
+        handleDeploy({
+          apiId: apiId,
+          stageId: res.stageId,
+          version: '',
+          deployedBy: userKey,
+          description: deploymentData.description,
+          metadata: {
+            jiraTicket: '',
+            reviewer: '',
+          },
+        });
+      } else if (res.statusCode == 400) {
+        toast.error(res.message);
+      } else {
+        toast.error('새로운 스테이지 생성에 실패하였습니다\n 재입력이 필요합니다.');
+      }
+    } catch (e) {
+      const err = e as AxiosError<{ fieldErrors?: { stageName?: string } }>;
+      toast.error(err.response?.data?.fieldErrors?.stageName);
+    }
+  };
+
+  const handleDeploySubmit = () => {
+    if (deploymentData.stage === 'new') {
+      if (!deploymentData.newStageName.trim()) {
+        toast.error('새 스테이지 이름을 입력해주세요.');
+        return;
+      }
+      // 새 스테이지 생성 로직
+      handleCreateAndDeploy();
+    } else {
+      if (!deploymentData.stage) {
+        toast.error('배포 스테이지를 선택해주세요.');
+        return;
+      }
+
+      handleDeploy({
+        apiId: apiId,
+        stageId: deploymentData.stage,
+        version: '',
+        deployedBy: userKey,
+        description: deploymentData.description,
+        metadata: {
+          jiraTicket: '',
+          reviewer: '',
+        },
+      });
+    }
+  };
+
+  const handleDeployModalClose = () => {
+    onOpenChange(false);
+    setDeploymentData({
+      stage: '',
+      version: '',
+      description: '',
+      newStageName: '',
+    });
+  };
+  const isValidDeploy = useMemo(() => {
+    if (deploymentData.stage === 'new') {
+      return deploymentData.newStageName.trim().length > 0;
+    }
+    return deploymentData.stage.trim().length > 0;
+  }, [deploymentData]);
+
+  <Button onClick={handleDeploySubmit} disabled={!isValidDeploy}>
+    배포
+  </Button>;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center">
+            {/* <Rocket className="h-5 w-5 mr-2 text-orange-500" /> */}
+            API 배포
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="deploy-stage" className="text-sm font-medium">
+              배포 할 스테이지 <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              value={deploymentData.stage}
+              onValueChange={(value) =>
+                setDeploymentData({
+                  ...deploymentData,
+                  stage: value,
+                  description: '',
+                  newStageName: '',
+                })
+              }>
+              <SelectTrigger className="mt-2">
+                <SelectValue placeholder="스테이지 선택" />
+              </SelectTrigger>
+              <SelectContent>
+                {stageForDeployment.map((stage: any, i: number) => {
+                  return (
+                    <SelectItem value={stage.value} className={'cursor-pointer'}>
+                      {stage.label}
+                    </SelectItem>
+                  );
+                })}
+                <SelectItem value="new" className={'cursor-pointer'}>
+                  <div className="flex items-center gap-2">
+                    <Plus className="h-4 w-4" />새 스테이지 생성
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* 새 스테이지 생성 필드들 */}
+          {deploymentData.stage === 'new' && (
+            <div className="space-y-4 p-4 bg-gray-50 rounded-lg border">
+              <div className="flex items-center gap-2 mb-2">
+                <Plus className="h-4 w-4 text-orange-500" />
+                <Label className="text-sm font-medium text-gray-700">새 스테이지 정보</Label>
+              </div>
+              <div>
+                <Label htmlFor="new-stage-name" className="text-sm font-medium">
+                  스테이지 이름 <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="new-stage-name"
+                  value={deploymentData.newStageName}
+                  onChange={(e) =>
+                    setDeploymentData({
+                      ...deploymentData,
+                      newStageName: e.target.value,
+                    })
+                  }
+                  placeholder="새 스테이지 이름을 입력하세요"
+                  className="mt-2"
+                />
+              </div>
+            </div>
+          )}
+
+          <div>
+            <Label htmlFor="deploy-description" className="text-sm font-medium">
+              배포 설명
+            </Label>
+            <Textarea
+              id="deploy-description"
+              value={deploymentData.description}
+              onChange={(e) =>
+                setDeploymentData({
+                  ...deploymentData,
+                  description: e.target.value,
+                })
+              }
+              placeholder="배포에 대한 설명을 입력하세요"
+              className="mt-1"
+            />
+          </div>
+        </div>
+        <DialogFooter className="flex space-x-2">
+          <Button variant="outline" onClick={handleDeployModalClose}>
+            취소
+          </Button>
+          <Button
+            onClick={handleDeploySubmit}
+            disabled={!isValidDeploy}
+            className="bg-orange-500 hover:bg-orange-600 text-white">
+            배포
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

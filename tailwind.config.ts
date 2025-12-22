@@ -1,11 +1,13 @@
 import type { Config } from "tailwindcss";
 
+const defaultTheme = require("tailwindcss/defaultTheme");
+
 const config: Config = {
   darkMode: ["class"],
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
@@ -96,7 +98,7 @@ const config: Config = {
         stripe: "moveStripe 3s linear infinite",
       },
       fontFamily: {
-        sans: ["Pretendard", "sans-serif"], // 기본 sans-serif에 pretendard 우선 적용
+        sans: ["Pretendard", ...defaultTheme.fontFamily.sans], // 기본 sans-serif에 pretendard 우선 적용
       },
     },
   },
