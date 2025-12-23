@@ -110,7 +110,7 @@ function RealTimeAreaChart({
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-2 border border-gray-200 rounded shadow-lg">
+        <div className="bg-white p-2 border border-gray-200 rounded shadow-lg dark:bg-gray-800 dark:border-gray-700">
           <p className="text-sm">{`시간: ${label}`}</p>
           <p className="text-sm" style={{ color }}>
             {`${title}: ${payload[0].value.toFixed(1)}${unit}`}
@@ -319,7 +319,7 @@ function NetworkChart() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded shadow-lg">
+        <div className="bg-white p-3 border border-gray-200 rounded shadow-lg dark:bg-gray-800 dark:border-gray-700">
           <p className="text-sm font-medium mb-2">{`시간: ${label}`}</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>

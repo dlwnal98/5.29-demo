@@ -25,7 +25,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={handleToggle}
-      className="relative block  top-[-7px] w-full h-[32px] rounded-full bg-neutral-200 dark:bg-neutral-700 transition-colors duration-300 flex items-center"
+      className="relative block top-[-7px] w-full h-[32px] rounded-full bg-neutral-200 dark:bg-neutral-700 transition-colors duration-300 flex items-center"
       aria-label="Toggle Theme"
       style={{ padding: 0 }}
     >
@@ -39,9 +39,8 @@ export function ThemeToggle() {
       </span>
       {/* 토글 원 */}
       <div
-        className={`absolute top-0.5 left-1 w-[50%] h-7 bg-white z-10 rounded-full shadow transition-transform duration-300 ${
-          isDark ? 'translate-x-[99%]' : 'translate-x-0'
-        }`}
+        className={`absolute top-0.5 w-[50%] h-7 bg-white z-10 rounded-full shadow transition-transform duration-300 ${isDark ? 'translate-x-[99%]' : 'translate-x-0'
+          }`}
       />
     </button>
   );
@@ -82,9 +81,8 @@ export function CollapseThemeToggle() {
       </span>
       {/* 토글 원 */}
       <div
-        className={`absolute top-0.5 left-0.5 w-7 h-7 bg-white z-10 rounded-full shadow transition-transform duration-300 ${
-          isDark ? 'translate-y-[99%]' : 'translate-y-0'
-        }`}
+        className={`absolute top-0.5 left-0.5 w-7 h-7 bg-white z-10 rounded-full shadow transition-transform duration-300 ${isDark ? 'translate-y-[99%]' : 'translate-y-0'
+          }`}
       />
     </button>
   );

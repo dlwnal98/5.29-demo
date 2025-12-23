@@ -2,9 +2,9 @@
 
 import { act, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import TabMenu from './components/common/TabMenu';
-import EurekaDashboard from './components/eurekaDashboard/eurekaDashoboard';
-import ServiceList from './components/serviceList/ServiceList';
+import TabMenu from './eureka/common/TabMenu';
+import EurekaDashboard from './eureka/eurekaDashboard/eurekaDashboard';
+import ServiceList from './eureka/serviceList/ServiceList';
 
 export default function EurekaPage() {
   const [activeTab, setActiveTab] = useState('overview');
