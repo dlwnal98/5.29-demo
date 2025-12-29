@@ -1,0 +1,369 @@
+import { useState, useRef, useMemo, useEffect, useCallback } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { QueryParameter, Header } from "@/types/methods";
+import { useAuthStore } from "@/store/store";
+import { useGetAPIKeyList } from "@/hooks/use-apiKeys";
+import { useCreateMethod } from "@/hooks/use-methods";
+import { useGetModelList } from "@/hooks/use-model";
+import { useGetEndpointsList } from "@/hooks/use-endpoints";
+import { requestGet } from "@/lib/apiClient";
+import { useClipboard } from "use-clipboard-copy";
+import { onInputChange, onSave } from "@/lib/etc";
+import { useQueryClient } from "@tanstack/react-query";
+
+interface MethodForm {
+  methodName: string;
+  description: string;
+  methodType: string;
+  integrationType: string;
+  apiKeyRequired: boolean;
+  selectedApiKey: string;
+  endpointUrl: string;
+  additionalParameter: string;
+  customEndpointUrl: string;
+  requestValidator: string;
+}
+
+interface OpenSections {
+  methodRequest: boolean;
+  urlQuery: boolean;
+  httpHeaders: boolean;
+  requestBody: boolean;
+}
+
+interface NewApiKeyForm {
+  name: string;
+  description: string;
+}
+
+export function useCreateMethodPage() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const resourceId = searchParams.get("resourceId") || "";
+  const resourcePath = searchParams.get("resourcePath") || "";
+  const userData = useAuthStore((state) => state.user);
+  const userKey = userData?.userKey || "";
+  const organizationId = userData?.organizationId || "";
+  const apiId = sessionStorage.getItem("selectedApiId") || "";
+  const apiName = sessionStorage.getItem("selectedApiName") || "";
+  const clipboard = useClipboard();
+
+  const { data: apiKeyList = [] } = useGetAPIKeyList(organizationId);
+  const { data: endpointList = [] } = useGetEndpointsList(organizationId);
+  const { data: modelList = [] } = useGetModelList(apiId);
+
+  const queryClient = useQueryClient();
+
+  const [methodForm, setMethodForm] = useState<MethodForm>({
+    methodName: "",
+    description: "",
+    methodType: "",
+    integrationType: "http",
+    apiKeyRequired: false,
+    selectedApiKey: "",
+    endpointUrl: "",
+    additionalParameter: "",
+    customEndpointUrl: "",
+    requestValidator: "NONE",
+  });
+
+  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
+  const [isDirectUrlInput, setIsDirectUrlInput] = useState(false);
+  const [selectedApiKeyId, setSelectedApiKeyId] = useState("");
+  const [selectedApiKey, setSelectedApiKey] = useState("");
+  const [apiKeyToggle, setApiKeyToggle] = useState(false);
+  const [isCreatingNewApiKey, setIsCreatingNewApiKey] = useState(false);
+  const [newApiKeyForm, setNewApiKeyForm] = useState<NewApiKeyForm>({
+    name: "",
+    description: "",
+  });
+  const [checkUrl, setCheckUrl] = useState(false);
+
+  const [openSections, setOpenSections] = useState<OpenSections>({
+    methodRequest: false,
+    urlQuery: false,
+    httpHeaders: false,
+    requestBody: false,
+  });
+
+  const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([]);
+  const [headers, setHeaders] = useState<Header[]>([]);
+  const [bodyModelId, setBodyModelId] = useState<string>("");
+  const [validatorList, setValidatorList] = useState<
+    Array<{ code: string; description: string }>
+  >([]);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [paramCounter, setParamCounter] = useState(0);
+  const nextHeaderIdRef = useRef<number>(0);
+
+  const getValidatorList = async (codeType = "REQUEST_VALIDATOR") => {
+    const res = await requestGet(`/api/v1/common-codes/${codeType}`);
+    return setValidatorList(res);
+  };
+
+  useEffect(() => {
+    getValidatorList();
+  }, []);
+
+  const handleBack = useCallback(async () => {
+    await toast.promise(
+      (async () => {
+        await queryClient.invalidateQueries({ queryKey: ["getOpenAPIDoc", apiId] });
+        await queryClient.refetchQueries({ queryKey: ["getOpenAPIDoc", apiId] });
+      })(),
+      {
+        loading: "메서드 생성 중...",
+        success: "메서드가 성공적으로 생성되었습니다.",
+        error: "메서드 생성에 실패했습니다.",
+      }
+    );
+
+    navigate(`/services/api-management/resources?apiId=${apiId}&apiName=${apiName}`);
+  }, [apiId, apiName, navigate, queryClient]);
+
+  const { mutate: createMethod } = useCreateMethod({
+    onSuccess: (data) => {
+      if (data?.methodId || data?.id) {
+        sessionStorage.setItem("createdMethodId", data.methodId || data.id);
+      }
+      handleBack();
+    },
+    onError: () => {
+      toast.error("메서드 생성에 실패하였습니다.");
+    },
+  });
+
+  const handleCreateMethod = useCallback(() => {
+    if (!methodForm.methodType) {
+      toast.error("메서드 유형을 선택해주세요.");
+      return;
+    }
+
+    if (methodForm.integrationType === "http" && !methodForm.methodType) {
+      toast.error("HTTP 메서드를 선택해주세요.");
+      return;
+    }
+
+    if (methodForm.integrationType === "http") {
+      const finalUrl = isDirectUrlInput
+        ? methodForm.customEndpointUrl
+        : methodForm.endpointUrl;
+      if (!finalUrl) {
+        toast.error("엔드포인트 URL을 입력해주세요.");
+        return;
+      }
+    }
+
+    if (resourceId) {
+      if (isDirectUrlInput) {
+        if (onSave(methodForm.customEndpointUrl)) {
+          createMethod({
+            resourceId,
+            createdBy: userKey,
+            httpMethod: methodForm.methodType,
+            methodName: methodForm.methodName,
+            description: methodForm.description,
+            apiKeyId: selectedApiKeyId,
+            requiresApiKey: apiKeyToggle,
+            backendServiceUrl: methodForm.customEndpointUrl || methodForm.endpointUrl,
+            requestModelId: bodyModelId || "",
+            queryParameters,
+            headerParameters: headers,
+            requestValidator: methodForm.requestValidator,
+          });
+        } else {
+          toast.error("유효하지 않은 엔드포인트 URL입니다.");
+        }
+      } else {
+        createMethod({
+          resourceId,
+          createdBy: userKey,
+          httpMethod: methodForm.methodType,
+          methodName: methodForm.methodName,
+          description: methodForm.description,
+          apiKeyId: selectedApiKeyId,
+          requiresApiKey: apiKeyToggle,
+          backendServiceUrl: methodForm.customEndpointUrl || methodForm.endpointUrl,
+          requestModelId: bodyModelId || "",
+          queryParameters,
+          headerParameters: headers,
+          requestValidator: methodForm.requestValidator,
+        });
+      }
+    }
+  }, [
+    methodForm,
+    isDirectUrlInput,
+    resourceId,
+    userKey,
+    selectedApiKeyId,
+    apiKeyToggle,
+    bodyModelId,
+    queryParameters,
+    headers,
+    createMethod,
+  ]);
+
+  const toggleSection = useCallback((section: keyof OpenSections) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  }, []);
+
+  const handleApiKeyToggle = useCallback((checked: boolean) => {
+    setIsCreatingNewApiKey(false);
+    setNewApiKeyForm({ name: "", description: "" });
+    if (checked) {
+      setIsApiKeyModalOpen(true);
+    } else {
+      setApiKeyToggle(false);
+    }
+  }, []);
+
+  const addQueryParameter = useCallback(() => {
+    const newParam: QueryParameter = {
+      id: (paramCounter + 1).toString(),
+      name: "",
+      required: false,
+    };
+    setQueryParameters((prev) => [...prev, newParam]);
+    setParamCounter((prev) => prev + 1);
+  }, [paramCounter]);
+
+  const updateQueryParameter = useCallback(
+    (id: string, field: keyof QueryParameter, value: unknown) => {
+      setQueryParameters((prev) =>
+        prev.map((param) => (param.id === id ? { ...param, [field]: value } : param))
+      );
+    },
+    []
+  );
+
+  const removeQueryParameter = useCallback((id: string) => {
+    setQueryParameters((prev) => prev.filter((param) => param.id !== id));
+  }, []);
+
+  const addHeader = useCallback(() => {
+    const id = nextHeaderIdRef.current++;
+    const newHeader: Header = {
+      id,
+      name: "",
+      required: false,
+    };
+    setHeaders((prev) => [...prev, newHeader]);
+  }, []);
+
+  const updateHeader = useCallback(
+    (id: string | number, field: keyof Header, value: unknown) => {
+      setHeaders((prev) =>
+        prev.map((header) =>
+          header.id === id ? { ...header, [field]: value } : header
+        )
+      );
+    },
+    []
+  );
+
+  const removeHeader = useCallback((id: number) => {
+    setHeaders((prev) => prev.filter((h) => h.id !== id));
+  }, []);
+
+  const handleCopyAPIKey = useCallback(
+    (apiKey: string) => {
+      clipboard.copy(apiKey);
+      toast.success("API Key가 복사되었습니다.");
+    },
+    [clipboard]
+  );
+
+  const handleMethodFormChange = useCallback(
+    (field: keyof MethodForm, value: string | boolean) => {
+      setMethodForm((prev) => ({ ...prev, [field]: value }));
+    },
+    []
+  );
+
+  const handleCustomUrlChange = useCallback((value: string) => {
+    if (onInputChange(value)) {
+      setCheckUrl(false);
+      setMethodForm((prev) => ({ ...prev, customEndpointUrl: value }));
+    } else {
+      setCheckUrl(true);
+    }
+  }, []);
+
+  const handleDirectUrlToggle = useCallback((checked: boolean) => {
+    setMethodForm((prev) => ({
+      ...prev,
+      customEndpointUrl: "",
+      endpointUrl: "",
+    }));
+    setIsDirectUrlInput(checked);
+  }, []);
+
+  const isValidCreateMethod = useMemo(() => {
+    return Boolean(
+      methodForm.methodName &&
+        methodForm.methodType &&
+        methodForm.integrationType &&
+        (isDirectUrlInput ? methodForm.customEndpointUrl : methodForm.endpointUrl)
+    );
+  }, [methodForm, isDirectUrlInput]);
+
+  return {
+    // Data
+    resourcePath,
+    userKey,
+    organizationId,
+    apiKeyList,
+    endpointList,
+    modelList,
+    validatorList,
+
+    // Form state
+    methodForm,
+    isDirectUrlInput,
+    selectedApiKey,
+    selectedApiKeyId,
+    apiKeyToggle,
+    checkUrl,
+    openSections,
+    queryParameters,
+    headers,
+    bodyModelId,
+    openId,
+    isApiKeyModalOpen,
+    isCreatingNewApiKey,
+    newApiKeyForm,
+    isValidCreateMethod,
+
+    // Setters
+    setMethodForm,
+    setSelectedApiKey,
+    setSelectedApiKeyId,
+    setApiKeyToggle,
+    setIsApiKeyModalOpen,
+    setIsCreatingNewApiKey,
+    setNewApiKeyForm,
+    setBodyModelId,
+    setOpenId,
+
+    // Handlers
+    onBack: handleBack,
+    onCreateMethod: handleCreateMethod,
+    onToggleSection: toggleSection,
+    onApiKeyToggle: handleApiKeyToggle,
+    onAddQueryParameter: addQueryParameter,
+    onUpdateQueryParameter: updateQueryParameter,
+    onRemoveQueryParameter: removeQueryParameter,
+    onAddHeader: addHeader,
+    onUpdateHeader: updateHeader,
+    onRemoveHeader: removeHeader,
+    onCopyAPIKey: handleCopyAPIKey,
+    onMethodFormChange: handleMethodFormChange,
+    onCustomUrlChange: handleCustomUrlChange,
+    onDirectUrlToggle: handleDirectUrlToggle,
+  };
+}

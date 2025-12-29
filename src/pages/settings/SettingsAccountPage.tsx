@@ -21,7 +21,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
-import { getReJWTToken } from '@/hooks/use-settings-account';
+import { getReJWTToken } from '@/api/settings-account.api';
 import { useAuthStore } from '@/store/store';
 import { passwordRegex } from '@/lib/etc';
 import { requestDelete, requestPut, requestPost } from '@/lib/apiClient';

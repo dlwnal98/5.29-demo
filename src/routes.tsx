@@ -3,14 +3,14 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import ProtectedRoute from '@/components/ProtectedRoute'
 
 // Eager load (즉시 로드) - 인증 관련
-import LoginPage from '@/pages/LoginPage'
+import LoginPage from '@/pages/login/LoginPage'
 import AuthCallbackPage from '@/pages/auth-callback/AuthCallbackPage'
 
 // Lazy load (지연 로드) - 나머지 페이지들
 const SignupPage = lazy(() => import('@/pages/signup/SignupPage'))
 const MemberSignupPage = lazy(() => import('@/pages/signup/MemberSignupPage'))
 const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPasswordPage'))
-const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
+const Dashboard = lazy(() => import('@/pages/dashboard/Dashboard'))
 
 // Settings
 const SettingsPage = lazy(() => import('@/pages/settings/SettingsPage'))
@@ -26,7 +26,7 @@ const EurekaPage = lazy(() => import('@/pages/infra-packages/EurekaPage'))
 const GatewayPage = lazy(() => import('@/pages/infra-packages/GatewayPage'))
 
 // Infra Packages - Config
-const SecretKeyPage = lazy(() => import('@/pages/infra-packages/config/SecretKeyPage'))
+const SecretKeyPage = lazy(() => import('@/pages/infra-packages/config/secretKey/SecretKeyPage'))
 const ProjectsPage = lazy(() => import('@/pages/infra-packages/config/projects/ProjectsPage'))
 const CreateProjectPage = lazy(() => import('@/pages/infra-packages/config/projects/CreateProjectPage'))
 const EditProjectPage = lazy(() => import('@/pages/infra-packages/config/projects/EditProjectPage'))
@@ -39,16 +39,15 @@ const CommitsPage = lazy(() => import('@/pages/infra-packages/config/projects/Co
 const ApiManagementPage = lazy(() => import('@/pages/services/api-management/ApiManagementPage'))
 const ResourcesPage = lazy(() => import('@/pages/services/api-management/resources/ResourcesPage'))
 const MethodsPage = lazy(() => import('@/pages/services/api-management/resources/MethodsPage'))
-const StagesPage = lazy(() => import('@/pages/services/api-management/StagesPage'))
-const ModelsPage = lazy(() => import('@/pages/services/api-management/ModelsPage'))
-const TargetEndpointsPage = lazy(() => import('@/pages/services/api-management/TargetEndpointsPage'))
-const ApiKeysPage = lazy(() => import('@/pages/services/api-management/ApiKeysPage'))
+const StagesPage = lazy(() => import('@/pages/services/api-management/stages/StagesPage'))
+const ModelsPage = lazy(() => import('@/pages/services/api-management/models/ModelsPage'))
+const RouteEndpointsPage = lazy(() => import('@/pages/services/api-management/route-endpoints/RouteEndpointsPage'))
+const ApiKeysPage = lazy(() => import('@/pages/services/api-management/api-keys/ApiKeysPage'))
 
 // Other pages
 const OrganizationManagePage = lazy(() => import('@/pages/OrganizationManagePage'))
 const MonitoringPage = lazy(() => import('@/pages/MonitoringPage'))
-const MembersPage = lazy(() => import('@/pages/MembersPage'))
-const PtPage = lazy(() => import('@/pages/PtPage'))
+const MembersPage = lazy(() => import('@/pages/members/MembersPage'))
 
 // Loading fallback component (app/**/loading.tsx 역할)
 const PageLoader = () => (
@@ -71,7 +70,8 @@ export default function AppRoutes() {
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>
           {/* Dashboard */}
-          <Route path="/dashboard" element={<DashboardPage />} />
+          {/* <Route path="/dashboard" element={<DashboardPage />} /> */}
+          <Route path="/dashboard" element={<Dashboard />} />
 
           {/* Settings */}
           <Route path="/settings" element={<SettingsPage />} />
@@ -102,7 +102,7 @@ export default function AppRoutes() {
           <Route path="/services/api-management/resources/methods" element={<MethodsPage />} />
           <Route path="/services/api-management/stages" element={<StagesPage />} />
           <Route path="/services/api-management/models" element={<ModelsPage />} />
-          <Route path="/services/api-management/target-endpoints" element={<TargetEndpointsPage />} />
+          <Route path="/services/api-management/route-endpoints" element={<RouteEndpointsPage />} />
           <Route path="/services/api-management/api-keys" element={<ApiKeysPage />} />
 
           {/* Organization */}
@@ -114,8 +114,6 @@ export default function AppRoutes() {
           {/* Members */}
           <Route path="/members" element={<MembersPage />} />
 
-          {/* PT */}
-          <Route path="/pt" element={<PtPage />} />
         </Route>
 
         {/* 404 - Redirect to login */}

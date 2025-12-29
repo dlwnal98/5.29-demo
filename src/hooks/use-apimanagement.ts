@@ -1,24 +1,6 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
-import { requestDelete, requestGet, requestPost, requestPut } from '@/lib/apiClient';
-import { headers } from 'next/headers';
-
-export interface APIListData {
-  apiId: string;
-  organizationId: string;
-  name: string;
-  description: string;
-  version: string;
-  enabled: boolean;
-}
-
-// API List 조회
-const getAPIList = async (organizationId: string, page?: number, size?: number) => {
-  const res = await requestGet(
-    `/api/v1/plans/organization/${organizationId}?page=${page}&size=${size}`
-  );
-
-  return res;
-};
+import { APIListData, CreateAPIProps, ModifyAPIProps, CloneCreateAPIProps } from '@/api/apiManagement.api';
+import { getAPIList, createAPI, cloneCreateAPI, modifyAPI, deleteAPI } from '@/api/apiManagement.api';
 
 export function useGetAPIList(organizationId: string, page?: number, size?: number) {
   return useQuery<APIListData[]>({
@@ -31,22 +13,6 @@ export function useGetAPIList(organizationId: string, page?: number, size?: numb
     refetchOnReconnect: false,
   });
 }
-
-interface CreateAPIProps {
-  organizationId: string;
-  name: string;
-  description?: string;
-  createdBy: string;
-}
-
-//api 생성 + 실시간 목록 생성
-const createAPI = async (data: CreateAPIProps) => {
-  const res = await requestPost(`/api/v1/plans`, {
-    body: data,
-  });
-
-  return res;
-};
 
 export function useCreateAPI(options?: UseMutationOptions<any, Error, CreateAPIProps>) {
   const queryClient = useQueryClient();
@@ -67,29 +33,6 @@ export function useCreateAPI(options?: UseMutationOptions<any, Error, CreateAPIP
   });
 }
 
-interface CloneCreateAPIProps {
-  copyApiId: string;
-  targetOrganizationId: string;
-  newName: string;
-  userKey: string;
-  description?: string;
-}
-
-//api 복제하여 생성 + 실시간 목록 생성
-const cloneCreateAPI = async (data: CloneCreateAPIProps) => {
-  console.log(data);
-  const res = await requestPost(`/api/v1/plans/${data.copyApiId}/clone`, {
-    body: {
-      targetOrganizationId: data.targetOrganizationId,
-      newName: data.newName,
-      createdBy: data.userKey,
-      description: data.description,
-    },
-  });
-
-  return res;
-};
-
 export function useCloneCreateAPI(options?: UseMutationOptions<any, Error, CloneCreateAPIProps>) {
   const queryClient = useQueryClient();
 
@@ -107,22 +50,6 @@ export function useCloneCreateAPI(options?: UseMutationOptions<any, Error, Clone
     },
   });
 }
-
-interface ModifyAPIProps {
-  name: string;
-  description: string;
-  updatedBy: string; // userKey
-  enabled: true;
-}
-
-//api 키 수정 + 실시간 목록 생성
-const modifyAPI = async (apiId: string, data: ModifyAPIProps) => {
-  const res = await requestPut(`/api/v1/plans/${apiId}`, {
-    body: data,
-  });
-
-  return res;
-};
 
 export function useModifyAPI(
   options?: UseMutationOptions<any, Error, { apiId: string; data: ModifyAPIProps }>
@@ -143,17 +70,6 @@ export function useModifyAPI(
     },
   });
 }
-
-//api 키 삭제 + 실시간 목록 생성
-const deleteAPI = async (apiId: string, userKey: string) => {
-  const res = await requestDelete(`/api/v1/plans/${apiId}`, {
-    headers: {
-      'X-User-Id': userKey,
-    },
-  });
-
-  return res;
-};
 
 export function useDeleteAPI(
   options?: UseMutationOptions<any, Error, { apiId: string; userKey: string }>

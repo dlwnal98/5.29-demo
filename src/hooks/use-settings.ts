@@ -1,21 +1,6 @@
-import axios from 'axios';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-
-interface OrganizationList {
-  organizationId: string;
-  organizationName: string;
-  desciption: string | null;
-  createdAt: string;
-  updatedAt: string;
-  ownerId: string; // 조직 admin userKey 같은데..
-}
-
-// 모든 조직 조회
-const getOrganizationList = async () => {
-  const { data } = await axios.get(`/api/v1/organizations`);
-
-  return data;
-};
+import { OrganizationList } from '@/api/settings.api';
+import { getOrganizationList, getSpecificOrganizationData, deleteOrganization, modifyOrganization } from '@/api/settings.api';
 
 export function useGeOrganizationList() {
   return useQuery<OrganizationList[]>({
@@ -29,13 +14,6 @@ export function useGeOrganizationList() {
   });
 }
 
-// 특정 조직 조회
-const getSpecificOrganizationData = async (organizationName: string) => {
-  const { data } = await axios.get(`/api/v1/organizations/name/${organizationName}`);
-
-  return data;
-};
-
 export function useGetSpecificOrganizationData(organizationName: string) {
   return useQuery<OrganizationList[]>({
     queryKey: ['getSpecificOrganizationData'],
@@ -48,12 +26,6 @@ export function useGetSpecificOrganizationData(organizationName: string) {
   });
 }
 
-// 조직 삭제
-const deleteOrganization = async (organizationId: string) => {
-  const { data } = await axios.delete(`/api/v1/organizations/${organizationId}`);
-
-  return data;
-};
 
 export function useDeleteOrganization() {
   const queryClient = useQueryClient();
@@ -68,19 +40,6 @@ export function useDeleteOrganization() {
   });
 }
 
-// 조직 수정
-const modifyOrganization = async (
-  organizationId: string,
-  organizationName: string,
-  description: string
-) => {
-  const { data } = await axios.put(`/api/v1/organizations/${organizationId}`, {
-    organizationName: organizationName,
-    description: description,
-  });
-
-  return data;
-};
 
 export function useModifyOrganization(
   organizationId: string,

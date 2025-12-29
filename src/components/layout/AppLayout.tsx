@@ -2,7 +2,8 @@
 
 import type { ReactNode } from 'react';
 import { AppHeader } from './AppHeader';
-import { AppSidebar } from './AppSidebar';
+// import { AppSidebar } from './AppSidebar';
+import { AppSidebar } from './AppSidebar/AppSidebar';
 import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -35,24 +36,6 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
     setSidebarCollapsed((prev) => !prev);
   }, []);
 
-  // 토큰 확인해서 리다이렉트
-  // const accessToken = typeof window !== 'undefined' ? sessionStorage.getItem('access_token') : null;
-  // const refreshToken = typeof window !== 'undefined' ? sessionStorage.getItem('refresh_token') : null;
-
-  // if (!accessToken || !refreshToken) {
-  //   redirect('/'); // 로그인 페이지로 강제 이동
-  // }
-
-  // const router = useRouter();
-
-  // useEffect(() => {
-  //   const accessToken = sessionStorage.getItem('access_token');
-  //   const refreshToken = sessionStorage.getItem('refresh_token');
-
-  //   if (!accessToken || !refreshToken) {
-  //     router.replace('/'); // 로그인 페이지로 이동
-  //   }
-  // }, [router]);
 
   return (
     <Suspense fallback={<div>Loading...</div>}>

@@ -5,7 +5,7 @@ import { useTheme } from 'next-themes';
 import { Sun, Moon } from 'lucide-react';
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
@@ -16,7 +16,7 @@ export function ThemeToggle() {
     return <div className="w-[64px] h-[32px] bg-neutral-200 rounded-full animate-pulse" />;
   }
 
-  const isDark = theme === 'dark';
+  const isDark = resolvedTheme === 'dark';
 
   const handleToggle = () => {
     setTheme(isDark ? 'light' : 'dark');
@@ -47,7 +47,7 @@ export function ThemeToggle() {
 }
 
 export function CollapseThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
@@ -58,7 +58,7 @@ export function CollapseThemeToggle() {
     return <div className="w-[64px] h-[32px] bg-neutral-200 rounded-full animate-pulse" />;
   }
 
-  const isDark = theme === 'dark';
+  const isDark = resolvedTheme === 'dark';
 
   const handleToggle = () => {
     setTheme(isDark ? 'light' : 'dark');

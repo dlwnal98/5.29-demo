@@ -33,8 +33,8 @@ export default function ApiDeleteDialog({
             toast.success('API가 삭제되었습니다.');
             onOpenChange(false);
         },
-        onError: (error: any) => {
-            const serverMessage = error?.response?.data?.message ?? 'API 삭제에 실패하였습니다.';
+        onError: (error: unknown) => {
+            const axiosError = error as { response?: { data?: { message?: string } } }; const serverMessage = axiosError?.response?.data?.message ?? 'API 삭제에 실패하였습니다.';
             toast.error(serverMessage);
         },
     });

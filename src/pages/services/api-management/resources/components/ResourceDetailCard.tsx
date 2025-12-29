@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -16,10 +14,13 @@ import { Trash2, Shield } from 'lucide-react';
 import type { Resource, Method } from '@/types/resource';
 import { CorsSettingsDialog } from './CorsSettingsDialog';
 import { DeleteMethodDialog } from './DeleteMethodDialog';
-import { useRouter } from 'react-router-dom';
-import { getMethodStyle } from '@/lib/etc';
 import { DeleteResourceDialog } from './DeleteResourceDialog';
+import { useNavigate } from 'react-router-dom';
+import { getMethodStyle } from '@/lib/etc';
 import { useAuthStore } from '@/store/store';
+import { useCorsSettingsDialog } from '../hooks/useCorsSettingsDialog';
+import { useDeleteMethodDialog } from '../hooks/useDeleteMethodDialog';
+import { useDeleteResourceDialog } from '../hooks/useDeleteResourceDialog';
 
 interface ResourceDetailCardProps {
   selectedResource: Resource;
@@ -43,13 +44,41 @@ export function ResourceDetailCard({
   onCorsSettingsSaved,
 }: ResourceDetailCardProps) {
   const userData = useAuthStore((state) => state.user);
-
+  const userKey = userData?.userKey || '';
   const navigate = useNavigate();
 
+  // Dialog open states
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isCorsModalOpen, setIsCorsModalOpen] = useState(false);
   const [methodToDelete, setMethodToDelete] = useState<Method | null>(null);
   const [isMethodDeleteDialogOpen, setIsMethodDeleteDialogOpen] = useState(false);
+
+  // CORS Settings Dialog hook
+  const corsDialog = useCorsSettingsDialog({
+    open: isCorsModalOpen,
+    resourceId: selectedResource?.resourceId || '',
+    userKey,
+    selectedResource,
+    onOpenChange: setIsCorsModalOpen,
+    onCorsSettingsSaved,
+  });
+
+  // Delete Method Dialog hook
+  const deleteMethodDialog = useDeleteMethodDialog({
+    methodToDelete,
+    userKey,
+    onOpenChange: setIsMethodDeleteDialogOpen,
+    setSelectedResource: setSelectedResource as any,
+    onMethodDeleted,
+  });
+
+  // Delete Resource Dialog hook
+  const deleteResourceDialog = useDeleteResourceDialog({
+    resourceId: selectedResource?.resourceId || '',
+    onOpenChange: setIsDeleteDialogOpen,
+    setCreatedResourceId,
+    onResourceDeleted,
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -235,31 +264,29 @@ export function ResourceDetailCard({
         open={isCorsModalOpen}
         onOpenChange={setIsCorsModalOpen}
         selectedResource={selectedResource}
-        setSelectedResource={setSelectedResource}
-        resourceId={selectedResource?.resourceId}
-        userKey={userData?.userKey || ''}
-        onCorsSettingsSaved={onCorsSettingsSaved}
+        corsForm={corsDialog.corsForm}
+        isPending={corsDialog.isPending}
+        onSaveCorsSettings={corsDialog.onSaveCorsSettings}
+        onMethodToggle={corsDialog.onMethodToggle}
+        onCommaSeparatedInputChange={corsDialog.onCommaSeparatedInputChange}
+        onMaxAgeChange={corsDialog.onMaxAgeChange}
+        onAllowCredentialsChange={corsDialog.onAllowCredentialsChange}
       />
 
       <DeleteMethodDialog
         open={isMethodDeleteDialogOpen}
         onOpenChange={setIsMethodDeleteDialogOpen}
         methodToDelete={methodToDelete}
-        apiId={apiId}
-        userKey={userData?.userKey || ''}
-        setMethodToDelete={setMethodToDelete}
-        selectedResource={selectedResource}
-        setSelectedResource={setSelectedResource}
-        onMethodDeleted={onMethodDeleted}
+        isPending={deleteMethodDialog.isPending}
+        onDeleteMethod={deleteMethodDialog.onDeleteMethod}
       />
 
       <DeleteResourceDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
-        resourceId={selectedResource?.resourceId}
-        selectedResource={selectedResource}
-        setCreatedResourceId={setCreatedResourceId}
-        onResourceDeleted={onResourceDeleted}
+        resourcePath={selectedResource?.path || ''}
+        isPending={deleteResourceDialog.isPending}
+        onDeleteResource={deleteResourceDialog.onDeleteResource}
       />
     </>
   );

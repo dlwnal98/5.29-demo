@@ -22,22 +22,37 @@ import { useClipboard } from 'use-clipboard-copy';
 import { toast, Toaster } from 'sonner';
 import { useSearchParams } from 'react-router-dom';
 import { getMethodStyle } from '@/lib/etc';
-import { useMethodEditStore } from '@/store/store';
+import { useMethodEditStore, useAuthStore } from '@/store/store';
 import { useGetModelList } from '@/hooks/use-model';
+import { useDeleteMethodDialog } from '../hooks/useDeleteMethodDialog';
 
 export default function MethodDetailCard({ selectedMethod }: { selectedMethod: Method }) {
   const [activeTab, setActiveTab] = useState('method-request');
   const [selectedFlowStep, setSelectedFlowStep] = useState('');
   const [isMethodDeleteDialogOpen, setIsMethodDeleteDialogOpen] = useState(false);
-  const params = useSearchParams();
-  const apiId = params.get('apiId');
+  const [searchParams] = useSearchParams();
+  const apiId = searchParams.get('apiId');
   const isEditMode = useMethodEditStore((state) => state.isEdit);
   const setIsEditMode = useMethodEditStore((state) => state.setIsEdit);
   const clipboard = useClipboard();
+  const userData = useAuthStore((state) => state.user);
+  const userKey = userData?.userKey || '';
 
   const { data: modelList = [] } = useGetModelList(apiId || '');
 
   const [methodToDelete, setMethodToDelete] = useState<Method | null>(null);
+
+  // Delete Method Dialog hook
+  const deleteMethodDialog = useDeleteMethodDialog({
+    methodToDelete,
+    userKey,
+    onOpenChange: setIsMethodDeleteDialogOpen,
+    setSelectedResource: () => {}, // Not needed in this context
+    onMethodDeleted: () => {
+      setIsMethodDeleteDialogOpen(false);
+      setMethodToDelete(null);
+    },
+  });
 
   // Test Tab States
   const [testSettings, setTestSettings] = useState({

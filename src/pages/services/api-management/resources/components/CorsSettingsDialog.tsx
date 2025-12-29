@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -12,122 +11,37 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Check } from 'lucide-react';
 import type { Method, Resource } from '@/types/resource';
-import { useModifyResourceCorsSettings } from '@/hooks/use-resources';
-import { toast } from 'sonner';
+import type { CorsForm } from '../hooks/useCorsSettingsDialog';
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 
 interface CorsSettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  resourceId: string;
-  userKey: string;
   selectedResource: Resource;
-  setSelectedResource: (resource: Resource) => void;
-  onCorsSettingsSaved?: () => void;
+  corsForm: CorsForm;
+  isPending?: boolean;
+  onSaveCorsSettings: () => void;
+  onMethodToggle: (methodType: string, checked: boolean) => void;
+  onCommaSeparatedInputChange: (
+    value: string,
+    key: 'allowHeaders' | 'allowOrigins' | 'exposeHeaders'
+  ) => void;
+  onMaxAgeChange: (value: string) => void;
+  onAllowCredentialsChange: (checked: boolean) => void;
 }
 
 export function CorsSettingsDialog({
   open,
   onOpenChange,
-  resourceId,
   selectedResource,
-  userKey,
-  setSelectedResource,
-  onCorsSettingsSaved,
+  corsForm,
+  isPending,
+  onSaveCorsSettings,
+  onMethodToggle,
+  onCommaSeparatedInputChange,
+  onMaxAgeChange,
+  onAllowCredentialsChange,
 }: CorsSettingsDialogProps) {
-  interface CorsForm {
-    allowMethods: string[];
-    allowHeaders: string[];
-    allowOrigins: string[];
-    exposeHeaders: string[];
-    maxAge: number;
-    allowCredentials: boolean;
-  }
-
-  const [corsForm, setCorsForm] = useState<CorsForm>({
-    allowMethods: [],
-    allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    allowOrigins: ['*'],
-    exposeHeaders: ['X-Total-Count', 'X-Request-Id'],
-    maxAge: 3600,
-    allowCredentials: true,
-  });
-
-  useEffect(() => {
-    if (!selectedResource?.cors) return;
-
-    const cors = selectedResource.cors;
-
-    setCorsForm({
-      allowMethods: [], // ✅ 초기값은 무조건 빈 배열
-      allowHeaders: Array.isArray(cors.allowHeaders)
-        ? cors.allowHeaders
-        : cors.allowHeaders
-          ? cors.allowHeaders.split(',').map((s) => s.trim())
-          : [],
-      allowOrigins: Array.isArray(cors.allowOrigins)
-        ? cors.allowOrigins
-        : cors.allowOrigins
-          ? cors.allowOrigins.split(',').map((s) => s.trim())
-          : [],
-      exposeHeaders: Array.isArray(cors.exposeHeaders)
-        ? cors.exposeHeaders
-        : cors.exposeHeaders
-          ? cors.exposeHeaders.split(',').map((s) => s.trim())
-          : [],
-      maxAge: cors.maxAge ?? 3600,
-      allowCredentials: cors.allowCredentials ?? true,
-    });
-  }, [selectedResource]);
-
-  const { mutate: modifyCORSMutate } = useModifyResourceCorsSettings({
-    onSuccess: () => {
-      toast.success('리소스의 CORS 설정이 변경되었습니다.');
-      onCorsSettingsSaved?.();
-      onOpenChange(false);
-    },
-  });
-
-  const modifyCORSSettings = () => {
-    modifyCORSMutate({
-      resourceId: resourceId,
-      data: {
-        allowedOrigins: corsForm.allowOrigins,
-        allowedHeaders: corsForm.allowHeaders,
-        allowedMethods: corsForm.allowMethods,
-        exposedHeaders: corsForm.exposeHeaders,
-        maxAge: corsForm.maxAge,
-        allowCredentials: corsForm.allowCredentials,
-        updatedBy: userKey,
-      },
-    });
-  };
-
-  const handleCommaSeparatedInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    key: 'allowHeaders' | 'allowOrigins' | 'exposeHeaders'
-  ) => {
-    const raw = e.target.value;
-    const items = raw.split(',').map((s) => s.trim());
-
-    let newArray = items.filter(Boolean); // 일반 아이템
-
-    // 마지막이 쉼표면 빈 문자열 유지
-    if (raw.endsWith(',')) {
-      newArray.push('');
-    }
-
-    // 백스페이스로 쉼표 지우면 마지막 빈 문자열 제거
-    if (newArray.length > 0 && newArray[newArray.length - 1] === '' && !raw.endsWith(',')) {
-      newArray.pop();
-    }
-
-    setCorsForm((prev) => ({
-      ...prev,
-      [key]: newArray,
-    }));
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-scroll-y">
@@ -150,18 +64,13 @@ export function CorsSettingsDialog({
                     <div className="flex items-center space-x-2" key={method.id}>
                       <CheckboxPrimitive.Root
                         id={method.type}
-                        checked={corsForm.allowMethods.includes(method.type)} // ✅ 체크 상태 반영
+                        checked={corsForm.allowMethods.includes(method.type)}
                         onCheckedChange={(checked) =>
-                          setCorsForm((prev) => ({
-                            ...prev,
-                            allowMethods: checked
-                              ? [...new Set([...prev.allowMethods, method.type])] // ✅ 중복 제거
-                              : prev.allowMethods.filter((m) => m !== method.type), // ✅ 체크 해제 시 제거
-                          }))
+                          onMethodToggle(method.type, checked as boolean)
                         }
-                        className="w-5 h-5 border border-gray-300 bg-white rounded 
-             data-[state=checked]:bg-blue-600 
-             data-[state=checked]:border-blue-600 
+                        className="w-5 h-5 border border-gray-300 bg-white rounded
+             data-[state=checked]:bg-blue-600
+             data-[state=checked]:border-blue-600
              flex items-center justify-center">
                         <CheckboxPrimitive.Indicator>
                           <Check className="w-4 h-4 text-white" />
@@ -181,7 +90,7 @@ export function CorsSettingsDialog({
                 </Label>
                 <Input
                   value={corsForm.allowHeaders.join(', ')}
-                  onChange={(e) => handleCommaSeparatedInputChange(e, 'allowHeaders')}
+                  onChange={(e) => onCommaSeparatedInputChange(e.target.value, 'allowHeaders')}
                   placeholder={corsForm.allowHeaders.join(',')}
                 />
               </div>
@@ -191,7 +100,7 @@ export function CorsSettingsDialog({
                 </Label>
                 <Input
                   value={corsForm.allowOrigins.join(', ')}
-                  onChange={(e) => handleCommaSeparatedInputChange(e, 'allowOrigins')}
+                  onChange={(e) => onCommaSeparatedInputChange(e.target.value, 'allowOrigins')}
                   placeholder={corsForm.allowOrigins.join(',')}
                 />
               </div>
@@ -201,8 +110,8 @@ export function CorsSettingsDialog({
                   Access-Control-Expose-Headers
                 </Label>
                 <Input
-                  value={corsForm.exposeHeaders.join(', ')} // 배열 → 문자열
-                  onChange={(e) => handleCommaSeparatedInputChange(e, 'exposeHeaders')}
+                  value={corsForm.exposeHeaders.join(', ')}
+                  onChange={(e) => onCommaSeparatedInputChange(e.target.value, 'exposeHeaders')}
                   placeholder={corsForm.exposeHeaders.join(',')}
                 />
               </div>
@@ -212,7 +121,7 @@ export function CorsSettingsDialog({
                 </Label>
                 <Input
                   value={corsForm.maxAge}
-                  onChange={(e) => setCorsForm({ ...corsForm, maxAge: e.target.value })}
+                  onChange={(e) => onMaxAgeChange(e.target.value)}
                   placeholder="86400"
                 />
               </div>
@@ -222,9 +131,7 @@ export function CorsSettingsDialog({
                 </Label>
                 <Switch
                   checked={corsForm.allowCredentials}
-                  onCheckedChange={(checked) =>
-                    setCorsForm({ ...corsForm, allowCredentials: checked })
-                  }
+                  onCheckedChange={onAllowCredentialsChange}
                 />
               </div>
             </div>
@@ -234,8 +141,11 @@ export function CorsSettingsDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             취소
           </Button>
-          <Button onClick={modifyCORSSettings} className="bg-blue-500 hover:bg-blue-600 text-white">
-            저장
+          <Button
+            onClick={onSaveCorsSettings}
+            disabled={isPending}
+            className="bg-blue-500 hover:bg-blue-600 text-white">
+            {isPending ? '저장 중...' : '저장'}
           </Button>
         </DialogFooter>
       </DialogContent>

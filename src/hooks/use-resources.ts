@@ -1,18 +1,7 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
-import { requestGet, requestPatch, requestPost, requestDelete, requestPut } from '@/lib/apiClient';
-
-interface OpenAPIData {
-  openapi: string;
-  info: Record<string, any>;
-  components: Record<string, any>;
-  paths: Record<string, any>;
-}
-
-// open api 문서 조회
-const getOpenAPIDoc = async (apiId: string) => {
-  const res = await requestGet(`/api/v1/plans/${apiId}/openapi`);
-  return res;
-};
+import { OpenAPIData, CreateResourceProps, resourceCorsSettingsData, ModifyResourceProps, deploymentProps } from '@/api/resources.api';
+import { createResource, deleteResource, getOpenAPIDoc, getResourceCorsSettings, modifyResourceCorsSettings } from '@/api/resources.api';
+import { deployAPI } from '@/api/resources.api';
 
 export function useGetOpenAPIDoc(apiId: string) {
   return useQuery<OpenAPIData>({
@@ -26,24 +15,6 @@ export function useGetOpenAPIDoc(apiId: string) {
   });
 }
 
-//resource 생성 + 실시간 목록 생성
-export interface CreateResourceProps {
-  apiId: string;
-  resourceName: string;
-  description?: string;
-  path: string;
-  enableCors: boolean;
-  resourceType: 'REST';
-  createdBy: string;
-}
-
-const createResource = async (data: CreateResourceProps) => {
-  const res = await requestPost(`/api/v1/resources`, {
-    body: data,
-  });
-
-  return res;
-};
 
 export function useCreateResource(options?: UseMutationOptions<any, Error, CreateResourceProps>) {
   const queryClient = useQueryClient();
@@ -62,29 +33,6 @@ export function useCreateResource(options?: UseMutationOptions<any, Error, Creat
   });
 }
 
-// Resource별 CORS 정책 조회
-interface resourceCorsConfig {
-  allowedOrigins: string[];
-  allowedMethods: string[];
-  allowedHeaders: string[];
-  exposedHeaders: string[];
-  allowCredentials: boolean;
-  maxAge: number;
-}
-
-interface resourceCorsSettingsData {
-  pathId: string;
-  path: string;
-  corsEnabled: boolean;
-  corsConfig: resourceCorsConfig[];
-}
-
-const getResourceCorsSettings = async (resourceId: string) => {
-  const res = await requestGet(`/api/v1/resources/${resourceId}/cors`);
-
-  return res;
-};
-
 export function useGetResourceCorsSettings(resourceId: string) {
   return useQuery<resourceCorsSettingsData[]>({
     queryKey: ['getResourceCorsSettings'],
@@ -97,24 +45,6 @@ export function useGetResourceCorsSettings(resourceId: string) {
   });
 }
 
-//Resource CORS  수정
-interface ModifyResourceProps {
-  allowedOrigins?: string[];
-  allowedMethods?: string[];
-  allowedHeaders?: string[];
-  exposedHeaders?: string[];
-  maxAge?: number;
-  allowCredentials?: boolean;
-  updatedBy: string;
-}
-
-const modifyResourceCorsSettings = async (resourceId: string, data: ModifyResourceProps) => {
-  const res = await requestPut(`/api/v1/resources/${resourceId}/cors`, {
-    body: data,
-  });
-
-  return res;
-};
 
 export function useModifyResourceCorsSettings(
   options?: UseMutationOptions<any, Error, { resourceId: string; data: ModifyResourceProps }>
@@ -136,12 +66,6 @@ export function useModifyResourceCorsSettings(
   });
 }
 
-//리소스 삭제 + 리소스 목록 갱신
-const deleteResource = async (resourceId: string) => {
-  const res = await requestDelete(`/api/v1/resources/${resourceId}`);
-
-  return res;
-};
 
 export function useDeleteResource(options?: UseMutationOptions<any, Error, string>) {
   const queryClient = useQueryClient();
@@ -160,26 +84,6 @@ export function useDeleteResource(options?: UseMutationOptions<any, Error, strin
   });
 }
 
-// API 배포 실행
-interface deploymentProps {
-  apiId: string;
-  stageId: string;
-  version?: string;
-  deployedBy: string;
-  description?: string;
-  metadata?: {
-    jiraTicket?: string;
-    reviewer?: string;
-  };
-}
-
-const deployAPI = async (data: deploymentProps) => {
-  const res = await requestPost(`/api/v1/deployments`, {
-    body: data,
-  });
-
-  return res;
-};
 
 export function useDeployAPI(options?: UseMutationOptions<any, Error, deploymentProps>) {
   return useMutation({

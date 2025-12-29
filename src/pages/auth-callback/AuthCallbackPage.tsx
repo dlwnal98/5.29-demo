@@ -1,5 +1,5 @@
 // app/auth-callback/page.tsx
-import AuthCallbackClient from './AuthCallbackClient';
+import AuthCallbackClient from './AuthCallback';
 import { Suspense } from 'react';
 
 export default function AuthCallbackPage() {

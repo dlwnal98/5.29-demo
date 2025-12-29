@@ -1,6 +1,3 @@
-
-
-import { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -8,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Rocket, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -20,189 +17,40 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { toast, Toaster } from 'sonner';
-import { createStage } from '@/hooks/use-stages';
-import { useDeployAPI } from '@/hooks/use-resources';
-import { useRouter } from 'react-router-dom';
-import { useGetStagesDocData } from '@/hooks/use-stages';
-import { useQueryClient } from '@tanstack/react-query';
-import { useDeployStore } from '@/store/deployStore';
-import { de } from 'date-fns/locale';
-import { AxiosError } from 'axios';
-interface deployData {
-  stage: string;
-  version: string;
-  description: string;
-  newStageName: string;
-}
+import type { DeployData, StageOption } from '../hooks/useDeployResourceDialog';
 
-interface deployResourceProps {
+interface DeployResourceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  apiId: string;
-  userKey: string;
-  organizationId: string;
+  deploymentData: DeployData;
+  stageForDeployment: StageOption[];
+  isValidDeploy: boolean;
+  isPending?: boolean;
+  onDeploySubmit: () => void;
+  onStageChange: (value: string) => void;
+  onNewStageNameChange: (value: string) => void;
+  onDescriptionChange: (value: string) => void;
+  onDeployModalClose: () => void;
 }
 
 export default function DeployResourceDialog({
   open,
   onOpenChange,
-  apiId,
-  userKey,
-  organizationId,
-}: deployResourceProps) {
-  const { data: stagesDocData = [] } = useGetStagesDocData(apiId || '');
-
-  const [deploymentData, setDeploymentData] = useState<deployData>({
-    stage: '',
-    version: '',
-    description: '',
-    newStageName: '',
-  });
-
-  const [stageForDeployment, setStageForDeployment] = useState([]);
-  useEffect(() => {
-    if (open && stagesDocData.length) {
-      setDeploymentData({
-        stage: '',
-        version: '',
-        description: '',
-        newStageName: '',
-      });
-
-      const stageList = stagesDocData.map((data: any, i: number) => ({
-        id: i,
-        label: data.name,
-        value: data.stageId,
-      }));
-
-      setStageForDeployment(stageList);
-    }
-  }, [open, stagesDocData]);
-
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  const { mutate: handleDeploy } = useDeployAPI({
-    onSuccess: () => {
-      handleNavigateStage();
-    },
-    onError: (error: any) => {
-      const serverMessage = error?.response?.data?.message ?? '배포에 실패하였습니다.';
-      toast.error(serverMessage);
-    },
-  });
-  const handleNavigateStage = async () => {
-    // ✅ 모달을 바로 닫음
-    onOpenChange(false);
-
-    await toast.promise(
-      (async () => {
-        await queryClient.invalidateQueries({ queryKey: ['getStatesDocData', apiId] });
-        await queryClient.refetchQueries({ queryKey: ['getStatesDocData', apiId] });
-
-        await queryClient.invalidateQueries({ queryKey: ['getDeployHistoryData', organizationId] });
-        await queryClient.refetchQueries({ queryKey: ['getDeployHistoryData', organizationId] });
-      })(),
-      {
-        loading: '스테이지 생성 중...',
-        success: '스테이지가 성공적으로 생성되어 배포되었습니다.',
-        error: '스테이지 생성 후 배포에 실패했습니다.',
-      }
-    );
-
-    navigate(`/services/api-management/stages?apiId=${apiId}`);
-  };
-
-  const handleCreateAndDeploy = async () => {
-    try {
-      const res = await createStage({
-        organizationId: organizationId,
-        stageName: deploymentData.newStageName,
-        description: deploymentData.description,
-        createdBy: userKey,
-        enabled: true,
-        deploymentSource: 'DRAFT',
-        apiId: apiId,
-        sourceDeploymentId: '',
-      });
-      if (res) {
-        handleDeploy({
-          apiId: apiId,
-          stageId: res.stageId,
-          version: '',
-          deployedBy: userKey,
-          description: deploymentData.description,
-          metadata: {
-            jiraTicket: '',
-            reviewer: '',
-          },
-        });
-      } else if (res.statusCode == 400) {
-        toast.error(res.message);
-      } else {
-        toast.error('새로운 스테이지 생성에 실패하였습니다\n 재입력이 필요합니다.');
-      }
-    } catch (e) {
-      const err = e as AxiosError<{ fieldErrors?: { stageName?: string } }>;
-      toast.error(err.response?.data?.fieldErrors?.stageName);
-    }
-  };
-
-  const handleDeploySubmit = () => {
-    if (deploymentData.stage === 'new') {
-      if (!deploymentData.newStageName.trim()) {
-        toast.error('새 스테이지 이름을 입력해주세요.');
-        return;
-      }
-      // 새 스테이지 생성 로직
-      handleCreateAndDeploy();
-    } else {
-      if (!deploymentData.stage) {
-        toast.error('배포 스테이지를 선택해주세요.');
-        return;
-      }
-
-      handleDeploy({
-        apiId: apiId,
-        stageId: deploymentData.stage,
-        version: '',
-        deployedBy: userKey,
-        description: deploymentData.description,
-        metadata: {
-          jiraTicket: '',
-          reviewer: '',
-        },
-      });
-    }
-  };
-
-  const handleDeployModalClose = () => {
-    onOpenChange(false);
-    setDeploymentData({
-      stage: '',
-      version: '',
-      description: '',
-      newStageName: '',
-    });
-  };
-  const isValidDeploy = useMemo(() => {
-    if (deploymentData.stage === 'new') {
-      return deploymentData.newStageName.trim().length > 0;
-    }
-    return deploymentData.stage.trim().length > 0;
-  }, [deploymentData]);
-
-  <Button onClick={handleDeploySubmit} disabled={!isValidDeploy}>
-    배포
-  </Button>;
-
+  deploymentData,
+  stageForDeployment,
+  isValidDeploy,
+  isPending,
+  onDeploySubmit,
+  onStageChange,
+  onNewStageNameChange,
+  onDescriptionChange,
+  onDeployModalClose,
+}: DeployResourceDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center">
-            {/* <Rocket className="h-5 w-5 mr-2 text-orange-500" /> */}
             API 배포
           </DialogTitle>
         </DialogHeader>
@@ -213,26 +61,17 @@ export default function DeployResourceDialog({
             </Label>
             <Select
               value={deploymentData.stage}
-              onValueChange={(value) =>
-                setDeploymentData({
-                  ...deploymentData,
-                  stage: value,
-                  description: '',
-                  newStageName: '',
-                })
-              }>
+              onValueChange={onStageChange}>
               <SelectTrigger className="mt-2">
                 <SelectValue placeholder="스테이지 선택" />
               </SelectTrigger>
               <SelectContent>
-                {stageForDeployment.map((stage: any, i: number) => {
-                  return (
-                    <SelectItem value={stage.value} className={'cursor-pointer'}>
-                      {stage.label}
-                    </SelectItem>
-                  );
-                })}
-                <SelectItem value="new" className={'cursor-pointer'}>
+                {stageForDeployment.map((stage) => (
+                  <SelectItem key={stage.id} value={stage.value} className="cursor-pointer">
+                    {stage.label}
+                  </SelectItem>
+                ))}
+                <SelectItem value="new" className="cursor-pointer">
                   <div className="flex items-center gap-2">
                     <Plus className="h-4 w-4" />새 스테이지 생성
                   </div>
@@ -255,12 +94,7 @@ export default function DeployResourceDialog({
                 <Input
                   id="new-stage-name"
                   value={deploymentData.newStageName}
-                  onChange={(e) =>
-                    setDeploymentData({
-                      ...deploymentData,
-                      newStageName: e.target.value,
-                    })
-                  }
+                  onChange={(e) => onNewStageNameChange(e.target.value)}
                   placeholder="새 스테이지 이름을 입력하세요"
                   className="mt-2"
                 />
@@ -275,26 +109,21 @@ export default function DeployResourceDialog({
             <Textarea
               id="deploy-description"
               value={deploymentData.description}
-              onChange={(e) =>
-                setDeploymentData({
-                  ...deploymentData,
-                  description: e.target.value,
-                })
-              }
+              onChange={(e) => onDescriptionChange(e.target.value)}
               placeholder="배포에 대한 설명을 입력하세요"
               className="mt-1"
             />
           </div>
         </div>
         <DialogFooter className="flex space-x-2">
-          <Button variant="outline" onClick={handleDeployModalClose}>
+          <Button variant="outline" onClick={onDeployModalClose}>
             취소
           </Button>
           <Button
-            onClick={handleDeploySubmit}
-            disabled={!isValidDeploy}
+            onClick={onDeploySubmit}
+            disabled={!isValidDeploy || isPending}
             className="bg-orange-500 hover:bg-orange-600 text-white">
-            배포
+            {isPending ? '배포 중...' : '배포'}
           </Button>
         </DialogFooter>
       </DialogContent>

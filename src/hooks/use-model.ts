@@ -1,32 +1,6 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
-import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from '@/lib/apiClient';
-import { headers } from 'next/headers';
-
-export interface ModelData {
-  modelId: string;
-  apiId: string;
-  modelName: string;
-  description: string;
-  version: string;
-  jsonSchema: {
-    type: string;
-    properties: any;
-  };
-  properties?: any;
-  examples?: any[];
-  createdAt: string;
-  createdBy: string;
-  updatedAt?: string;
-  updatedBy?: string;
-  planId?: string;
-}
-
-// API 계획의 모델 목록 조회
-const getModelList = async (apiId: string): Promise<ModelData[]> => {
-  const res = await requestGet(`/api/v1/models/plan/${apiId}`);
-
-  return res;
-};
+import { ModelData, CreateModelProps, ModifyModelProps } from '@/api/models.api';
+import { getModelList, createModel, modifyModel, deleteModel } from '@/api/models.api';
 
 // ✅ React Query Hook
 export function useGetModelList(apiId: string) {
@@ -40,27 +14,6 @@ export function useGetModelList(apiId: string) {
     refetchOnReconnect: false,
   });
 }
-
-export interface CreateModelProps {
-  apiId: string;
-  modelName: string;
-  description: string;
-  jsonSchema: {
-    type: string;
-    properties: {};
-  };
-  examples: {}[];
-  createdBy: string;
-}
-
-// 모델 생성
-const createModel = async (data: CreateModelProps) => {
-  const res = await requestPost(`/api/v1/models`, {
-    body: data,
-  });
-
-  return res;
-};
 
 // ✅ React Query Hook
 export function useCreateModel(options: UseMutationOptions<any, Error, CreateModelProps>) {
@@ -78,28 +31,6 @@ export function useCreateModel(options: UseMutationOptions<any, Error, CreateMod
     },
   });
 }
-
-export interface ModifyModelProps {
-  modelName: string;
-  description: string;
-  version: string;
-  jsonSchema: {
-    type: string;
-    properties: {};
-  };
-  properties: {};
-  examples: {}[];
-  updatedBy: string;
-}
-
-// 모델 수정
-const modifyModel = async (modelId: string, data: ModifyModelProps) => {
-  const res = await requestPut(`/api/v1/models/${modelId}`, {
-    body: data,
-  });
-
-  return res;
-};
 
 // ✅ React Query Hook
 export function useModifyModel(
@@ -120,16 +51,6 @@ export function useModifyModel(
   });
 }
 
-// 모델 삭제
-const deleteModel = async (modelId: string, userKey: string) => {
-  const res = await requestDelete(`/api/v1/models/${modelId}`, {
-    headers: {
-      'X-User-Id': userKey,
-    },
-  });
-
-  return res;
-};
 
 // ✅ React Query Hook
 export function useDeleteModel(

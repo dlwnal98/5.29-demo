@@ -181,28 +181,28 @@ export const getNavItems = (): NavItem[] => [
           },
           ...(selectedApiName
             ? [
-                { separator: true } as any,
-                {
-                  label: `API : ${selectedApiName}`,
-                  href: `/services/api-management/resources?apiId=${selectedApiId}&apiName=${selectedApiName}`,
-                  icon: Globe,
-                },
-                {
-                  label: 'Stages',
-                  href: `/services/api-management/stages?apiId=${selectedApiId}&apiName=${selectedApiName}`,
-                  icon: Layers,
-                },
-                {
-                  label: 'Models',
-                  href: `/services/api-management/models?apiId=${selectedApiId}&apiName=${selectedApiName}`,
-                  icon: Box,
-                },
-                { separator: true } as any,
-              ]
+              { separator: true } as any,
+              {
+                label: `API : ${selectedApiName}`,
+                href: `/services/api-management/resources?apiId=${selectedApiId}&apiName=${selectedApiName}`,
+                icon: Globe,
+              },
+              {
+                label: 'Stages',
+                href: `/services/api-management/stages?apiId=${selectedApiId}&apiName=${selectedApiName}`,
+                icon: Layers,
+              },
+              {
+                label: 'Models',
+                href: `/services/api-management/models?apiId=${selectedApiId}&apiName=${selectedApiName}`,
+                icon: Box,
+              },
+              { separator: true } as any,
+            ]
             : []),
           {
-            label: 'Target Endpoints',
-            href: '/services/api-management/target-endpoints',
+            label: 'Route Endpoints',
+            href: '/services/api-management/route-endpoints',
             icon: Target,
           },
           {

@@ -1,52 +1,7 @@
-import axios from 'axios';
 import { useQuery, useMutation, useQueryClient, UseMutationOptions } from '@tanstack/react-query';
-import { requestDelete, requestGet, requestPatch, requestPost } from '@/lib/apiClient';
+import { UserList, MemberList, AddMemberVariables, handleStatusVariables, DeleteMemberVariables } from '../types/member';
+import { getUserList, getMemberByOrganizationList, memberHandleStatus, deleteMember, AddMember } from '../api/members.api';
 
-export interface UserList {
-  userKey: string;
-  lastLoginAt: string | null;
-  userId: string;
-  password: string;
-  fullName: string;
-  email: string;
-  enabled: number;
-  createdAt: string;
-  updatedAt: string;
-  role: string;
-  organizationId: string;
-}
-
-interface MemberList {
-  userKey: string;
-  lastLoginAt: string | null;
-  userId: string;
-  password: string;
-  fullName?: string;
-  email?: string;
-  enabled: number;
-  createdAt: string;
-  updatedAt: string;
-  role: string;
-  organizationId: string;
-}
-
-// 전체 유저 목록 조회 (super)
-const getUserList = async (active: string) => {
-  let requestUrl = '';
-
-  if (active === 'all') {
-    requestUrl = '/api/v1/users';
-  } else {
-    const activeBoolean = active === 'active';
-    requestUrl = `/api/v1/users?active=${activeBoolean}`;
-  }
-
-  const res = await requestGet(requestUrl);
-
-  if (res.code == 200) {
-    return res.data;
-  } else throw new Error(res.message ?? '전체 유저 목록 조회 실패');
-};
 
 export function useGetUserList(active: string, enabled: boolean) {
   return useQuery<UserList[]>({
@@ -60,13 +15,6 @@ export function useGetUserList(active: string, enabled: boolean) {
   });
 }
 
-// 조직 멤버 조회 (admin)
-const getMemberByOrganizationList = async (organizationId: string) => {
-  const res = await requestGet(`/api/v1/organizations/${organizationId}/members`);
-  if (res.code == 200) {
-    return res.data;
-  } else throw new Error(res.message ?? '조직 멤버 목록 조회 실패');
-};
 
 export function useGetMemberByOrganizationList(organizationId: string, enabled: boolean) {
   return useQuery<MemberList[]>({
@@ -80,17 +28,6 @@ export function useGetMemberByOrganizationList(organizationId: string, enabled: 
   });
 }
 
-interface handleStatusVariables {
-  userKey: string;
-  active: boolean;
-}
-
-//조직 멤버 활성화 or 비활성화
-const memberHandleStatus = async (userKey: string, active: boolean) => {
-  const res = await requestPatch(`/api/v1/users/${userKey}?active=${active}`);
-
-  return res;
-};
 
 export function useMemberHandleStatus(
   options?: UseMutationOptions<any, Error, handleStatusVariables>
@@ -120,17 +57,6 @@ export function useMemberHandleStatus(
   });
 }
 
-interface DeleteMemberVariables {
-  organizationId: string;
-  userKey: string;
-}
-
-//조직 멤버 삭제
-const deleteMember = async (organizationId: string, userKey: string) => {
-  const res = await requestDelete(`/api/v1/organizations/${organizationId}/members/${userKey}`);
-
-  return res;
-};
 
 export function useDeleteMember(options?: UseMutationOptions<any, Error, DeleteMemberVariables>) {
   const queryClient = useQueryClient();
@@ -153,21 +79,7 @@ export function useDeleteMember(options?: UseMutationOptions<any, Error, DeleteM
   });
 }
 
-interface AddMemberVariables {
-  organizationId: string;
-  userId: string;
-}
 
-//조직 멤버 추가
-const AddMember = async (organizationId: string, userId: string) => {
-  const res = await requestPost(`/api/v1/organizations/${organizationId}/members`, {
-    body: {
-      userId,
-    },
-  });
-
-  return res;
-};
 
 export function useAddMember(options?: UseMutationOptions<any, Error, AddMemberVariables>) {
   const queryClient = useQueryClient();

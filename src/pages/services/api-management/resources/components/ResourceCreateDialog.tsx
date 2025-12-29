@@ -1,6 +1,3 @@
-
-import React, { useEffect } from 'react';
-import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -20,100 +17,39 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { requestGet } from '@/lib/apiClient';
-import { CreateResourceProps, useCreateResource } from '@/hooks/use-resources';
-import { toast } from 'sonner';
-import { isValidInput } from '@/lib/etc';
+import type { CreateResourceForm } from '../hooks/useResourceCreateDialog';
 
 interface ResourceCreateDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  apiId: string;
-  userKey: string;
-  setCreatedResourceId: React.Dispatch<React.SetStateAction<string>>;
+  createResourceForm: CreateResourceForm;
+  resourcePaths: string[];
+  pathPattern: string;
+  checkUrl: boolean;
+  isPending?: boolean;
+  onCreateResource: () => void;
+  onResourceNameChange: (value: string) => void;
+  onDescriptionChange: (value: string) => void;
+  onEnableCorsChange: (checked: boolean) => void;
+  onPathPatternChange: (value: string) => void;
+  onCancel: () => void;
 }
 
 export function ResourceCreateDialog({
   open,
   onOpenChange,
-  apiId,
-  userKey,
-  setCreatedResourceId,
+  createResourceForm,
+  resourcePaths,
+  pathPattern,
+  checkUrl,
+  isPending,
+  onCreateResource,
+  onResourceNameChange,
+  onDescriptionChange,
+  onEnableCorsChange,
+  onPathPatternChange,
+  onCancel,
 }: ResourceCreateDialogProps) {
-  const [createResourceForm, setCreateResourceForm] = useState({
-    apiId,
-    resourceName: '',
-    description: '',
-    path: '/',
-    enableCors: false,
-    resourceType: 'REST',
-    createdBy: userKey ?? '',
-  });
-
-  const [resourcePaths, setResourcePaths] = useState<string[]>([]);
-  const [pathPattern, setPathPattern] = useState('/');
-  const [checkUrl, setCheckUrl] = useState(false);
-
-  // 🔹 모달 열릴 때마다 상태 초기화 + path 목록 갱신
-  useEffect(() => {
-    if (open) {
-      setCreateResourceForm({
-        apiId,
-        resourceName: '',
-        description: '',
-        path: '/',
-        enableCors: false,
-        resourceType: 'REST',
-        createdBy: userKey ?? '',
-      });
-      setPathPattern('/');
-      setCheckUrl(false);
-      fetchResourcePaths();
-    }
-  }, [open, apiId, userKey]);
-
-  const fetchResourcePaths = async () => {
-    try {
-      const res = await requestGet(`/api/v1/resources/api/${apiId}/paths`);
-      if (res) setResourcePaths(res);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const { mutate: createResourceMutate } = useCreateResource({
-    onSuccess: () => {
-      const resourcePath =
-        pathPattern === '/'
-          ? `${pathPattern}${createResourceForm.resourceName}`
-          : `${pathPattern}/${createResourceForm.resourceName}`;
-      setCreatedResourceId(`node-${resourcePath}`);
-      toast.success('리소스가 생성되었습니다.');
-      onOpenChange(false);
-    },
-    onError: (error: any) => {
-      const serverMessage = error?.response?.data?.message ?? '리소스 생성에 실패하였습니다.';
-      toast.error(serverMessage);
-    },
-  });
-
-  const createResource = (data: CreateResourceProps) => {
-    const resourcePath =
-      pathPattern === '/'
-        ? `${pathPattern}${data.resourceName}`
-        : `${pathPattern}/${data.resourceName}`;
-
-    if (isValidInput(data.resourceName)) {
-      createResourceMutate({ ...data, path: resourcePath });
-    } else {
-      toast.error('유효하지 않은 리소스 이름입니다.');
-    }
-  };
-
-  const handleCancel = () => {
-    onOpenChange(false);
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
@@ -131,7 +67,7 @@ export function ResourceCreateDialog({
               </Label>
               <Select
                 value={pathPattern ? pathPattern : '/'}
-                onValueChange={(value) => setPathPattern(value)}>
+                onValueChange={onPathPatternChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="경로를 선택하세요" />
                 </SelectTrigger>
@@ -154,12 +90,7 @@ export function ResourceCreateDialog({
                 id="resource-name"
                 placeholder=""
                 value={createResourceForm.resourceName}
-                onChange={(e) => {
-                  if (isValidInput(e.target.value)) {
-                    setCheckUrl(false);
-                    setCreateResourceForm((prev) => ({ ...prev, resourceName: e.target.value }));
-                  } else setCheckUrl(true);
-                }}
+                onChange={(e) => onResourceNameChange(e.target.value)}
               />
               {checkUrl && (
                 <span className="text-xs mt-2 ml-2 text-red-500">한글은 입력이 불가합니다.</span>
@@ -178,9 +109,7 @@ export function ResourceCreateDialog({
                 id="resource-description"
                 placeholder=""
                 value={createResourceForm.description}
-                onChange={(e) => {
-                  setCreateResourceForm((prev) => ({ ...prev, description: e.target.value }));
-                }}
+                onChange={(e) => onDescriptionChange(e.target.value)}
                 className="min-h-[50px] text-sm resize-none"
               />
             </div>
@@ -201,24 +130,19 @@ export function ResourceCreateDialog({
             <Switch
               id="cors-toggle"
               checked={createResourceForm.enableCors}
-              onCheckedChange={(checked) =>
-                setCreateResourceForm((prev) => ({
-                  ...prev,
-                  enableCors: checked,
-                }))
-              }
+              onCheckedChange={onEnableCorsChange}
             />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={handleCancel}>
+          <Button variant="outline" onClick={onCancel}>
             취소
           </Button>
           <Button
-            onClick={() => createResource(createResourceForm)}
-            disabled={!createResourceForm.resourceName}
+            onClick={onCreateResource}
+            disabled={!createResourceForm.resourceName || isPending}
             className="bg-blue-500 hover:bg-blue-600 text-white">
-            생성
+            {isPending ? '생성 중...' : '생성'}
           </Button>
         </DialogFooter>
       </DialogContent>

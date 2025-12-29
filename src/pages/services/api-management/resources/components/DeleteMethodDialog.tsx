@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,55 +9,23 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { AlertTriangle } from 'lucide-react';
-import type { Method, Resource } from '@/types/resource';
-import { toast, Toaster } from 'sonner';
-import { useDeleteMethod } from '@/hooks/use-methods';
+import type { Method } from '@/types/resource';
+
 interface DeleteMethodDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  setMethodToDelete: (method: Method | null) => void;
   methodToDelete: Method | null;
-  userKey: string;
-  apiId: string;
-  selectedResource: Resource;
-  setSelectedResource: (resource: Resource) => void;
-  onMethodDeleted?: () => void;
+  isPending?: boolean;
+  onDeleteMethod: () => void;
 }
 
 export function DeleteMethodDialog({
   open,
   onOpenChange,
   methodToDelete,
-  userKey,
-  setMethodToDelete,
-  apiId,
-  selectedResource,
-  setSelectedResource,
-  onMethodDeleted,
+  isPending,
+  onDeleteMethod,
 }: DeleteMethodDialogProps) {
-  const { mutate: deleteMethod } = useDeleteMethod({
-    onSuccess: () => {
-      toast.success(`메서드 '${methodToDelete.type} ${methodToDelete.resourcePath}' 삭제됨.`);
-      // selectedResource 안에서 삭제된 method 제거
-      setSelectedResource((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          methods: prev.methods.filter(
-            (m) => m.info['x-method-id'] !== methodToDelete.info['x-method-id']
-          ),
-        };
-      });
-      // 메서드 삭제 후 콜백 실행
-      onMethodDeleted?.();
-      onOpenChange(false);
-    },
-  });
-
-  const handleDeleteMethod = async () => {
-    deleteMethod({ methodId: methodToDelete.info['x-method-id'], userKey: userKey });
-  };
-
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -100,9 +67,10 @@ export function DeleteMethodDialog({
         <AlertDialogFooter>
           <AlertDialogCancel>취소</AlertDialogCancel>
           <AlertDialogAction
-            onClick={handleDeleteMethod}
+            onClick={onDeleteMethod}
+            disabled={isPending}
             className="bg-red-600 hover:bg-red-700 text-white">
-            삭제하기
+            {isPending ? '삭제 중...' : '삭제하기'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -1,29 +1,7 @@
-import axios from 'axios';
 import { useQuery, useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
-import { requestDelete, requestGet, requestPatch, requestPost } from '@/lib/apiClient';
+import { ApiKey, CreateAPIKeyVariables, ModifyAPIKeyVariables } from '@/api/apiKeys.api';
+import { getAPIKeyList, createAPIKey, modifyAPIKey, deleteAPIKey } from '@/api/apiKeys.api';
 
-export interface ApiKey {
-  keyId: string;
-  organizationId: string;
-  name: string;
-  key: string;
-  keySecret?: string;
-  enabled?: string | null;
-  expiredAt: string;
-  rateLimit: string | null;
-  createdAt: string | null;
-  updatedAt: string | null;
-  createdBy: string;
-  description: string;
-}
-
-// 전체 API Key 조회
-const getAPIKeyList = async (organizationId: string) => {
-  const res = await requestGet(`/api/v1/apikey/${organizationId}`);
-  if (res.code == 200) {
-    return res.data;
-  }
-};
 export function useGetAPIKeyList(organizationId: string) {
   return useQuery<ApiKey[]>({
     queryKey: ['getAPIKeyList', organizationId],
@@ -35,33 +13,8 @@ export function useGetAPIKeyList(organizationId: string) {
     refetchOnReconnect: false,
   });
 }
-type CreateAPIKeyVariables = {
-  userKey: string;
-  keyName: string;
-  description: string;
-  organizationId: string;
-};
 
-const createAPIKey = async ({
-  userKey,
-  keyName,
-  description,
-  organizationId,
-}: CreateAPIKeyVariables) => {
-  const res = await requestPost(`/api/v1/apiKey`, {
-    body: {
-      userKey,
-      keyName,
-      description,
-      organizationId,
-    },
-  });
 
-  if (res.code == 200) {
-    return res.data;
-  }
-  return res.data;
-};
 
 export function useCreateAPIKey(options?: UseMutationOptions<any, Error, CreateAPIKeyVariables>) {
   const queryClient = useQueryClient();
@@ -76,26 +29,6 @@ export function useCreateAPIKey(options?: UseMutationOptions<any, Error, CreateA
   });
 }
 
-type ModifyAPIKeyVariables = {
-  keyId: string;
-  keyName: string;
-  description: string;
-};
-
-// API Key 수정
-const modifyAPIKey = async ({ keyId, keyName, description }: ModifyAPIKeyVariables) => {
-  const res = await requestPatch(`/api/v1/apiKey/${keyId}`, {
-    body: {
-      keyName,
-      description,
-    },
-  });
-
-  if (res.code == 200) {
-    return res.data;
-  }
-};
-
 export function useModifyAPIKey(options?: UseMutationOptions<any, Error, ModifyAPIKeyVariables>) {
   const queryClient = useQueryClient();
 
@@ -108,15 +41,6 @@ export function useModifyAPIKey(options?: UseMutationOptions<any, Error, ModifyA
     },
   });
 }
-
-// API Key 삭제
-const deleteAPIKey = async (keyId: string) => {
-  const res = await requestDelete(`/api/v1/apiKey/${keyId}`);
-
-  if (res.code == 200) {
-    return res.data;
-  }
-};
 
 export function useDeleteAPIKey(options?: UseMutationOptions<any, Error, string>) {
   const queryClient = useQueryClient();

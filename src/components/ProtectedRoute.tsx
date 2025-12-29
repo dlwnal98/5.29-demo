@@ -1,7 +1,8 @@
 import { Navigate, Outlet } from 'react-router-dom';
+import { useAuthStore } from '@/store/store';
 
 const ProtectedRoute = () => {
-  const accessToken = sessionStorage.getItem('access_token');
+  const { accessToken } = useAuthStore();
 
   if (!accessToken) {
     return <Navigate to="/" replace />;
