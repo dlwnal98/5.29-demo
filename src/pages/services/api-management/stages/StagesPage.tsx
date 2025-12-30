@@ -1,9 +1,10 @@
-import { AppLayout } from "@/components/layout/AppLayout";
 import StagesPageView from "./StagesPageView";
 import CreateStageDialog from "./components/CreateStageDialog";
 import ModifyStageDialog from "./components/ModifyStageDialog";
 import DeleteStageDialog from "./components/DeleteStageDialog";
 import { useStagesPage } from "./hooks/useStagesPage";
+import { useDeleteStageAction } from "./hooks/useDeleteStageAction";
+
 
 export default function StagesPage() {
   const {
@@ -33,8 +34,15 @@ export default function StagesPage() {
     getResourceKey,
   } = useStagesPage();
 
+  const { handleDeleteStage } = useDeleteStageAction({
+    userKey,
+    selectedStage: selectedWholeStageInfo.resource,
+    onOpenChange: onCloseDeleteDialog,
+  });
+
+
   return (
-    <AppLayout>
+    <>
       <StagesPageView
         resourceTree={resourceTree}
         selectedWholeStageInfo={selectedWholeStageInfo}
@@ -79,7 +87,8 @@ export default function StagesPage() {
           name: selectedWholeStageInfo.resource.name || "",
           stageId: selectedWholeStageInfo.resource.stageId || "",
         }}
+        deleteStage={handleDeleteStage}
       />
-    </AppLayout>
+    </>
   );
 }
