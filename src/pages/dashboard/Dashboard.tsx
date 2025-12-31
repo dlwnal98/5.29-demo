@@ -7,7 +7,7 @@ import ResourceMonitoringSection from './components/ResourceMonitoringSection';
 export default function Dashboard() {
 
     return (
-        <AppLayout>
+        <>
             <div className="bg-transparent">
                 <div className="container mx-auto px-4 py-4 space-y-3.5">
                     {/* Apps Grid */}
@@ -17,7 +17,7 @@ export default function Dashboard() {
                     <ResourceMonitoringSection />
                 </div>
             </div>
-        </AppLayout>
+        </>
 
     );
 }

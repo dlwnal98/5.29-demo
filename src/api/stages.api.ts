@@ -14,12 +14,14 @@ export const getDeployHistoryData = async (organizationId: string, page?: number
     );
     return res;
 };
+
 // 특정 배포 이력 Open API문서 (스냅샷 리소스 트리 조회)
 export const getDeploymentResourceTreeData = async (deploymentId: string) => {
     const res = await requestGet(`/api/v1/deployments/${deploymentId}/snapshot`);
 
     return res;
 };
+
 export interface CreateStageProps {
     organizationId: string;
     stageName: string;
@@ -30,6 +32,7 @@ export interface CreateStageProps {
     apiId: string;
     sourceDeploymentId: string; // draft일 때는 없어도 됨
 }
+
 // 스테이지 생성
 export const createStage = async (data: CreateStageProps) => {
     const res = await requestPost(`/api/v1/stages`, {
@@ -56,6 +59,7 @@ export const modifyStage = async (stageId: string, description: string) => {
 
     return res;
 };
+
 export interface PreviousDeploymentProps {
     stageId: string;
     targetDeploymentId: string;

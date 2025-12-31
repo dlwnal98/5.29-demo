@@ -4,7 +4,6 @@ import AppRoutes from './routes'
 
 export default function App() {
 
-
   return (
     <BrowserRouter future={{
       v7_startTransition: true,

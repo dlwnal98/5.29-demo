@@ -10,7 +10,7 @@ export default function EurekaPage() {
   const [activeTab, setActiveTab] = useState('overview');
 
   return (
-    <AppLayout>
+    <>
       <div className="container mx-auto px-4 py-6 space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Eureka</h1>
@@ -25,6 +25,6 @@ export default function EurekaPage() {
         {/* 서비스 목록 */}
         {activeTab === 'services' && <ServiceList />}
       </div>
-    </AppLayout>
+    </>
   );
 }

@@ -34,8 +34,7 @@ export default function ApiManagementPage() {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <AppLayout>
-        <Toaster position="bottom-center" richColors expand={true} />
+      <>
 
         <ApiManagementPageView
           searchTerm={searchTerm}
@@ -73,7 +72,7 @@ export default function ApiManagementPage() {
           userKey={userKey}
           apiName={selectedApiName}
         />
-      </AppLayout>
+      </>
     </Suspense>
   );
 }

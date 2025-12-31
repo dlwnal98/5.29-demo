@@ -166,7 +166,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <AppLayout>
+    <>
       <div className="min-h-screen">
         <div className="container mx-auto px-6 py-8">
           {/* Header */}
@@ -557,6 +557,6 @@ export default function SettingsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </AppLayout>
+    </>
   )
 }

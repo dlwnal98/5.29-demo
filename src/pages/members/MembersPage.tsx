@@ -223,8 +223,7 @@ export default function UsersPage() {
   };
 
   return (
-    <AppLayout>
-      <Toaster position="bottom-center" richColors expand={true} />
+    <>
       <div className="min-h-screen">
         <div className="space-y-6 container mx-auto px-4 py-6">
           {/* 페이지 헤더 */}
@@ -516,6 +515,6 @@ export default function UsersPage() {
         userKey={deleteAccountUser.userKey}
         organizationId={userData?.organizationId ?? ''}
       />
-    </AppLayout>
+    </>
   );
 }

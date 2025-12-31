@@ -47,7 +47,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
     methodToDelete,
     userKey,
     onOpenChange: setIsMethodDeleteDialogOpen,
-    setSelectedResource: () => {}, // Not needed in this context
+    setSelectedResource: () => { }, // Not needed in this context
     onMethodDeleted: () => {
       setIsMethodDeleteDialogOpen(false);
       setMethodToDelete(null);
@@ -192,7 +192,6 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
 
   return (
     <>
-      <Toaster position="bottom-center" richColors expand={true} />
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         {/* Method Header */}
         <div className="border-b border-gray-200 dark:border-gray-700 p-6">
@@ -273,11 +272,10 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                     {/* Method Request & Response */}
                     <div className="flex flex-col items-center ">
                       <div
-                        className={`bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3 text-center cursor-pointer transition-all mb-2 ${
-                          selectedFlowStep === 'method-request'
+                        className={`bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3 text-center cursor-pointer transition-all mb-2 ${selectedFlowStep === 'method-request'
                             ? 'bg-blue-200 dark:bg-blue-800 '
                             : ''
-                        }`}
+                          }`}
                         onClick={() => handleFlowStepClick('method-request')}>
                         <div className="text-xs font-medium text-blue-700 dark:text-blue-300">
                           메서드 요청
@@ -285,11 +283,10 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                       </div>
 
                       <div
-                        className={`bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3 text-center  cursor-pointer transition-all ${
-                          selectedFlowStep === 'method-response'
+                        className={`bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3 text-center  cursor-pointer transition-all ${selectedFlowStep === 'method-response'
                             ? 'bg-blue-200 dark:bg-blue-800'
                             : ''
-                        }`}
+                          }`}
                         onClick={() => handleFlowStepClick('method-response')}>
                         <div className="text-xs font-medium text-blue-700 dark:text-blue-300">
                           메서드 응답
@@ -358,19 +355,19 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
               {!isEditMode ? (
                 <MethodResponseTab
                   methodResponses={methodResponses}
-                  handleCreateResponse={() => {}}
-                  handleEditResponse={() => {}}
-                  handleDeleteResponse={() => {}}
+                  handleCreateResponse={() => { }}
+                  handleEditResponse={() => { }}
+                  handleDeleteResponse={() => { }}
                   availableModels={[]}
                 />
               ) : (
                 <MethodResponseEdit
                   methodResponses={methodResponses}
-                  handleCreateResponse={() => {}}
-                  handleEditResponse={() => {}}
-                  handleDeleteResponse={() => {}}
-                  handleCancelEdit={() => {}}
-                  handleSaveEdit={() => {}}
+                  handleCreateResponse={() => { }}
+                  handleEditResponse={() => { }}
+                  handleDeleteResponse={() => { }}
+                  handleCancelEdit={() => { }}
+                  handleSaveEdit={() => { }}
                   availableModels={[]}
                 />
               )}

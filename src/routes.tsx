@@ -5,6 +5,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 // Eager load (즉시 로드) - 인증 관련
 import LoginPage from '@/pages/login/LoginPage'
 import AuthCallbackPage from '@/pages/auth-callback/AuthCallbackPage'
+import { AppLayout } from '@/components/layout/AppLayout'
 
 // Lazy load (지연 로드) - 나머지 페이지들
 const SignupPage = lazy(() => import('@/pages/signup/SignupPage'))
@@ -69,51 +70,52 @@ export default function AppRoutes() {
 
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>
-          {/* Dashboard */}
-          {/* <Route path="/dashboard" element={<DashboardPage />} /> */}
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route element={<AppLayout />}>
+            {/* Dashboard */}
+            {/* <Route path="/dashboard" element={<DashboardPage />} /> */}
+            <Route path="/dashboard" element={<Dashboard />} />
 
-          {/* Settings */}
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/settings/account" element={<SettingsAccountPage />} />
+            {/* Settings */}
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/settings/account" element={<SettingsAccountPage />} />
 
-          {/* Infra Packages - Auth */}
-          <Route path="/infra-packages/auth" element={<AuthPage />} />
+            {/* Infra Packages - Auth */}
+            <Route path="/infra-packages/auth" element={<AuthPage />} />
 
-          {/* Infra Packages - Eureka */}
-          <Route path="/infra-packages/eureka" element={<EurekaPage />} />
+            {/* Infra Packages - Eureka */}
+            <Route path="/infra-packages/eureka" element={<EurekaPage />} />
 
-          {/* Infra Packages - Gateway */}
-          <Route path="/infra-packages/gateway" element={<GatewayPage />} />
+            {/* Infra Packages - Gateway */}
+            <Route path="/infra-packages/gateway" element={<GatewayPage />} />
 
-          {/* Infra Packages - Config */}
-          <Route path="/infra-packages/config/secret-key" element={<SecretKeyPage />} />
-          <Route path="/infra-packages/config/projects" element={<ProjectsPage />} />
-          <Route path="/infra-packages/config/projects/create" element={<CreateProjectPage />} />
-          <Route path="/infra-packages/config/projects/edit" element={<EditProjectPage />} />
-          <Route path="/infra-packages/config/projects/view" element={<ViewProjectPage />} />
-          <Route path="/infra-packages/config/projects/upload" element={<UploadProjectPage />} />
-          <Route path="/infra-packages/config/projects/commit" element={<CommitPage />} />
-          <Route path="/infra-packages/config/projects/commits" element={<CommitsPage />} />
+            {/* Infra Packages - Config */}
+            <Route path="/infra-packages/config/secret-key" element={<SecretKeyPage />} />
+            <Route path="/infra-packages/config/projects" element={<ProjectsPage />} />
+            <Route path="/infra-packages/config/projects/create" element={<CreateProjectPage />} />
+            <Route path="/infra-packages/config/projects/edit" element={<EditProjectPage />} />
+            <Route path="/infra-packages/config/projects/view" element={<ViewProjectPage />} />
+            <Route path="/infra-packages/config/projects/upload" element={<UploadProjectPage />} />
+            <Route path="/infra-packages/config/projects/commit" element={<CommitPage />} />
+            <Route path="/infra-packages/config/projects/commits" element={<CommitsPage />} />
 
-          {/* Services - API Management */}
-          <Route path="/services/api-management" element={<ApiManagementPage />} />
-          <Route path="/services/api-management/resources" element={<ResourcesPage />} />
-          <Route path="/services/api-management/resources/methods" element={<MethodsPage />} />
-          <Route path="/services/api-management/stages" element={<StagesPage />} />
-          <Route path="/services/api-management/models" element={<ModelsPage />} />
-          <Route path="/services/api-management/route-endpoints" element={<RouteEndpointsPage />} />
-          <Route path="/services/api-management/api-keys" element={<ApiKeysPage />} />
+            {/* Services - API Management */}
+            <Route path="/services/api-management" element={<ApiManagementPage />} />
+            <Route path="/services/api-management/resources" element={<ResourcesPage />} />
+            <Route path="/services/api-management/resources/methods" element={<MethodsPage />} />
+            <Route path="/services/api-management/stages" element={<StagesPage />} />
+            <Route path="/services/api-management/models" element={<ModelsPage />} />
+            <Route path="/services/api-management/route-endpoints" element={<RouteEndpointsPage />} />
+            <Route path="/services/api-management/api-keys" element={<ApiKeysPage />} />
 
-          {/* Organization */}
-          <Route path="/organization-manage" element={<OrganizationManagePage />} />
+            {/* Organization */}
+            <Route path="/organization-manage" element={<OrganizationManagePage />} />
 
-          {/* Monitoring */}
-          <Route path="/monitoring" element={<MonitoringPage />} />
+            {/* Monitoring */}
+            <Route path="/monitoring" element={<MonitoringPage />} />
 
-          {/* Members */}
-          <Route path="/members" element={<MembersPage />} />
-
+            {/* Members */}
+            <Route path="/members" element={<MembersPage />} />
+          </Route>
         </Route>
 
         {/* 404 - Redirect to login */}

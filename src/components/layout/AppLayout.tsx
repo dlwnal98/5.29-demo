@@ -5,7 +5,7 @@ import { AppHeader } from './AppHeader';
 // import { AppSidebar } from './AppSidebar';
 import { AppSidebar } from './AppSidebar/AppSidebar';
 import { useState, useEffect, Suspense, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -52,6 +52,7 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
               sidebarCollapsed={sidebarCollapsed}
               setSidebarCollapsed={handleSidebarCollapsed}
             />
+            <Outlet />
             {children}
           </main>
         </div>

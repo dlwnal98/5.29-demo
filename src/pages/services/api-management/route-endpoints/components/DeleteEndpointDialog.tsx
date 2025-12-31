@@ -22,7 +22,6 @@ export default function DeleteEndpointDialog({
 
   return (
     <>
-      <Toaster position="bottom-center" richColors expand={true} />
       <DeleteEndpointDialogView
         isOpen={isDeleteModalOpen}
         targetUrl={targetUrl}

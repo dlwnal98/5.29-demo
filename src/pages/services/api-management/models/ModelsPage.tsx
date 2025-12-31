@@ -14,7 +14,7 @@ export default function ModelsPage() {
   const { setIsCreateModalOpen, setIsEditModalOpen, setIsDeleteModalOpen, apiId, userData, selectedModel, models, openCreateModal, openDeleteModal, openEditModal, isCreateModalOpen, isEditModalOpen, isDeleteModalOpen } = useModelsPage();
 
   return (
-    <AppLayout>
+    <>
       <ModelsPageView models={models}
         onOpenEditModal={openEditModal}
         onOpenDeleteModal={openDeleteModal}
@@ -44,6 +44,6 @@ export default function ModelsPage() {
         modelName={selectedModel?.modelName || ''}
         userKey={userData?.userKey || ''}
       />
-    </AppLayout>
+    </>
   );
 }

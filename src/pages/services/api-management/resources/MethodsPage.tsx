@@ -53,8 +53,7 @@ export default function CreateMethodPage() {
 
   return (
     <>
-      <Toaster richColors expand={true} position="bottom-center" />
-      <AppLayout>
+      <>
         <CreateMethodPageView
           resourcePath={resourcePath}
           endpointList={endpointList}
@@ -103,7 +102,7 @@ export default function CreateMethodPage() {
           setApiKeyToggle={setApiKeyToggle}
           organizationId={organizationId}
         />
-      </AppLayout>
+      </>
     </>
   );
 }

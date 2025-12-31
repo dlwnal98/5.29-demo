@@ -31,7 +31,6 @@ export default function CreateEndpointDialog({
 
   return (
     <>
-      <Toaster position="bottom-center" richColors expand={true} />
       <CreateEndpointDialogView
         isOpen={isCreateModalOpen}
         url={url}

@@ -40,8 +40,7 @@ export default function ApiKeysPage() {
   } = useApiKeysPage();
 
   return (
-    <AppLayout>
-      <Toaster position="bottom-center" richColors expand={true} />
+    <>
 
       <ApiKeysPageView
         currentApiKeys={currentApiKeys}
@@ -89,6 +88,6 @@ export default function ApiKeysPage() {
         copyApiKey={copyApiKey}
         onClose={closeCopyModal}
       />
-    </AppLayout>
+    </>
   );
 }

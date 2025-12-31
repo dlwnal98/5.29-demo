@@ -59,7 +59,6 @@ export default function LoginPageView(props: LoginPageViewProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
-      <Toaster position="bottom-center" richColors expand={true} />
 
       <Card className="w-full max-w-md bg-white shadow-[8px_8px_24px_rgba(0,0,0,0.1)] border-0 rounded-2xl">
         <CardHeader className="space-y-6 pb-6">

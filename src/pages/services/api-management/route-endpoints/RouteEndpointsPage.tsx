@@ -24,7 +24,7 @@ export default function RouteEndpointsPage() {
   } = useRouteEndpoints();
 
   return (
-    <AppLayout>
+    <>
       <RouteEndpointsPageView
         searchTerm={searchTerm}
         filteredEndpoints={filteredEndpoints}
@@ -58,6 +58,6 @@ export default function RouteEndpointsPage() {
         targetId={selectedEndpoint.id}
         targetUrl={selectedEndpoint.url}
       />
-    </AppLayout>
+    </>
   );
 }

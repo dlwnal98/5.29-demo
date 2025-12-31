@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ApiKey } from "@/hooks/use-apiKeys";
+import { ApiKey } from "@/api/apiKeys.api";
 
 interface ModifyAPIKeyDialogProps {
   isOpen: boolean;

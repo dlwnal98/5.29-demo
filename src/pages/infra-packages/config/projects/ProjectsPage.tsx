@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 
 export default function Page() {
   return (
-    <AppLayout>
+    <>
       <Suspense fallback={<div>로딩 중...</div>}>
         <div className="container px-4 pt-6">
           <h1 className="text-2xl font-bold text-gray-900">Config</h1>
@@ -12,6 +12,6 @@ export default function Page() {
         </div>
         <FileBrowser />
       </Suspense>
-    </AppLayout>
+    </>
   );
 }

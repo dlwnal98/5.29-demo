@@ -39,7 +39,6 @@ export default function ModifyEndpointDialog({
 
   return (
     <>
-      <Toaster position="bottom-center" richColors expand={true} />
       <ModifyEndpointDialogView
         isOpen={isEditModalOpen}
         url={url}

@@ -222,7 +222,6 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
 
   return (
     <>
-      <Toaster expand={true} position="bottom-center" richColors />
       <div className="space-y-6">
         <div className="flex items-center justify-between px-2">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white">메서드 요청 편집</h3>

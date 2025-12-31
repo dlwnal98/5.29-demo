@@ -54,8 +54,7 @@ export default function ApiResourcesPage() {
   });
 
   return (
-    <AppLayout>
-      <Toaster position="bottom-center" richColors expand={true} />
+    <>
 
       <ResourcesPageView
         leftSidebarRef={leftSidebarRef}
@@ -107,6 +106,6 @@ export default function ApiResourcesPage() {
         onDescriptionChange={deployDialog.onDescriptionChange}
         onDeployModalClose={deployDialog.onDeployModalClose}
       />
-    </AppLayout>
+    </>
   );
 }
