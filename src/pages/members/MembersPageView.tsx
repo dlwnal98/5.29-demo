@@ -32,26 +32,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Toaster } from 'sonner';
 import CommonPagination from '@/components/common-pagination';
-import CreateMemberDialog from './components/CreateMemberDialog';
-import ResetPasswordDialog from './components/ResetPasswordDialog';
-import DeleteMemberDialog from './components/DeleteMemberDialog';
+import StatusBadge from './components/StatusBadge';
 import { UserList, MemberList } from '@/types/member';
-import { SelectMemberInfo } from './hooks/useMembersUIState';
-
-// Status Badge Helper
-function getStatusBadge(active: number) {
-  return active === 1 ? (
-    <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
-      ACTIVE
-    </Badge>
-  ) : (
-    <Badge className="bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200 border-red-200 dark:border-red-700">
-      INACTIVE
-    </Badge>
-  );
-}
 
 export interface MembersPageViewProps {
   // Auth
@@ -77,43 +60,18 @@ export interface MembersPageViewProps {
   // Pagination
   currentPage: number;
   totalPages: number;
-  onPageChange: React.Dispatch<React.SetStateAction<number>>;
+  onPageChange: (page: number) => void;
 
   // Handlers
   onStatusToggle: (userKey: string, active: boolean) => void;
   onAction: (action: string, userKey: string, userId?: string) => void;
 
-  // Add Member Dialog
-  isAddDialogOpen: boolean;
-  setIsAddDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  memberId: string;
-  setMemberId: React.Dispatch<React.SetStateAction<string>>;
-  firstMemberPw: string;
-  idValid: boolean;
-  idValidMsg: string;
-  onValidateUserId: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onAddMember: (organizationId: string, userId: string) => void;
-  onCopyPassword: (password: string) => void;
-  setTempPassword: React.Dispatch<React.SetStateAction<string>>;
 
-  // Reset Password Dialog
-  isResetPasswordModalOpen: boolean;
-  setIsResetPasswordModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  resetPasswordUser: SelectMemberInfo;
-  tempPassword: string;
-  onResetPassword: (userKey: string) => Promise<string | null>;
-
-  // Delete Account Dialog
-  isDeleteAccountModalOpen: boolean;
-  setIsDeleteAccountModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  deleteAccountUser: SelectMemberInfo;
-  onDeleteAccount: (organizationId: string, userKey: string) => void;
 }
 
 export default function MembersPageView(props: MembersPageViewProps) {
   const {
     isSuper,
-    organizationId,
     filteredUsers,
     currentUsers,
     searchTerm,
@@ -129,26 +87,6 @@ export default function MembersPageView(props: MembersPageViewProps) {
     onPageChange,
     onStatusToggle,
     onAction,
-    isAddDialogOpen,
-    setIsAddDialogOpen,
-    memberId,
-    setMemberId,
-    firstMemberPw,
-    idValid,
-    idValidMsg,
-    onValidateUserId,
-    onAddMember,
-    onCopyPassword,
-    setTempPassword,
-    isResetPasswordModalOpen,
-    setIsResetPasswordModalOpen,
-    resetPasswordUser,
-    tempPassword,
-    onResetPassword,
-    isDeleteAccountModalOpen,
-    setIsDeleteAccountModalOpen,
-    deleteAccountUser,
-    onDeleteAccount,
   } = props;
 
   return (
@@ -158,10 +96,10 @@ export default function MembersPageView(props: MembersPageViewProps) {
           {/* 페이지 헤더 */}
           <div className="flex justify-between sm:flex-row gap-4 mt-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 Members ({filteredUsers?.length})
               </h1>
-              <p className="text-gray-600 mt-1">Member들을 관리하세요</p>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">Member들을 관리하세요</p>
             </div>
 
             <div className="flex items-center space-x-2">
@@ -204,12 +142,12 @@ export default function MembersPageView(props: MembersPageViewProps) {
           </div>
 
           {/* 페이지 본문 테이블 */}
-          <Card>
+          <Card className='dark:border-gray-700'>
             <div className="pt-4"></div>
             <CardContent>
               <Table>
-                <TableHeader className="hover:bg-white">
-                  <TableRow className="hover:bg-white">
+                <TableHeader className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
+                  <TableRow className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
                     <TableHead>이름</TableHead>
                     <TableHead>이메일</TableHead>
                     <TableHead>ID</TableHead>
@@ -225,8 +163,8 @@ export default function MembersPageView(props: MembersPageViewProps) {
                       <React.Fragment key={user.userId}>
                         <TableRow
                           className={`transition-colors ${expandedUser === user.userId
-                            ? 'bg-blue-50 hover:bg-blue-50 border-l-4 border-b-0 border-blue-500'
-                            : 'hover:bg-blue-50'
+                            ? 'bg-blue-50 hover:bg-blue-50 dark:bg-gray-700 dark:hover:bg-gray-700 border-l-4 border-b-0 border-blue-500'
+                            : 'hover:bg-blue-50 dark:hover:bg-gray-700'
                             }`}
                           onClick={() => onRowClick(user.userId)}
                           style={{ cursor: 'pointer' }}>
@@ -237,7 +175,7 @@ export default function MembersPageView(props: MembersPageViewProps) {
                                 {user?.fullName === null ? '' : user?.fullName?.slice(0, 1)}
                               </AvatarFallback>
                             </Avatar>
-                            <span className="font-medium text-blue-600">
+                            <span className="font-medium text-blue-600 dark:text-blue-500">
                               {user?.fullName === null ? '없음' : user.fullName}
                             </span>
                           </TableCell>
@@ -246,11 +184,11 @@ export default function MembersPageView(props: MembersPageViewProps) {
                           </TableCell>
                           <TableCell>{user.userId}</TableCell>
                           <TableCell>
-                            <Badge variant={'outline'} className="bg-white">
+                            <Badge variant={'outline'} className="bg-white dark:!bg-transparent">
                               {user.role}
                             </Badge>
                           </TableCell>
-                          <TableCell>{getStatusBadge(user?.enabled)}</TableCell>
+                          <TableCell><StatusBadge active={user?.enabled} /></TableCell>
                           <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                           <TableCell>
                             <Button
@@ -337,7 +275,7 @@ export default function MembersPageView(props: MembersPageViewProps) {
                                             e.stopPropagation();
                                             onAction('resetPassword', user?.userKey, user?.userId);
                                           }}
-                                          className="border rounded-2 text-blue-700 hover:text-blue-700 hover:bg-blue-50 border-blue-300">
+                                          className="border rounded-2 text-blue-700 hover:text-blue-700 hover:bg-blue-50 border-blue-300 dark:text-blue-400 dark:hover:text-blue-400 dark:hover:bg-gray-700 dark:border-gray-600">
                                           <RotateCcw className="h-4 w-4" />
                                           임시 비밀번호 발급
                                         </Button>
@@ -353,7 +291,7 @@ export default function MembersPageView(props: MembersPageViewProps) {
                                                 user?.userId
                                               );
                                             }}
-                                            className="border border-red-300 rounded-2 text-red-600 hover:text-red-600 hover:bg-red-50">
+                                            className="border border-red-300 rounded-2 text-red-600 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-400 dark:hover:bg-red-900/20 dark:border-red-800">
                                             <Trash2 className="h-4 w-4" />
                                             멤버 제외
                                           </Button>
@@ -370,7 +308,7 @@ export default function MembersPageView(props: MembersPageViewProps) {
                     ))
                     : Array.from({ length: 1 }).map((_, index) => (
                       <TableRow key={index}>
-                        <TableCell className="w-12 text-center !py-8 text-gray-500" colSpan={7}>
+                        <TableCell className="w-12 text-center !py-8 text-gray-500 dark:text-gray-400" colSpan={7}>
                           현재 조직 내에 멤버가 존재하지 않습니다.
                         </TableCell>
                       </TableRow>
@@ -392,42 +330,6 @@ export default function MembersPageView(props: MembersPageViewProps) {
         </div>
       </div>
 
-      {/* 멤버 생성 모달 */}
-      <CreateMemberDialog
-        isAddDialogOpen={isAddDialogOpen}
-        setIsAddDialogOpen={setIsAddDialogOpen}
-        firstMemberPw={firstMemberPw}
-        memberId={memberId}
-        organizationId={organizationId}
-        idValidMsg={idValidMsg}
-        idValid={idValid}
-        setMemberId={setMemberId}
-        setTempPassword={setTempPassword}
-        validateUserId={onValidateUserId}
-        handleAddMember={onAddMember}
-        handleCopyPassword={onCopyPassword}
-      />
-
-      {/* 임시 비밀번호 발급 모달 */}
-      <ResetPasswordDialog
-        isResetPasswordModalOpen={isResetPasswordModalOpen}
-        setIsResetPasswordModalOpen={setIsResetPasswordModalOpen}
-        tempPassword={tempPassword}
-        userId={resetPasswordUser.userId}
-        userKey={resetPasswordUser.userKey}
-        handleResetPassword={onResetPassword}
-        handleCopyPassword={onCopyPassword}
-      />
-
-      {/* 멤버 삭제 모달 */}
-      <DeleteMemberDialog
-        isDeleteAccountModalOpen={isDeleteAccountModalOpen}
-        setIsDeleteAccountModalOpen={setIsDeleteAccountModalOpen}
-        handleDeleteAccount={onDeleteAccount}
-        userId={deleteAccountUser.userId}
-        userKey={deleteAccountUser.userKey}
-        organizationId={organizationId}
-      />
     </>
   );
 }

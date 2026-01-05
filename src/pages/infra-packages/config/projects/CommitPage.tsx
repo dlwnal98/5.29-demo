@@ -21,7 +21,7 @@ export default function CommitPage() {
   } = useCommitPage();
 
   return (
-    <AppLayout projectSlug="config">
+    <>
       <CommitPageView
         branch={branch}
         breadcrumbItems={breadcrumbItems}
@@ -41,6 +41,6 @@ export default function CommitPage() {
         commitHash={selectSha || ""}
         commitMessage={commitDetailData?.commit?.message || ""}
       />
-    </AppLayout>
+    </>
   );
 }

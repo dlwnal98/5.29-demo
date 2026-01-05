@@ -40,7 +40,7 @@ export default function ServiceCardView({
   return (
     <>
       {servicesData?.map((service: EurekaServices) => (
-        <Card key={service.serviceName} className="hover:shadow-lg transition-shadow">
+        <Card key={service.serviceName} className="hover:shadow-lg transition-shadow border-gray-200 dark:border-gray-600/50 dark:bg-gray-800/70">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">{service.serviceName}</CardTitle>
           </CardHeader>
@@ -63,12 +63,11 @@ export default function ServiceCardView({
                   >
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-2 h-2 rounded-full ${
-                          instance.status === "UP" ? "bg-green-500" : "bg-red-500"
-                        } animate-pulse`}
+                        className={`w-2 h-2 rounded-full ${instance.status === "UP" ? "bg-green-500" : "bg-red-500"
+                          } animate-pulse`}
                       />
                       <div>
-                        <div className="text-sm font-medium">{instance.instanceId}</div>
+                        <div className="text-sm font-medium w-[95%] break-all">{instance.instanceId}</div>
                         <div className="text-xs text-gray-500">
                           {instance.ip}:{instance.port} • v
                           {matchedVersion === "unknown"

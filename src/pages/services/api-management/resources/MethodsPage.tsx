@@ -1,7 +1,7 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Toaster } from "sonner";
 import CreateMethodPageView from "./CreateMethodPageView";
-import { SelectAPIKeyModal } from "./components/SelectAPIKeyModal";
+import { SelectAPIKeyModal } from "./methods/components/SelectAPIKeyModal";
 import { useCreateMethodPage } from "./hooks/useCreateMethodPage";
 
 export default function CreateMethodPage() {

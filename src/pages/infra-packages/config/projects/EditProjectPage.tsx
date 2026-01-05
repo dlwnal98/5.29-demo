@@ -22,7 +22,7 @@ export default function EditProjectPage() {
   } = useEditProjectPage();
 
   return (
-    <AppLayout projectSlug="config">
+    <>
       <EditProjectPageView
         branch={branch}
         sidebarOpen={sidebarOpen}
@@ -40,6 +40,6 @@ export default function EditProjectPage() {
         onBack={handleBack}
         onModifyFile={modifyFile}
       />
-    </AppLayout>
+    </>
   );
 }

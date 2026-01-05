@@ -48,7 +48,7 @@ function TableSkeleton() {
       {Array.from({ length: 5 }).map((_, index) => (
         <TableRow
           key={index}
-          className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
+          className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:bg-gradient-to-r dark:from-gray-700 dark:to-gray-600 transition-all duration-200"
         >
           <TableCell>
             <div className="flex items-center">
@@ -88,7 +88,7 @@ export default function CommitsPageView({
             <Button
               variant="outline"
               onClick={onBack}
-              className="border-blue-200 hover:bg-blue-50"
+              className="border-blue-200 hover:bg-blue-50 dark:border-gray-600 dark:hover:bg-gray-700"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
@@ -117,7 +117,7 @@ export default function CommitsPageView({
           </div>
 
           <div className="flex items-center space-x-2">
-            <Badge variant="outline" className="border-blue-200 text-blue-700">
+            <Badge variant="outline" className="border-blue-200 text-blue-700 dark:border-gray-700 dark:text-blue-500">
               <GitBranch className="h-3 w-3 mr-1" />
               {branch}
             </Badge>
@@ -127,8 +127,8 @@ export default function CommitsPageView({
         {/* Commit History */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">Commit History</h1>
-            <p className="text-sm text-gray-500">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Commit History</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {isLoading ? (
                 <Skeleton className="h-4 w-16" />
               ) : (
@@ -137,18 +137,18 @@ export default function CommitsPageView({
             </p>
           </div>
 
-          <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm">
+          <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm dark:border-gray-600/50 dark:bg-gray-800/70">
             <Table>
               <TableHeader>
-                <TableRow className="border-b border-blue-100">
-                  <TableHead className="w-[150px] text-blue-700 font-semibold">
+                <TableRow className="border-b border-blue-100 dark:border-gray-700">
+                  <TableHead className="w-[150px] text-blue-700 dark:text-blue-400 font-semibold">
                     Name
                   </TableHead>
-                  <TableHead className="w-[100px] text-blue-700 font-semibold">
+                  <TableHead className="w-[100px] text-blue-700 dark:text-blue-400 font-semibold">
                     Commit
                   </TableHead>
-                  <TableHead className="text-blue-700 font-semibold">Message</TableHead>
-                  <TableHead className="w-[120px] text-blue-700 font-semibold text-right">
+                  <TableHead className="text-blue-700 dark:text-blue-400 font-semibold">Message</TableHead>
+                  <TableHead className="w-[120px] text-blue-700 dark:text-blue-400 font-semibold text-right">
                     Date
                   </TableHead>
                 </TableRow>
@@ -161,7 +161,7 @@ export default function CommitsPageView({
                     {commitListData.map((commit) => (
                       <TableRow
                         key={commit.sha}
-                        className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
+                        className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-gray-700 dark:hover:to-gray-600 transition-all duration-200"
                       >
                         <TableCell className="flex items-center">
                           <Avatar className="h-7 w-7 flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs font-bold">
@@ -172,7 +172,7 @@ export default function CommitsPageView({
                           </span>
                         </TableCell>
                         <TableCell>
-                          <code className="flex items-center space-x-2 text-xs font-mono bg-gray-100 px-2 py-1 rounded">
+                          <code className="flex items-center space-x-2 text-xs font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
                             <GitCommit className="h-3 w-3 text-gray-400" />
                             {commit.sha.slice(0, 6)}
                           </code>
@@ -186,7 +186,7 @@ export default function CommitsPageView({
                           </button>
                         </TableCell>
                         <TableCell className="text-right">
-                          <span className="text-sm text-gray-500 text-right">
+                          <span className="text-sm text-gray-500 dark:text-gray-400 text-right">
                             {formatTimeAgo(commit.commitTime as string)}
                           </span>
                         </TableCell>
@@ -194,8 +194,8 @@ export default function CommitsPageView({
                     ))}
                   </>
                 ) : (
-                  <TableRow className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200">
-                    <TableCell colSpan={4} className="text-center py-8 text-gray-500">
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-8 text-gray-500 dark:text-gray-400">
                       커밋 이력이 없습니다.
                     </TableCell>
                   </TableRow>

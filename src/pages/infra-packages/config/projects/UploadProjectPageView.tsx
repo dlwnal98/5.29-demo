@@ -90,9 +90,9 @@ export default function UploadProjectPageView({
       <div className="flex h-[calc(100vh-4rem)]">
         {/* Left Sidebar - File Structure */}
         {sidebarOpen && (
-          <div className="w-60 border-r border-blue-200/50 bg-white/70 backdrop-blur-sm">
-            <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
-              <h3 className="font-semibold text-blue-900 flex items-center">
+          <div className="w-60 border-r border-blue-200/50 bg-white/70 backdrop-blur-sm dark:border-gray-600/50 dark:bg-gray-800/70">
+            <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:border-gray-700 dark:from-gray-700/50 dark:to-gray-600/50">
+              <h3 className="font-semibold text-blue-900 dark:text-blue-400 flex items-center">
                 <Folder className="h-4 w-4 mr-2" />
                 File Structure
               </h3>
@@ -102,9 +102,8 @@ export default function UploadProjectPageView({
                 {fileStructure.map((item, index) => (
                   <div
                     key={index}
-                    className={`flex items-center space-x-2 p-2 rounded cursor-pointer hover:bg-blue-50 ${
-                      selectedStructureItem === item.name ? "bg-blue-100" : ""
-                    }`}
+                    className={`flex items-center space-x-2 p-2 rounded cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 ${selectedStructureItem === item.name ? "bg-blue-100 dark:bg-gray-700" : ""
+                      }`}
                     style={{ paddingLeft: `${item.level * 16 + 8}px` }}
                     onClick={() => onStructureItemSelect(item.name)}
                   >
@@ -132,14 +131,14 @@ export default function UploadProjectPageView({
                     variant="outline"
                     size="sm"
                     onClick={onToggleSidebar}
-                    className="border-blue-200 hover:bg-blue-50"
+                    className="border-blue-200 hover:bg-blue-50 dark:border-gray-600 dark:hover:bg-gray-700"
                   >
                     <Menu className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="outline"
                     onClick={onBack}
-                    className="border-blue-200 hover:bg-blue-50"
+                    className="border-blue-200 hover:bg-blue-50 dark:border-gray-600 dark:hover:bg-gray-700"
                   >
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back
@@ -170,7 +169,7 @@ export default function UploadProjectPageView({
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <Badge variant="outline" className="border-blue-200 text-blue-700">
+                  <Badge variant="outline" className="border-blue-200 text-blue-700 dark:border-gray-700 dark:text-blue-500">
                     <GitBranch className="h-3 w-3 mr-1" />
                     {branch}
                   </Badge>
@@ -178,25 +177,24 @@ export default function UploadProjectPageView({
               </div>
 
               {/* Upload Area */}
-              <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm mb-6">
+              <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm dark:border-gray-600/50 dark:bg-gray-800/70 mb-6">
                 <div className="p-5">
                   {/* Drag & Drop Area */}
                   {uploadedFiles.length === 0 && (
                     <div
-                      className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                        isDragOver
-                          ? "border-blue-400 bg-blue-50"
-                          : "border-gray-300 hover:border-blue-400 hover:bg-blue-50"
-                      }`}
+                      className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${isDragOver
+                          ? "border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-gray-700"
+                          : "border-gray-300 hover:border-blue-400 hover:bg-blue-50 dark:border-gray-600 dark:hover:border-blue-500 dark:hover:bg-gray-700"
+                        }`}
                       onDrop={onDrop}
                       onDragOver={onDragOver}
                       onDragLeave={onDragLeave}
                     >
                       <Upload className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                      <p className="text-lg font-medium text-gray-700 mb-2">
+                      <p className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Drag and drop files here
                       </p>
-                      <p className="text-sm text-gray-500 mb-4">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                         or click to select files
                       </p>
                       <Button
@@ -224,13 +222,13 @@ export default function UploadProjectPageView({
                           return (
                             <div
                               key={index}
-                              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                              className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
                             >
                               <div className="flex items-center space-x-3">
                                 {getFileIcon(extension ?? "")}
                                 <div>
                                   <p className="font-medium text-sm">{file.name}</p>
-                                  <p className="text-xs text-gray-500">
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
                                     {formatFileSize(file.size)}
                                   </p>
                                 </div>
@@ -253,9 +251,9 @@ export default function UploadProjectPageView({
               </div>
 
               {/* Commit Section */}
-              <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm">
-                <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
-                  <h2 className="font-medium text-blue-900 flex items-center">
+              <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm dark:border-gray-600/50 dark:bg-gray-800/70">
+                <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:border-gray-700 dark:from-gray-700/50 dark:to-gray-600/50">
+                  <h2 className="font-medium text-blue-900 dark:text-blue-400 flex items-center">
                     <GitCommit className="h-4 w-4 mr-2" />
                     Commit Files
                   </h2>

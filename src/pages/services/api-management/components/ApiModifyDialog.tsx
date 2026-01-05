@@ -70,7 +70,7 @@ const ApiModifyDialog = ({
                 <div className="space-y-6 py-4">
                     {/* API Name */}
                     <div>
-                        <Label htmlFor="api-name" className="text-sm font-medium text-gray-700 mb-2 block">
+                        <Label htmlFor="api-name" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                             API 이름 <span className="text-red-500">*</span>
                         </Label>
                         <Input
@@ -83,7 +83,7 @@ const ApiModifyDialog = ({
                     </div>
                     {/* Description */}
                     <div>
-                        <Label htmlFor="description" className="text-sm font-medium text-gray-700 mb-2 block">
+                        <Label htmlFor="description" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                             설명
                         </Label>
                         <Textarea
@@ -94,7 +94,7 @@ const ApiModifyDialog = ({
                             className="w-full min-h-[100px] resize-none"
                             maxLength={300}
                         />
-                        <div className="text-right text-sm text-gray-500 mt-1">
+                        <div className="text-right text-sm text-gray-500 dark:text-gray-400 mt-1">
                             {form.description.length}/300 자
                         </div>
                     </div>

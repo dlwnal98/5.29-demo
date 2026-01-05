@@ -133,9 +133,9 @@ export default function ViewProjectPageView({
       <div className="flex h-full">
         {/* Left Sidebar - File Structure */}
         {sidebarOpen && (
-          <div className="w-60 border-r border-blue-200/50 bg-white/70 backdrop-blur-sm">
-            <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
-              <h3 className="font-semibold text-blue-900 flex items-center">
+          <div className="w-60 border-r border-blue-200/50 bg-white/70 backdrop-blur-sm dark:border-gray-600/50 dark:bg-gray-800/70">
+            <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:border-gray-700 dark:from-gray-700/50 dark:to-gray-600/50">
+              <h3 className="font-semibold text-blue-900 dark:text-blue-400 flex items-center">
                 <Folder className="h-4 w-4 mr-2" />
                 File Structure
               </h3>
@@ -145,9 +145,8 @@ export default function ViewProjectPageView({
                 {fileStructure.map((item, index) => (
                   <div
                     key={index}
-                    className={`flex items-center space-x-2 p-2 rounded cursor-pointer hover:bg-blue-50 ${
-                      selectedStructureItem === item.name ? "bg-blue-100" : ""
-                    }`}
+                    className={`flex items-center space-x-2 p-2 rounded cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 ${selectedStructureItem === item.name ? "bg-blue-100 dark:bg-gray-700" : ""
+                      }`}
                     style={{ paddingLeft: `${item.level * 16 + 8}px` }}
                     onClick={() => onStructureItemSelect(item.name)}
                   >
@@ -175,14 +174,14 @@ export default function ViewProjectPageView({
                     variant="outline"
                     size="sm"
                     onClick={onToggleSidebar}
-                    className="border-blue-200 hover:bg-blue-50"
+                    className="border-blue-200 hover:bg-blue-50 dark:border-gray-600 dark:hover:bg-gray-700"
                   >
                     <Menu className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="outline"
                     onClick={onBack}
-                    className="border-blue-200 hover:bg-blue-50"
+                    className="border-blue-200 hover:bg-blue-50 dark:border-gray-600 dark:hover:bg-gray-700"
                   >
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back
@@ -213,7 +212,7 @@ export default function ViewProjectPageView({
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <Badge variant="outline" className="border-blue-200 text-blue-700">
+                  <Badge variant="outline" className="border-blue-200 text-blue-700 dark:border-gray-700 dark:text-blue-500">
                     <GitBranch className="h-3 w-3 mr-1" />
                     {branch}
                   </Badge>
@@ -221,8 +220,8 @@ export default function ViewProjectPageView({
               </div>
 
               {/* File Content */}
-              <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm">
-                <div className="flex items-center justify-between p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
+              <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm dark:border-gray-600/50 dark:bg-gray-800/70">
+                <div className="flex items-center justify-between p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:border-gray-700 dark:from-gray-700/50 dark:to-gray-600/50">
                   {isFileDetailLoading ? (
                     <>
                       <div className="flex items-center">
@@ -237,7 +236,7 @@ export default function ViewProjectPageView({
                     </>
                   ) : (
                     <>
-                      <h2 className="text-lg font-semibold text-blue-900 flex items-center">
+                      <h2 className="text-lg font-semibold text-blue-900 dark:text-blue-400 flex items-center">
                         <Eye className="h-5 w-5 mr-2" />
                         {fileName}
                       </h2>
@@ -246,7 +245,7 @@ export default function ViewProjectPageView({
                           variant="outline"
                           size="sm"
                           onClick={onCommitHistory}
-                          className="border-blue-200 hover:bg-blue-50"
+                          className="border-blue-200 hover:bg-blue-50 dark:border-gray-600 dark:hover:bg-gray-700"
                         >
                           <History className="h-4 w-4" />
                         </Button>

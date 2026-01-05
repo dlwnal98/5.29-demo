@@ -13,7 +13,7 @@ export default function CommitsPage() {
   } = useCommitsPage();
 
   return (
-    <AppLayout projectSlug="config">
+    <>
       <CommitsPageView
         branch={branch}
         breadcrumbItems={breadcrumbItems}
@@ -22,6 +22,6 @@ export default function CommitsPage() {
         onBack={handleBack}
         onCommitClick={handleCommitClick}
       />
-    </AppLayout>
+    </>
   );
 }

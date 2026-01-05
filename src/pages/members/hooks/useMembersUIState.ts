@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { userIdRegex } from '@/lib/etc';
+import { SelectMemberInfo } from '../types';
 
-export interface SelectMemberInfo {
-  userId: string;
-  userKey: string;
-}
+export type { SelectMemberInfo };
 
 export interface UseMembersUIStateReturn {
   // Search & Filter

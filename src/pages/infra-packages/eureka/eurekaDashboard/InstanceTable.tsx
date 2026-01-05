@@ -4,7 +4,7 @@ import { Server } from "lucide-react";
 
 export default function InstanceTable({ data }: any) {
   return (
-    <Card className="border-blue-200/50 bg-white/70 backdrop-blur-sm dark:bg-[#303C9D1F]">
+    <Card className="border-blue-200/50 bg-white/70 backdrop-blur-sm dark:border-gray-600/50 dark:bg-gray-800/70">
       <CardContent className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -29,7 +29,7 @@ export default function InstanceTable({ data }: any) {
             {data?.recent?.map((instance: any, index: number) => (
               <div
                 key={instance.instanceId}
-                className="grid grid-cols-12 gap-3 px-3 py-3 text-sm hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors border-b border-gray-100 dark:border-gray-800 last:border-b-0"
+                className="grid grid-cols-12 gap-3 px-3 py-3 text-sm transition-colors border-b border-gray-100 dark:border-gray-800 last:border-b-0"
               >
                 <div className="col-span-4 flex items-center space-x-2">
                   <span className="font-medium text-gray-900 dark:text-white truncate">
@@ -46,13 +46,12 @@ export default function InstanceTable({ data }: any) {
                 <div className="col-span-1 flex items-center">
                   <Badge
                     variant="outline"
-                    className={`text-xs ${
-                      instance.status === "UP"
+                    className={`text-xs ${instance.status === "UP"
                         ? "text-green-700 bg-green-50 border-green-200 dark:text-green-100 dark:bg-green-900/30 dark:border-green-800"
                         : instance.status === "DOWN"
-                        ? "text-red-700 bg-red-50 border-red-200 dark:text-red-100 dark:bg-red-900/30 dark:border-red-800"
-                        : "text-yellow-700 bg-yellow-50 border-yellow-200 dark:text-yellow-100 dark:bg-yellow-900/30 dark:border-yellow-800"
-                    }`}
+                          ? "text-red-700 bg-red-50 border-red-200 dark:text-red-100 dark:bg-red-900/30 dark:border-red-800"
+                          : "text-yellow-700 bg-yellow-50 border-yellow-200 dark:text-yellow-100 dark:bg-yellow-900/30 dark:border-yellow-800"
+                      }`}
                   >
                     {instance.status}
                   </Badge>

@@ -6,7 +6,6 @@ export function SidebarNav({ sidebarCollapsed }: any) {
 
     const navItems = getNavItems();
     const userInfo = useAuthStore((state) => state.user);
-    console.log(userInfo?.role)
 
     return (
         <nav className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-none">

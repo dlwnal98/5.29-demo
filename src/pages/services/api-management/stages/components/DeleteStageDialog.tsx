@@ -39,12 +39,12 @@ export default function DeleteStageDialog({
                             <AlertTriangle className="h-5 w-5" />
                             스테이지 삭제 확인
                         </AlertDialogTitle>
-                        <AlertDialogDescription className="text-gray-600">
+                        <AlertDialogDescription className="text-gray-600 dark:text-gray-300">
                             <div className="space-y-2">
                                 <p className="font-semibold">⚠️ 경고: 이 작업은 되돌릴 수 없습니다!</p>
                                 <p>
                                     스테이지{' '}
-                                    <span className="font-mono bg-gray-100 px-2 py-1 rounded">
+                                    <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
                                         {selectedStage.name}
                                     </span>
                                     을(를) 삭제하시겠습니까?

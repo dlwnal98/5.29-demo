@@ -55,7 +55,7 @@ function StatusBadge({ status }: { status: string }) {
 
 function StatusInfoCard({ instanceData }: { instanceData: EurekaInstance }) {
   return (
-    <Card className="p-4">
+    <Card className="p-4 dark:bg-gray-800/70 dark:border-gray-600/50">
       <div className="flex items-center gap-2 mb-4">
         <Activity className="w-4 h-4 text-blue-500" />
         <span className="font-medium">상태 정보</span>
@@ -98,7 +98,7 @@ function StatusInfoCard({ instanceData }: { instanceData: EurekaInstance }) {
 
 function NetworkInfoCard({ instanceData }: { instanceData: EurekaInstance }) {
   return (
-    <Card className="p-4">
+    <Card className="p-4 dark:bg-gray-800/70 dark:border-gray-600/50">
       <div className="flex items-center gap-2 mb-4">
         <Network className="w-4 h-4 text-green-500" />
         <span className="font-medium">네트워크 정보</span>
@@ -145,7 +145,7 @@ function NetworkInfoCard({ instanceData }: { instanceData: EurekaInstance }) {
 
 function UrlsCard({ instanceData }: { instanceData: EurekaInstance }) {
   return (
-    <Card className="p-4">
+    <Card className="p-4 dark:bg-gray-800/70 dark:border-gray-600/50">
       <div className="flex items-center gap-2 mb-4">
         <Globe className="w-4 h-4 text-blue-500" />
         <span className="font-medium">주요 진입 지점 URL</span>
@@ -190,7 +190,7 @@ function UrlsCard({ instanceData }: { instanceData: EurekaInstance }) {
 
 function MetadataCard({ instanceData }: { instanceData: EurekaInstance }) {
   return (
-    <Card className="p-4">
+    <Card className="p-4 dark:bg-gray-800/70 dark:border-gray-600/50">
       <div className="flex items-center gap-2 mb-4">
         <Shield className="w-4 h-4 text-orange-500" />
         <span className="font-medium">메타데이터</span>
@@ -226,7 +226,7 @@ function OtherInstancesCard({
   );
 
   return (
-    <Card className="p-4">
+    <Card className="p-4 dark:bg-gray-800/70 dark:border-gray-600/50">
       <div className="flex items-center gap-2 mb-4">
         <Server className="w-4 h-4 text-blue-500" />
         <span className="font-medium">다른 인스턴스 목록</span>

@@ -38,25 +38,25 @@ export function AppLayout({ children, projectSlug }: AppLayoutProps) {
 
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="flex">
-          <AppSidebar
+    // <Suspense fallback={<div>Loading...</div>}>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="flex">
+        <AppSidebar
+          sidebarCollapsed={sidebarCollapsed}
+          setSidebarCollapsed={handleSidebarCollapsed}
+          projectSlug={projectSlug}
+        />
+        <main
+          className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-[250px]'}`}>
+          <AppHeader
             sidebarCollapsed={sidebarCollapsed}
             setSidebarCollapsed={handleSidebarCollapsed}
-            projectSlug={projectSlug}
           />
-          <main
-            className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-[250px]'}`}>
-            <AppHeader
-              sidebarCollapsed={sidebarCollapsed}
-              setSidebarCollapsed={handleSidebarCollapsed}
-            />
-            <Outlet />
-            {children}
-          </main>
-        </div>
+          <Outlet />
+          {children}
+        </main>
       </div>
-    </Suspense>
+    </div>
+    // </Suspense>
   );
 }

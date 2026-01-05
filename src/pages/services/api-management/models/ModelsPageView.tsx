@@ -76,12 +76,12 @@ export default function ModelsPageView({
             </div>
 
             {/* Models Table */}
-            <Card>
+            <Card className="dark:border-gray-700">
                 <div className="pt-4"></div>
                 <CardContent>
                     <Table>
-                        <TableHeader className="hover:bg-white dark:hover:bg-gray-800">
-                            <TableRow className="hover:bg-white dark:hover:bg-gray-800">
+                        <TableHeader className="hover:bg-white dark:hover:bg-gray-800 dark:border-gray-700">
+                            <TableRow className="hover:bg-white dark:hover:bg-gray-800 dark:border-gray-700">
                                 <TableHead className="text-center w-[10%]">ID</TableHead>
                                 <TableHead>이름</TableHead>
                                 <TableHead>설명</TableHead>
@@ -137,7 +137,7 @@ export default function ModelsPageView({
                                 <TableRow>
                                     <TableCell
                                         colSpan={4}
-                                        className="text-center py-8 text-gray-500"
+                                        className="text-center py-8 text-gray-500 dark:text-gray-400"
                                     >
                                         검색 결과가 없습니다.
                                     </TableCell>

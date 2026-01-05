@@ -19,7 +19,7 @@ function sortByTypeAndName(data: any[]) {
 }
 
 export function useFileBrowser() {
-  const [currentParams] = useSearchParams();
+  const [currentParams, setCurrentParams] = useSearchParams();
 
   const [currentBranch, setCurrentBranch] = useState(
     currentParams.get("branch") ?? "main"
@@ -86,9 +86,11 @@ export function useFileBrowser() {
 
   const handleBranchChange = (branchName: string) => {
     setCurrentBranch(branchName);
-    const params = new URLSearchParams();
-    params.set("branch", branchName);
-    window.location.search = params.toString();
+    setCurrentParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.set("branch", branchName);
+      return params;
+    });
   };
 
   const openBranchModal = () => setIsBranchModalOpen(true);

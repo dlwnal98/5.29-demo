@@ -43,7 +43,7 @@ export default function CreateEndpointDialogView({
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="create-url" className="text-sm font-medium">
+            <Label htmlFor="create-url" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Endpoint URL <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -60,7 +60,7 @@ export default function CreateEndpointDialogView({
             )}
           </div>
           <div>
-            <Label htmlFor="create-description" className="text-sm font-medium">
+            <Label htmlFor="create-description" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               설명
             </Label>
             <Textarea

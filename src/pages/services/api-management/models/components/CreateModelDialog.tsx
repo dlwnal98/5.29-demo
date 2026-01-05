@@ -65,7 +65,7 @@ export default function CreateModelDialog({
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="modelName" className="text-sm font-medium">
+            <Label htmlFor="modelName" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               모델 이름 <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -77,7 +77,7 @@ export default function CreateModelDialog({
             />
           </div>
           <div>
-            <Label htmlFor="description" className="text-sm font-medium">
+            <Label htmlFor="description" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               설명
             </Label>
             <Textarea

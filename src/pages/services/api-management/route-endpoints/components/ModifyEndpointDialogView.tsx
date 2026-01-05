@@ -41,7 +41,7 @@ export default function ModifyEndpointDialogView({
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="edit-url" className="text-sm font-medium">
+            <Label htmlFor="edit-url" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Endpoint URL <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -58,7 +58,7 @@ export default function ModifyEndpointDialogView({
             )}
           </div>
           <div>
-            <Label htmlFor="edit-description" className="text-sm font-medium">
+            <Label htmlFor="edit-description" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               설명
             </Label>
             <Textarea

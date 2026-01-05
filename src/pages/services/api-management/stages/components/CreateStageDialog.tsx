@@ -100,7 +100,7 @@ export default function CreateStageDialog({
                             />
                         </div>
                         <div>
-                            <Label className="text-sm text-gray-600 block">
+                            <Label className="text-sm text-gray-600 dark:text-gray-300 block">
                                 배포 기록 선택 <span className="text-red-500">*</span>
                             </Label>
 

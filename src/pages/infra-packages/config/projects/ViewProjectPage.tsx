@@ -26,7 +26,7 @@ export default function ViewProjectPage() {
   } = useViewProjectPage();
 
   return (
-    <AppLayout projectSlug="config">
+    <>
       <ViewProjectPageView
         branch={branch}
         fileName={fileName}
@@ -50,6 +50,6 @@ export default function ViewProjectPage() {
         fileName={fileName}
         fileData={fileData}
       />
-    </AppLayout>
+    </>
   );
 }

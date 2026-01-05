@@ -195,6 +195,7 @@ export function useResourcesPage() {
     }
   }, [resources, createdResourceId, selectedResource, findInTree]);
 
+
   // Handlers
   const handleNavigateBack = useCallback(() => {
     navigate("/services/api-management");
@@ -203,6 +204,7 @@ export function useResourcesPage() {
   const handleResourceClick = useCallback((res: Resource) => {
     setSelectedResource(res);
     setSelectedMethod(null);
+    setSelectedMethodId("");
   }, []);
 
   const handleMethodClick = useCallback(

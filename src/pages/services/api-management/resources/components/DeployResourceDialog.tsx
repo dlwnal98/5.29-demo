@@ -56,7 +56,7 @@ export default function DeployResourceDialog({
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="deploy-stage" className="text-sm font-medium">
+            <Label htmlFor="deploy-stage" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               배포 할 스테이지 <span className="text-red-500">*</span>
             </Label>
             <Select
@@ -82,13 +82,13 @@ export default function DeployResourceDialog({
 
           {/* 새 스테이지 생성 필드들 */}
           {deploymentData.stage === 'new' && (
-            <div className="space-y-4 p-4 bg-gray-50 rounded-lg border">
+            <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border dark:border-gray-700">
               <div className="flex items-center gap-2 mb-2">
                 <Plus className="h-4 w-4 text-orange-500" />
-                <Label className="text-sm font-medium text-gray-700">새 스테이지 정보</Label>
+                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">새 스테이지 정보</Label>
               </div>
               <div>
-                <Label htmlFor="new-stage-name" className="text-sm font-medium">
+                <Label htmlFor="new-stage-name" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   스테이지 이름 <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -103,7 +103,7 @@ export default function DeployResourceDialog({
           )}
 
           <div>
-            <Label htmlFor="deploy-description" className="text-sm font-medium">
+            <Label htmlFor="deploy-description" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               배포 설명
             </Label>
             <Textarea

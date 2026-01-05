@@ -35,10 +35,10 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { QueryParameter, Header } from "@/types/methods";
-import RequestHeaderListSearch from "../../models/components/RequestHeaderListSearch";
+import RequestHeaderListSearch from "../models/components/RequestHeaderListSearch";
 import { exampleMethodList } from "@/lib/data";
-import { ModelData } from "@/hooks/use-model";
-import { EndpointData } from "@/hooks/use-endpoints";
+import { ModelData } from "@/api/models.api";
+import { EndpointsData } from "@/api/routeEndpoints.api";
 
 interface MethodForm {
   methodName: string;
@@ -62,7 +62,7 @@ interface OpenSections {
 
 interface CreateMethodPageViewProps {
   resourcePath: string;
-  endpointList: EndpointData[];
+  endpointList: EndpointsData[];
   modelList: ModelData[];
   validatorList: Array<{ code: string; description: string }>;
   methodForm: MethodForm;
@@ -261,11 +261,10 @@ export default function CreateMethodPageView({
                   className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 space-y-4"
                 >
                   <div
-                    className={`grid-cols-1 border rounded-lg p-4 transition-all ${
-                      methodForm.integrationType === "http"
-                        ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
+                    className={`grid-cols-1 border rounded-lg p-4 transition-all ${methodForm.integrationType === "http"
+                      ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
+                      : "border-gray-200 hover:border-gray-300"
+                      }`}
                   >
                     <div className="flex items-center space-x-3">
                       <RadioGroupItem value="http" id="http" />
@@ -449,7 +448,7 @@ export default function CreateMethodPageView({
                         </Button>
                       </h4>
                       {queryParameters.length === 0 ? (
-                        <p className="text-sm text-gray-500">쿼리 파라미터를 찾을 수 없습니다.</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">쿼리 파라미터를 찾을 수 없습니다.</p>
                       ) : (
                         <>
                           {queryParameters.map((param) => (
@@ -534,15 +533,14 @@ export default function CreateMethodPageView({
                         </Button>
                       </h4>
                       {headers.length === 0 ? (
-                        <p className="text-sm text-gray-500">헤더를 찾을 수 없습니다.</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">헤더를 찾을 수 없습니다.</p>
                       ) : (
                         <>
                           {headers.map((header) => (
                             <div
                               key={header.id}
-                              className={`grid grid-cols-12 gap-3 mt-3 ${
-                                openId === String(header.id) ? "items-start" : "items-center mb-3"
-                              }`}
+                              className={`grid grid-cols-12 gap-3 mt-3 ${openId === String(header.id) ? "items-start" : "items-center mb-3"
+                                }`}
                             >
                               <div className="col-span-10">
                                 <RequestHeaderListSearch
@@ -556,9 +554,8 @@ export default function CreateMethodPageView({
                               </div>
 
                               <div
-                                className={`col-span-2 gap-1 flex items-center ${
-                                  openId === String(header.id) ? "mt-1" : ""
-                                }`}
+                                className={`col-span-2 gap-1 flex items-center ${openId === String(header.id) ? "mt-1" : ""
+                                  }`}
                               >
                                 <div className="flex items-center space-x-2">
                                   <Label className="text-xs">필수</Label>

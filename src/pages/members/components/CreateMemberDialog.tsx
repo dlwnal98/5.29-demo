@@ -8,8 +8,9 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Copy, XCircle, CheckCircle } from 'lucide-react';
+import { XCircle, CheckCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import PasswordCopyButton from './PasswordCopyButton';
 
 interface CreateMemberProps {
     isAddDialogOpen: boolean;
@@ -96,16 +97,10 @@ export default function CreateMemberDialog({
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-1 gap-4">
                             <div className="space-y-2">
-                                <button
-                                    className=" w-[100%] flex justify-between items-center hover:underline"
-                                    onClick={() => handleCopyPassword(firstMemberPw)}>
-                                    {/* {firstMemberPw} */}
-
-                                    <span className="block w-[90%] whitespace-normal break-words text-left">
-                                        {firstMemberPw}
-                                    </span>
-                                    <Copy className="h-4 w-4 ml-2" />
-                                </button>
+                                <PasswordCopyButton
+                                    password={firstMemberPw}
+                                    onCopy={handleCopyPassword}
+                                />
                             </div>
                         </div>
                     </div>

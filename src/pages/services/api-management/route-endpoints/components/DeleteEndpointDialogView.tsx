@@ -31,11 +31,11 @@ export default function DeleteEndpointDialogView({
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="font-semibold text-red-800 mb-2">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <p className="font-semibold text-red-800 dark:text-red-200 mb-2">
               ⚠️ 이 작업은 실행 취소할 수 없습니다.
             </p>
-            <p className="text-red-700 text-sm mb-3">
+            <p className="text-red-700 dark:text-red-300 text-sm mb-3">
               <strong>{targetUrl}</strong> 주소의 Target Endpoint가 영구적으로
               삭제됩니다.
               <br />

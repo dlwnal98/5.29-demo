@@ -49,8 +49,8 @@ export default function BranchManagementModalView({
 
         <div className="space-y-4">
           {/* Create New Branch */}
-          <div className="border rounded-lg p-4 bg-blue-50/50">
-            <h4 className="font-medium text-blue-900 mb-3">Create New Branch</h4>
+          <div className="border rounded-lg p-4 bg-blue-50/50 dark:bg-gray-700/50 dark:border-gray-600">
+            <h4 className="font-medium text-blue-900 dark:text-blue-400 mb-3">Create New Branch</h4>
             <div className="flex space-x-2">
               <Input
                 placeholder="Enter branch name"
@@ -70,16 +70,16 @@ export default function BranchManagementModalView({
           </div>
 
           {/* Existing Branches */}
-          <div className="border rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-3">Existing Branches</h4>
+          <div className="border rounded-lg p-4 dark:border-gray-600">
+            <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Existing Branches</h4>
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {branches.map((branch, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-2 rounded hover:bg-gray-50"
+                  className="flex items-center justify-between p-2 rounded hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   <div className="flex items-center space-x-2">
-                    <GitBranch className="h-4 w-4 text-gray-500" />
+                    <GitBranch className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                     <span className="font-mono text-sm">{branch.name}</span>
                     {branch.name === "main" && (
                       <Badge variant="secondary" className="text-xs">

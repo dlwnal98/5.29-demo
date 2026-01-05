@@ -26,7 +26,7 @@ import { useClipboard } from 'use-clipboard-copy';
 import { Header } from '@/types/methods';
 import { useModifyMethod } from '@/hooks/use-methods';
 import { useMethodEditStore } from '@/store/store';
-import { ModelData } from '@/hooks/use-model';
+import { ModelData } from '@/api/models.api';
 
 interface MethodRequestEditProps {
   selectedMethod: Method;
@@ -341,7 +341,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
                 </div>
               ))}
               {queryParameters.length === 0 && (
-                <div className="text-center py-6 text-gray-500">
+                <div className="text-center py-6 text-gray-500 dark:text-gray-400">
                   쿼리 파라미터가 없습니다. 추가 버튼을 클릭하여 새 파라미터를 추가하세요.
                 </div>
               )}
@@ -399,7 +399,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
                 </div>
               ))}
               {requestHeaders.length === 0 && (
-                <div className="text-center py-6 text-gray-500">
+                <div className="text-center py-6 text-gray-500 dark:text-gray-400">
                   요청 헤더가 없습니다. 추가 버튼을 클릭하여 새로운 요청 헤더를 추가하세요.
                 </div>
               )}

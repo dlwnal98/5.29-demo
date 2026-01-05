@@ -59,8 +59,8 @@ export default function RouteEndpointsPageView({
             {/* 페이지 헤더 */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Route Endpoints</h1>
-                    <p className="text-gray-600 mt-1">API 대상 Route Endpoint를 관리하세요.</p>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Route Endpoints</h1>
+                    <p className="text-gray-600 dark:text-gray-400 mt-1">API 대상 Route Endpoint를 관리하세요.</p>
                 </div>
 
                 <div className="flex gap-2">
@@ -85,12 +85,12 @@ export default function RouteEndpointsPageView({
             </div>
 
             {/* Target Endpoints 리스트 */}
-            <Card>
+            <Card className='dark:border-gray-700'>
                 <div className="pt-4"></div>
                 <CardContent>
                     <Table>
-                        <TableHeader className="hover:bg-white">
-                            <TableRow className="hover:bg-white">
+                        <TableHeader className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
+                            <TableRow className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
                                 <TableHead className="w-[10%]">ID</TableHead>
                                 <TableHead className="w-[30%]">URL</TableHead>
                                 <TableHead>설명</TableHead>
@@ -101,7 +101,7 @@ export default function RouteEndpointsPageView({
                         <TableBody>
                             {filteredEndpoints?.length > 0 ? (
                                 filteredEndpoints.map((endpoint) => (
-                                    <TableRow key={endpoint.targetId} className="hover:bg-white">
+                                    <TableRow key={endpoint.targetId} className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
                                         <TableCell className="font-medium text-blue-600">
                                             {endpoint.targetId}
                                         </TableCell>
@@ -134,8 +134,8 @@ export default function RouteEndpointsPageView({
                                     </TableRow>
                                 ))
                             ) : (
-                                <TableRow>
-                                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                                <TableRow className="hover:bg-white dark:hover:bg-gray-800">
+                                    <TableCell colSpan={6} className="text-center py-8 text-gray-500 dark:text-gray-400">
                                         검색 결과가 없습니다.
                                     </TableCell>
                                 </TableRow>

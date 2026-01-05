@@ -35,11 +35,11 @@ export default function DeleteMemberDialog({
                         조직 멤버 삭제
                     </DialogTitle>
                     <DialogDescription className="text-left space-y-3">
-                        <p className="bg-red-50 border border-red-200 rounded-lg p-4">
-                            <p className="font-semibold text-red-800 mb-2">
+                        <p className="bg-red-50 border border-red-200 rounded-lg p-4 dark:bg-red-900/20 dark:border-red-800">
+                            <p className="font-semibold text-red-800 mb-2 dark:text-red-400">
                                 ⚠️ 이 작업은 실행 취소할 수 없습니다.
                             </p>
-                            <p className="text-red-700 text-sm">
+                            <p className="text-red-700 text-sm dark:text-red-400">
                                 <span className="font-bold underline">{userId}</span> 사용자가 조직에서 삭제됩니다.
                                 <br />• 조직 관련한 사용자의 모든 권한이 제거됩니다
                                 <br />• 관련된 모든 활동 기록이 삭제됩니다

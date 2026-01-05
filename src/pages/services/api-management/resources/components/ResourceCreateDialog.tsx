@@ -62,7 +62,7 @@ export function ResourceCreateDialog({
             <div>
               <Label
                 htmlFor="resource-path"
-                className="text-sm font-medium text-gray-700 mb-2 block">
+                className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                 리소스 경로<span className="text-red-500 ml-1">*</span>
               </Label>
               <Select
@@ -83,7 +83,7 @@ export function ResourceCreateDialog({
             <div>
               <Label
                 htmlFor="resource-name"
-                className="text-sm font-medium text-gray-700 mb-2 block">
+                className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                 리소스 이름<span className="text-red-500 ml-1">*</span>
               </Label>
               <Input
@@ -102,7 +102,7 @@ export function ResourceCreateDialog({
             <div className="col-span-4">
               <Label
                 htmlFor="resource-description"
-                className="text-sm font-medium text-gray-700 mb-2 block">
+                className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                 리소스 설명
               </Label>
               <Textarea
@@ -122,7 +122,7 @@ export function ResourceCreateDialog({
                 className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 원본에서 CORS
               </Label>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 모든 오리진, 모든 메서드 및 몇 가지 공통 헤더를 허용하는 OPTIONS 메서드를
                 생성합니다.
               </p>

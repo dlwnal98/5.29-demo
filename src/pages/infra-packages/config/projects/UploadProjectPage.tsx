@@ -30,7 +30,7 @@ export default function UploadProjectPage() {
   } = useUploadProjectPage();
 
   return (
-    <AppLayout projectSlug="config">
+    <>
       <UploadProjectPageView
         branch={branch}
         sidebarOpen={sidebarOpen}
@@ -56,6 +56,6 @@ export default function UploadProjectPage() {
         formatFileSize={formatFileSize}
         onUploadFile={uploadFile}
       />
-    </AppLayout>
+    </>
   );
 }

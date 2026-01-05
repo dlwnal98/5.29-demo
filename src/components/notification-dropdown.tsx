@@ -20,7 +20,7 @@ interface Notification {
   message: string
   timestamp: string
   read: boolean
-  severity?: "high" | "medium" | "low"
+  severity?: "high" | "medium" | "low" | "success"
 }
 
 const mockNotifications: Notification[] = [
@@ -67,7 +67,7 @@ const mockNotifications: Notification[] = [
     message: "일일 데이터베이스 백업이 성공적으로 완료되었습니다.",
     timestamp: "1시간 전",
     read: true,
-    severity: "low",
+    severity: "success",
   },
   {
     id: "6",
@@ -110,6 +110,8 @@ export function NotificationDropdown() {
         return "border-l-yellow-500 bg-yellow-50 dark:bg-yellow-950/20"
       case "low":
         return "border-l-blue-500 bg-blue-50 dark:bg-blue-950/20"
+      case "success":
+        return "border-l-green-500 bg-green-50 dark:bg-green-950/20"
       default:
         return "border-l-gray-500 bg-gray-50 dark:bg-gray-950/20"
     }
@@ -128,21 +130,21 @@ export function NotificationDropdown() {
     setNotifications((prev) => prev.filter((n) => n.id !== id))
   }
 
+
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
           size="sm"
-          className={`relative hover:bg-red-100 dark:hover:bg-red-900`}
+          className={`relative ${unreadCount > 0 ? "hover:bg-red-100 dark:hover:bg-red-900" : "hover:bg-gray-100 dark:hover:bg-gray-900"} cursor-pointer`}
         >
           <Bell className={`h-4 w-4 ${unreadCount > 0 ? "text-red-500" : "text-gray-600 dark:text-gray-400"}`} />
           {unreadCount > 0 && (
             <Badge
               variant="destructive"
-              className={`absolute -top-0.5 -right-1 h-4 w-4 rounded-full p-0 pb-[1px] text-[11px] flex items-center justify-center ${
-                highPriorityUnread > 0 ? "animate-bounce bg-red-600" : "bg-red-500"
-              }`}
+              className={`absolute -top-0.5 -right-1 h-4 w-4 rounded-full p-0 pb-[1px] text-[11px] flex items-center justify-center ${highPriorityUnread > 0 ? "animate-bounce bg-red-600" : "bg-red-500"
+                }`}
             >
               {unreadCount > 99 ? "99+" : unreadCount}
             </Badge>
@@ -159,16 +161,25 @@ export function NotificationDropdown() {
               </Badge>
             )}
           </div>
-          {unreadCount > 0 && (
+          {unreadCount > 0 ? (
             <Button
               variant="ghost"
               size="sm"
               onClick={markAllAsRead}
-              className="h-auto p-1 text-xs hover:bg-blue-100 dark:hover:bg-gray-800"
+              className="h-auto py-1 px-2 text-xs rounded-full hover:text-blue-700 hover:bg-blue-100 dark:hover:bg-gray-800 cursor-pointer"
             >
               모두 읽음
             </Button>
-          )}
+          )
+            : <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsOpen(false)}
+              className="h-auto py-0.5 px-2.5 text-xs text-gray-600hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+            >
+              닫기
+            </Button>
+          }
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <ScrollArea className="h-96">
@@ -182,7 +193,7 @@ export function NotificationDropdown() {
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`relative p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors border-l-4 ${getSeverityColor(
+                  className={`relative p-3 cursor-pointer  dark:hover:bg-gray-800/50 transition-colors border-l-4 ${getSeverityColor(
                     notification.severity || "low",
                   )} ${!notification.read ? "bg-blue-50/50 dark:bg-blue-950/10" : ""}`}
                   onClick={() => markAsRead(notification.id)}
@@ -203,19 +214,22 @@ export function NotificationDropdown() {
                             {notification.severity && (
                               <Badge
                                 variant="outline"
-                                className={`text-xs ${
-                                  notification.severity === "high"
-                                    ? "border-red-200 text-red-700 dark:border-red-800 dark:text-red-400"
-                                    : notification.severity === "medium"
-                                      ? "border-yellow-200 text-yellow-700 dark:border-yellow-800 dark:text-yellow-400"
+                                className={`text-xs ${notification.severity === "high"
+                                  ? "border-red-200 text-red-700 dark:border-red-800 dark:text-red-400"
+                                  : notification.severity === "medium"
+                                    ? "border-yellow-200 text-yellow-700 dark:border-yellow-800 dark:text-yellow-400"
+                                    : notification.severity === "success"
+                                      ? "border-green-200 text-green-700 dark:border-green-800 dark:text-green-400"
                                       : "border-blue-200 text-blue-700 dark:border-blue-800 dark:text-blue-400"
-                                }`}
+                                  }`}
                               >
                                 {notification.severity === "high"
                                   ? "높음"
                                   : notification.severity === "medium"
                                     ? "보통"
-                                    : "낮음"}
+                                    : notification.severity === "success"
+                                      ? "성공"
+                                      : "낮음"}
                               </Badge>
                             )}
                           </div>
@@ -223,7 +237,7 @@ export function NotificationDropdown() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900/20 ml-2"
+                          className="h-6 w-6 p-0 hover:bg-white/70 dark:hover:bg-red-900/20 ml-2"
                           onClick={(e) => removeNotification(notification.id, e)}
                         >
                           <X className="h-3 w-3 text-gray-400 hover:text-red-500" />
@@ -239,17 +253,19 @@ export function NotificationDropdown() {
             </div>
           )}
         </ScrollArea>
-        {notifications.length > 0 && (
+
+        {/* 아래 버튼이 동작하면 모든 알림 리스트를 보여주는 페이지로 이동해서 목록 전체를 보여줘야함 */}
+        {/* {notifications.length > 0 && (
           <>
             <DropdownMenuSeparator />
             <div className="p-2">
-              <Button variant="ghost" size="sm" className="w-full text-xs hover:bg-blue-100 dark:hover:bg-gray-800">
+              <Button variant="ghost" size="sm" className="w-full text-xs hover:bg-transparent dark:hover:bg-gray-800">
                 모든 알림 보기
               </Button>
             </div>
           </>
-        )}
+        )} */}
       </DropdownMenuContent>
-    </DropdownMenu>
+    </DropdownMenu >
   )
 }

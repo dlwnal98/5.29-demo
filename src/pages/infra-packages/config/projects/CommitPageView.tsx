@@ -107,7 +107,7 @@ export default function CommitPageView({
             <Button
               variant="outline"
               onClick={onBack}
-              className="border-blue-200 hover:bg-blue-50"
+              className="border-blue-200 hover:bg-blue-50 dark:border-gray-600 dark:hover:bg-gray-700"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
@@ -136,7 +136,7 @@ export default function CommitPageView({
           </div>
 
           <div className="flex items-center space-x-2">
-            <Badge variant="outline" className="border-blue-200 text-blue-700">
+            <Badge variant="outline" className="border-blue-200 text-blue-700 dark:border-gray-700 dark:text-blue-500">
               <GitBranch className="h-3 w-3 mr-1" />
               {branch}
             </Badge>
@@ -144,7 +144,7 @@ export default function CommitPageView({
         </div>
 
         {/* Commit Info */}
-        <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50">
+        <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-lg border border-blue-200/50 dark:border-gray-600/50">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               {isCommitDetailLoading ? (
@@ -159,17 +159,17 @@ export default function CommitPageView({
                   <CommitInfoSkeleton />
                 ) : (
                   <>
-                    <span className="font-medium text-gray-900">
+                    <span className="font-medium text-gray-900 dark:text-gray-100">
                       {commitDetailData?.author?.username}
                     </span>
-                    <code className="flex items-center bg-white px-2 py-1 rounded font-mono text-sm">
+                    <code className="flex items-center bg-white dark:bg-gray-700 px-2 py-1 rounded font-mono text-sm">
                       <GitCommit className="h-3 w-3 text-gray-400" />
                       {commitDetailData?.sha?.slice(0, 6)}
                     </code>
-                    <span className="text-gray-900">
+                    <span className="text-gray-900 dark:text-gray-100">
                       {commitDetailData?.commit?.message}
                     </span>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
                       {commitDetailData?.created && formatTimeAgo(commitDetailData.created as string)}
                     </span>
                   </>
@@ -180,7 +180,7 @@ export default function CommitPageView({
               {isCommitDetailLoading ? (
                 <CommitStatsSkeleton />
               ) : (
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
+                <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                   <span>{commitDetailData?.stats?.filesChanged} files changed</span>
                   <span className="text-green-600">
                     +{commitDetailData?.stats?.additions}
@@ -196,14 +196,14 @@ export default function CommitPageView({
 
         {/* File Changes */}
         <div className="space-y-6">
-          <h2 className="text-lg font-semibold text-gray-900">Changed Files</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Changed Files</h2>
 
-          <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm">
+          <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm dark:border-gray-600/50 dark:bg-gray-800/70">
             {/* File Header */}
-            <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
+            <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:border-gray-700 dark:from-gray-700/50 dark:to-gray-600/50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <File className="h-5 w-5 text-gray-500" />
+                  <File className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                   {isCommitDetailLoading ? (
                     <>
                       <Skeleton className="h-4 w-32" />
@@ -211,7 +211,7 @@ export default function CommitPageView({
                     </>
                   ) : (
                     <>
-                      <span className="font-medium text-gray-900">
+                      <span className="font-medium text-gray-900 dark:text-gray-100">
                         {commitDetailData?.files?.[0]?.filename}
                       </span>
                       <Badge
@@ -226,7 +226,7 @@ export default function CommitPageView({
                     </>
                   )}
                 </div>
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
+                <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                   {!isCommitDetailLoading && (
                     <Button
                       variant="ghost"
@@ -258,24 +258,22 @@ export default function CommitPageView({
                     {parsedDiff.map((row, idx) => (
                       <React.Fragment key={idx}>
                         <div
-                          className={`px-2 py-1 whitespace-pre ${
-                            row.type === "del" || row?.type === "change"
-                              ? "bg-red-50 text-red-800"
-                              : row.type === "context"
+                          className={`px-2 py-1 whitespace-pre ${row.type === "del" || row?.type === "change"
+                            ? "bg-red-50 text-red-800"
+                            : row.type === "context"
                               ? "bg-gray-50 text-gray-700"
                               : ""
-                          }`}
+                            }`}
                         >
                           {row.left || ""}
                         </div>
                         <div
-                          className={`px-2 py-1 whitespace-pre ${
-                            row.type === "add" || row?.type === "change"
-                              ? "bg-green-50 text-green-800"
-                              : row.type === "context"
+                          className={`px-2 py-1 whitespace-pre ${row.type === "add" || row?.type === "change"
+                            ? "bg-green-50 text-green-800"
+                            : row.type === "context"
                               ? "bg-gray-50 text-gray-700"
                               : ""
-                          }`}
+                            }`}
                         >
                           {row.right || ""}
                         </div>

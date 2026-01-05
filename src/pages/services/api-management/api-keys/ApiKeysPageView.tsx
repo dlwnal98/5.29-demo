@@ -72,7 +72,7 @@ export default function ApiKeysPageView({
       <div className="flex items-center justify-between mb-6">
         <div className="gap-2">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">API Keys</h1>
-          <p className="text-gray-600 mt-1">API Key들을 관리하세요</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">API Key들을 관리하세요</p>
         </div>
         <div className="flex items-center gap-1">
           <div className="flex items-center justify-between">
@@ -102,12 +102,12 @@ export default function ApiKeysPageView({
       </div>
 
       {/* API Keys 리스트 */}
-      <Card className="mb-4">
+      <Card className="mb-4 dark:border-gray-700">
         <div className="pt-4"></div>
         <CardContent>
           <Table>
-            <TableHeader className="hover:bg-white">
-              <TableRow className="hover:bg-white">
+            <TableHeader className="hover:bg-white dark:border-gray-700 dark:hover:bg-transparent">
+              <TableRow className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
                 <TableHead className="w-[10%]">ID</TableHead>
                 <TableHead className="w-[30%]">이름</TableHead>
                 <TableHead className="w-[auto]">설명</TableHead>
@@ -117,8 +117,8 @@ export default function ApiKeysPageView({
             </TableHeader>
             <TableBody>
               {currentApiKeys?.length === 0 ? (
-                <TableRow className="dark:bg-blue-900/20 hover:bg-white">
-                  <TableCell colSpan={5} className="text-center !py-8 text-gray-500">
+                <TableRow className="hover:bg-white dark:hover:bg-gray-800">
+                  <TableCell colSpan={5} className="text-center !py-8 text-gray-500 dark:text-gray-400">
                     생성된 API Key가 존재하지 않습니다.
                   </TableCell>
                 </TableRow>
@@ -126,7 +126,7 @@ export default function ApiKeysPageView({
                 currentApiKeys?.map((apiKey) => (
                   <TableRow
                     key={apiKey.keyId}
-                    className="dark:bg-blue-900/20 hover:bg-white"
+                    className="hover:bg-white dark:hover:bg-transparent"
                   >
                     <TableCell className="font-medium text-blue-600">
                       {apiKey.keyId}

@@ -99,7 +99,7 @@ export default function FileBrowserView({
               <Button
                 variant="outline"
                 onClick={onBack}
-                className="border-blue-200 hover:bg-blue-50"
+                className="border-blue-200 hover:bg-blue-50 dark:border-gray-600 dark:hover:bg-gray-700"
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
@@ -109,7 +109,7 @@ export default function FileBrowserView({
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="w-[auto] border-blue-200 hover:border-blue-300 hover:bg-blue-50"
+                    className="w-[auto] border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-700"
                   >
                     <GitBranch className="h-4 w-4 mr-2 text-blue-500" />
                     {currentBranch}
@@ -134,7 +134,7 @@ export default function FileBrowserView({
                 variant="outline"
                 size="sm"
                 onClick={onOpenBranchModal}
-                className="border-blue-200 hover:bg-blue-50"
+                className="border-blue-200 hover:bg-blue-50 dark:border-gray-600 dark:hover:bg-gray-700"
               >
                 <Settings className="h-4 w-4" />
               </Button>
@@ -143,7 +143,7 @@ export default function FileBrowserView({
                 size="sm"
                 onClick={onOpenGitTea}
                 title="GitTea로 이동"
-                className="border-blue-200 hover:bg-blue-50"
+                className="border-blue-200 hover:bg-blue-50 dark:border-gray-600 dark:hover:bg-gray-700"
               >
                 <img src="/gittea_logo.svg" alt="GitTea Logo" className="w-[25px]" />
               </Button>
@@ -208,7 +208,7 @@ export default function FileBrowserView({
         </div>
 
         {/* File Table */}
-        <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm mb-6">
+        <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm dark:border-gray-600/50 dark:bg-gray-800/70 mb-6">
           {isFileListLoading ? (
             <div className="p-6">
               <Skeleton className="h-8 w-full mb-2" />
@@ -220,11 +220,11 @@ export default function FileBrowserView({
           ) : (
             <Table>
               <TableHeader>
-                <TableRow className="border-b border-blue-100">
-                  <TableHead className="w-[40%] text-blue-700 font-semibold">
+                <TableRow className="border-b border-blue-100 dark:border-gray-700">
+                  <TableHead className="w-[40%] text-blue-700 dark:text-blue-400 font-semibold">
                     Name
                   </TableHead>
-                  <TableHead className="w-[20%] text-blue-700 font-semibold text-right">
+                  <TableHead className="w-[20%] text-blue-700 dark:text-blue-400 font-semibold text-right">
                     Last Modified
                   </TableHead>
                 </TableRow>
@@ -233,7 +233,7 @@ export default function FileBrowserView({
                 {sortedData?.map((file: any, index: number) => (
                   <TableRow
                     key={index}
-                    className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200"
+                    className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-gray-700 dark:hover:to-gray-600 transition-all duration-200 "
                   >
                     <TableCell>
                       <button
@@ -256,8 +256,8 @@ export default function FileBrowserView({
 
         {/* README.md 및 md파일 미리보기 */}
         {mdFile && (
-          <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm">
-            <div className=" flex justify-between align-items p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
+          <div className="border border-blue-200/50 rounded-xl shadow-lg bg-white/70 backdrop-blur-sm dark:border-gray-600/50 dark:bg-gray-800/70">
+            <div className=" flex justify-between align-items p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:border-gray-700 dark:from-gray-700/50 dark:to-gray-600/50">
               {isFileListLoading ? (
                 <>
                   <div className="flex items-center">
@@ -268,7 +268,7 @@ export default function FileBrowserView({
                 </>
               ) : (
                 <>
-                  <h2 className="text-lg font-semibold text-blue-900 flex items-center">
+                  <h2 className="text-lg font-semibold text-blue-900 dark:text-blue-400 flex items-center">
                     <Eye className="h-5 w-5 mr-2" />
                     {mdFile?.name}
                   </h2>
@@ -282,7 +282,7 @@ export default function FileBrowserView({
                 </>
               )}
             </div>
-            <div className="border border-blue-200/50 rounded-lg bg-white/70 backdrop-blur-sm">
+            <div className="border border-blue-200/50 rounded-lg bg-white/70 backdrop-blur-sm dark:border-gray-600/50 dark:bg-gray-800/70">
               <div className="p-6">
                 <div className=" p-4 rounded-lg">
                   {isMdLoading ? (

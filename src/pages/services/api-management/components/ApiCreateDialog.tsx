@@ -191,7 +191,7 @@ const ApiCreateDialog = ({
                 return (
                     <div className="space-y-4">
                         <div>
-                            <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                                 복사할 API 선택 <span className="text-red-500">*</span>
                             </Label>
                             <Select
@@ -311,7 +311,7 @@ const ApiCreateDialog = ({
             <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto overflow-x-hidden">
                 <DialogHeader>
                     <DialogTitle className="text-xl font-bold text-blue-600">API Plan 생성</DialogTitle>
-                    <DialogDescription className="text-gray-600">
+                    <DialogDescription className="text-gray-600 dark:text-gray-400">
                         API는 4가지 방법으로 생성할 수 있습니다. (<span className="text-red-500">*</span> 필수
                         입력 사항입니다.)
                     </DialogDescription>
@@ -319,7 +319,7 @@ const ApiCreateDialog = ({
                 <div className="space-y-6 py-4">
                     {/* API 생성 유형 */}
                     <div>
-                        <Label className="text-sm font-medium text-gray-700 mb-3 block">
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 block">
                             API 생성 유형 <span className="text-red-500">*</span>
                         </Label>
                         <RadioGroup
@@ -368,7 +368,7 @@ const ApiCreateDialog = ({
                     </div>
                     {/* API 이름 */}
                     <div>
-                        <Label htmlFor="api-name" className="text-sm font-medium text-gray-700 mb-2 block">
+                        <Label htmlFor="api-name" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                             API 이름 <span className="text-red-500">*</span>
                         </Label>
                         <Input
@@ -381,7 +381,7 @@ const ApiCreateDialog = ({
                     </div>
                     {/* 설명 */}
                     <div>
-                        <Label htmlFor="description" className="text-sm font-medium text-gray-700 mb-2 block">
+                        <Label htmlFor="description" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                             설명
                         </Label>
                         <Textarea
@@ -394,7 +394,7 @@ const ApiCreateDialog = ({
                             className="w-full min-h-[100px] resize-none"
                             maxLength={300}
                         />
-                        <div className="text-right text-sm text-gray-500 mt-1">
+                        <div className="text-right text-sm text-gray-500 dark:text-gray-400 mt-1">
                             {createApiForm.description.length}/300 자
                         </div>
                     </div>

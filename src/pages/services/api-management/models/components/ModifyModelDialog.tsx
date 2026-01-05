@@ -33,34 +33,34 @@ export default function ModifyModelDialog({
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label className="text-sm font-medium">모델 ID</Label>
+            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">모델 ID</Label>
             <Input
               value={selectedModel.modelId || ""}
               readOnly
               disabled
-              className="mt-2 bg-gray-50"
+              className="mt-2 bg-gray-50 dark:bg-gray-800"
             />
           </div>
           <div>
-            <Label className="text-sm font-medium">모델 이름</Label>
+            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">모델 이름</Label>
             <Input
               value={selectedModel.modelName || ""}
               readOnly
               disabled
-              className="mt-2 bg-gray-50"
+              className="mt-2 bg-gray-50 dark:bg-gray-800"
             />
           </div>
           <div>
-            <Label className="text-sm font-medium">설명</Label>
+            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">설명</Label>
             <Textarea
               value={selectedModel.description || ""}
               readOnly
               disabled
-              className="mt-2 bg-gray-50"
+              className="mt-2 bg-gray-50 dark:bg-gray-800"
             />
           </div>
           <div>
-            <Label className="text-sm font-medium">JSON Schema</Label>
+            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">JSON Schema</Label>
             <Textarea
               value={
                 selectedModel.jsonSchema
@@ -69,7 +69,7 @@ export default function ModifyModelDialog({
               }
               readOnly
               disabled
-              className="mt-2 bg-gray-50 font-mono text-sm min-h-[150px]"
+              className="mt-2 bg-gray-50 dark:bg-gray-800 font-mono text-sm min-h-[150px]"
             />
           </div>
         </div>

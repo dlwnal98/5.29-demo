@@ -53,13 +53,13 @@ export default function ApiDeleteDialog({
                         <AlertTriangle className="h-5 w-5" />
                         Api 삭제 확인
                     </AlertDialogTitle>
-                    <AlertDialogDescription className="text-gray-600">
+                    <AlertDialogDescription className="text-gray-600 dark:text-gray-300">
                         <div className="space-y-3">
-                            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                                <p className="font-semibold text-red-800 mb-2">
+                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                                <p className="font-semibold text-red-800 dark:text-red-200 mb-2">
                                     🚨 위험: 이 작업은 되돌릴 수 없습니다!
                                 </p>
-                                <p className="text-red-700 text-sm">
+                                <p className="text-red-700 dark:text-red-300 text-sm">
                                     <strong>{apiName}</strong> Api를 영구적으로 삭제합니다.
                                 </p>
                             </div>

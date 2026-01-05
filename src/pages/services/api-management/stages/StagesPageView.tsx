@@ -84,7 +84,7 @@ export default function StagesPageView({
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Stages
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             배포된 API의 실행 환경을 구분하는 Stage들을 관리하세요.
           </p>
         </div>

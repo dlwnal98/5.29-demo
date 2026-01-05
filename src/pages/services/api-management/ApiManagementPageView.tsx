@@ -93,12 +93,12 @@ export default function ApiManagementPageView({
       </div>
 
       {/* API List */}
-      <Card>
+      <Card className="dark:border-gray-700">
         <div className="pt-4"></div>
         <CardContent>
           <Table>
-            <TableHeader className="hover:bg-white dark:hover:bg-gray-800">
-              <TableRow className="hover:bg-white dark:hover:bg-gray-800">
+            <TableHeader className="hover:bg-white dark:hover:bg-transparent">
+              <TableRow className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
                 <TableHead className="w-[10%]">ID</TableHead>
                 <TableHead className="w-[25%]">이름</TableHead>
                 <TableHead className="w-auto">설명</TableHead>
@@ -112,7 +112,7 @@ export default function ApiManagementPageView({
                   <TableRow
                     key={plan.apiId}
                     onClick={() => onApiClick(plan)}
-                    className="hover:cursor-pointer"
+                    className="hover:cursor-pointer dark:hover:bg-gradient-to-r dark:hover:from-gray-700 dark:hover:to-gray-600 "
                   >
                     <TableCell className="font-mono text-sm text-blue-600">
                       {plan.apiId}

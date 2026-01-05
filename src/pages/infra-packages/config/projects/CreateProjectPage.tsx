@@ -27,7 +27,7 @@ export default function CreateProjectPage() {
   } = useCreateProjectPage();
 
   return (
-    <AppLayout projectSlug="config">
+    <>
       <CreateProjectPageView
         branch={branch}
         sidebarOpen={sidebarOpen}
@@ -50,6 +50,6 @@ export default function CreateProjectPage() {
         onBack={handleBack}
         onCreateFile={createFile}
       />
-    </AppLayout>
+    </>
   );
 }

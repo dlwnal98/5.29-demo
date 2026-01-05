@@ -55,6 +55,7 @@ export default function ResourcesPageView({
   onMethodDeleted,
   onResourceDeleted,
 }: ResourcesPageViewProps) {
+
   const renderResourceTree = (list: Resource[]) => {
     return (
       <div className="space-y-1">
@@ -65,15 +66,13 @@ export default function ResourcesPageView({
           return (
             <div key={res.id}>
               <div
-                className={`flex items-center gap-2 py-1 px-2 mb-1 cursor-pointer rounded ${
-                  isSelected
-                    ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                    : ""
-                }`}
-                onClick={() => onResourceClick(res)}
-              >
+                className={`flex items-center gap-2 py-1 px-2 mb-1 cursor-pointer rounded ${isSelected
+                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                  : ""
+                  }`}
+                onClick={() => onResourceClick(res)}>
                 {(res.children?.length ?? 0) > 0 ||
-                (res.methods?.length ?? 0) > 0 ? (
+                  (res.methods?.length ?? 0) > 0 ? (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -102,11 +101,10 @@ export default function ResourcesPageView({
                     return (
                       <div
                         key={m.id}
-                        className={`flex items-center w-[100%] gap-2 py-1 px-2 cursor-pointer dark:hover:bg-green-900/20 ${
-                          isMethodSelected
-                            ? "bg-white dark:bg-gray-900/30 text-gray-700 dark:text-gray-300"
-                            : "text-gray-600 dark:text-gray-400"
-                        }`}
+                        className={`flex items-center w-[100%] gap-2 py-1 px-2 cursor-pointer dark:hover:bg-green-900/20 ${isMethodSelected
+                          ? "bg-white dark:bg-gray-900/30 text-gray-700 dark:text-gray-300"
+                          : "text-gray-600 dark:text-gray-400"
+                          }`}
                         onClick={() => onMethodClick(m, res)}
                       >
                         <span
@@ -164,7 +162,7 @@ export default function ResourcesPageView({
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               Resources
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
               API Gateway에서 엔드포인트 경로(URI)를 정의하는 객체들을
               관리하세요.
             </p>

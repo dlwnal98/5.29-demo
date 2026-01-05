@@ -36,7 +36,7 @@ export default function ModifyAPIKeyDialog({
         {editingApiKey && (
           <div className="space-y-6">
             <div>
-              <Label htmlFor="edit-id" className="text-sm font-medium">
+              <Label htmlFor="edit-id" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 ID
               </Label>
               <Input
@@ -48,7 +48,7 @@ export default function ModifyAPIKeyDialog({
               />
             </div>
             <div>
-              <Label htmlFor="edit-name" className="text-sm font-medium">
+              <Label htmlFor="edit-name" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 이름
               </Label>
               <Input
@@ -64,7 +64,7 @@ export default function ModifyAPIKeyDialog({
               />
             </div>
             <div>
-              <Label htmlFor="edit-description" className="text-sm font-medium">
+              <Label htmlFor="edit-description" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 설명 - 선택 사항
               </Label>
               <Textarea

@@ -56,7 +56,7 @@ export default function ActiveDeploymentChangeDialog({
 
                     <div className="space-y-4 pb-4">
                         <div className="text-sm text-gray-700 dark:text-gray-300">
-                            <span className="font-mono bg-gray-100 px-2 py-1 rounded mr-1">
+                            <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded mr-1">
                                 {selectedStage.name}
                             </span>
                             스테이지의 활성 배포를 업데이트하시겠습니까?
@@ -65,7 +65,7 @@ export default function ActiveDeploymentChangeDialog({
                             </div>
                         </div>
 
-                        <div className="flex items-center bg-blue-50 p-5 px-8 rounded">
+                        <div className="flex items-center bg-blue-50 dark:bg-blue-900/20 p-5 px-8 rounded">
                             <div>
                                 <div className="text-sm font-bold text-center text-gray-900 dark:text-white mb-1">
                                     현재 활성 배포
