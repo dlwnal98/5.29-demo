@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { ArrowLeft, SquarePlus, SquareMinus, Eye } from "lucide-react";
 import type { Resource, Method } from "@/types/resource";
-import { getMethodStyle } from "@/lib/etc";
+import { getMethodStyle } from "@/libs/etc";
 import { ResourceDetailCard } from "./components/ResourceDetailCard";
 import MethodDetailCard from "./components/MethodDetailCard";
 import { RefObject } from "react";
@@ -33,6 +33,7 @@ interface ResourcesPageViewProps {
   setCreatedResourceId: (id: string) => void;
   onMethodDeleted: () => void;
   onResourceDeleted: () => void;
+  onCorsSettingsSaved: () => void;
 }
 
 export default function ResourcesPageView({
@@ -54,6 +55,7 @@ export default function ResourcesPageView({
   setCreatedResourceId,
   onMethodDeleted,
   onResourceDeleted,
+  onCorsSettingsSaved,
 }: ResourcesPageViewProps) {
 
   const renderResourceTree = (list: Resource[]) => {
@@ -62,7 +64,7 @@ export default function ResourcesPageView({
         {list.map((res) => {
           const isExpanded = expandedResources?.includes(res.id);
           const isSelected = selectedResource?.id === res.id;
-
+          console.log(res)
           return (
             <div key={res.id}>
               <div
@@ -211,6 +213,7 @@ export default function ResourcesPageView({
                 setCreatedResourceId={setCreatedResourceId}
                 onMethodDeleted={onMethodDeleted}
                 onResourceDeleted={onResourceDeleted}
+                onCorsSettingsSaved={onCorsSettingsSaved}
               />
             )}
           </div>

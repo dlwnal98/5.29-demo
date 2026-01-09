@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { toast, Toaster } from 'sonner';
-import { getReJWTToken } from '@/api/settings-account.api';
-import { useAuthStore } from '@/store/store';
-import { passwordRegex } from '@/lib/etc';
-import { requestDelete, requestPut, requestPost } from '@/lib/apiClient';
+import { getReJWTToken } from '@/apis/settings-account.api';
+import { useAuthStore } from '@/stores/store';
+import { passwordRegex } from '@/libs/etc';
+import { requestDelete, requestPut, requestPost } from '@/libs/apiClient';
 export default function useSettingsPage() {
     const userData = useAuthStore((state) => state.user);
 

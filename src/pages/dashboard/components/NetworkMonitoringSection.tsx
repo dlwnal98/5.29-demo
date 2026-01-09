@@ -22,7 +22,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { tooltipDescriptions } from '@/constants/dashboardData';
+import { tooltipDescriptions } from '@/constants/dashboard-data';
 
 export default function NetworkMonitoringSection() {
     const [data, setData] = useState(() => {

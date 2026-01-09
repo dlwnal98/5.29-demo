@@ -7,8 +7,8 @@ import {
   useMemberHandleStatus,
   useAddMember,
 } from '@/hooks/use-members';
-import { useAuthStore } from '@/store/store';
-import { requestPost } from '@/lib/apiClient';
+import { useAuthStore } from '@/stores/store';
+import { requestPost } from '@/libs/apiClient';
 import { UserList, MemberList } from '@/types/member';
 
 export interface UseMembersDataReturn {

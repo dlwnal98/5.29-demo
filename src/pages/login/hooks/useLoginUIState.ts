@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useState } from 'react';
-import { userIdRegex, passwordRegex } from '@/lib/etc';
+import { userIdRegex, passwordRegex } from '@/libs/etc';
 
 export interface UseLoginUIStateReturn {
   // Form Data

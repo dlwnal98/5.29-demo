@@ -1,8 +1,8 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
-import { createStage, deleteStage, getDeployHistoryData, getDeploymentResourceTreeData, getStatesDocData, modifyStage } from '@/api/stages.api';
-import { CreateStageProps } from '@/api/stages.api';
-import { PreviousDeploymentProps } from '@/api/stages.api';
-import { activatePreviousDeployment } from '@/api/stages.api';
+import { createStage, deleteStage, getDeployHistoryData, getDeploymentResourceTreeData, getStatesDocData, modifyStage } from '@/apis/stages.api';
+import { CreateStageProps } from '@/apis/stages.api';
+import { PreviousDeploymentProps } from '@/apis/stages.api';
+import { activatePreviousDeployment } from '@/apis/stages.api';
 
 
 export function useGetStagesDocData(apiId: string, path?: string) {

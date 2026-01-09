@@ -1,4 +1,4 @@
-import { getMethodStyle } from '@/lib/etc';
+import { getMethodStyle } from '@/libs/etc';
 
 interface DeploymentResourceTreeItemProps {
   resource: any;

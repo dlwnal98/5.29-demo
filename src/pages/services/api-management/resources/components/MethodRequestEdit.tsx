@@ -18,15 +18,15 @@ import type { QueryParameter, RequestHeader } from '@/types/resource';
 import { toast, Toaster } from 'sonner';
 import RequestHeaderListSearch from '../../models/components/RequestHeaderListSearch';
 import { SelectAPIKeyModal } from '../methods/components/SelectAPIKeyModal';
-import { useAuthStore } from '@/store/store';
+import { useAuthStore } from '@/stores/store';
 import { useGetAPIKeyList } from '@/hooks/use-apiKeys';
 import { Method } from '@/types/resource';
-import { requestGet } from '@/lib/apiClient';
+import { requestGet } from '@/libs/apiClient';
 import { useClipboard } from 'use-clipboard-copy';
 import { Header } from '@/types/methods';
 import { useModifyMethod } from '@/hooks/use-methods';
-import { useMethodEditStore } from '@/store/store';
-import { ModelData } from '@/api/models.api';
+import { useMethodEditStore } from '@/stores/store';
+import { ModelData } from '@/apis/models.api';
 
 interface MethodRequestEditProps {
   selectedMethod: Method;

@@ -1,5 +1,5 @@
-import { createUser } from '@/api/signup.api';
-import { requestGet } from '@/lib/apiClient';
+import { createUser } from '@/apis/signup.api';
+import { requestGet } from '@/libs/apiClient';
 
 export interface SignupFormData {
   organizationName: string;

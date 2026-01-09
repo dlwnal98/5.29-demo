@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { UserList, MemberList, AddMemberVariables, handleStatusVariables, DeleteMemberVariables } from '../types/member';
-import { getUserList, getMemberByOrganizationList, memberHandleStatus, deleteMember, AddMember } from '../api/members.api';
+import { getUserList, getMemberByOrganizationList, memberHandleStatus, deleteMember, AddMember } from '../apis/members.api';
 
 
 export function useGetUserList(active: string, enabled: boolean) {

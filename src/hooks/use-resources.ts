@@ -1,7 +1,7 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
-import { OpenAPIData, CreateResourceProps, resourceCorsSettingsData, ModifyResourceProps, deploymentProps } from '@/api/resources.api';
-import { createResource, deleteResource, getOpenAPIDoc, getResourceCorsSettings, modifyResourceCorsSettings } from '@/api/resources.api';
-import { deployAPI } from '@/api/resources.api';
+import { OpenAPIData, CreateResourceProps, resourceCorsSettingsData, ModifyResourceProps, deploymentProps } from '@/apis/resources.api';
+import { createResource, deleteResource, getOpenAPIDoc, getResourceCorsSettings, modifyResourceCorsSettings } from '@/apis/resources.api';
+import { deployAPI } from '@/apis/resources.api';
 
 export function useGetOpenAPIDoc(apiId: string) {
   return useQuery<OpenAPIData>({
@@ -16,12 +16,12 @@ export function useGetOpenAPIDoc(apiId: string) {
 }
 
 
-export function useCreateResource(options?: UseMutationOptions<any, Error, CreateResourceProps>) {
+export function useCreateResource(apiId: string, options?: UseMutationOptions<any, Error, CreateResourceProps>) {
   const queryClient = useQueryClient();
 
   return useMutation<any, Error, CreateResourceProps>({
     ...options,
-    mutationFn: (data: CreateResourceProps) => createResource(data),
+    mutationFn: (data: CreateResourceProps) => createResource(apiId, data),
     onSuccess: (data, variables, context) => {
       // 브랜치 생성 성공 시 목록 invalidate
       queryClient.invalidateQueries({
@@ -33,11 +33,11 @@ export function useCreateResource(options?: UseMutationOptions<any, Error, Creat
   });
 }
 
-export function useGetResourceCorsSettings(resourceId: string) {
+export function useGetResourceCorsSettings(apiId: string, resourceId: string) {
   return useQuery<resourceCorsSettingsData[]>({
-    queryKey: ['getResourceCorsSettings'],
-    queryFn: () => getResourceCorsSettings(resourceId),
-    // enabled: !!apiId, // 조건적 실행
+    queryKey: ['getResourceCorsSettings', apiId, resourceId],
+    queryFn: () => getResourceCorsSettings(apiId, resourceId),
+    enabled: !!apiId && !!resourceId,
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -47,18 +47,22 @@ export function useGetResourceCorsSettings(resourceId: string) {
 
 
 export function useModifyResourceCorsSettings(
-  options?: UseMutationOptions<any, Error, { resourceId: string; data: ModifyResourceProps }>
+  options?: UseMutationOptions<any, Error, { apiId: string, resourceId: string; data: ModifyResourceProps }>
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...options,
-    mutationFn: ({ resourceId, data }: { resourceId: string; data: ModifyResourceProps }) =>
-      modifyResourceCorsSettings(resourceId, data),
+    mutationFn: ({ apiId, resourceId, data }: { apiId: string, resourceId: string; data: ModifyResourceProps }) =>
+      modifyResourceCorsSettings(apiId, resourceId, data),
     onSuccess: (data, variables, context) => {
-      // 브랜치 생성 성공 시 목록 invalidate
+      // 리소스 목록 invalidate
       queryClient.invalidateQueries({
-        queryKey: ['getOpenAPIDoc'],
+        queryKey: ['getOpenAPIDoc', variables.apiId],
+      });
+      // CORS 설정 데이터 invalidate
+      queryClient.invalidateQueries({
+        queryKey: ['getResourceCorsSettings', variables.apiId, variables.resourceId],
       });
       // 외부 onSuccess 실행
       options?.onSuccess?.(data, variables, context);
@@ -66,13 +70,14 @@ export function useModifyResourceCorsSettings(
   });
 }
 
+interface DeleteResourceVars { apiId: string; resourceId: string };
 
-export function useDeleteResource(options?: UseMutationOptions<any, Error, string>) {
+export function useDeleteResource(options?: UseMutationOptions<any, Error, DeleteResourceVars>) {
   const queryClient = useQueryClient();
 
-  return useMutation<any, Error, string>({
+  return useMutation<any, Error, DeleteResourceVars>({
     ...options,
-    mutationFn: (resourceId: string) => deleteResource(resourceId),
+    mutationFn: ({ apiId, resourceId }: DeleteResourceVars) => deleteResource(apiId, resourceId),
     onSuccess: (data, variables, context) => {
       // 브랜치 생성 성공 시 목록 invalidate
       queryClient.invalidateQueries({

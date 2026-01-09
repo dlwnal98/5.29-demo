@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useAuthStore } from '@/store/store';
+import { useAuthStore } from '@/stores/store';
 import { useGetDeployHistoryData } from '@/hooks/use-stages';
 
 /**

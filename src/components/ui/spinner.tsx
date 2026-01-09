@@ -1,6 +1,6 @@
 // components/ui/spinner.tsx
 import { Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils"; // optional
+import { cn } from "@/libs/utils"; // optional
 
 export function Spinner({ className }: { className?: string }) {
   return (

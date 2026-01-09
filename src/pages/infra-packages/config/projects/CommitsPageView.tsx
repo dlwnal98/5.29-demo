@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/table";
 import { Avatar } from "@/components/ui/avatar";
 import { ArrowLeft, GitCommit, GitBranch } from "lucide-react";
-import { formatTimeAgo } from "@/lib/etc";
+import { formatTimeAgo } from "@/libs/etc";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface BreadcrumbItemType {

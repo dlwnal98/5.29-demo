@@ -1,6 +1,6 @@
 import { useQuery, useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
-import { getEndpointsList, createEndpoint, modifyEndpoint, deleteEndpoint } from '@/api/routeEndpoints.api';
-import { EndpointsData, CreateEndpointProps, ModifyEndpointProps } from '@/api/routeEndpoints.api';
+import { getEndpointsList, createEndpoint, modifyEndpoint, deleteEndpoint } from '@/apis/route-endpoints.api';
+import { EndpointsData, CreateEndpointProps, ModifyEndpointProps } from '@/apis/route-endpoints.api';
 
 
 

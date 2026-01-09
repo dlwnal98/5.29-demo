@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-import { OrganizationList } from '@/api/settings.api';
-import { getOrganizationList, getSpecificOrganizationData, deleteOrganization, modifyOrganization } from '@/api/settings.api';
+import { OrganizationList } from '@/apis/settings.api';
+import { getOrganizationList, getSpecificOrganizationData, deleteOrganization, modifyOrganization } from '@/apis/settings.api';
 
 export function useGeOrganizationList() {
   return useQuery<OrganizationList[]>({

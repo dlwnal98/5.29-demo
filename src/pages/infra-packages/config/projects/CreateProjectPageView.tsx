@@ -26,7 +26,7 @@ import {
   GitCommit,
   ChevronDown,
 } from "lucide-react";
-import { getFileIcon } from "@/lib/etc";
+import { getFileIcon } from "@/libs/etc";
 
 interface BreadcrumbItemType {
   name: string;

@@ -3,7 +3,7 @@ import { SidebarFooter } from "./SidebarFooter";
 import { SidebarHeader } from "./SidebarHeader";
 import type { Dispatch, SetStateAction } from "react";
 import { projectsData } from "@/constants/app-layout-data";
-import { SidebarNav } from "./SidebarNav";
+import { SidebarBody } from "./SidebarBody";
 
 
 interface AppSidebarProps {
@@ -25,7 +25,7 @@ export function AppSidebar({ sidebarCollapsed, projectSlug }: AppSidebarProps) {
                 <SidebarHeader sidebarCollapsed={sidebarCollapsed} projectInfo={currentProject} />
 
                 {/* 2. 네비게이션 섹션 */}
-                <SidebarNav sidebarCollapsed={sidebarCollapsed} />
+                <SidebarBody sidebarCollapsed={sidebarCollapsed} />
 
                 {/* 3. 푸터 섹션 */}
                 <SidebarFooter sidebarCollapsed={sidebarCollapsed} />

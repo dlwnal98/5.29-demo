@@ -33,6 +33,7 @@ export default function ApiResourcesPage() {
     onCloseCreateModal,
     onMethodDeleted,
     onResourceDeleted,
+    onCorsSettingsSaved,
   } = useResourcesPage();
 
   // ResourceCreateDialog hook
@@ -75,6 +76,7 @@ export default function ApiResourcesPage() {
         setCreatedResourceId={setCreatedResourceId}
         onMethodDeleted={onMethodDeleted}
         onResourceDeleted={onResourceDeleted}
+        onCorsSettingsSaved={onCorsSettingsSaved}
       />
 
       <ResourceCreateDialog

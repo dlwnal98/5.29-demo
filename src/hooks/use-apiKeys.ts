@@ -1,6 +1,6 @@
 import { useQuery, useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
-import { ApiKey, CreateAPIKeyVariables, ModifyAPIKeyVariables } from '@/api/apiKeys.api';
-import { getAPIKeyList, createAPIKey, modifyAPIKey, deleteAPIKey } from '@/api/apiKeys.api';
+import { ApiKey, CreateAPIKeyVariables, ModifyAPIKeyVariables } from '@/apis/api-keys.api';
+import { getAPIKeyList, createAPIKey, modifyAPIKey, deleteAPIKey } from '@/apis/api-keys.api';
 
 export function useGetAPIKeyList(organizationId: string) {
   return useQuery<ApiKey[]>({
@@ -13,7 +13,6 @@ export function useGetAPIKeyList(organizationId: string) {
     refetchOnReconnect: false,
   });
 }
-
 
 
 export function useCreateAPIKey(options?: UseMutationOptions<any, Error, CreateAPIKeyVariables>) {

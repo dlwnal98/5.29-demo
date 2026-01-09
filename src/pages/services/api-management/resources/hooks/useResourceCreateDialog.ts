@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
-import { requestGet } from '@/lib/apiClient';
+import { requestGet } from '@/libs/apiClient';
 import { CreateResourceProps, useCreateResource } from '@/hooks/use-resources';
 import { toast } from 'sonner';
-import { isValidInput } from '@/lib/etc';
+import { isValidInput } from '@/libs/etc';
+import { getResourcePaths } from '@/apis/resources.api';
 
 export interface CreateResourceForm {
-  apiId: string;
   resourceName: string;
   description: string;
-  path: string;
-  enableCors: boolean;
-  resourceType: string;
+  resourcePath: string;
+  corsEnabled: boolean;
+  parentResourceId: string;
   createdBy: string;
 }
 
@@ -30,46 +30,55 @@ export function useResourceCreateDialog({
   setCreatedResourceId,
 }: UseResourceCreateDialogProps) {
   const [createResourceForm, setCreateResourceForm] = useState<CreateResourceForm>({
-    apiId,
     resourceName: '',
     description: '',
-    path: '/',
-    enableCors: false,
-    resourceType: 'REST',
+    parentPath: '/',
+    corsEnabled: false,
+    parentResourceId: '',
     createdBy: userKey ?? '',
   });
 
   const [resourcePaths, setResourcePaths] = useState<string[]>([]);
+  const [resourcePathData, setResourcePathData] = useState<string[]>([]);
   const [pathPattern, setPathPattern] = useState('/');
   const [checkUrl, setCheckUrl] = useState(false);
 
   useEffect(() => {
     if (open) {
       setCreateResourceForm({
-        apiId,
         resourceName: '',
         description: '',
-        path: '/',
-        enableCors: false,
-        resourceType: 'REST',
+        parentPath: '/',
+        corsEnabled: false,
+        parentResourceId: '',
         createdBy: userKey ?? '',
       });
       setPathPattern('/');
       setCheckUrl(false);
-      fetchResourcePaths();
+      arrangeResourcePaths();
     }
   }, [open, apiId, userKey]);
 
-  const fetchResourcePaths = async () => {
+  const arrangeResourcePaths = async () => {
     try {
-      const res = await requestGet(`/api/v1/resources/api/${apiId}/paths`);
-      if (res) setResourcePaths(res);
+      const res = await getResourcePaths(apiId);
+      if (res) {
+        const paths = res.map((path: any) => path.resourcePath);
+        setResourcePaths(paths);
+        const pathData = res.map((data: any) => {
+          console.log(data)
+          return { resourcePath: data.resourcePath, resourceName: data.resourceName, parentResourceId: data.resourceId }
+        });
+        setResourcePathData(pathData);
+      }
     } catch (err) {
       console.error(err);
     }
   };
 
-  const { mutate: createResourceMutate, isPending } = useCreateResource({
+
+  console.log(resourcePathData)
+  const { mutate: createResourceMutate, isPending } = useCreateResource(apiId, {
     onSuccess: () => {
       const resourcePath =
         pathPattern === '/'
@@ -86,17 +95,22 @@ export function useResourceCreateDialog({
   });
 
   const handleCreateResource = () => {
-    const resourcePath =
-      pathPattern === '/'
-        ? `${pathPattern}${createResourceForm.resourceName}`
-        : `${pathPattern}/${createResourceForm.resourceName}`;
+    // const resourcePath =
+    //   pathPattern === '/'
+    //     ? `${pathPattern}${createResourceForm.resourceName}`
+    //     : `${pathPattern}/${createResourceForm.resourceName}`;
+
+    const parentResource = resourcePathData.find((data) => data?.resourcePath === pathPattern);
+    console.log(resourcePathData, parentResource)
 
     if (isValidInput(createResourceForm.resourceName)) {
-      createResourceMutate({ ...createResourceForm, path: resourcePath });
+      createResourceMutate({ ...createResourceForm, parentPath: pathPattern, parentResourceId: parentResource?.parentResourceId });
     } else {
       toast.error('유효하지 않은 리소스 이름입니다.');
     }
   };
+
+  console.log(createResourceForm)
 
   const handleResourceNameChange = (value: string) => {
     if (isValidInput(value)) {
@@ -112,7 +126,7 @@ export function useResourceCreateDialog({
   };
 
   const handleEnableCorsChange = (checked: boolean) => {
-    setCreateResourceForm((prev) => ({ ...prev, enableCors: checked }));
+    setCreateResourceForm((prev) => ({ ...prev, corsEnabled: checked }));
   };
 
   const handlePathPatternChange = (value: string) => {

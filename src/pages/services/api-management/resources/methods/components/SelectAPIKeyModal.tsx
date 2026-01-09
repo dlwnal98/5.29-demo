@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Plus, AlertCircle, Key, Settings } from 'lucide-react';
 import { SetStateAction, useEffect } from 'react';
-import { ApiKey } from '@/api/apiKeys.api';
+import { ApiKey } from '@/apis/api-keys.api';
 import { useCreateAPIKey } from '@/hooks/use-apiKeys';
 import { useState } from 'react';
 import { toast, Toaster } from 'sonner';

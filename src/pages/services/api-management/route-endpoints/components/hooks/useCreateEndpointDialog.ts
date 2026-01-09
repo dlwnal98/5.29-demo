@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useCreateEndpoint } from "@/hooks/use-endpoints";
 import { toast } from "sonner";
-import { onInputChange, onSave } from "@/lib/etc";
+import { onInputChange, onSave } from "@/libs/etc";
 
 interface UseCreateEndpointDialogProps {
   organizationId: string;

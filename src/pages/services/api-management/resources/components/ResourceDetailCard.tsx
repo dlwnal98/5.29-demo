@@ -16,11 +16,12 @@ import { CorsSettingsDialog } from './CorsSettingsDialog';
 import { DeleteMethodDialog } from './DeleteMethodDialog';
 import { DeleteResourceDialog } from './DeleteResourceDialog';
 import { useNavigate } from 'react-router-dom';
-import { getMethodStyle } from '@/lib/etc';
-import { useAuthStore } from '@/store/store';
+import { getMethodStyle } from '@/libs/etc';
+import { useAuthStore } from '@/stores/store';
 import { useCorsSettingsDialog } from '../hooks/useCorsSettingsDialog';
 import { useDeleteMethodDialog } from '../hooks/useDeleteMethodDialog';
 import { useDeleteResourceDialog } from '../hooks/useDeleteResourceDialog';
+import { useGetResourceCorsSettings } from '@/hooks/use-resources';
 
 interface ResourceDetailCardProps {
   selectedResource: Resource;
@@ -55,6 +56,7 @@ export function ResourceDetailCard({
 
   // CORS Settings Dialog hook
   const corsDialog = useCorsSettingsDialog({
+    apiId: apiId,
     open: isCorsModalOpen,
     resourceId: selectedResource?.resourceId || '',
     userKey,
@@ -74,22 +76,25 @@ export function ResourceDetailCard({
 
   // Delete Resource Dialog hook
   const deleteResourceDialog = useDeleteResourceDialog({
+    apiId: apiId,
     resourceId: selectedResource?.resourceId || '',
     onOpenChange: setIsDeleteDialogOpen,
     setCreatedResourceId,
     onResourceDeleted,
   });
 
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-700 border-green-200';
+        return 'bg-green-100 text-green-700 border-green-200 dark:bg-green-800 dark:text-green-200 dark:border-green-700';
       case 'inactive':
-        return 'bg-red-100 text-red-700 border-red-200';
+        return 'bg-red-100 text-red-700 border-red-200 dark:bg-red-800 dark:text-red-200 dark:border-red-700';
       default:
-        return 'bg-amber-100 text-amber-700 border-amber-200';
+        return 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-800 dark:text-amber-200 dark:border-amber-700';
     }
   };
+
 
   return (
     <>
@@ -99,16 +104,16 @@ export function ResourceDetailCard({
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">리소스 세부 정보</h2>
             <div className="flex items-center gap-3">
-              {selectedResource?.cors && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsCorsModalOpen(true)}
-                  title="리소스 수정"
-                  className="rounded-full h-[25px] !gap-1 border-2 border-blue-500 text-[#0F74E1] font-bold hover:text-blue-700 hover:bg-blue-50">
-                  CORS 활성화 설정
-                </Button>
-              )}
+              {/* {selectedResource?.cors && ( */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsCorsModalOpen(true)}
+                title="리소스 수정"
+                className={`rounded-full h-[25px] !gap-1 border-2 border-blue-500 text-[#0F74E1] font-bold hover:text-blue-700 hover:bg-blue-50`}>
+                CORS 활성화 설정
+              </Button>
+              {/* )} */}
               {selectedResource?.path !== '/' && (
                 <Button
                   variant="outline"
@@ -271,6 +276,7 @@ export function ResourceDetailCard({
         onCommaSeparatedInputChange={corsDialog.onCommaSeparatedInputChange}
         onMaxAgeChange={corsDialog.onMaxAgeChange}
         onAllowCredentialsChange={corsDialog.onAllowCredentialsChange}
+        onCorsEnabledChange={corsDialog.onCorsEnabledChange}
       />
 
       <DeleteMethodDialog

@@ -18,7 +18,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Plus, RefreshCw, Search, Edit, Trash2, Copy } from "lucide-react";
-import CommonPagination from "@/components/common-pagination";
+import CommonPagination from "@/components/CommonPagination";
 import { ApiKey } from "@/hooks/use-apiKeys";
 import React from "react";
 
@@ -125,13 +125,13 @@ export default function ApiKeysPageView({
               ) : (
                 currentApiKeys?.map((apiKey) => (
                   <TableRow
-                    key={apiKey.keyId}
+                    key={apiKey.apiKeyId}
                     className="hover:bg-white dark:hover:bg-transparent"
                   >
                     <TableCell className="font-medium text-blue-600">
-                      {apiKey.keyId}
+                      {apiKey.apiKeyId}
                     </TableCell>
-                    <TableCell className="font-medium">{apiKey.name}</TableCell>
+                    <TableCell className="font-medium">{apiKey.keyName}</TableCell>
                     <TableCell>{apiKey.description}</TableCell>
                     <TableCell>
                       {apiKey.createdAt
@@ -143,7 +143,7 @@ export default function ApiKeysPageView({
                         <Button
                           className="text-white hover:text-white bg-amber-500 hover:bg-amber-500"
                           size="sm"
-                          onClick={() => onCopy(apiKey.name, apiKey.key)}
+                          onClick={() => onCopy(apiKey.keyName, apiKey.key)}
                         >
                           <Copy className="h-4 w-4" />
                         </Button>

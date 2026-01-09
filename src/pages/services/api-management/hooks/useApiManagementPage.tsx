@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/store/store";
+import { useAuthStore } from "@/stores/store";
 import { setSelectedApiInfo } from "@/constants/app-layout-data";
 import { useGetAPIList, APIListData } from "@/hooks/use-apimanagement";
 
@@ -12,7 +12,8 @@ interface ModifyApiForm {
 export function useApiManagementPage() {
   const userData = useAuthStore((state) => state.user);
   const userKey = userData?.userKey || "";
-  const organizationId = userData?.organizationId || "";
+  // const organizationId = userData?.organizationId || "";
+  const tenantId = "kwwwksAsvmas";
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,10 +30,10 @@ export function useApiManagementPage() {
   const [currentPage, setCurrentPage] = useState(0);
   const usersPerPage = 20;
 
-  const { data: apisData } = useGetAPIList(organizationId, currentPage, usersPerPage);
+  const { data: apisData } = useGetAPIList(tenantId, currentPage, usersPerPage);
 
   const filteredPlans = useMemo(() => {
-    return (apisData ?? []).filter(
+    return (apisData?.content ?? []).filter(
       (plan) =>
         plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         plan.apiId.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -91,7 +92,7 @@ export function useApiManagementPage() {
   return {
     // Data
     userKey,
-    organizationId,
+    tenantId,
     searchTerm,
     filteredPlans,
     currentPage,

@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
-import { dashboardApps } from '@/constants/dashboardData';
+import { dashboardApps } from '@/constants/dashboard-data';
 
 const getStatusColor = (status: string) => {
     switch (status) {

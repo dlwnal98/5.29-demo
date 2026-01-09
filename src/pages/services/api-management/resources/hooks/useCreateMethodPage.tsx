@@ -2,14 +2,14 @@ import { useState, useRef, useMemo, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { QueryParameter, Header } from "@/types/methods";
-import { useAuthStore } from "@/store/store";
+import { useAuthStore } from "@/stores/store";
 import { useGetAPIKeyList } from "@/hooks/use-apiKeys";
 import { useCreateMethod } from "@/hooks/use-methods";
 import { useGetModelList } from "@/hooks/use-model";
 import { useGetEndpointsList } from "@/hooks/use-endpoints";
-import { requestGet } from "@/lib/apiClient";
+import { requestGet } from "@/libs/apiClient";
 import { useClipboard } from "use-clipboard-copy";
-import { onInputChange, onSave } from "@/lib/etc";
+import { onInputChange, onSave } from "@/libs/etc";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface MethodForm {
@@ -306,9 +306,9 @@ export function useCreateMethodPage() {
   const isValidCreateMethod = useMemo(() => {
     return Boolean(
       methodForm.methodName &&
-        methodForm.methodType &&
-        methodForm.integrationType &&
-        (isDirectUrlInput ? methodForm.customEndpointUrl : methodForm.endpointUrl)
+      methodForm.methodType &&
+      methodForm.integrationType &&
+      (isDirectUrlInput ? methodForm.customEndpointUrl : methodForm.endpointUrl)
     );
   }, [methodForm, isDirectUrlInput]);
 

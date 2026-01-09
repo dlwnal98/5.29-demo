@@ -1,4 +1,4 @@
-import type { HttpMethod } from "@/lib/etc";
+import type { HttpMethod } from "@/libs/etc";
 
 export interface ApiResource {
   id: string;

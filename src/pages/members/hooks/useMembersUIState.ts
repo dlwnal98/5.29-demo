@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { userIdRegex } from '@/lib/etc';
+import { userIdRegex } from '@/libs/etc';
 import { SelectMemberInfo } from '../types';
 
 export type { SelectMemberInfo };

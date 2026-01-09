@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useModifyResourceCorsSettings } from '@/hooks/use-resources';
 import { toast } from 'sonner';
 import type { Resource } from '@/types/resource';
+import { useGetResourceCorsSettings } from '@/hooks/use-resources';
 
 export interface CorsForm {
   allowMethods: string[];
@@ -10,9 +11,13 @@ export interface CorsForm {
   exposeHeaders: string[];
   maxAge: number;
   allowCredentials: boolean;
+  standardCompliant?: boolean;
+  validHttpMethods?: boolean;
+  corsEnabled: boolean;
 }
 
 interface UseCorsSettingsDialogProps {
+  apiId: string;
   open: boolean;
   resourceId: string;
   userKey: string;
@@ -22,6 +27,7 @@ interface UseCorsSettingsDialogProps {
 }
 
 export function useCorsSettingsDialog({
+  apiId,
   open,
   resourceId,
   userKey,
@@ -29,73 +35,90 @@ export function useCorsSettingsDialog({
   onOpenChange,
   onCorsSettingsSaved,
 }: UseCorsSettingsDialogProps) {
+
+  const { data: corsSettings } = useGetResourceCorsSettings(apiId, selectedResource?.resourceId || '');
+
   const [corsForm, setCorsForm] = useState<CorsForm>({
-    allowMethods: [],
-    allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowMethods: ['OPTIONS'],
+    allowHeaders: [],
     allowOrigins: ['*'],
-    exposeHeaders: ['X-Total-Count', 'X-Request-Id'],
+    exposeHeaders: [],
     maxAge: 3600,
-    allowCredentials: true,
+    allowCredentials: false,
+    corsEnabled: false,
   });
+  const [checkedMethod, setCheckedMethod] = useState<string[]>([]);
+  const [methodCheckList, setMethodCheckList] = useState<string[]>([]);
+
+  console.log(corsSettings)
+  console.log(selectedResource?.methods)
+
 
   useEffect(() => {
-    if (!selectedResource?.cors) return;
+    // 체크박스 목록: selectedResource의 methods + OPTIONS (고정)
+    const resourceMethods = selectedResource?.methods?.map((method) => method?.type) || [];
+    const availableMethods = ['OPTIONS', ...resourceMethods.filter(m => m !== 'OPTIONS')];
 
-    const cors = selectedResource.cors;
+    // 체크 상태: corsSettings에서 가져온 메서드들
+    const checkedFromServer = corsSettings?.allowedMethods || [];
 
+    setCheckedMethod(checkedFromServer);
+    setMethodCheckList(availableMethods);
     setCorsForm({
-      allowMethods: [],
-      allowHeaders: Array.isArray(cors.allowHeaders)
-        ? cors.allowHeaders
-        : cors.allowHeaders
-          ? cors.allowHeaders.split(',').map((s: string) => s.trim())
-          : [],
-      allowOrigins: Array.isArray(cors.allowOrigins)
-        ? cors.allowOrigins
-        : cors.allowOrigins
-          ? cors.allowOrigins.split(',').map((s: string) => s.trim())
-          : [],
-      exposeHeaders: Array.isArray(cors.exposeHeaders)
-        ? cors.exposeHeaders
-        : cors.exposeHeaders
-          ? cors.exposeHeaders.split(',').map((s: string) => s.trim())
-          : [],
-      maxAge: cors.maxAge ?? 3600,
-      allowCredentials: cors.allowCredentials ?? true,
+      allowMethods: availableMethods,
+      allowHeaders: corsSettings?.allowedHeaders || [],
+      allowOrigins: corsSettings?.allowedOrigins || ['*'],
+      exposeHeaders: corsSettings?.exposedHeaders || [],
+      maxAge: corsSettings?.maxAge || 3600,
+      allowCredentials: corsSettings?.allowCredentials || false,
+      corsEnabled: selectedResource?.cors
     });
-  }, [selectedResource]);
+  }, [open, corsSettings, selectedResource]);
+
+  console.log(checkedMethod, methodCheckList)
+
 
   const { mutate: modifyCORSMutate, isPending } = useModifyResourceCorsSettings({
     onSuccess: () => {
       toast.success('리소스의 CORS 설정이 변경되었습니다.');
       onCorsSettingsSaved?.();
       onOpenChange(false);
-    },
+    }, onError: (data) => {
+      console.log(data)
+      toast.error(data?.response?.data?.errors?.[0]?.detail);
+    }
   });
 
   const handleSaveCorsSettings = () => {
     modifyCORSMutate({
+      apiId: apiId,
       resourceId: resourceId,
       data: {
         allowedOrigins: corsForm.allowOrigins,
         allowedHeaders: corsForm.allowHeaders,
-        allowedMethods: corsForm.allowMethods,
+        allowedMethods: corsForm.corsEnabled ? checkedMethod : corsForm.allowMethods,
         exposedHeaders: corsForm.exposeHeaders,
         maxAge: corsForm.maxAge,
         allowCredentials: corsForm.allowCredentials,
-        updatedBy: userKey,
+        corsEnabled: corsForm.corsEnabled,
       },
     });
   };
 
   const handleMethodToggle = (methodType: string, checked: boolean) => {
-    setCorsForm((prev) => ({
-      ...prev,
-      allowMethods: checked
-        ? [...new Set([...prev.allowMethods, methodType])]
-        : prev.allowMethods.filter((m) => m !== methodType),
-    }));
+    // OPTIONS는 항상 포함되어야 함 (필수)
+    if (methodType === 'OPTIONS') return;
+
+    setCheckedMethod((prev) => {
+      if (checked) {
+        return prev.includes(methodType) ? prev : [...prev, methodType];
+      } else {
+        return prev.filter((m) => m !== methodType);
+      }
+    });
   };
+
+
 
   const handleCommaSeparatedInputChange = (
     value: string,
@@ -132,13 +155,26 @@ export function useCorsSettingsDialog({
     }));
   };
 
+
+  const handleCorsEnabledChange = (checked: boolean) => {
+    console.log(checked)
+    setCorsForm((prev) => ({
+      ...prev,
+      corsEnabled: checked,
+    }));
+  };
+
+
   return {
     corsForm,
+    checkedMethod,
+    methodCheckList,
     isPending,
     onSaveCorsSettings: handleSaveCorsSettings,
     onMethodToggle: handleMethodToggle,
     onCommaSeparatedInputChange: handleCommaSeparatedInputChange,
     onMaxAgeChange: handleMaxAgeChange,
     onAllowCredentialsChange: handleAllowCredentialsChange,
+    onCorsEnabledChange: handleCorsEnabledChange,
   };
 }

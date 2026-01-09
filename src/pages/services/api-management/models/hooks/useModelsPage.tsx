@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useGetModelList } from "@/hooks/use-model";
-import { ModelData } from "@/api/models.api";
-import { useAuthStore } from "@/store/store";
+import { ModelData } from "@/apis/models.api";
+import { useAuthStore } from "@/stores/store";
 
 export function useModelsPage() {
   const [selectedModel, setSelectedModel] = useState<ModelData | null>(null);

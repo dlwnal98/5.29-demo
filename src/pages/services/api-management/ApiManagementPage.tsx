@@ -10,7 +10,7 @@ import { useApiManagementPage } from "./hooks/useApiManagementPage";
 export default function ApiManagementPage() {
   const {
     userKey,
-    organizationId,
+    tenantId,
     searchTerm,
     filteredPlans,
     currentPage,
@@ -51,7 +51,7 @@ export default function ApiManagementPage() {
 
         <ApiCreateDialog
           userKey={userKey}
-          organizationId={organizationId}
+          tenantId={tenantId}
           open={isCreateModalOpen}
           onOpenChange={(open) => !open && onCloseCreateModal()}
           apiList={filteredPlans}

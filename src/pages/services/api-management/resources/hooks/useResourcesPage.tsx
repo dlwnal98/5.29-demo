@@ -2,8 +2,8 @@ import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import type { Resource, Method } from "@/types/resource";
 import { useGetOpenAPIDoc } from "@/hooks/use-resources";
-import { useAuthStore, useMethodEditStore } from "@/store/store";
-import { resoureceBuildTree } from "@/lib/etc";
+import { useAuthStore, useMethodEditStore } from "@/stores/store";
+import { resoureceBuildTree } from "@/libs/etc";
 
 export function useResourcesPage() {
   const navigate = useNavigate();
@@ -250,6 +250,27 @@ export function useResourcesPage() {
     setCreatedMethodId("");
   }, []);
 
+  const handleCorsSettingsSaved = useCallback(async () => {
+    const result = await refetch();
+    if (result.data?.paths && selectedResource) {
+      const newTree = resoureceBuildTree(result.data.paths);
+      const findResourceByResourceId = (list: Resource[]): Resource | null => {
+        for (const res of list) {
+          if (res.resourceId === selectedResource.resourceId) return res;
+          if (res.children) {
+            const child = findResourceByResourceId(res.children);
+            if (child) return child;
+          }
+        }
+        return null;
+      };
+      const updatedResource = findResourceByResourceId(newTree);
+      if (updatedResource) {
+        setSelectedResource(updatedResource);
+      }
+    }
+  }, [refetch, selectedResource]);
+
   return {
     // Refs
     leftSidebarRef,
@@ -286,5 +307,6 @@ export function useResourcesPage() {
     onMethodDeleted: handleMethodDeleted,
     onResourceDeleted: handleResourceDeleted,
     onResourceCreated: refetch,
+    onCorsSettingsSaved: handleCorsSettingsSaved,
   };
 }

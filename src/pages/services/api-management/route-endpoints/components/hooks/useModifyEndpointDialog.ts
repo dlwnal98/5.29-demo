@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useModifyEndpoint } from "@/hooks/use-endpoints";
 import { toast } from "sonner";
-import { onInputChange, onSave } from "@/lib/etc";
+import { onInputChange, onSave } from "@/libs/etc";
 
 interface FormData {
   targetId: string;

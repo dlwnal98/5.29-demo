@@ -1,6 +1,6 @@
 import { Toaster } from "sonner";
 import { SquarePlus, SquareMinus, Eye } from "lucide-react";
-import { getMethodStyle } from "@/lib/etc";
+import { getMethodStyle } from "@/libs/etc";
 import type { ApiResource, ApiMethod, SelectedWholeStageInfo, SelectedMethod } from "../types";
 
 interface StageResourceTreeProps {
@@ -42,8 +42,8 @@ export function StageResourceTree({
     <div key={resource.id}>
       <div
         className={`flex items-center gap-2 py-1 mb-1 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-sm ${selectedWholeStageInfo?.resource?.id === resource.id
-            ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-            : ""
+          ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+          : ""
           }`}
         style={{ paddingLeft: `${level * 8 + 8}px` }}
         onClick={() =>
@@ -68,8 +68,8 @@ export function StageResourceTree({
 
         <span
           className={`font-medium text-sm ${selectedWholeStageInfo.resource?.id !== resource.id
-              ? ""
-              : "text-blue-700 dark:text-gray-300"
+            ? ""
+            : "text-blue-700 dark:text-gray-300"
             }`}
         >
           {isStage
@@ -85,8 +85,8 @@ export function StageResourceTree({
             <div
               key={`${resource.id}-${method.id}-${index}`}
               className={`flex items-center justify-between gap-2 h-[32px] py-1 px-2 text-xs cursor-pointer dark:hover:bg-green-900/20 rounded ${selectedMethod?.method.id === method.id
-                  ? "bg-white dark:bg-green-900/30 text-gray-700 dark:text-green-300"
-                  : "text-gray-600 dark:text-gray-400"
+                ? "bg-white dark:bg-green-900/30 text-gray-700 dark:text-green-300"
+                : "text-gray-600 dark:text-gray-400"
                 }`}
               onClick={() => onMethodClick(method, resource)}
             >

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { EurekaServices, EurekaInstance, EurekaSummary } from "@/types/eureka";
-import { fetchEurekaSummary, fetchEurekaServices, fetchEurekaInstances } from "@/api/eureka.api";
+import { fetchEurekaSummary, fetchEurekaServices, fetchEurekaInstances } from "@/apis/eureka.api";
 
 export function useEurekaSummary() {
   return useQuery<EurekaSummary>({
@@ -8,7 +8,7 @@ export function useEurekaSummary() {
     queryFn: fetchEurekaSummary,
     staleTime: Infinity, // 캐시 무한히 신선하다고 간주
     refetchOnWindowFocus: false, // 포커스돼도 재요청 안 함
-    refetchOnMount: false, // 마운��� 시 재요청 안 함
+    refetchOnMount: false, // 마운트 시 재요청 안 함
     refetchOnReconnect: false, // 재접속 시 재요청 안 함
     enabled: true, // 자동 호출은 한 번만 발생 (true가 기본)
   });
@@ -19,10 +19,6 @@ export function useEurekaServices() {
   return useQuery<EurekaServices[]>({
     queryKey: ["services"],
     queryFn: fetchEurekaServices,
-    // refetchInterval: 5000,
-    // staleTime: 1000,
-    // retry: 3,
-    // retryDelay: 1000,
     staleTime: Infinity, // 캐시 무한히 신선하다고 간주
     refetchOnWindowFocus: false, // 포커스돼도 재요청 안 함
     refetchOnMount: false, // 마운트 시 재요청 안 함

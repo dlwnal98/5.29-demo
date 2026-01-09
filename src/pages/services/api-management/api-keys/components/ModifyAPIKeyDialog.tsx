@@ -8,14 +8,14 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ApiKey } from "@/api/apiKeys.api";
+import { ApiKey } from "@/apis/api-keys.api";
 
 interface ModifyAPIKeyDialogProps {
   isOpen: boolean;
   editingApiKey: ApiKey | null;
   onClose: () => void;
   onEditingApiKeyChange: (value: ApiKey | null) => void;
-  onSubmit: (keyId: string, keyName: string, description: string) => void;
+  onSubmit: (apiKeyId: string, keyName: string, description: string) => void;
 }
 
 export default function ModifyAPIKeyDialog({
@@ -41,7 +41,7 @@ export default function ModifyAPIKeyDialog({
               </Label>
               <Input
                 id="edit-id"
-                value={editingApiKey.keyId}
+                value={editingApiKey.apiKeyId}
                 readOnly
                 disabled
                 className="mt-1 bg-gray-50 dark:bg-gray-800"
@@ -53,11 +53,11 @@ export default function ModifyAPIKeyDialog({
               </Label>
               <Input
                 id="edit-name"
-                value={editingApiKey.name}
+                value={editingApiKey.keyName}
                 onChange={(e) =>
                   onEditingApiKeyChange({
                     ...editingApiKey,
-                    name: e.target.value,
+                    keyName: e.target.value,
                   })
                 }
                 className="mt-1"
@@ -87,8 +87,8 @@ export default function ModifyAPIKeyDialog({
               <Button
                 onClick={() =>
                   onSubmit(
-                    editingApiKey.keyId,
-                    editingApiKey.name,
+                    editingApiKey.apiKeyId,
+                    editingApiKey.keyName,
                     editingApiKey.description
                   )
                 }

@@ -1,5 +1,3 @@
-import { AppLayout } from "@/components/layout/AppLayout";
-import { Toaster } from "sonner";
 import { useApiKeysPage } from "./hooks/useApiKeysPage";
 import ApiKeysPageView from "./ApiKeysPageView";
 import CreateAPIKeyDialog from "./components/CreateAPIKeyDialog";

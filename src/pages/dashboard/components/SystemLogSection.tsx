@@ -16,7 +16,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { tooltipDescriptions, eventData } from '@/constants/dashboardData';
+import { tooltipDescriptions, eventData } from '@/constants/dashboard-data';
 import { LogViewerModal } from '../components/LogViewerModal';
 
 export default function SystemLogSection() {

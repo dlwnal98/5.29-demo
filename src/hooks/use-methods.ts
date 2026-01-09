@@ -1,6 +1,6 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
-import { MethodsListProps, CreateMethodProps, ModifyMethodProps, DeleteMethodProps } from '@/api/methods.api';
-import { getMethodsList, createMethod, modifyMethod, deleteMethod } from '@/api/methods.api';
+import { MethodsListProps, CreateMethodProps, ModifyMethodProps, DeleteMethodProps } from '@/apis/methods.api';
+import { getMethodsList, createMethod, modifyMethod, deleteMethod } from '@/apis/methods.api';
 
 // ✅ React Query Hook
 export function useGetMethodsList(pathId: string) {

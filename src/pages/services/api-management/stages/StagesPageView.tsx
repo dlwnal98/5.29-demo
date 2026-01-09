@@ -16,7 +16,7 @@ import {
   Trash2,
   Settings,
 } from "lucide-react";
-import { getMethodStyle } from "@/lib/etc";
+import { getMethodStyle } from "@/libs/etc";
 import DeploymentList from "./components/DeploymentList";
 import { StageResourceTree } from "./components/StageResourceTree";
 import type { ApiResource, ApiMethod, SelectedWholeStageInfo, SelectedMethod } from "./types";

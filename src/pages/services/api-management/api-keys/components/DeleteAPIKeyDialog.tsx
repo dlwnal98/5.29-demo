@@ -9,7 +9,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { AlertTriangle } from "lucide-react";
-import { ApiKey } from "@/hooks/use-apiKeys";
+import { ApiKey } from "@/apis/api-keys.api";
 
 interface DeleteAPIKeyDialogProps {
   isOpen: boolean;
@@ -40,7 +40,7 @@ export default function DeleteAPIKeyDialog({
                   없습니다.
                 </div>
                 <div className="text-gray-700 dark:text-gray-300">
-                  API Key <strong className="text-red-600">"{deletingApiKey.name}"</strong>
+                  API Key <strong className="text-red-600">"{deletingApiKey.keyName}"</strong>
                   이 영구적으로 삭제됩니다.
                 </div>
                 <div className="text-gray-700 dark:text-gray-300">
@@ -54,7 +54,7 @@ export default function DeleteAPIKeyDialog({
                   <div className="mt-2 text-sm text-red-700 dark:text-red-300">
                     <div className="flex items-center gap-2">
                       <span>•</span>
-                      <span className="font-mono font-bold">{deletingApiKey.keyId}</span>
+                      <span className="font-mono font-bold">{deletingApiKey.apiKeyId}</span>
                     </div>
                   </div>
                 </div>
@@ -65,7 +65,7 @@ export default function DeleteAPIKeyDialog({
         <AlertDialogFooter>
           <AlertDialogCancel>취소</AlertDialogCancel>
           <AlertDialogAction
-            onClick={() => deletingApiKey && onConfirm(deletingApiKey.keyId)}
+            onClick={() => deletingApiKey && onConfirm(deletingApiKey.apiKeyId)}
             className="bg-red-600 hover:bg-red-700 text-white"
           >
             삭제

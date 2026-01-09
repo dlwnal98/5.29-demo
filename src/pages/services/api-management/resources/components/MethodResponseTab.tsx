@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { MethodResponseEdit } from './MethodResponseEdit';
 import type { MethodResponse, Model } from '@/types/resource';
-import { useMethodEditStore } from '@/store/store';
+import { useMethodEditStore } from '@/stores/store';
 
 interface MethodResponseTabProps {
   methodResponses: MethodResponse[];

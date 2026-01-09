@@ -1,14 +1,14 @@
 
 
 import type { ReactNode } from 'react';
-import { AppHeader } from './AppHeader';
+import { AppHeader } from './AppHeader/AppHeader';
 // import { AppSidebar } from './AppSidebar';
 import { AppSidebar } from './AppSidebar/AppSidebar';
 import { useState, useEffect, Suspense, useCallback } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 
 interface AppLayoutProps {
-  children: ReactNode;
+  children?: ReactNode;
   projectSlug?: string;
 }
 

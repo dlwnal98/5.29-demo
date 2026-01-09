@@ -36,9 +36,9 @@ import {
 } from "lucide-react";
 import { QueryParameter, Header } from "@/types/methods";
 import RequestHeaderListSearch from "../models/components/RequestHeaderListSearch";
-import { exampleMethodList } from "@/lib/data";
-import { ModelData } from "@/api/models.api";
-import { EndpointsData } from "@/api/routeEndpoints.api";
+import { exampleMethodList } from "@/constants/data";
+import { ModelData } from "@/apis/models.api";
+import { EndpointsData } from "@/apis/route-endpoints.api";
 
 interface MethodForm {
   methodName: string;

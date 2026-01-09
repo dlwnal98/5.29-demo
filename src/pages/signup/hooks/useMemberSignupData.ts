@@ -1,4 +1,4 @@
-import { createMemberInit } from '@/api/signup.api';
+import { createMemberInit } from '@/apis/signup.api';
 
 export interface MemberSignupFormData {
   name: string;

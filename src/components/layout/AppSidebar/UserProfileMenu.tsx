@@ -15,7 +15,7 @@ import {
 import {
     userMenuItems,
 } from '@/constants/app-layout-data';
-import { useAuthStore } from '@/store/store';
+import { useAuthStore } from '@/stores/store';
 import { useNavigate } from 'react-router-dom';
 
 

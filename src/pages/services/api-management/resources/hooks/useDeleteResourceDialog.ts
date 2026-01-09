@@ -2,6 +2,7 @@ import { useDeleteResource } from '@/hooks/use-resources';
 import { toast } from 'sonner';
 
 interface UseDeleteResourceDialogProps {
+  apiId: string;
   resourceId: string;
   onOpenChange: (open: boolean) => void;
   setCreatedResourceId: React.Dispatch<React.SetStateAction<string>>;
@@ -9,6 +10,7 @@ interface UseDeleteResourceDialogProps {
 }
 
 export function useDeleteResourceDialog({
+  apiId,
   resourceId,
   onOpenChange,
   setCreatedResourceId,
@@ -24,7 +26,7 @@ export function useDeleteResourceDialog({
   });
 
   const handleDeleteResource = () => {
-    deleteResource(resourceId);
+    deleteResource({ apiId, resourceId });
   };
 
   return {

@@ -1,14 +1,17 @@
 import { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import { useClipboard } from "use-clipboard-copy";
-import { useAuthStore } from "@/store/store";
+import { useAuthStore } from "@/stores/store";
 import {
   useGetAPIKeyList,
   useCreateAPIKey,
   useModifyAPIKey,
   useDeleteAPIKey,
-  ApiKey,
+
 } from "@/hooks/use-apiKeys";
+import {
+  ApiKey
+} from "@/apis/api-keys.api";
 
 interface NewApiKeyForm {
   keyName: string;
@@ -17,7 +20,8 @@ interface NewApiKeyForm {
 
 export function useApiKeysPage() {
   const userData = useAuthStore((state) => state.user);
-  const { data: apiKeyData } = useGetAPIKeyList(userData?.organizationId || "");
+  // const { data: apiKeyData } = useGetAPIKeyList(userData?.tenantId || "");
+  const { data: apiKeyData } = useGetAPIKeyList("kwwwksAsvmas");
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -68,7 +72,7 @@ export function useApiKeysPage() {
     if (!apiKeyData) return [];
     return apiKeyData.filter(
       (apiKey) =>
-        apiKey.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        apiKey.keyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         apiKey.description.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [apiKeyData, searchTerm]);
@@ -89,10 +93,12 @@ export function useApiKeysPage() {
   // Handlers
   const handleCreate = () => {
     createAPIKey({
-      userKey: userData?.userKey ?? "",
+      createdBy: userData?.userKey ?? "",
       keyName: newApiKey.keyName,
       description: newApiKey.description,
-      organizationId: userData?.organizationId ?? "",
+      // tenantId: userData?.tenantId ?? "",
+      tenantId: "kwwwksAsvmas",
+      expiresAt: new Date().toISOString(),
     });
   };
 
@@ -106,8 +112,8 @@ export function useApiKeysPage() {
     setIsEditModalOpen(true);
   };
 
-  const handleUpdate = (keyId: string, keyName: string, description: string) => {
-    modifyAPIKey({ keyId, keyName, description });
+  const handleUpdate = (apiKeyId: string, keyName: string, description: string) => {
+    modifyAPIKey({ apiKeyId, keyName, description, expiresAt: new Date().toISOString(), updatedBy: userData?.userKey ?? "" });
   };
 
   const handleDeleteClick = (apiKey: ApiKey) => {

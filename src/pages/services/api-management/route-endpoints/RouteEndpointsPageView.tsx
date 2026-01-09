@@ -18,7 +18,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Plus, Search, Edit, Trash2 } from 'lucide-react';
-import { EndpointsData } from '@/api/routeEndpoints.api';
+import { EndpointsData } from '@/apis/route-endpoints.api';
 
 interface RouteEndpointsPageViewProps {
     searchTerm: string;

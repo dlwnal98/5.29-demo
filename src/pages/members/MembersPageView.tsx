@@ -32,7 +32,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import CommonPagination from '@/components/common-pagination';
+import CommonPagination from '@/components/CommonPagination';
 import StatusBadge from './components/StatusBadge';
 import { UserList, MemberList } from '@/types/member';
 

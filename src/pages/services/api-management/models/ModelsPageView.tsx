@@ -17,7 +17,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Plus, Trash2, Search } from "lucide-react";
-import { ModelData } from "@/api/models.api";
+import { ModelData } from "@/apis/models.api";
 
 interface ModelsPageViewProps {
     models: ModelData[];

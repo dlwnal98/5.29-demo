@@ -19,7 +19,7 @@ import {
     XCircle,
 } from 'lucide-react';
 import { Toaster } from 'sonner';
-import { useAuthStore } from '@/store/store';
+import { useAuthStore } from '@/stores/store';
 
 interface SettingsAccountPageViewProps {
     userName: string;

@@ -1,5 +1,4 @@
-import { AppLayout } from "@/components/layout/AppLayout";
-import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
+import { DeleteConfirmationModal } from "@/pages/infra-packages/config/projects/components/DeleteConfirmationModal";
 import { useViewProjectPage } from "./hooks/useViewProjectPage";
 import ViewProjectPageView from "./ViewProjectPageView";
 

@@ -28,7 +28,7 @@ import { APIListData } from '@/hooks/use-apimanagement';
 
 interface ApiCreateModalProps {
     userKey: string;
-    organizationId: string;
+    tenantId: string;
     open: boolean;
     apiList: APIListData[];
     onOpenChange: (open: boolean) => void;
@@ -36,13 +36,13 @@ interface ApiCreateModalProps {
 
 const ApiCreateDialog = ({
     userKey,
-    organizationId,
+    tenantId,
     open,
     apiList,
     onOpenChange,
 }: ApiCreateModalProps) => {
     const [createApiForm, setCreateApiForm] = useState({
-        organizationId: organizationId,
+        tenantId: tenantId,
         name: '',
         description: '',
         createdBy: userKey,
@@ -54,10 +54,10 @@ const ApiCreateDialog = ({
     const [copyApiId, setCopyApiId] = useState('');
 
     useEffect(() => {
-        if (organizationId && userKey) {
-            setCreateApiForm((prev) => ({ ...prev, organizationId: organizationId, createdBy: userKey }));
+        if (tenantId && userKey) {
+            setCreateApiForm((prev) => ({ ...prev, tenantId: tenantId, createdBy: userKey }));
         }
-    }, [organizationId, userKey]);
+    }, [tenantId, userKey]);
 
     // 파일 드래그/업로드 핸들러
     const handleDragOver = (e: React.DragEvent) => {
@@ -139,7 +139,7 @@ const ApiCreateDialog = ({
         }
 
         if (apiType === 'new') {
-            if (organizationId && userKey) createAPI(createApiForm);
+            if (tenantId && userKey) createAPI(createApiForm);
         }
 
         if (apiType === 'copy') {
@@ -149,7 +149,7 @@ const ApiCreateDialog = ({
             } else {
                 cloneCreateAPI({
                     copyApiId: copyApiId,
-                    targetOrganizationId: organizationId,
+                    targetOrganizationId: tenantId,
                     newName: createApiForm.name,
                     userKey: userKey,
                     description: createApiForm.description,

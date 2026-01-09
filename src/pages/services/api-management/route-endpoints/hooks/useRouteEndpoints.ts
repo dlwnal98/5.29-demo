@@ -1,4 +1,4 @@
-import { useAuthStore } from "@/store/store";
+import { useAuthStore } from "@/stores/store";
 import { useState } from "react";
 import { useGetEndpointsList, EndpointsData } from "@/hooks/use-endpoints";
 

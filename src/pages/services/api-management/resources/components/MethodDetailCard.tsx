@@ -21,8 +21,8 @@ import type {
 import { useClipboard } from 'use-clipboard-copy';
 import { toast, Toaster } from 'sonner';
 import { useSearchParams } from 'react-router-dom';
-import { getMethodStyle } from '@/lib/etc';
-import { useMethodEditStore, useAuthStore } from '@/store/store';
+import { getMethodStyle } from '@/libs/etc';
+import { useMethodEditStore, useAuthStore } from '@/stores/store';
 import { useGetModelList } from '@/hooks/use-model';
 import { useDeleteMethodDialog } from '../hooks/useDeleteMethodDialog';
 
@@ -273,8 +273,8 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                     <div className="flex flex-col items-center ">
                       <div
                         className={`bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3 text-center cursor-pointer transition-all mb-2 ${selectedFlowStep === 'method-request'
-                            ? 'bg-blue-200 dark:bg-blue-800 '
-                            : ''
+                          ? 'bg-blue-200 dark:bg-blue-800 '
+                          : ''
                           }`}
                         onClick={() => handleFlowStepClick('method-request')}>
                         <div className="text-xs font-medium text-blue-700 dark:text-blue-300">
@@ -284,8 +284,8 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
 
                       <div
                         className={`bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3 text-center  cursor-pointer transition-all ${selectedFlowStep === 'method-response'
-                            ? 'bg-blue-200 dark:bg-blue-800'
-                            : ''
+                          ? 'bg-blue-200 dark:bg-blue-800'
+                          : ''
                           }`}
                         onClick={() => handleFlowStepClick('method-response')}>
                         <div className="text-xs font-medium text-blue-700 dark:text-blue-300">

@@ -4,7 +4,7 @@ export interface Resource {
   name: string;
   description: string;
   children?: Resource[];
-  methods: Method[];
+  methods: string[];
   cors?: {
     allowMethods?: string[];
     allowHeaders?: string[];

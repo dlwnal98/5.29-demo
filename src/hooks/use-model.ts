@@ -1,6 +1,6 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
-import { ModelData, CreateModelProps, ModifyModelProps } from '@/api/models.api';
-import { getModelList, createModel, modifyModel, deleteModel } from '@/api/models.api';
+import { ModelData, CreateModelProps, ModifyModelProps } from '@/apis/models.api';
+import { getModelList, createModel, modifyModel, deleteModel } from '@/apis/models.api';
 
 // ✅ React Query Hook
 export function useGetModelList(apiId: string) {

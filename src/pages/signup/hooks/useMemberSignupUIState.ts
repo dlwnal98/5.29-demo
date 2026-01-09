@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useState } from 'react';
-import { passwordRegex } from '@/lib/etc';
+import { passwordRegex } from '@/libs/etc';
 
 export interface MemberSignupFormData {
   name: string;

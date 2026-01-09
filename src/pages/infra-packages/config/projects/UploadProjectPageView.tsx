@@ -20,7 +20,7 @@ import {
   Menu,
   GitCommit,
 } from "lucide-react";
-import { getFileIcon } from "@/lib/etc";
+import { getFileIcon } from "@/libs/etc";
 
 interface BreadcrumbItemType {
   name: string;
@@ -183,8 +183,8 @@ export default function UploadProjectPageView({
                   {uploadedFiles.length === 0 && (
                     <div
                       className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${isDragOver
-                          ? "border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-gray-700"
-                          : "border-gray-300 hover:border-blue-400 hover:bg-blue-50 dark:border-gray-600 dark:hover:border-blue-500 dark:hover:bg-gray-700"
+                        ? "border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-gray-700"
+                        : "border-gray-300 hover:border-blue-400 hover:bg-blue-50 dark:border-gray-600 dark:hover:border-blue-500 dark:hover:bg-gray-700"
                         }`}
                       onDrop={onDrop}
                       onDragOver={onDragOver}

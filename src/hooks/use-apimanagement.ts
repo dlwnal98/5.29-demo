@@ -1,6 +1,6 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
-import { APIListData, CreateAPIProps, ModifyAPIProps, CloneCreateAPIProps } from '@/api/apiManagement.api';
-import { getAPIList, createAPI, cloneCreateAPI, modifyAPI, deleteAPI } from '@/api/apiManagement.api';
+import { APIListData, CreateAPIProps, ModifyAPIProps, CloneCreateAPIProps } from '@/apis/api-management.api';
+import { getAPIList, createAPI, cloneCreateAPI, modifyAPI, deleteAPI } from '@/apis/api-management.api';
 
 export function useGetAPIList(organizationId: string, page?: number, size?: number) {
   return useQuery<APIListData[]>({

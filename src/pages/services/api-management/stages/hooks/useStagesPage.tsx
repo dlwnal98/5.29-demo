@@ -2,10 +2,10 @@ import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { useSearchParams, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { useClipboard } from "use-clipboard-copy";
-import { useAuthStore } from "@/store/store";
+import { useAuthStore } from "@/stores/store";
 import { useGetStagesDocData } from "@/hooks/use-stages";
-import { buildTree } from "@/lib/etc";
-import { requestGet } from "@/lib/apiClient";
+import { buildTree } from "@/libs/etc";
+import { requestGet } from "@/libs/apiClient";
 
 interface ApiResource {
   id: string;

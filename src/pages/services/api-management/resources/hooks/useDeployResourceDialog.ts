@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { AxiosError } from 'axios';
-import { createStage } from '@/api/stages.api';
+import { createStage } from '@/apis/stages.api';
 import { useDeployAPI } from '@/hooks/use-resources';
 import { useGetStagesDocData } from '@/hooks/use-stages';
 

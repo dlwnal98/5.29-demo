@@ -12,7 +12,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { ArrowLeft, GitBranch, Folder, Menu, GitCommit } from "lucide-react";
-import { getFileIcon } from "@/lib/etc";
+import { getFileIcon } from "@/libs/etc";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface BreadcrumbItemType {

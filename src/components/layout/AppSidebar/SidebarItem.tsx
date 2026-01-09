@@ -69,7 +69,6 @@ const SubNavButton = ({
 
     const handleSubClick = () => {
         if (subItem.subItems) {
-
             // API Management인 경우 API Management 경로에서는 닫지 않음
             if (
                 (subItem.label === 'API Management' && isApiManagementPath) ||
@@ -83,9 +82,10 @@ const SubNavButton = ({
         }
     };
 
+
     const handleSubOpenChange = (open: boolean) => {
         // API Management가 API Management 경로에 있을 때는 강제로 열린 상태 유지
-        if (subItem.label === 'API Management' && isApiManagementPath) {
+        if ((subItem.label === 'API Management' && isApiManagementPath) || (subItem.label === 'Config' && isConfigPath)) {
             setIsSubOpen(true);
             return;
         }
@@ -199,11 +199,13 @@ export const SidebarItem = ({ item, sidebarCollapsed }: { item: any; sidebarColl
         return item.label === 'Infra Packages';
     });
 
-    useEffect(() => {
-        if (isApiManagementPath && !isOpen) {
-            setIsOpen(true);
-        }
-    }, [pathname, item.label, isApiManagementPath, isOpen]);
+    // useEffect(() => {
+    //     if (isApiManagementPath && !isOpen) {
+    //         console.log('설마')
+    //         // setIsOpen(true);
+    //         setIsOpen(false);
+    //     }
+    // }, [pathname, item.label, isApiManagementPath, isOpen]);
 
     // separator 처리
     if (item?.separator) {

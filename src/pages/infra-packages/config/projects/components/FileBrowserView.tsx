@@ -35,8 +35,8 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import MarkdownViewer from "./markdown-viewer";
-import { formatTimeAgo } from "@/lib/etc";
-import { getFileIcon } from "@/lib/etc";
+import { formatTimeAgo } from "@/libs/etc";
+import { getFileIcon } from "@/libs/etc";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BranchListProps } from "@/types/config";
 

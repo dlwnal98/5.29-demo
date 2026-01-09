@@ -18,7 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Plus, Search, Settings, Trash2 } from "lucide-react";
-import CommonPagination from "@/components/common-pagination";
+import CommonPagination from "@/components/CommonPagination";
 import { APIListData } from "@/hooks/use-apimanagement";
 import { Dispatch, SetStateAction } from "react";
 

@@ -19,7 +19,7 @@ import {
   History,
   Eye,
 } from "lucide-react";
-import { getFileIcon } from "@/lib/etc";
+import { getFileIcon } from "@/libs/etc";
 import MarkdownViewer from "@/pages/infra-packages/config/projects/components/markdown-viewer";
 import { Skeleton } from "@/components/ui/skeleton";
 
