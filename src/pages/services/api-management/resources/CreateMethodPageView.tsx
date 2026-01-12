@@ -33,20 +33,26 @@ import {
   Globe,
   Trash2,
   CheckCircle,
+  DockIcon,
+  Dock,
+  DiamondIcon,
+  BellElectricIcon,
+  ContainerIcon,
 } from "lucide-react";
 import { QueryParameter, Header } from "@/types/methods";
 import RequestHeaderListSearch from "../models/components/RequestHeaderListSearch";
 import { exampleMethodList } from "@/constants/data";
 import { ModelData } from "@/apis/models.api";
 import { EndpointsData } from "@/apis/route-endpoints.api";
+import { Global } from "recharts";
 
 interface MethodForm {
-  methodName: string;
+  summary: string;
   description: string;
   methodType: string;
   integrationType: string;
   apiKeyRequired: boolean;
-  selectedApiKey: string;
+  selectedApiKeyValue: string;
   endpointUrl: string;
   additionalParameter: string;
   customEndpointUrl: string;
@@ -65,9 +71,10 @@ interface CreateMethodPageViewProps {
   endpointList: EndpointsData[];
   modelList: ModelData[];
   validatorList: Array<{ code: string; description: string }>;
+  integrationTypeList: Array<{ code: string; description: string }>;
   methodForm: MethodForm;
   isDirectUrlInput: boolean;
-  selectedApiKey: string;
+  selectedApiKeyValue: string;
   apiKeyToggle: boolean;
   checkUrl: boolean;
   openSections: OpenSections;
@@ -107,9 +114,10 @@ export default function CreateMethodPageView({
   endpointList,
   modelList,
   validatorList,
+  integrationTypeList,
   methodForm,
   isDirectUrlInput,
-  selectedApiKey,
+  selectedApiKeyValue,
   apiKeyToggle,
   checkUrl,
   openSections,
@@ -135,6 +143,9 @@ export default function CreateMethodPageView({
   onCustomUrlChange,
   onDirectUrlToggle,
 }: CreateMethodPageViewProps) {
+
+
+  console.log(integrationTypeList);
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Breadcrumb */}
@@ -193,14 +204,14 @@ export default function CreateMethodPageView({
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="new-method-name" className="text-[16px] font-semibold mb-4">
-                    메서드 이름 <span className="text-red-500">*</span>
+                    메서드 요약 <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="new-method-name"
                     placeholder="예 : 사용자 정보 조회"
                     type="text"
-                    value={methodForm.methodName}
-                    onChange={(e) => onMethodFormChange("methodName", e.target.value)}
+                    value={methodForm.summary}
+                    onChange={(e) => onMethodFormChange("summary", e.target.value)}
                     className="mt-1"
                   />
                 </div>
@@ -258,35 +269,47 @@ export default function CreateMethodPageView({
                 <RadioGroup
                   value={methodForm.integrationType}
                   onValueChange={(value) => onMethodFormChange("integrationType", value)}
-                  className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 space-y-4"
+                  // 1. space-y-4 대신 gap을 사용하고, items-stretch로 자식 높이를 통일합니다.
+                  className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 space-y-0"
                 >
-                  <div
-                    className={`grid-cols-1 border rounded-lg p-4 transition-all ${methodForm.integrationType === "http"
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
-                      : "border-gray-200 hover:border-gray-300"
-                      }`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <RadioGroupItem value="http" id="http" />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <Globe className="h-8 w-8 text-blue-500" />
-                          <div>
-                            <Label htmlFor="http" className="text-base font-medium cursor-pointer">
-                              HTTP
-                            </Label>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              기존 HTTP 엔드포인트와 통합합니다.
-                            </p>
+                  {integrationTypeList?.map((integration) => (
+                    <div
+                      className={`border rounded-lg p-4 transition-all h-full flex flex-col justify-center ${ // 2. h-full 및 중앙 정렬 추가
+                        integration.code === "HTTP"
+                          ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
+                          : integration.code === "MOCK"
+                            ? "border-purple-500 bg-purple-50 dark:bg-purple-950/20"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <RadioGroupItem value={integration.code} id={integration.code} />
+                        <Label htmlFor={integration.code} className="flex-1 cursor-pointer font-normal">
+                          <div className="flex items-center gap-3">
+                            {
+                              integration.code === "HTTP"
+                                ? <Globe className="h-8 w-8 text-blue-500" />
+                                : integration.code === "MOCK"
+                                  ? <DiamondIcon className="h-8 w-8 text-purple-500" />
+                                  : <Globe className="h-8 w-8 text-gray-500" />
+                            }
+
+                            <div>
+                              <div className="text-base font-medium text-foreground">{integration.code}</div>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                {integration.description}
+                              </p>
+                            </div>
                           </div>
-                        </div>
+                        </Label>
                       </div>
                     </div>
-                  </div>
+                  ))}
+
                 </RadioGroup>
               </div>
 
-              {methodForm.integrationType === "http" && (
+              {methodForm.integrationType === "HTTP" && (
                 <div className="space-y-6">
                   {/* API Key Toggle */}
                   <div>
@@ -311,7 +334,7 @@ export default function CreateMethodPageView({
                               </span>
                               <button
                                 className="hover:underline"
-                                onClick={() => onCopyAPIKey(selectedApiKey)}
+                                onClick={() => onCopyAPIKey(selectedApiKeyValue)}
                               >
                                 <Copy className="h-4 w-4 ml-2" />
                               </button>
@@ -362,11 +385,11 @@ export default function CreateMethodPageView({
                             <SelectContent>
                               {endpointList?.map((url) => (
                                 <SelectItem
-                                  key={url.routeEndpointId}
-                                  value={url.routeEndpoint}
+                                  key={url.id}
+                                  value={url.routeUrl}
                                   className="hover:cursor-pointer"
                                 >
-                                  {url.routeEndpoint}
+                                  {url.routeUrl}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -617,18 +640,20 @@ export default function CreateMethodPageView({
 
                     <div className="grid grid-cols-12 gap-3 items-center mb-3">
                       <div className="col-span-10">
-                        <Select value={bodyModelId} onValueChange={(value) => setBodyModelId(value)}>
+                        <Select value={bodyModelId} onValueChange={(value) => setBodyModelId(value)}
+                          disabled={modelList?.content?.length === 0}
+                        >
                           <SelectTrigger>
                             <SelectValue
                               placeholder={
-                                modelList?.length > 0
+                                modelList?.content?.length > 0
                                   ? "모델 선택"
                                   : "생성된 모델이 존재하지 않습니다."
                               }
                             />
                           </SelectTrigger>
                           <SelectContent>
-                            {modelList.map((model) => (
+                            {modelList?.content?.map((model) => (
                               <SelectItem key={model.modelId} value={model.modelId}>
                                 {model.modelName}
                               </SelectItem>
@@ -637,14 +662,16 @@ export default function CreateMethodPageView({
                         </Select>
                       </div>
                       <div className="col-span-2 flex justify-start">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-0 hover:bg-transparent cursor-pointer"
-                          onClick={() => setBodyModelId("")}
-                        >
-                          <Trash2 className="h-5 w-5" />
-                        </Button>
+                        {modelList?.content?.length > 0 &&
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-0 hover:bg-transparent cursor-pointer"
+                            onClick={() => setBodyModelId("")}
+                          >
+                            <Trash2 className="h-5 w-5" />
+                          </Button>
+                        }
                       </div>
                     </div>
                   </div>

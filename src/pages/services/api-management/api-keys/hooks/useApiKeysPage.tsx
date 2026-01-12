@@ -85,6 +85,8 @@ export function useApiKeysPage() {
     return filteredApiKeys.slice(startIndex, endIndex);
   }, [filteredApiKeys, currentPage]);
 
+  const tenantId = userData?.organizationId ?? "kwwwksAsvmas";
+
   // 검색 시 페이지 초기화
   useEffect(() => {
     setCurrentPage(1);
@@ -92,13 +94,12 @@ export function useApiKeysPage() {
 
   // Handlers
   const handleCreate = () => {
+    console.log(tenantId, newApiKey, userData?.userKey)
     createAPIKey({
-      createdBy: userData?.userKey ?? "",
+      tenantId: tenantId ?? "",
       keyName: newApiKey.keyName,
       description: newApiKey.description,
-      // tenantId: userData?.tenantId ?? "",
-      tenantId: "kwwwksAsvmas",
-      expiresAt: new Date().toISOString(),
+      createdBy: userData?.userKey ?? "",
     });
   };
 

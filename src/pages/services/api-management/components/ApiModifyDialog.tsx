@@ -56,7 +56,6 @@ const ApiModifyDialog = ({
                 name: form.name,
                 description: form.description,
                 updatedBy: userKey,
-                enabled: true,
             },
         });
     };
@@ -89,13 +88,13 @@ const ApiModifyDialog = ({
                         <Textarea
                             id="description"
                             placeholder="설명을 입력하세요"
-                            value={form.description}
+                            value={form?.description}
                             onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
                             className="w-full min-h-[100px] resize-none"
                             maxLength={300}
                         />
                         <div className="text-right text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            {form.description.length}/300 자
+                            {form?.description?.length}/300 자
                         </div>
                     </div>
                 </div>

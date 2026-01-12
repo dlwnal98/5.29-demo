@@ -16,12 +16,12 @@ export function useGetMethodsList(pathId: string) {
 }
 
 // ✅ React Query Hook
-export function useCreateMethod(options?: UseMutationOptions<any, Error, CreateMethodProps>) {
+export function useCreateMethod(options?: UseMutationOptions<any, Error, { data: CreateMethodProps, apiId: string, resourceId: string }>) {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...options,
-    mutationFn: (data: CreateMethodProps) => createMethod(data),
+    mutationFn: ({ data, apiId, resourceId }: { data: CreateMethodProps, apiId: string, resourceId: string }) => createMethod(data, apiId, resourceId),
     onSuccess: (data, variables, context) => {
       // queryClient.invalidateQueries({
       //   queryKey: ['getOpenAPIDoc'],

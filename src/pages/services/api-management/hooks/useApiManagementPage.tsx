@@ -13,7 +13,8 @@ export function useApiManagementPage() {
   const userData = useAuthStore((state) => state.user);
   const userKey = userData?.userKey || "";
   // const organizationId = userData?.organizationId || "";
-  const tenantId = "kwwwksAsvmas";
+  const tenantId = userData?.organizationId ?? "kwwwksAsvmas";
+
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState("");

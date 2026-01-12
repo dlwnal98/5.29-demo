@@ -4,11 +4,11 @@ import { EndpointsData, CreateEndpointProps, ModifyEndpointProps } from '@/apis/
 
 
 
-export function useGetEndpointsList(organizationId: string) {
+export function useGetEndpointsList(tenantId: string) {
   return useQuery<EndpointsData[]>({
-    queryKey: ['getEndpointsList', organizationId],
-    queryFn: () => getEndpointsList(organizationId),
-    enabled: !!organizationId, // 조건적 실행
+    queryKey: ['getEndpointsList', tenantId],
+    queryFn: () => getEndpointsList(tenantId),
+    enabled: !!tenantId, // 조건적 실행
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -23,7 +23,7 @@ export function useCreateEndpoint(options?: UseMutationOptions<any, Error, Creat
 
   return useMutation({
     ...options,
-    mutationFn: (data: CreateEndpointProps) => createEndpoint(data),
+    mutationFn: (data) => createEndpoint(data),
     onSuccess: (data, variables, context) => {
       //   브랜치 생성 성공 시 목록 invalidate
       queryClient.invalidateQueries({
@@ -35,14 +35,14 @@ export function useCreateEndpoint(options?: UseMutationOptions<any, Error, Creat
 }
 
 export function useModifyEndpoint(
-  options?: UseMutationOptions<any, Error, { targetId: string; data: ModifyEndpointProps }>
+  options?: UseMutationOptions<any, Error, { id: string; data: ModifyEndpointProps }>
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...options,
-    mutationFn: ({ targetId, data }: { targetId: string; data: ModifyEndpointProps }) =>
-      modifyEndpoint(targetId, data),
+    mutationFn: ({ id, data }: { id: string; data: ModifyEndpointProps }) =>
+      modifyEndpoint(id, data),
     onSuccess: (data, variables, context) => {
       //   브랜치 생성 성공 시 목록 invalidate
       queryClient.invalidateQueries({
@@ -60,7 +60,7 @@ export function useDeleteEndpoint(options?: UseMutationOptions<any, Error, strin
 
   return useMutation({
     ...options,
-    mutationFn: (targetId: string) => deleteEndpoint(targetId),
+    mutationFn: (id: string) => deleteEndpoint(id),
     onSuccess: (data, variables, context) => {
       //   브랜치 생성 성공 시 목록 invalidate
       queryClient.invalidateQueries({

@@ -23,7 +23,7 @@ import {
 import { Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { sampleApiData } from '@/constants/sample-api-data';
-import { useCloneCreateAPI, useCreateAPI } from '@/hooks/use-apimanagement';
+import { useCloneCreateAPI, useCreateAPI, useUploadOpenAPIDocCreateAPI } from '@/hooks/use-apimanagement';
 import { APIListData } from '@/hooks/use-apimanagement';
 
 interface ApiCreateModalProps {
@@ -46,12 +46,12 @@ const ApiCreateDialog = ({
         name: '',
         description: '',
         createdBy: userKey,
+        swaggerContent: '',
     });
     const [apiType, setApiType] = useState('new');
     const [swaggerFile, setSwaggerFile] = useState<File | null>(null);
-    const [swaggerContent, setSwaggerContent] = useState('');
     const [isDragOver, setIsDragOver] = useState(false);
-    const [copyApiId, setCopyApiId] = useState('');
+    const [sourcePlanId, setSourcePlanId] = useState('');
 
     useEffect(() => {
         if (tenantId && userKey) {
@@ -103,17 +103,21 @@ const ApiCreateDialog = ({
             };
             reader.readAsText(file);
         }
+
+    };
+
+    const resetForm = () => {
+        setApiType('new');
+        setSwaggerFile(null);
+        setCreateApiForm((prev) => ({ ...prev, name: '', description: '', swaggerContent: '' }));
+        setSourcePlanId('');
     };
 
     // API 직접입력 생성
     const { mutate: createAPI } = useCreateAPI({
         onSuccess: () => {
             onOpenChange(false);
-            setApiType('new');
-            setSwaggerContent('');
-            setSwaggerFile(null);
-            setCreateApiForm((prev) => ({ ...prev, name: '', description: '' }));
-            setCopyApiId('');
+            resetForm();
             toast.success(`API '${createApiForm.name}'이(가) 생성되었습니다.`);
         },
     });
@@ -122,55 +126,76 @@ const ApiCreateDialog = ({
     const { mutate: cloneCreateAPI } = useCloneCreateAPI({
         onSuccess: () => {
             onOpenChange(false);
-            setApiType('new');
-            setSwaggerContent('');
-            setSwaggerFile(null);
-            setCreateApiForm((prev) => ({ ...prev, name: '', description: '' }));
-            setCopyApiId('');
+            resetForm();
             toast.success(`API '${createApiForm.name}'이(가) 생성되었습니다.`);
+        },
+    });
+
+    // Swagger로 API 생성
+    const { mutate: uploadOpenAPIDoc } = useUploadOpenAPIDocCreateAPI({
+        onSuccess: () => {
+            onOpenChange(false);
+            resetForm();
+            toast.success('Swagger 문서로 API가 생성되었습니다.');
+        },
+        onError: (error: any) => {
+            const errorMessage = error?.response?.data?.message
+                || error?.response?.data?.errors?.[0]?.detail
+                || error?.message
+                || 'API 생성 중 오류가 발생했습니다.';
+            toast.error(errorMessage);
         },
     });
 
     // 생성 버튼 클릭
     const handleCreateApi = () => {
-        if (!createApiForm.name.trim()) {
-            toast.error('API 이름을 입력해주세요.');
-            return;
-        }
-
         if (apiType === 'new') {
-            if (tenantId && userKey) createAPI(createApiForm);
-        }
-
-        if (apiType === 'copy') {
-            if (!copyApiId) {
-                toast.error('복사할 API를 선택해주세요.');
+            if (!createApiForm.name.trim()) {
+                toast.error('API 이름을 입력해주세요.');
                 return;
-            } else {
-                cloneCreateAPI({
-                    copyApiId: copyApiId,
-                    targetOrganizationId: tenantId,
-                    newName: createApiForm.name,
-                    userKey: userKey,
-                    description: createApiForm.description,
-                });
+            }
+            if (tenantId && userKey) {
+                const { swaggerContent, ...apiData } = createApiForm;
+                createAPI(apiData);
             }
         }
 
-        if (apiType === 'swagger' && !swaggerContent.trim()) {
-            toast.error('Swagger 내용을 입력하거나 파일을 업로드해주세요.');
-            return;
+        if (apiType === 'copy') {
+            if (!createApiForm.name.trim()) {
+                toast.error('API 이름을 입력해주세요.');
+                return;
+            }
+            if (!sourcePlanId) {
+                toast.error('복사할 API를 선택해주세요.');
+                return;
+            }
+            cloneCreateAPI({
+                sourcePlanId,
+                data: {
+                    name: createApiForm.name,
+                    description: createApiForm.description,
+                    createdBy: userKey,
+                }
+            });
+        }
+
+        if (apiType === 'swagger') {
+            if (!createApiForm.swaggerContent.trim()) {
+                toast.error('Swagger 내용을 입력하거나 파일을 업로드해주세요.');
+                return;
+            }
+            uploadOpenAPIDoc({
+                tenantId,
+                createdBy: userKey,
+                data: createApiForm.swaggerContent,
+            });
         }
     };
 
     // 취소 버튼 클릭
     const handleCancel = () => {
         onOpenChange(false);
-        setApiType('new');
-        setSwaggerContent('');
-        setSwaggerFile(null);
-        setCreateApiForm((prev) => ({ ...prev, name: '', description: '' }));
-        setCopyApiId('');
+        resetForm();
     };
 
     const isValidCreateApi = useMemo(() => {
@@ -178,11 +203,13 @@ const ApiCreateDialog = ({
             case 'new':
                 return createApiForm.name.trim().length > 0;
             case 'copy':
-                return createApiForm.name.trim().length > 0 && Boolean(copyApiId);
+                return createApiForm.name.trim().length > 0 && Boolean(sourcePlanId);
+            case 'swagger':
+                return createApiForm.swaggerContent.trim().length > 0;
             default:
                 return false;
         }
-    }, [apiType, createApiForm.name, copyApiId]);
+    }, [apiType, createApiForm.name, createApiForm.swaggerContent, sourcePlanId]);
 
     // 타입별 입력 UI
     const renderCreateApiContent = () => {
@@ -195,8 +222,8 @@ const ApiCreateDialog = ({
                                 복사할 API 선택 <span className="text-red-500">*</span>
                             </Label>
                             <Select
-                                value={copyApiId ? copyApiId : ''}
-                                onValueChange={(value) => setCopyApiId(value)}>
+                                value={sourcePlanId ? sourcePlanId : ''}
+                                onValueChange={(value) => setSourcePlanId(value)}>
                                 <SelectTrigger className="!h-[50px]">
                                     <SelectValue placeholder="복사할 API를 선택하세요" />
                                 </SelectTrigger>
@@ -258,7 +285,7 @@ const ApiCreateDialog = ({
                                     <div className="col-span-4">
                                         <Textarea
                                             placeholder="Swagger JSON 또는 YAML 내용을 입력하세요..."
-                                            value={swaggerContent}
+                                            value={createApiForm.swaggerContent}
                                             onChange={(e) => {
                                                 setCreateApiForm((prev) => ({ ...prev, swaggerContent: e.target.value }));
                                             }}
@@ -268,14 +295,14 @@ const ApiCreateDialog = ({
                                 </div>
                             </TabsContent>
                             <TabsContent value="preview" className="space-y-4">
-                                {swaggerContent ? (
+                                {createApiForm.swaggerContent ? (
                                     <div className="border rounded-lg bg-gray-50">
                                         <div className="p-3 border-b bg-white">
                                             <Label className="text-sm font-medium text-gray-700">Swagger 미리보기</Label>
                                         </div>
                                         <div className="p-4">
                                             <pre className="text-xs bg-white p-4 rounded border max-h-96 overflow-auto font-mono">
-                                                {swaggerContent}
+                                                {createApiForm.swaggerContent}
                                             </pre>
                                         </div>
                                     </div>
@@ -289,18 +316,18 @@ const ApiCreateDialog = ({
                         </Tabs>
                     </div>
                 );
-            case 'example':
-                return (
-                    <div className="grid grid-cols-4 gap-4">
-                        <div className="col-span-4">
-                            <Textarea
-                                value={sampleApiData}
-                                disabled
-                                className="min-h-[300px] font-mono text-sm resize-none"
-                            />
-                        </div>
-                    </div>
-                );
+            // case 'example':
+            //     return (
+            //         <div className="grid grid-cols-4 gap-4">
+            //             <div className="col-span-4">
+            //                 <Textarea
+            //                     value={sampleApiData}
+            //                     disabled
+            //                     className="min-h-[300px] font-mono text-sm resize-none"
+            //                 />
+            //             </div>
+            //         </div>
+            //     );
             default:
                 return null;
         }
@@ -326,10 +353,9 @@ const ApiCreateDialog = ({
                             value={apiType}
                             onValueChange={(value) => {
                                 setApiType(value);
-                                setSwaggerContent('');
                                 setSwaggerFile(null);
-                                setCreateApiForm((prev) => ({ ...prev, name: '', description: '' }));
-                                setCopyApiId('');
+                                setCreateApiForm((prev) => ({ ...prev, name: '', description: '', swaggerContent: '' }));
+                                setSourcePlanId('');
                             }}
                             className="grid grid-cols-2 gap-4">
                             <div className="flex items-center space-x-2">
@@ -356,48 +382,54 @@ const ApiCreateDialog = ({
                                     Swagger에서 가져오기
                                 </Label>
                             </div>
-                            <div className="flex items-center space-x-2">
+                            {/* <div className="flex items-center space-x-2">
                                 <RadioGroupItem value="example" id="example" />
                                 <Label
                                     htmlFor="example"
                                     className={`text-sm ${apiType === 'example' ? 'text-blue-600 font-medium' : ''} hover:cursor-pointer`}>
                                     API 예제
                                 </Label>
-                            </div>
+                            </div> */}
                         </RadioGroup>
                     </div>
-                    {/* API 이름 */}
-                    <div>
-                        <Label htmlFor="api-name" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                            API 이름 <span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                            id="api-name"
-                            placeholder="API 이름을 입력하세요"
-                            value={createApiForm.name}
-                            onChange={(e) => setCreateApiForm((prev) => ({ ...prev, name: e.target.value }))}
-                            className="w-full"
-                        />
-                    </div>
-                    {/* 설명 */}
-                    <div>
-                        <Label htmlFor="description" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                            설명
-                        </Label>
-                        <Textarea
-                            id="description"
-                            placeholder="설명을 입력하세요"
-                            value={createApiForm.description}
-                            onChange={(e) =>
-                                setCreateApiForm((prev) => ({ ...prev, description: e.target.value }))
-                            }
-                            className="w-full min-h-[100px] resize-none"
-                            maxLength={300}
-                        />
-                        <div className="text-right text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            {createApiForm.description.length}/300 자
-                        </div>
-                    </div>
+                    {apiType !== 'swagger' && (
+                        <>
+                            {/* API 이름 */}
+
+                            <div>
+                                <Label htmlFor="api-name" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                                    API 이름 <span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="api-name"
+                                    placeholder="API 이름을 입력하세요"
+                                    value={createApiForm.name}
+                                    onChange={(e) => setCreateApiForm((prev) => ({ ...prev, name: e.target.value }))}
+                                    className="w-full"
+                                />
+                            </div>
+                            {/* 설명 */}
+                            <div>
+                                <Label htmlFor="description" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                                    설명
+                                </Label>
+                                <Textarea
+                                    id="description"
+                                    placeholder="설명을 입력하세요"
+                                    value={createApiForm.description}
+                                    onChange={(e) =>
+                                        setCreateApiForm((prev) => ({ ...prev, description: e.target.value }))
+                                    }
+                                    className="w-full min-h-[100px] resize-none"
+                                    maxLength={300}
+                                />
+                                <div className="text-right text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                    {createApiForm.description.length}/300 자
+                                </div>
+                            </div>
+
+                        </>
+                    )}
                     {/* 타입별 추가 입력 */}
                     {renderCreateApiContent()}
                 </div>

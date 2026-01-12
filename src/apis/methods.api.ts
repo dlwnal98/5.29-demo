@@ -31,10 +31,13 @@ export const getMethodsList = async (pathId: string): Promise<MethodsListProps[]
 // 공통 파라미터 타입
 export interface QueryParameter {
     name: string;
-    type: string;
-    description: string;
+    in: string;
     required: boolean;
-    example?: string;
+    description: string;
+    schema: {
+        type: string;
+        default: boolean;
+    }
 }
 
 export interface HeaderParameter {
@@ -49,44 +52,56 @@ export interface HeaderParameter {
 
 export interface PathParameter {
     name: string;
-    type: string;
-    description: string;
+    in: string;
     required: boolean;
-    example?: string;
-    schema?: {
+    description: string;
+    schema: {
         type: string;
-        pattern: string;
-    };
+    }
 }
 
 // 메서드 생성 DTO
 export interface CreateMethodProps {
-    resourceId: string;
     httpMethod: string;
-    methodName: string;
+    summary: string;
     description?: string;
-    backendServiceUrl: string;
-    requestModelId?: string;
-    responseModelId?: string;
-    queryParameters: {
-        name: string;
-        type: string;
-        required: boolean;
-    }[];
-    headerParameters: {
-        name: string;
-        type: string;
-        required: boolean;
-    }[];
+    tags?: string[];
+    integrationType: string;
+    routingEndpoint: string;
+    requestValidation?: string;
+    apiKeyRequired?: boolean;
     apiKeyId?: string;
-    requiresApiKey?: boolean;
-    requestValidator: string;
+    mockResponse?: {
+        statusCode: number;
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: string
+    },
+    pathParameters?: PathParameter[],
+    queryParameters?: QueryParameter[],
+    headerParameters?: HeaderParameter[],
+    requestBodyConfig?: {
+        modelId: string;
+        required: boolean;
+    },
+    responses?: [
+        {
+            statusCode: string;
+            description: string;
+            modelId: string;
+        },
+        {
+            statusCode: string;
+            description: string;
+        }
+    ],
     createdBy: string;
 }
 
 // ✅ API 요청 함수
-export const createMethod = async (data: CreateMethodProps) => {
-    const res = await requestPost(`/api/v1/methods`, {
+export const createMethod = async (data: CreateMethodProps, apiId: string, resourceId: string) => {
+    const res = await requestPost(`/api/v1/plans/${apiId}/resources/${resourceId}/methods`, {
         body: data,
     });
 
@@ -133,28 +148,11 @@ export const modifyMethod = async (methodId: string, data: ModifyMethodProps) =>
     return res;
 };
 
-// 요청검사기 데이터
-export interface MethodsListProps {
-    codeType: string;
-    code: string;
-    codeName: string;
-    description: string;
-    isActive: boolean;
-}
-
-// 요청검사기 목록 조회 API
-export const getValidatorList = async (codeType = 'REQUEST_VALIDATOR'): Promise<MethodsListProps[]> => {
-    const res = await requestGet(`/api/v1/common-codes/${codeType}`);
-
-    return res;
-};
-
 export interface DeleteMethodProps {
     methodId: string;
     userKey: string;
 }
 
-// ✅ API 요청 함수
 export const deleteMethod = async (data: DeleteMethodProps) => {
     const res = await requestDelete(`/api/v1/methods/${data.methodId}`, {
         body: {
@@ -164,3 +162,32 @@ export const deleteMethod = async (data: DeleteMethodProps) => {
 
     return res;
 };
+
+
+// 요청검사기 데이터
+export interface ValidatorListProps {
+    code: string;
+    description: string;
+}
+
+// 요청검사기 목록 조회 API
+export const getValidatorList = async (): Promise<ValidatorListProps[]> => {
+    const res = await requestGet(`/api/v1/methods/validation-types`);
+
+    return res;
+};
+
+
+// 통합 유형 목록 조회
+export interface IntegrationTypeListProps {
+    code: string;
+    description: string;
+}
+
+// 통합 유형 목록 조회 API
+export const getIntegrationTypeList = async (): Promise<IntegrationTypeListProps[]> => {
+    const res = await requestGet(`/api/v1/methods/integration-types`);
+
+    return res;
+};
+

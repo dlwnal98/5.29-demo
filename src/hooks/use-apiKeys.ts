@@ -2,11 +2,11 @@ import { useQuery, useMutation, UseMutationOptions, useQueryClient } from '@tans
 import { ApiKey, CreateAPIKeyVariables, ModifyAPIKeyVariables } from '@/apis/api-keys.api';
 import { getAPIKeyList, createAPIKey, modifyAPIKey, deleteAPIKey } from '@/apis/api-keys.api';
 
-export function useGetAPIKeyList(organizationId: string) {
+export function useGetAPIKeyList(tenantId: string) {
   return useQuery<ApiKey[]>({
-    queryKey: ['getAPIKeyList', organizationId],
-    queryFn: () => getAPIKeyList(organizationId),
-    enabled: !!organizationId, // 조건적 실행
+    queryKey: ['getAPIKeyList', tenantId],
+    queryFn: () => getAPIKeyList(tenantId),
+    enabled: !!tenantId, // 조건적 실행
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,

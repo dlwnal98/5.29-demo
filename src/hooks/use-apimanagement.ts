@@ -1,6 +1,6 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
 import { APIListData, CreateAPIProps, ModifyAPIProps, CloneCreateAPIProps } from '@/apis/api-management.api';
-import { getAPIList, createAPI, cloneCreateAPI, modifyAPI, deleteAPI } from '@/apis/api-management.api';
+import { getAPIList, createAPI, cloneCreateAPI, modifyAPI, deleteAPI, uploadOpenAPIDocCreateAPI } from '@/apis/api-management.api';
 
 export function useGetAPIList(organizationId: string, page?: number, size?: number) {
   return useQuery<APIListData[]>({
@@ -33,12 +33,30 @@ export function useCreateAPI(options?: UseMutationOptions<any, Error, CreateAPIP
   });
 }
 
-export function useCloneCreateAPI(options?: UseMutationOptions<any, Error, CloneCreateAPIProps>) {
+export function useCloneCreateAPI(options?: UseMutationOptions<any, Error, { sourcePlanId: string; data: CloneCreateAPIProps }>) {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...options,
-    mutationFn: (data: CloneCreateAPIProps) => cloneCreateAPI(data),
+    mutationFn: ({ sourcePlanId, data }: { sourcePlanId: string; data: CloneCreateAPIProps }) => cloneCreateAPI(sourcePlanId, data),
+    onSuccess: (data, variables, context) => {
+      //   브랜치 생성 성공 시 목록 invalidate
+      queryClient.invalidateQueries({
+        queryKey: ['getAPIList'],
+      });
+
+      // 외부 onSuccess 실행
+      options?.onSuccess?.(data, variables, context);
+    },
+  });
+}
+
+export function useUploadOpenAPIDocCreateAPI(options?: UseMutationOptions<any, Error, { tenantId: string; createdBy: string; data: string }>) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...options,
+    mutationFn: ({ tenantId, createdBy, data }: { tenantId: string; createdBy: string; data: string }) => uploadOpenAPIDocCreateAPI(tenantId, createdBy, data),
     onSuccess: (data, variables, context) => {
       //   브랜치 생성 성공 시 목록 invalidate
       queryClient.invalidateQueries({
@@ -78,8 +96,7 @@ export function useDeleteAPI(
 
   return useMutation({
     ...options,
-    mutationFn: ({ apiId, userKey }: { apiId: string; userKey: string }) =>
-      deleteAPI(apiId, userKey),
+    mutationFn: ({ apiId }: { apiId: string }) => deleteAPI(apiId),
     onSuccess: (data, variables, context) => {
       //   브랜치 생성 성공 시 목록 invalidate
       queryClient.invalidateQueries({

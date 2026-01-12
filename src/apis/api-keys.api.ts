@@ -13,11 +13,10 @@ export interface ApiKey {
 }
 
 export type CreateAPIKeyVariables = {
-    createdBy: string;
+    tenantId: string;
     keyName: string;
     description: string;
-    tenantId: string;
-    expiresAt: string;
+    createdBy: string;
 };
 
 
@@ -28,12 +27,18 @@ export const getAPIKeyList = async (tenantId: string) => {
     return res;
 };
 
+// API Key 상세 조회
+export const getAPIKeyDetail = async (apiKeyId: string) => {
+    const res = await requestGet(`/api/v1/api-keys/${apiKeyId}`);
+
+    return res;
+};
+
 export const createAPIKey = async ({
     createdBy,
     keyName,
     description,
     tenantId,
-    expiresAt,
 }: CreateAPIKeyVariables) => {
     const res = await requestPost(`/api/v1/api-keys`, {
         body: {
@@ -41,7 +46,6 @@ export const createAPIKey = async ({
             keyName,
             description,
             tenantId,
-            expiresAt,
         },
     });
 

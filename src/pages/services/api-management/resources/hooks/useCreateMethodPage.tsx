@@ -11,14 +11,16 @@ import { requestGet } from "@/libs/apiClient";
 import { useClipboard } from "use-clipboard-copy";
 import { onInputChange, onSave } from "@/libs/etc";
 import { useQueryClient } from "@tanstack/react-query";
+import { getValidatorList, getIntegrationTypeList } from "@/apis/methods.api";
+import { getAPIKeyDetail } from "@/apis/api-keys.api";
 
 interface MethodForm {
-  methodName: string;
+  summary: string;
   description: string;
   methodType: string;
   integrationType: string;
   apiKeyRequired: boolean;
-  selectedApiKey: string;
+  selectedApiKeyValue: string;
   endpointUrl: string;
   additionalParameter: string;
   customEndpointUrl: string;
@@ -48,20 +50,22 @@ export function useCreateMethodPage() {
   const apiId = sessionStorage.getItem("selectedApiId") || "";
   const apiName = sessionStorage.getItem("selectedApiName") || "";
   const clipboard = useClipboard();
+  const tenantId = userData?.organizationId ?? "kwwwksAsvmas";
 
-  const { data: apiKeyList = [] } = useGetAPIKeyList(organizationId);
-  const { data: endpointList = [] } = useGetEndpointsList(organizationId);
-  const { data: modelList = [] } = useGetModelList(apiId);
+
+  const { data: apiKeyList = [] } = useGetAPIKeyList(tenantId);
+  const { data: endpointList = [] } = useGetEndpointsList(tenantId);
+  const { data: modelList = [] } = useGetModelList(apiId, 1, 20);
 
   const queryClient = useQueryClient();
 
   const [methodForm, setMethodForm] = useState<MethodForm>({
-    methodName: "",
+    summary: "",
     description: "",
     methodType: "",
-    integrationType: "http",
+    integrationType: "HTTP",
     apiKeyRequired: false,
-    selectedApiKey: "",
+    selectedApiKeyValue: "",
     endpointUrl: "",
     additionalParameter: "",
     customEndpointUrl: "",
@@ -71,7 +75,7 @@ export function useCreateMethodPage() {
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [isDirectUrlInput, setIsDirectUrlInput] = useState(false);
   const [selectedApiKeyId, setSelectedApiKeyId] = useState("");
-  const [selectedApiKey, setSelectedApiKey] = useState("");
+  const [selectedApiKeyValue, setSelectedApiKeyValue] = useState("");
   const [apiKeyToggle, setApiKeyToggle] = useState(false);
   const [isCreatingNewApiKey, setIsCreatingNewApiKey] = useState(false);
   const [newApiKeyForm, setNewApiKeyForm] = useState<NewApiKeyForm>({
@@ -93,17 +97,26 @@ export function useCreateMethodPage() {
   const [validatorList, setValidatorList] = useState<
     Array<{ code: string; description: string }>
   >([]);
+  const [integrationTypeList, setIntegrationTypeList] = useState<
+    Array<{ code: string; description: string }>
+  >([]);
   const [openId, setOpenId] = useState<string | null>(null);
   const [paramCounter, setParamCounter] = useState(0);
   const nextHeaderIdRef = useRef<number>(0);
 
-  const getValidatorList = async (codeType = "REQUEST_VALIDATOR") => {
-    const res = await requestGet(`/api/v1/common-codes/${codeType}`);
+  const handleGetValidatorList = async () => {
+    const res = await getValidatorList();
     return setValidatorList(res);
   };
 
+  const handleGetIntegrationTypeList = async () => {
+    const res = await getIntegrationTypeList();
+    return setIntegrationTypeList(res);
+  };
+
   useEffect(() => {
-    getValidatorList();
+    handleGetValidatorList();
+    handleGetIntegrationTypeList();
   }, []);
 
   const handleBack = useCallback(async () => {
@@ -140,12 +153,12 @@ export function useCreateMethodPage() {
       return;
     }
 
-    if (methodForm.integrationType === "http" && !methodForm.methodType) {
+    if (methodForm.integrationType === "HTTP" && !methodForm.methodType) {
       toast.error("HTTP 메서드를 선택해주세요.");
       return;
     }
 
-    if (methodForm.integrationType === "http") {
+    if (methodForm.integrationType === "HTTP") {
       const finalUrl = isDirectUrlInput
         ? methodForm.customEndpointUrl
         : methodForm.endpointUrl;
@@ -159,36 +172,44 @@ export function useCreateMethodPage() {
       if (isDirectUrlInput) {
         if (onSave(methodForm.customEndpointUrl)) {
           createMethod({
-            resourceId,
-            createdBy: userKey,
-            httpMethod: methodForm.methodType,
-            methodName: methodForm.methodName,
-            description: methodForm.description,
-            apiKeyId: selectedApiKeyId,
-            requiresApiKey: apiKeyToggle,
-            backendServiceUrl: methodForm.customEndpointUrl || methodForm.endpointUrl,
-            requestModelId: bodyModelId || "",
-            queryParameters,
-            headerParameters: headers,
-            requestValidator: methodForm.requestValidator,
+            data: {
+              createdBy: userKey,
+              httpMethod: methodForm.methodType,
+              summary: methodForm.summary,
+              description: methodForm.description,
+              integrationType: methodForm.integrationType,
+              apiKeyId: selectedApiKeyId,
+              apiKeyRequired: apiKeyToggle,
+              routingEndpoint: methodForm.customEndpointUrl || methodForm.endpointUrl,
+              requestModelId: bodyModelId || "",
+              queryParameters,
+              headerParameters: headers,
+              requestValidator: methodForm.requestValidator,
+            },
+            apiId,
+            resourceId
           });
         } else {
           toast.error("유효하지 않은 엔드포인트 URL입니다.");
         }
       } else {
         createMethod({
-          resourceId,
-          createdBy: userKey,
-          httpMethod: methodForm.methodType,
-          methodName: methodForm.methodName,
-          description: methodForm.description,
-          apiKeyId: selectedApiKeyId,
-          requiresApiKey: apiKeyToggle,
-          backendServiceUrl: methodForm.customEndpointUrl || methodForm.endpointUrl,
-          requestModelId: bodyModelId || "",
-          queryParameters,
-          headerParameters: headers,
-          requestValidator: methodForm.requestValidator,
+          data: {
+            createdBy: userKey,
+            httpMethod: methodForm.methodType,
+            summary: methodForm.summary,
+            description: methodForm.description,
+            integrationType: methodForm.integrationType,
+            apiKeyId: selectedApiKeyId,
+            apiKeyRequired: apiKeyToggle,
+            routingEndpoint: methodForm.customEndpointUrl || methodForm.endpointUrl,
+            requestModelId: bodyModelId || "",
+            queryParameters,
+            headerParameters: headers,
+            requestValidator: methodForm.requestValidator,
+          },
+          apiId,
+          resourceId
         });
       }
     }
@@ -211,6 +232,7 @@ export function useCreateMethodPage() {
       [section]: !prev[section],
     }));
   }, []);
+
 
   const handleApiKeyToggle = useCallback((checked: boolean) => {
     setIsCreatingNewApiKey(false);
@@ -304,12 +326,21 @@ export function useCreateMethodPage() {
   }, []);
 
   const isValidCreateMethod = useMemo(() => {
-    return Boolean(
-      methodForm.methodName &&
-      methodForm.methodType &&
-      methodForm.integrationType &&
-      (isDirectUrlInput ? methodForm.customEndpointUrl : methodForm.endpointUrl)
-    );
+    if (methodForm.integrationType === 'HTTP') {
+      return Boolean(
+        methodForm.summary &&
+        methodForm.methodType &&
+        methodForm.integrationType &&
+        (isDirectUrlInput ? methodForm.customEndpointUrl : methodForm.endpointUrl)
+      );
+    } else {
+      return Boolean(
+        methodForm.summary &&
+        methodForm.methodType &&
+        methodForm.integrationType
+      );
+    }
+
   }, [methodForm, isDirectUrlInput]);
 
   return {
@@ -321,11 +352,12 @@ export function useCreateMethodPage() {
     endpointList,
     modelList,
     validatorList,
+    integrationTypeList,
 
     // Form state
     methodForm,
     isDirectUrlInput,
-    selectedApiKey,
+    selectedApiKeyValue,
     selectedApiKeyId,
     apiKeyToggle,
     checkUrl,
@@ -341,7 +373,7 @@ export function useCreateMethodPage() {
 
     // Setters
     setMethodForm,
-    setSelectedApiKey,
+    setSelectedApiKeyValue,
     setSelectedApiKeyId,
     setApiKeyToggle,
     setIsApiKeyModalOpen,

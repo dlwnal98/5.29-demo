@@ -13,9 +13,10 @@ export default function CreateMethodPage() {
     endpointList,
     modelList,
     validatorList,
+    integrationTypeList,
     methodForm,
     isDirectUrlInput,
-    selectedApiKey,
+    selectedApiKeyValue,
     apiKeyToggle,
     checkUrl,
     openSections,
@@ -27,7 +28,7 @@ export default function CreateMethodPage() {
     isCreatingNewApiKey,
     newApiKeyForm,
     isValidCreateMethod,
-    setSelectedApiKey,
+    setSelectedApiKeyValue,
     setSelectedApiKeyId,
     setApiKeyToggle,
     setIsApiKeyModalOpen,
@@ -56,12 +57,13 @@ export default function CreateMethodPage() {
       <>
         <CreateMethodPageView
           resourcePath={resourcePath}
-          endpointList={endpointList}
+          endpointList={endpointList || []}
           modelList={modelList}
           validatorList={validatorList}
+          integrationTypeList={integrationTypeList}
           methodForm={methodForm}
           isDirectUrlInput={isDirectUrlInput}
-          selectedApiKey={selectedApiKey}
+          selectedApiKeyValue={selectedApiKeyValue}
           apiKeyToggle={apiKeyToggle}
           checkUrl={checkUrl}
           openSections={openSections}
@@ -94,7 +96,7 @@ export default function CreateMethodPage() {
           isCreatingNewApiKey={isCreatingNewApiKey}
           setIsCreatingNewApiKey={setIsCreatingNewApiKey}
           apiKeyList={apiKeyList || []}
-          setSelectedApiKey={setSelectedApiKey}
+          setSelectedApiKeyValue={setSelectedApiKeyValue}
           setSelectedApiKeyId={setSelectedApiKeyId}
           newApiKeyForm={newApiKeyForm}
           setNewApiKeyForm={setNewApiKeyForm}

@@ -29,7 +29,7 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/api/v1/api-keys': {
-        target: 'http://192.168.123.102:8084',
+        target: 'http://1.224.162.188:58084',
         changeOrigin: true,
       },
       '/api/v1/access-token': {
@@ -101,7 +101,7 @@ export default defineConfig({
         target: 'http://1.224.162.188:58084',
         changeOrigin: true,
       },
-      '/api/v1/target-endpoints': {
+      '/api/v1/route-endpoints': {
         target: 'http://1.224.162.188:58084',
         changeOrigin: true,
       },

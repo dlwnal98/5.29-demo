@@ -25,7 +25,7 @@ interface SeleceAPIKeyProps {
     setIsCreatingNewApiKey: React.Dispatch<SetStateAction<boolean>>;
     apiKeyList: ApiKey[];
     setSelectedApiKeyId: React.Dispatch<SetStateAction<string>>;
-    setSelectedApiKey: React.Dispatch<SetStateAction<string>>;
+    setSelectedApiKeyValue: React.Dispatch<SetStateAction<string>>;
     newApiKeyForm: { name: string; description: string };
     setNewApiKeyForm: React.Dispatch<SetStateAction<any>>;
     setApiKeyToggle: React.Dispatch<SetStateAction<boolean>>;
@@ -39,7 +39,7 @@ export function SelectAPIKeyModal({
     isCreatingNewApiKey,
     setIsCreatingNewApiKey,
     setSelectedApiKeyId,
-    setSelectedApiKey,
+    setSelectedApiKeyValue,
     apiKeyList,
     newApiKeyForm,
     setNewApiKeyForm,
@@ -48,13 +48,15 @@ export function SelectAPIKeyModal({
     setApiKeyToggle,
 }: SeleceAPIKeyProps) {
     const [selectApiKey, setSelectApiKey] = useState('');
+    const tenantId = organizationId ?? "kwwwksAsvmas";
+
 
     const { mutate: createAPIKey } = useCreateAPIKey({
         onSuccess: (data) => {
             console.log(data);
             setApiKeyToggle(true);
-            setSelectedApiKey(data.key);
-            setSelectedApiKeyId(data.keyId);
+            setSelectedApiKeyValue(data.keyValue);
+            setSelectedApiKeyId(data.apiKeyId);
             toast.success('성공');
             onOpenChange(false);
         },
@@ -67,10 +69,10 @@ export function SelectAPIKeyModal({
     const handleCreateAPIKey = () => {
         if (isCreatingNewApiKey) {
             createAPIKey({
-                userKey,
+                tenantId,
+                createdBy: userKey,
                 keyName: newApiKeyForm.name,
                 description: newApiKeyForm.description,
-                organizationId,
             });
         } else {
             setSelectedApiKeyId(selectApiKey);
@@ -132,51 +134,52 @@ export function SelectAPIKeyModal({
                                     {apiKeyList?.map((apiKey, i) => (
                                         <div
                                             key={i}
-                                            className={`border rounded-lg p-4 cursor-pointer transition-all ${selectApiKey === apiKey.keyId
+                                            className={`border rounded-lg p-4 cursor-pointer transition-all ${selectApiKey === apiKey.apiKeyId
                                                 ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
                                                 : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                                                 }`}
                                             onClick={() => {
-                                                setSelectApiKey(apiKey.keyId);
+                                                setSelectApiKey(apiKey.apiKeyId);
                                                 setNewApiKeyForm({
                                                     ...newApiKeyForm,
-                                                    name: apiKey.name,
+                                                    name: apiKey.keyName,
                                                     description: apiKey.description,
                                                 });
-                                                setSelectedApiKey(apiKey.key);
+                                                setSelectedApiKeyValue(apiKey.keyValue);
                                             }}>
                                             <div className="flex items-start gap-3">
                                                 <input
                                                     type="radio"
                                                     name="apiKey"
-                                                    value={apiKey.keyId}
-                                                    checked={selectApiKey === apiKey.keyId}
+                                                    value={apiKey.apiKeyId}
+                                                    checked={selectApiKey === apiKey.apiKeyId}
                                                     onChange={() => {
-                                                        setSelectApiKey(apiKey.keyId);
+                                                        setSelectApiKey(apiKey.apiKeyId);
                                                         setNewApiKeyForm({
                                                             ...newApiKeyForm,
-                                                            name: apiKey.name,
+                                                            name: apiKey.keyName,
                                                             description: apiKey.description,
                                                         });
-                                                        setSelectedApiKey(apiKey.key);
+                                                        setSelectedApiKeyValue(apiKey.keyValue);
                                                     }}
                                                     className="mt-1"
                                                 />
                                                 <div className="flex-1">
                                                     <div className="flex items-center gap-2 mb-2">
                                                         <h4 className="font-medium text-gray-900 dark:text-white">
-                                                            {apiKey.name}
+                                                            {apiKey.keyName}
                                                         </h4>
-                                                        <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-xs rounded-full font-medium">
-                                                            ID: {apiKey.keyId}
-                                                        </span>
+                                                        {/* <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-xs rounded-full font-medium">
+                                                            ID: {apiKey.apiKeyId}
+                                                        </span> */}
                                                     </div>
-                                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                                        {apiKey.description}
-                                                    </p>
-                                                    <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded text-xs font-mono text-gray-700 dark:text-gray-300 break-all">
-                                                        {apiKey.key}
-                                                    </div>
+                                                    {apiKey.description &&
+                                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                                            {apiKey.description}
+                                                        </p>}
+                                                    {/* <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded text-xs font-mono text-gray-700 dark:text-gray-300 break-all">
+                                                        {apiKey.keyValue}
+                                                    </div> */}
                                                 </div>
                                             </div>
                                         </div>

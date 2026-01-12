@@ -1,4 +1,5 @@
 import { requestDelete, requestGet, requestPost, requestPut } from '@/libs/apiClient';
+import axios from 'axios';
 
 
 export interface APIListData {
@@ -39,27 +40,39 @@ export const createAPI = async (data: CreateAPIProps) => {
 };
 
 export interface CloneCreateAPIProps {
-    copyApiId: string;
-    targetOrganizationId: string;
-    newName: string;
-    userKey: string;
+    name: string;
     description?: string;
+    createdBy: string;
 }
 
 //api 복제하여 생성 + 실시간 목록 생성
-export const cloneCreateAPI = async (data: CloneCreateAPIProps) => {
+export const cloneCreateAPI = async (sourcePlanId: string, data: CloneCreateAPIProps) => {
     console.log(data);
-    const res = await requestPost(`/api/v1/plans/${data.copyApiId}/clone`, {
-        body: {
-            targetOrganizationId: data.targetOrganizationId,
-            newName: data.newName,
-            createdBy: data.userKey,
-            description: data.description,
-        },
+    const res = await requestPost(`/api/v1/plans/${sourcePlanId}/clone`, {
+        body: data,
     });
 
     return res;
 };
+
+
+
+//api openapi 문서로 생성 + 실시간 목록 생성
+export const uploadOpenAPIDocCreateAPI = async (tenantId: string, createdBy: string, data: string) => {
+    const res = await axios.post(
+        `/api/v1/plans/openapi?tenantId=${tenantId}&createdBy=${createdBy}`,
+        data,
+        {
+            headers: {
+                'Content-Type': 'text/plain',
+            },
+            transformRequest: [(data) => data],
+        }
+    );
+
+    return res.data;
+};
+
 
 export interface ModifyAPIProps {
     name: string;

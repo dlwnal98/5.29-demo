@@ -72,7 +72,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
   const [apiKeyContent, setApiKeyContent] = useState('');
 
   const [methodEditForm, setMethodEditForm] = useState({
-    selectedApiKey: '',
+    selectedApiKeyValue: '',
     requestValidator: 'NONE',
   });
   const [apiKeyToggle, setApiKeyToggle] = useState(false);
@@ -86,7 +86,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
     if (selectedMethod) {
       setApiKeyToggle(selectedMethod?.info['x-api-key-required']);
       setMethodEditForm({
-        selectedApiKey: selectedMethod?.info['x-api-key-id'],
+        selectedApiKeyValue: selectedMethod?.info['x-api-key-id'],
         requestValidator: selectedMethod?.info['x-request-validator'],
       });
 
@@ -463,7 +463,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
           userKey={userData?.userKey || ''}
           organizationId={userData?.organizationId || ''}
           setApiKeyToggle={setApiKeyToggle}
-          setSelectedApiKey={setApiKeyContent}
+          setSelectedApiKeyValue={setApiKeyContent}
         />
       </div>
     </>
