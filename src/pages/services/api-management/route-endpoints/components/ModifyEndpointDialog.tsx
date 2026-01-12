@@ -3,8 +3,9 @@ import { useModifyEndpointDialog } from "./hooks/useModifyEndpointDialog";
 import ModifyEndpointDialogView from "./ModifyEndpointDialogView";
 
 interface FormData {
-  targetId: string;
-  url: string;
+  id: string;
+  routeName: string;
+  routeUrl: string;
   description: string;
 }
 
@@ -13,7 +14,7 @@ interface ModifyEndpointDialogProps {
   formData: FormData;
   handleModalClose: () => void;
   updatedBy: string;
-  targetId: string;
+  id: string;
 }
 
 export default function ModifyEndpointDialog({
@@ -21,18 +22,20 @@ export default function ModifyEndpointDialog({
   formData,
   handleModalClose,
   updatedBy,
-  targetId,
+  id,
 }: ModifyEndpointDialogProps) {
   const {
-    url,
+    routeName,
+    routeUrl,
     description,
     hasUrlError,
-    onUrlChange,
+    onRouteNameChange,
+    onRouteUrlChange,
     onDescriptionChange,
     onSubmit,
   } = useModifyEndpointDialog({
     formData,
-    targetId,
+    id,
     updatedBy,
     onClose: handleModalClose,
   });
@@ -41,11 +44,13 @@ export default function ModifyEndpointDialog({
     <>
       <ModifyEndpointDialogView
         isOpen={isEditModalOpen}
-        url={url}
+        routeName={routeName}
+        routeUrl={routeUrl}
         description={description}
         hasUrlError={hasUrlError}
         onClose={handleModalClose}
-        onUrlChange={onUrlChange}
+        onRouteNameChange={onRouteNameChange}
+        onRouteUrlChange={onRouteUrlChange}
         onDescriptionChange={onDescriptionChange}
         onSubmit={onSubmit}
       />

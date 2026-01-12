@@ -101,12 +101,15 @@ export default function RouteEndpointsPageView({
                         <TableBody>
                             {filteredEndpoints?.length > 0 ? (
                                 filteredEndpoints.map((endpoint) => (
-                                    <TableRow key={endpoint.targetId} className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
+                                    <TableRow key={endpoint.id} className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
                                         <TableCell className="font-medium text-blue-600">
-                                            {endpoint.targetId}
+                                            {endpoint.id}
                                         </TableCell>
                                         <TableCell className="font-mono text-sm">
-                                            {endpoint.routeEndpoint}
+                                            {endpoint.routeName}
+                                        </TableCell>
+                                        <TableCell className="font-mono text-sm">
+                                            {endpoint.routeUrl}
                                         </TableCell>
                                         <TableCell>{endpoint.description}</TableCell>
                                         <TableCell>

@@ -4,18 +4,19 @@ import { toast } from "sonner";
 import { onInputChange, onSave } from "@/libs/etc";
 
 interface UseCreateEndpointDialogProps {
-  organizationId: string;
+  tenantId: string;
   createdBy: string;
   onClose: () => void;
 }
 
 export function useCreateEndpointDialog({
-  organizationId,
+  tenantId,
   createdBy,
   onClose,
 }: UseCreateEndpointDialogProps) {
   const [endpointForm, setEndpointForm] = useState({
-    url: "",
+    routeName: '',
+    routeUrl: "",
     description: "",
   });
   const [hasUrlError, setHasUrlError] = useState(false);
@@ -31,13 +32,17 @@ export function useCreateEndpointDialog({
     },
   });
 
-  const handleUrlChange = (value: string) => {
+  const handleRouteUrlChange = (value: string) => {
     if (onInputChange(value)) {
       setHasUrlError(false);
-      setEndpointForm((prev) => ({ ...prev, url: value }));
+      setEndpointForm((prev) => ({ ...prev, routeUrl: value }));
     } else {
       setHasUrlError(true);
     }
+  };
+
+  const handleRouteNameChange = (value: string) => {
+    setEndpointForm((prev) => ({ ...prev, routeName: value }));
   };
 
   const handleDescriptionChange = (value: string) => {
@@ -45,11 +50,17 @@ export function useCreateEndpointDialog({
   };
 
   const handleSubmit = () => {
-    if (onSave(endpointForm.url)) {
-      if (organizationId && createdBy) {
+    console.log('여기')
+    if (onSave(endpointForm.routeUrl)) {
+      console.log('여기2')
+
+      if (tenantId && createdBy) {
+        console.log('여기3')
+
         createEndpoint({
-          organizationId,
-          routeEndpoint: endpointForm.url,
+          tenantId,
+          routeName: endpointForm.routeName,
+          routeUrl: endpointForm.routeUrl,
           description: endpointForm.description,
           createdBy,
         });
@@ -60,18 +71,20 @@ export function useCreateEndpointDialog({
   };
 
   const resetForm = () => {
-    setEndpointForm({ url: "", description: "" });
+    setEndpointForm({ routeName: '', routeUrl: "", description: "" });
     setHasUrlError(false);
   };
 
-  const isSubmitDisabled = !endpointForm.url;
+  const isSubmitDisabled = !endpointForm.routeUrl;
 
   return {
-    url: endpointForm.url,
+    routeName: endpointForm.routeName,
+    routeUrl: endpointForm.routeUrl,
     description: endpointForm.description,
     hasUrlError,
     isSubmitDisabled,
-    onUrlChange: handleUrlChange,
+    onRouteNameChange: handleRouteNameChange,
+    onRouteUrlChange: handleRouteUrlChange,
     onDescriptionChange: handleDescriptionChange,
     onSubmit: handleSubmit,
   };

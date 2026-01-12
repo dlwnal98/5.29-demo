@@ -12,22 +12,26 @@ import { Textarea } from "@/components/ui/textarea";
 
 interface ModifyEndpointDialogViewProps {
   isOpen: boolean;
-  url: string;
+  routeName: string;
+  routeUrl: string;
   description: string;
   hasUrlError: boolean;
   onClose: () => void;
-  onUrlChange: (value: string) => void;
+  onRouteNameChange: (value: string) => void;
+  onRouteUrlChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
   onSubmit: () => void;
 }
 
 export default function ModifyEndpointDialogView({
   isOpen,
-  url,
+  routeName,
+  routeUrl,
   description,
   hasUrlError,
   onClose,
-  onUrlChange,
+  onRouteNameChange,
+  onRouteUrlChange,
   onDescriptionChange,
   onSubmit,
 }: ModifyEndpointDialogViewProps) {
@@ -36,18 +40,35 @@ export default function ModifyEndpointDialogView({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-blue-600 mb-2">
-            Target Endpoint 수정
+            Route Endpoint 수정
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
+          <div>
+            <Label htmlFor="edit-url" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Route Endpoint Name <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="edit-url"
+              value={routeName}
+              onChange={(e) => onRouteNameChange(e.target.value)}
+              placeholder="https://api.example.com/v1"
+              className="mt-2"
+            />
+            {hasUrlError && (
+              <span className="text-xs mt-2 ml-2 text-red-500">
+                한글은 입력이 불가합니다.
+              </span>
+            )}
+          </div>
           <div>
             <Label htmlFor="edit-url" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Endpoint URL <span className="text-red-500">*</span>
             </Label>
             <Input
               id="edit-url"
-              value={url}
-              onChange={(e) => onUrlChange(e.target.value)}
+              value={routeUrl}
+              onChange={(e) => onRouteUrlChange(e.target.value)}
               placeholder="https://api.example.com/v1"
               className="mt-2"
             />

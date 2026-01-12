@@ -3,8 +3,9 @@ import { useState } from "react";
 import { useGetEndpointsList, EndpointsData } from "@/hooks/use-endpoints";
 
 interface FormData {
-  targetId: string;
-  url: string;
+  id: string;
+  routeName: string;
+  routeUrl: string;
   description: string;
 }
 
@@ -20,30 +21,34 @@ export function useRouteEndpoints() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedEndpoint, setSelectedEndpoint] = useState<{
     id: string;
-    url: string;
-  }>({ id: "", url: "" });
+    routeName: string;
+    routeUrl: string;
+    description: string;
+  }>({ id: "", routeName: "", routeUrl: "", description: "" });
   const [formData, setFormData] = useState<FormData>({
-    targetId: "",
-    url: "",
+    id: "",
+    routeName: "",
+    routeUrl: "",
     description: "",
   });
 
   const filteredEndpoints = endpoints?.filter(
     (endpoint) =>
-      endpoint.targetId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      endpoint.routeEndpoint.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      endpoint.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      endpoint.routeUrl.toLowerCase().includes(searchTerm.toLowerCase()) ||
       endpoint.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleCreate = () => {
-    setFormData({ targetId: "", url: "", description: "" });
+    setFormData({ id: "", routeName: "", routeUrl: "", description: "" });
     setIsCreateModalOpen(true);
   };
 
   const handleEdit = (endpoint: EndpointsData) => {
     setFormData({
-      targetId: endpoint.targetId,
-      url: endpoint.routeEndpoint,
+      id: endpoint.id,
+      routeName: endpoint.routeName,
+      routeUrl: endpoint.routeUrl,
       description: endpoint.description,
     });
     setIsEditModalOpen(true);
@@ -51,8 +56,10 @@ export function useRouteEndpoints() {
 
   const handleDelete = (endpoint: EndpointsData) => {
     setSelectedEndpoint({
-      id: endpoint.targetId,
-      url: endpoint.routeEndpoint,
+      id: endpoint.id,
+      routeName: endpoint.routeName,
+      routeUrl: endpoint.routeUrl,
+      description: endpoint.description,
     });
     setIsDeleteModalOpen(true);
   };
@@ -61,8 +68,8 @@ export function useRouteEndpoints() {
     setIsCreateModalOpen(false);
     setIsEditModalOpen(false);
     setIsDeleteModalOpen(false);
-    setFormData({ targetId: "", url: "", description: "" });
-    setSelectedEndpoint({ id: "", url: "" });
+    setFormData({ id: "", routeName: "", routeUrl: "", description: "" });
+    setSelectedEndpoint({ id: "", routeName: "", routeUrl: "", description: "" });
   };
 
   return {
@@ -77,7 +84,7 @@ export function useRouteEndpoints() {
     isDeleteModalOpen,
 
     // User data for dialogs
-    organizationId: userData?.organizationId || "",
+    tenantId: userData?.organizationId || "",
     userKey: userData?.userKey || "",
 
     // Handlers

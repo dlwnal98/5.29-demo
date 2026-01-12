@@ -5,18 +5,18 @@ import DeleteEndpointDialogView from "./DeleteEndpointDialogView";
 interface DeleteEndpointDialogProps {
   isDeleteModalOpen: boolean;
   handleModalClose: () => void;
-  targetId: string;
-  targetUrl: string;
+  id: string;
+  routeUrl: string;
 }
 
 export default function DeleteEndpointDialog({
   isDeleteModalOpen,
   handleModalClose,
-  targetId,
-  targetUrl,
+  id,
+  routeUrl,
 }: DeleteEndpointDialogProps) {
   const { onDelete } = useDeleteEndpointDialog({
-    targetId,
+    id,
     onClose: handleModalClose,
   });
 
@@ -24,7 +24,7 @@ export default function DeleteEndpointDialog({
     <>
       <DeleteEndpointDialogView
         isOpen={isDeleteModalOpen}
-        targetUrl={targetUrl}
+        routeUrl={routeUrl}
         onClose={handleModalClose}
         onDelete={onDelete}
       />

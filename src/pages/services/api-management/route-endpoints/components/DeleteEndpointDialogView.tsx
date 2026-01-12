@@ -10,14 +10,14 @@ import { AlertTriangle, Trash2 } from "lucide-react";
 
 interface DeleteEndpointDialogViewProps {
   isOpen: boolean;
-  targetUrl: string;
+  routeUrl: string;
   onClose: () => void;
   onDelete: () => void;
 }
 
 export default function DeleteEndpointDialogView({
   isOpen,
-  targetUrl,
+  routeUrl,
   onClose,
   onDelete,
 }: DeleteEndpointDialogViewProps) {
@@ -27,7 +27,7 @@ export default function DeleteEndpointDialogView({
         <DialogHeader className="space-y-4">
           <DialogTitle className="flex items-center text-red-600">
             <AlertTriangle className="h-5 w-5 mr-2" />
-            Target Endpoint 삭제
+            Route Endpoint 삭제
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
@@ -36,7 +36,7 @@ export default function DeleteEndpointDialogView({
               ⚠️ 이 작업은 실행 취소할 수 없습니다.
             </p>
             <p className="text-red-700 dark:text-red-300 text-sm mb-3">
-              <strong>{targetUrl}</strong> 주소의 Target Endpoint가 영구적으로
+              <strong>{routeUrl}</strong> 주소의 Route Endpoint가 영구적으로
               삭제됩니다.
               <br />
               연결된 모든 API와 설정이 영향을 받을 수 있습니다.

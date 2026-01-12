@@ -2,12 +2,12 @@ import { useDeleteEndpoint } from "@/hooks/use-endpoints";
 import { toast } from "sonner";
 
 interface UseDeleteEndpointDialogProps {
-  targetId: string;
+  id: string;
   onClose: () => void;
 }
 
 export function useDeleteEndpointDialog({
-  targetId,
+  id,
   onClose,
 }: UseDeleteEndpointDialogProps) {
   const { mutate: deleteEndpoint } = useDeleteEndpoint({
@@ -21,8 +21,8 @@ export function useDeleteEndpointDialog({
   });
 
   const handleDelete = () => {
-    if (targetId) {
-      deleteEndpoint(targetId);
+    if (id) {
+      deleteEndpoint(id);
     }
   };
 

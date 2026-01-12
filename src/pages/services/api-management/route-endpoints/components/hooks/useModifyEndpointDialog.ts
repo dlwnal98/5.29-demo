@@ -4,34 +4,37 @@ import { toast } from "sonner";
 import { onInputChange, onSave } from "@/libs/etc";
 
 interface FormData {
-  targetId: string;
-  url: string;
+  id: string;
+  routeName: string;
+  routeUrl: string;
   description: string;
 }
 
 interface UseModifyEndpointDialogProps {
   formData: FormData;
-  targetId: string;
+  id: string;
   updatedBy: string;
   onClose: () => void;
 }
 
 export function useModifyEndpointDialog({
   formData,
-  targetId,
+  id,
   updatedBy,
   onClose,
 }: UseModifyEndpointDialogProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modifyForm, setModifyForm] = useState({
-    url: formData.url,
+    routeName: formData.routeName,
+    routeUrl: formData.routeUrl,
     description: formData.description,
   });
   const [hasUrlError, setHasUrlError] = useState(false);
 
   useEffect(() => {
     setModifyForm({
-      url: formData.url,
+      routeName: formData.routeName,
+      routeUrl: formData.routeUrl,
       description: formData.description,
     });
   }, [formData]);
@@ -47,10 +50,19 @@ export function useModifyEndpointDialog({
     },
   });
 
-  const handleUrlChange = (value: string) => {
+  const handleRouteUrlChange = (value: string) => {
     if (onInputChange(value)) {
       setHasUrlError(false);
-      setModifyForm((prev) => ({ ...prev, url: value }));
+      setModifyForm((prev) => ({ ...prev, routeUrl: value }));
+    } else {
+      setHasUrlError(true);
+    }
+  };
+
+  const handleRouteNameChange = (value: string) => {
+    if (onInputChange(value)) {
+      setHasUrlError(false);
+      setModifyForm((prev) => ({ ...prev, routeName: value }));
     } else {
       setHasUrlError(true);
     }
@@ -61,12 +73,13 @@ export function useModifyEndpointDialog({
   };
 
   const handleSubmit = () => {
-    if (onSave(modifyForm.url)) {
+    if (onSave(modifyForm.routeUrl)) {
       if (updatedBy) {
         modifyEndpoint({
-          targetId,
+          id,
           data: {
-            routeEndpoint: modifyForm.url,
+            routeName: modifyForm.routeName,
+            routeUrl: modifyForm.routeUrl,
             description: modifyForm.description,
             updatedBy,
           },
@@ -78,10 +91,12 @@ export function useModifyEndpointDialog({
   };
 
   return {
-    url: modifyForm.url,
+    routeName: modifyForm.routeName,
+    routeUrl: modifyForm.routeUrl,
     description: modifyForm.description,
     hasUrlError,
-    onUrlChange: handleUrlChange,
+    onRouteNameChange: handleRouteNameChange,
+    onRouteUrlChange: handleRouteUrlChange,
     onDescriptionChange: handleDescriptionChange,
     onSubmit: handleSubmit,
   };

@@ -13,7 +13,7 @@ export default function RouteEndpointsPage() {
     isCreateModalOpen,
     isEditModalOpen,
     isDeleteModalOpen,
-    organizationId,
+    tenantId,
     userKey,
     searchTerm,
     setSearchTerm,
@@ -38,7 +38,7 @@ export default function RouteEndpointsPage() {
       <CreateEndpointDialog
         isCreateModalOpen={isCreateModalOpen}
         handleModalClose={closeModals}
-        organizationId={organizationId}
+        tenantId={tenantId}
         createdBy={userKey}
       />
 
@@ -48,15 +48,15 @@ export default function RouteEndpointsPage() {
         formData={formData}
         handleModalClose={closeModals}
         updatedBy={userKey}
-        targetId={formData.targetId}
+        id={formData.id}
       />
 
       {/* Endpoint 삭제 */}
       <DeleteEndpointDialog
         isDeleteModalOpen={isDeleteModalOpen}
         handleModalClose={closeModals}
-        targetId={selectedEndpoint.id}
-        targetUrl={selectedEndpoint.url}
+        id={selectedEndpoint.id}
+        routeUrl={selectedEndpoint.routeUrl}
       />
     </>
   );

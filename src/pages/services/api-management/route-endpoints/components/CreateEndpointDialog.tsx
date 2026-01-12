@@ -5,26 +5,28 @@ import CreateEndpointDialogView from "./CreateEndpointDialogView";
 interface CreateEndpointDialogProps {
   isCreateModalOpen: boolean;
   handleModalClose: () => void;
-  organizationId: string;
+  tenantId: string;
   createdBy: string;
 }
 
 export default function CreateEndpointDialog({
   isCreateModalOpen,
   handleModalClose,
-  organizationId,
+  tenantId,
   createdBy,
 }: CreateEndpointDialogProps) {
   const {
-    url,
+    routeUrl,
+    routeName,
     description,
     hasUrlError,
     isSubmitDisabled,
-    onUrlChange,
+    onRouteUrlChange,
+    onRouteNameChange,
     onDescriptionChange,
     onSubmit,
   } = useCreateEndpointDialog({
-    organizationId,
+    tenantId,
     createdBy,
     onClose: handleModalClose,
   });
@@ -33,12 +35,14 @@ export default function CreateEndpointDialog({
     <>
       <CreateEndpointDialogView
         isOpen={isCreateModalOpen}
-        url={url}
+        routeUrl={routeUrl}
+        routeName={routeName}
         description={description}
         hasUrlError={hasUrlError}
         isSubmitDisabled={isSubmitDisabled}
         onClose={handleModalClose}
-        onUrlChange={onUrlChange}
+        onRouteUrlChange={onRouteUrlChange}
+        onRouteNameChange={onRouteNameChange}
         onDescriptionChange={onDescriptionChange}
         onSubmit={onSubmit}
       />

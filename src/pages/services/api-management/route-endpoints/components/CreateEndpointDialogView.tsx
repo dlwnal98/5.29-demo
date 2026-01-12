@@ -12,24 +12,28 @@ import { Textarea } from "@/components/ui/textarea";
 
 interface CreateEndpointDialogViewProps {
   isOpen: boolean;
-  url: string;
+  routeUrl: string;
+  routeName: string;
   description: string;
   hasUrlError: boolean;
   isSubmitDisabled: boolean;
   onClose: () => void;
-  onUrlChange: (value: string) => void;
+  onRouteUrlChange: (value: string) => void;
+  onRouteNameChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
   onSubmit: () => void;
 }
 
 export default function CreateEndpointDialogView({
   isOpen,
-  url,
+  routeUrl,
+  routeName,
   description,
   hasUrlError,
   isSubmitDisabled,
   onClose,
-  onUrlChange,
+  onRouteUrlChange,
+  onRouteNameChange,
   onDescriptionChange,
   onSubmit,
 }: CreateEndpointDialogViewProps) {
@@ -38,18 +42,30 @@ export default function CreateEndpointDialogView({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-blue-600 mb-2">
-            Target Endpoint 생성
+            Route Endpoint 생성
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
+            <Label htmlFor="create-routeName" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Route Name
+            </Label>
+            <Input
+              id="create-routeName"
+              value={routeName}
+              onChange={(e) => onRouteNameChange(e.target.value)}
+              placeholder="https://api.example.com/v1"
+              className="mt-2"
+            />
+          </div>
+          <div>
             <Label htmlFor="create-url" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Endpoint URL <span className="text-red-500">*</span>
+              Route Endpoint URL <span className="text-red-500">*</span>
             </Label>
             <Input
               id="create-url"
-              value={url}
-              onChange={(e) => onUrlChange(e.target.value)}
+              value={routeUrl}
+              onChange={(e) => onRouteUrlChange(e.target.value)}
               placeholder="https://api.example.com/v1"
               className="mt-2"
             />
@@ -61,7 +77,7 @@ export default function CreateEndpointDialogView({
           </div>
           <div>
             <Label htmlFor="create-description" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              설명
+              Description
             </Label>
             <Textarea
               id="create-description"
