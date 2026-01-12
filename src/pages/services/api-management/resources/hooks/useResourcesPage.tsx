@@ -251,25 +251,26 @@ export function useResourcesPage() {
   }, []);
 
   const handleCorsSettingsSaved = useCallback(async () => {
+    const currentPath = selectedResource?.path;
     const result = await refetch();
-    if (result.data?.paths && selectedResource) {
+    if (result.data?.paths && currentPath) {
       const newTree = resoureceBuildTree(result.data.paths);
-      const findResourceByResourceId = (list: Resource[]): Resource | null => {
+      const findResourceByPath = (list: Resource[]): Resource | null => {
         for (const res of list) {
-          if (res.resourceId === selectedResource.resourceId) return res;
+          if (res.path === currentPath) return res;
           if (res.children) {
-            const child = findResourceByResourceId(res.children);
+            const child = findResourceByPath(res.children);
             if (child) return child;
           }
         }
         return null;
       };
-      const updatedResource = findResourceByResourceId(newTree);
+      const updatedResource = findResourceByPath(newTree);
       if (updatedResource) {
         setSelectedResource(updatedResource);
       }
     }
-  }, [refetch, selectedResource]);
+  }, [refetch, selectedResource?.path]);
 
   return {
     // Refs

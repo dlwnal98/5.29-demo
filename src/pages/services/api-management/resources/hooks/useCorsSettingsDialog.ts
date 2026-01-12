@@ -48,7 +48,6 @@ export function useCorsSettingsDialog({
     corsEnabled: false,
   });
   const [checkedMethod, setCheckedMethod] = useState<string[]>([]);
-  const [methodCheckList, setMethodCheckList] = useState<string[]>([]);
 
   console.log(corsSettings)
   console.log(selectedResource?.methods)
@@ -63,7 +62,6 @@ export function useCorsSettingsDialog({
     const checkedFromServer = corsSettings?.allowedMethods || [];
 
     setCheckedMethod(checkedFromServer);
-    setMethodCheckList(availableMethods);
     setCorsForm({
       allowMethods: availableMethods,
       allowHeaders: corsSettings?.allowedHeaders || [],
@@ -71,13 +69,12 @@ export function useCorsSettingsDialog({
       exposeHeaders: corsSettings?.exposedHeaders || [],
       maxAge: corsSettings?.maxAge || 3600,
       allowCredentials: corsSettings?.allowCredentials || false,
-      corsEnabled: selectedResource?.cors
+      corsEnabled: selectedResource?.cors,
     });
   }, [open, corsSettings, selectedResource]);
 
-  console.log(checkedMethod, methodCheckList)
 
-
+  console.log(checkedMethod)
   const { mutate: modifyCORSMutate, isPending } = useModifyResourceCorsSettings({
     onSuccess: () => {
       toast.success('리소스의 CORS 설정이 변경되었습니다.');
@@ -106,16 +103,24 @@ export function useCorsSettingsDialog({
   };
 
   const handleMethodToggle = (methodType: string, checked: boolean) => {
-    // OPTIONS는 항상 포함되어야 함 (필수)
-    if (methodType === 'OPTIONS') return;
-
+    console.log(methodType, checked)
+    // setCorsForm((prev) => ({
+    //   ...prev,
+    //   allowMethods: checked
+    //     ? [...new Set([...prev.allowMethods, methodType])]
+    //     : prev.allowMethods.filter((m) => m !== methodType),
+    // }));
     setCheckedMethod((prev) => {
       if (checked) {
+        // 체크된 경우: 기존 배열에 methodType 추가 (중복 방지를 위해 확인 후 추가)
         return prev.includes(methodType) ? prev : [...prev, methodType];
       } else {
-        return prev.filter((m) => m !== methodType);
+        // 체크 해제된 경우: 해당 methodType을 제외한 새 배열 생성
+        // return prev.filter((m) => m !== methodType);
+        return ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'];
       }
     });
+
   };
 
 
@@ -168,7 +173,6 @@ export function useCorsSettingsDialog({
   return {
     corsForm,
     checkedMethod,
-    methodCheckList,
     isPending,
     onSaveCorsSettings: handleSaveCorsSettings,
     onMethodToggle: handleMethodToggle,

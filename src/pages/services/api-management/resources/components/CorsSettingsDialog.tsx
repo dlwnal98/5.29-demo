@@ -19,7 +19,6 @@ interface CorsSettingsDialogProps {
   onOpenChange: (open: boolean) => void;
   selectedResource: Resource;
   corsForm: CorsForm;
-  methodCheckList: string[];
   checkedMethod: string[];
   isPending?: boolean;
   onSaveCorsSettings: () => void;
@@ -38,7 +37,6 @@ export function CorsSettingsDialog({
   onOpenChange,
   selectedResource,
   corsForm,
-  methodCheckList,
   checkedMethod,
   isPending,
   onSaveCorsSettings,
@@ -49,7 +47,7 @@ export function CorsSettingsDialog({
   onCorsEnabledChange
 }: CorsSettingsDialogProps) {
 
-  console.log(corsForm?.allowMethods, checkedMethod, methodCheckList)
+  console.log(corsForm, checkedMethod)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -62,24 +60,22 @@ export function CorsSettingsDialog({
               onCheckedChange={onCorsEnabledChange}
             />
           </DialogTitle>
-
         </DialogHeader>
-
         <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-4 space-y-4">
           {/* <h4 className="font-medium text-blue-900 dark:text-blue-100">CORS 설정</h4> */}
           <div className="space-y-4">
             {(corsForm.corsEnabled || (corsForm.allowMethods?.length ?? 0) > 0) &&
               <div>
                 <Label className={`text-sm font-medium mb-2 block ${corsForm?.corsEnabled ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-300'}`}>
-                  Access-Control-Allow-Methods
+                  Access-Control-Allow-Methods <span className='text-red-500'>*</span>
                 </Label>
                 <div className="space-y-1">
-                  {methodCheckList?.map((method, i) => (
+                  {corsForm?.allowMethods?.map((method, i) => (
                     <div className="flex items-center space-x-2" key={i}>
                       <CheckboxPrimitive.Root
                         id={method}
                         checked={checkedMethod?.includes(method)}
-                        disabled={!corsForm?.corsEnabled || method === 'OPTIONS'}
+                        disabled={!corsForm?.corsEnabled}
                         onCheckedChange={(checked) => onMethodToggle(method, checked as boolean)}
                         className="w-5 h-5 border border-gray-300 bg-white rounded
                         data-[state=checked]:bg-blue-600
@@ -103,7 +99,7 @@ export function CorsSettingsDialog({
             }
             <div>
               <Label className={`text-sm font-medium ${corsForm?.corsEnabled ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-300'} mb-2 block`}>
-                Access-Control-Allow-Origin
+                Access-Control-Allow-Origin <span className='text-red-500'>*</span>
               </Label>
               <Input
                 value={corsForm?.allowOrigins?.join(', ')}
@@ -177,7 +173,7 @@ export function CorsSettingsDialog({
           </Button>
           <Button
             onClick={onSaveCorsSettings}
-            disabled={isPending}
+            disabled={isPending || (corsForm?.corsEnabled && checkedMethod?.length === 0)}
             className="bg-blue-500 hover:bg-blue-600 text-white">
             {isPending ? '저장 중...' : '저장'}
           </Button>

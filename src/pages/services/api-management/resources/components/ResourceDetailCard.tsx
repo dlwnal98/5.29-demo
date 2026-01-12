@@ -270,6 +270,7 @@ export function ResourceDetailCard({
         onOpenChange={setIsCorsModalOpen}
         selectedResource={selectedResource}
         corsForm={corsDialog.corsForm}
+        checkedMethod={corsDialog.checkedMethod}
         isPending={corsDialog.isPending}
         onSaveCorsSettings={corsDialog.onSaveCorsSettings}
         onMethodToggle={corsDialog.onMethodToggle}
