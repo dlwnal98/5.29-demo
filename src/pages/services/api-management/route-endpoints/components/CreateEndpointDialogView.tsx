@@ -48,13 +48,13 @@ export default function CreateEndpointDialogView({
         <div className="space-y-4">
           <div>
             <Label htmlFor="create-routeName" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Route Name
+              Route Name <span className="text-red-500">*</span>
             </Label>
             <Input
               id="create-routeName"
               value={routeName}
               onChange={(e) => onRouteNameChange(e.target.value)}
-              placeholder="https://api.example.com/v1"
+              placeholder="POST 메서드 엔드포인트"
               className="mt-2"
             />
           </div>

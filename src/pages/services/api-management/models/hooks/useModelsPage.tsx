@@ -14,8 +14,10 @@ export function useModelsPage() {
   const apiId = params.get("apiId") || "";
   const userData = useAuthStore((state) => state.user);
   const userKey = userData?.userKey || "";
+  const tenantId = userData?.organizationId ?? "kwwwksAsvmas";
 
-  const { data: models = [] } = useGetModelList(apiId);
+
+  const { data: models = [] } = useGetModelList(apiId, 0, 20);
 
   const handleOpenCreateModal = () => {
     setIsCreateModalOpen(true);
@@ -50,6 +52,7 @@ export function useModelsPage() {
     models,
     selectedModel,
     apiId,
+    tenantId,
     userKey,
     userData,
 

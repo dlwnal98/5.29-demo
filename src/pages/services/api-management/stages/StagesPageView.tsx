@@ -23,6 +23,7 @@ import type { ApiResource, ApiMethod, SelectedWholeStageInfo, SelectedMethod } f
 
 interface StagesPageViewProps {
   resourceTree: ApiResource[];
+  stagesListData: any;
   selectedWholeStageInfo: SelectedWholeStageInfo;
   selectedMethod: SelectedMethod | null;
   expandedPaths: Set<string>;
@@ -41,6 +42,7 @@ interface StagesPageViewProps {
 
 export default function StagesPageView({
   resourceTree,
+  stagesListData,
   selectedWholeStageInfo,
   selectedMethod,
   expandedPaths,
@@ -109,6 +111,7 @@ export default function StagesPageView({
                 <StageResourceTree
                   key={resource.id}
                   resource={resource}
+                  stagesListData={stagesListData}
                   selectedWholeStageInfo={selectedWholeStageInfo}
                   selectedMethod={selectedMethod}
                   expandedPaths={expandedPaths}

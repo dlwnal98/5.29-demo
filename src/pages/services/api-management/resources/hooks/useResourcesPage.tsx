@@ -4,6 +4,7 @@ import type { Resource, Method } from "@/types/resource";
 import { useGetOpenAPIDoc } from "@/hooks/use-resources";
 import { useAuthStore, useMethodEditStore } from "@/stores/store";
 import { resoureceBuildTree } from "@/libs/etc";
+import { useGetStagesListData } from "@/hooks/use-stages";
 
 export function useResourcesPage() {
   const navigate = useNavigate();
@@ -14,11 +15,13 @@ export function useResourcesPage() {
   const currentApiName = searchParams.get("apiName") || "";
   const userData = useAuthStore((state) => state.user);
   const userKey = userData?.userKey || "";
-  const organizationId = userData?.organizationId || "";
+  const tenantId = userData?.organizationId || "";
   const setIsMethodEdit = useMethodEditStore((state) => state.setIsEdit);
   const isMethodEdit = useMethodEditStore((state) => state.isEdit);
 
   const { data: openAPIDocData, refetch } = useGetOpenAPIDoc(currentApiId);
+
+
 
   const tree = useMemo(() => {
     return resoureceBuildTree(openAPIDocData?.paths ?? {});
@@ -286,7 +289,7 @@ export function useResourcesPage() {
     currentApiId,
     currentApiName,
     userKey,
-    organizationId,
+    tenantId,
 
     // Modal states
     isDeployModalOpen,

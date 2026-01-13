@@ -9,9 +9,10 @@ import { useDeleteStageAction } from "./hooks/useDeleteStageAction";
 export default function StagesPage() {
   const {
     userKey,
-    organizationId,
+    tenantId,
     apiId,
     resourceTree,
+    stagesListData,
     selectedWholeStageInfo,
     selectedMethod,
     expandedPaths,
@@ -45,6 +46,7 @@ export default function StagesPage() {
     <>
       <StagesPageView
         resourceTree={resourceTree}
+        stagesListData={stagesListData}
         selectedWholeStageInfo={selectedWholeStageInfo}
         selectedMethod={selectedMethod}
         expandedPaths={expandedPaths}
@@ -64,7 +66,7 @@ export default function StagesPage() {
       <CreateStageDialog
         open={isCreateStageModalOpen}
         onOpenChange={(open) => !open && onCloseCreateModal()}
-        organizationId={organizationId}
+        tenantId={tenantId}
         userKey={userKey}
         apiId={apiId}
       />

@@ -105,6 +105,7 @@ export default function ApiResourcesPage() {
         onDeploySubmit={deployDialog.onDeploySubmit}
         onStageChange={deployDialog.onStageChange}
         onNewStageNameChange={deployDialog.onNewStageNameChange}
+        onStageDescriptionChange={deployDialog.onStageDescriptionChange}
         onDescriptionChange={deployDialog.onDescriptionChange}
         onDeployModalClose={deployDialog.onDeployModalClose}
       />

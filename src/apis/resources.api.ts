@@ -99,14 +99,14 @@ export const deleteResource = async (apiId: string, resourceId: string) => {
 // API 배포 실행
 export interface deploymentProps {
     apiId: string;
-    stageId: string;
-    version?: string;
+    version: string;
+    stageId?: string;
+    stageName?: string;
     deployedBy: string;
-    description?: string;
-    metadata?: {
-        jiraTicket?: string;
-        reviewer?: string;
-    };
+    deploymentReason: string;
+    stageDescription?: string;
+    gatewayCode?: string;
+    baseUrl?: string;
 }
 
 export const deployAPI = async (data: deploymentProps) => {

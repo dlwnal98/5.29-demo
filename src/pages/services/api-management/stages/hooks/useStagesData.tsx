@@ -8,9 +8,8 @@ import type { ApiResource } from "../types";
 /**
  * 서버 통신 및 데이터 처리 로직을 담당하는 hook
  */
-export function useStagesData(apiId: string) {
-  const { pathname } = useLocation();
-  const { data: stagesDocData = [] } = useGetStagesDocData(apiId, pathname);
+export function useStagesData(stageId: string) {
+  const { data: stagesDocData = [] } = useGetStagesDocData(stageId);
 
   const [selectedStageEndpointUrl, setSelectedStageEndpointUrl] = useState("");
 

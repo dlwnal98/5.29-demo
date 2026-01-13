@@ -10,8 +10,10 @@ import {
 
 } from "@/hooks/use-apiKeys";
 import {
-  ApiKey
+  ApiKey,
+  getAPIKeyDetail,
 } from "@/apis/api-keys.api";
+
 
 interface NewApiKeyForm {
   keyName: string;
@@ -21,7 +23,9 @@ interface NewApiKeyForm {
 export function useApiKeysPage() {
   const userData = useAuthStore((state) => state.user);
   // const { data: apiKeyData } = useGetAPIKeyList(userData?.tenantId || "");
-  const { data: apiKeyData } = useGetAPIKeyList("kwwwksAsvmas");
+
+  const tenantId = userData?.organizationId ?? "kwwwksAsvmas"
+  const { data: apiKeyData } = useGetAPIKeyList(tenantId);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -64,6 +68,12 @@ export function useApiKeysPage() {
     onSuccess: () => {
       setIsDeleteModalOpen(false);
       toast.success("API키가 삭제되었습니다.");
+    }, onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message
+        || error?.response?.data?.detail
+        || error?.message
+        || 'API키 삭제 중 오류가 발생했습니다.';
+      toast.error(errorMessage);
     },
   });
 
@@ -85,7 +95,6 @@ export function useApiKeysPage() {
     return filteredApiKeys.slice(startIndex, endIndex);
   }, [filteredApiKeys, currentPage]);
 
-  const tenantId = userData?.organizationId ?? "kwwwksAsvmas";
 
   // 검색 시 페이지 초기화
   useEffect(() => {
@@ -126,9 +135,10 @@ export function useApiKeysPage() {
     deleteAPIKey(keyId);
   };
 
-  const handleCopyApiKey = (apiKeyName: string, apiKey: string) => {
-    setCopyApiKey(apiKey);
-    clipboard.copy(apiKey);
+  const handleCopyApiKey = async (apiKeyName: string, keyId: string) => {
+    const res = await getAPIKeyDetail(keyId)
+    setCopyApiKey(res.keyValue);
+    clipboard.copy(res.keyValue);
     toast.success(
       <>
         [{apiKeyName}] API Key가 복사되었습니다. <br />

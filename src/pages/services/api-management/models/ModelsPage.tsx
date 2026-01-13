@@ -1,49 +1,65 @@
-
-
-import { useState } from 'react';
-import { AppLayout } from '@/components/layout/AppLayout';
-
 import CreateModelDialog from './components/CreateModelDialog';
 import ModifyModelDialog from './components/ModifyModelDialog';
 import DeleteModelDialog from './components/DeleteModelDialog';
-import ModelsPageView from './ModelsPageView';
 import { useModelsPage } from './hooks/useModelsPage';
+import ModelsPageView from './ModelsPageView';
 
 export default function ModelsPage() {
-
-  const { setIsCreateModalOpen, setIsEditModalOpen, setIsDeleteModalOpen, apiId, userData, selectedModel, models, openCreateModal, openDeleteModal, openEditModal, isCreateModalOpen, isEditModalOpen, isDeleteModalOpen } = useModelsPage();
+  const {
+    models,
+    selectedModel,
+    apiId,
+    tenantId,
+    userKey,
+    isCreateModalOpen,
+    isEditModalOpen,
+    isDeleteModalOpen,
+    openCreateModal,
+    closeCreateModal,
+    openEditModal,
+    closeEditModal,
+    openDeleteModal,
+    closeDeleteModal,
+  } = useModelsPage();
 
   return (
     <>
-      <ModelsPageView models={models}
-        onOpenEditModal={openEditModal}
-        onOpenDeleteModal={openDeleteModal}
-        onOpenCreateModal={openCreateModal}
+      <ModelsPageView
+        models={models?.content}
+        onCreate={openCreateModal}
+        onEdit={openEditModal}
+        onDelete={openDeleteModal}
       />
-      {/* Create Model Modal */}
+
+      {/* Model 생성 */}
       <CreateModelDialog
         open={isCreateModalOpen}
-        onOpenChange={setIsCreateModalOpen}
-        apiId={apiId || ''}
-        userKey={userData?.userKey || ''}
-      />
-      {/* Edit Model Modal */}
-
-      <ModifyModelDialog
-        open={isEditModalOpen}
-        onOpenChange={setIsEditModalOpen}
-        selectedModel={selectedModel || {}}
-        userKey={userData?.userKey || ''}
+        onOpenChange={(open) => !open && closeCreateModal()}
+        apiId={apiId}
+        tenantId={tenantId}
+        userKey={userKey}
       />
 
-      {/* Delete Confirmation Modal */}
-      <DeleteModelDialog
-        open={isDeleteModalOpen}
-        onOpenChange={setIsDeleteModalOpen}
-        modelId={selectedModel?.modelId || ''}
-        modelName={selectedModel?.modelName || ''}
-        userKey={userData?.userKey || ''}
-      />
+      {/* Model 수정 */}
+      {selectedModel && (
+        <ModifyModelDialog
+          open={isEditModalOpen}
+          onOpenChange={(open) => !open && closeEditModal()}
+          selectedModel={selectedModel}
+          userKey={userKey}
+        />
+      )}
+
+      {/* Model 삭제 */}
+      {selectedModel && (
+        <DeleteModelDialog
+          open={isDeleteModalOpen}
+          onOpenChange={(open) => !open && closeDeleteModal()}
+          modelId={selectedModel.modelId}
+          modelName={selectedModel.modelName}
+          userKey={userKey}
+        />
+      )}
     </>
   );
 }

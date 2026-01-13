@@ -21,7 +21,6 @@ export function useDeleteStageAction({
         if (userKey && selectedStage)
             deleteStage({
                 stageId: selectedStage?.stageId,
-                deletedBy: userKey,
             });
     };
 

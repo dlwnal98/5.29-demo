@@ -9,8 +9,9 @@ import { useGetStagesDocData } from '@/hooks/use-stages';
 
 export interface DeployData {
   stage: string;
+  stageDescription: string;
   version: string;
-  description: string;
+  deploymentReason: string;
   newStageName: string;
 }
 
@@ -41,8 +42,9 @@ export function useDeployResourceDialog({
 
   const [deploymentData, setDeploymentData] = useState<DeployData>({
     stage: '',
-    version: '',
-    description: '',
+    stageDescription: '',
+    version: '1.1.0',
+    deploymentReason: '',
     newStageName: '',
   });
 
@@ -52,8 +54,9 @@ export function useDeployResourceDialog({
     if (open && stagesDocData.length) {
       setDeploymentData({
         stage: '',
-        version: '',
-        description: '',
+        stageDescription: '',
+        version: '1.1.0',
+        deploymentReason: '',
         newStageName: '',
       });
 
@@ -99,34 +102,48 @@ export function useDeployResourceDialog({
   };
 
   const handleCreateAndDeploy = async () => {
+    // try {
+    //   const res = await createStage({
+    //     organizationId: organizationId,
+    //     stageName: deploymentData.newStageName,
+    //     description: deploymentData.stageDescription,
+    //     createdBy: userKey,
+    //     enabled: true,
+    //     deploymentSource: 'DRAFT',
+    //     apiId: apiId,
+    //     sourceDeploymentId: '',
+    //   });
+    //   if (res) {
+    //     handleDeploy({
+    //       apiId: apiId,
+    //       stageId: res.stageId,
+    //       version: '1.1.0',
+    //       deployedBy: userKey,
+    //       deploymentReason: deploymentData.deploymentReason,
+    //       stageDescription: deploymentData.stageDescription,
+    //       gatewayCode: '',
+    //       baseUrl: '',
+    //     });
+    //   } else if ((res as any).statusCode == 400) {
+    //     toast.error((res as any).message);
+    //   } else {
+    //     toast.error('새로운 스테이지 생성에 실패하였습니다\n 재입력이 필요합니다.');
+    //   }
+    // } catch (e) {
+    //   const err = e as AxiosError<{ fieldErrors?: { stageName?: string } }>;
+    //   toast.error(err.response?.data?.fieldErrors?.stageName);
+    // }
     try {
-      const res = await createStage({
-        organizationId: organizationId,
-        stageName: deploymentData.newStageName,
-        description: deploymentData.description,
-        createdBy: userKey,
-        enabled: true,
-        deploymentSource: 'DRAFT',
+      await handleDeploy({
         apiId: apiId,
-        sourceDeploymentId: '',
+        version: '1.1.0',
+        deploymentReason: deploymentData.deploymentReason,
+        stageName: deploymentData.newStageName,
+        stageDescription: deploymentData.stageDescription,
+        gatewayCode: '',
+        baseUrl: '',
+        deployedBy: userKey,
       });
-      if (res) {
-        handleDeploy({
-          apiId: apiId,
-          stageId: res.stageId,
-          version: '',
-          deployedBy: userKey,
-          description: deploymentData.description,
-          metadata: {
-            jiraTicket: '',
-            reviewer: '',
-          },
-        });
-      } else if ((res as any).statusCode == 400) {
-        toast.error((res as any).message);
-      } else {
-        toast.error('새로운 스테이지 생성에 실패하였습니다\n 재입력이 필요합니다.');
-      }
     } catch (e) {
       const err = e as AxiosError<{ fieldErrors?: { stageName?: string } }>;
       toast.error(err.response?.data?.fieldErrors?.stageName);
@@ -148,14 +165,10 @@ export function useDeployResourceDialog({
 
       handleDeploy({
         apiId: apiId,
+        version: '1.1.0',
+        deploymentReason: deploymentData.deploymentReason,
         stageId: deploymentData.stage,
-        version: '',
         deployedBy: userKey,
-        description: deploymentData.description,
-        metadata: {
-          jiraTicket: '',
-          reviewer: '',
-        },
       });
     }
   };
@@ -164,7 +177,7 @@ export function useDeployResourceDialog({
     setDeploymentData({
       ...deploymentData,
       stage: value,
-      description: '',
+      deploymentReason: '',
       newStageName: '',
     });
   };
@@ -176,10 +189,17 @@ export function useDeployResourceDialog({
     });
   };
 
+  const handleStageDescriptionChange = (value: string) => {
+    setDeploymentData({
+      ...deploymentData,
+      stageDescription: value,
+    });
+  };
+
   const handleDescriptionChange = (value: string) => {
     setDeploymentData({
       ...deploymentData,
-      description: value,
+      deploymentReason: value,
     });
   };
 
@@ -188,7 +208,8 @@ export function useDeployResourceDialog({
     setDeploymentData({
       stage: '',
       version: '',
-      description: '',
+      stageDescription: '',
+      deploymentReason: '',
       newStageName: '',
     });
   };
@@ -208,6 +229,7 @@ export function useDeployResourceDialog({
     onDeploySubmit: handleDeploySubmit,
     onStageChange: handleStageChange,
     onNewStageNameChange: handleNewStageNameChange,
+    onStageDescriptionChange: handleStageDescriptionChange,
     onDescriptionChange: handleDescriptionChange,
     onDeployModalClose: handleDeployModalClose,
   };

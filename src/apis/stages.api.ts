@@ -1,16 +1,26 @@
 import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from '@/libs/apiClient';
 
-// 전체 스테이지 목록 조회 Open API문서
-export const getStatesDocData = async (apiId: string, path?: string) => {
-    const res = await requestGet(`/api/v1/stages/api/${apiId}`);
+
+// 전체 스테이지 목록
+export const getStagesListData = async (apiId: string) => {
+    const res = await requestGet(`/api/v1/stages?apiId=${apiId}`);
 
     return res;
 };
 
+// 스테이지 목록 조회 Open API문서
+export const getStagesOpenApiDocData = async (stageId: string) => {
+    const res = await requestGet(`/api/v1/stages/${stageId}/openapi/extended`);
+
+    return res;
+};
+
+
+
 // 조직별 전체 배포이력 조회
-export const getDeployHistoryData = async (organizationId: string, page?: number, size?: number) => {
+export const getDeployHistoryData = async (tenantId: string, page?: number, size?: number) => {
     const res = await requestGet(
-        `/api/v1/deployments/history?organizationId=${organizationId}&page=${page}&size=${size}`
+        `/api/v1/deployments?tenantId=${tenantId}&page=${page}&size=${size}`
     );
     return res;
 };
@@ -23,14 +33,14 @@ export const getDeploymentResourceTreeData = async (deploymentId: string) => {
 };
 
 export interface CreateStageProps {
-    organizationId: string;
+    apiId: string;
     stageName: string;
     description?: string;
+    deploymentId: string;
     createdBy: string;
-    enabled: true;
-    deploymentSource: 'DRAFT' | 'PREVIOUS_DEVELOPMENT'; // 새 스테이지 생성시 'DRAFT', 옵션에서 스테이지 선택시 'PREVIOUS_DEVELOPMENT'
-    apiId: string;
-    sourceDeploymentId: string; // draft일 때는 없어도 됨
+    gatewayCode?: string;
+    baseUrl?: string;
+
 }
 
 // 스테이지 생성
@@ -44,16 +54,17 @@ export const createStage = async (data: CreateStageProps) => {
 };
 
 // 스테이지 삭제
-export const deleteStage = async (stageId: string, deletedBy: string) => {
-    const res = await requestDelete(`/api/v1/stages/${stageId}?deletedBy=${deletedBy}`);
+export const deleteStage = async (stageId: string) => {
+    const res = await requestDelete(`/api/v1/stages/${stageId}`);
 
     return res;
 };
 // 스테이지 수정(설명만)
-export const modifyStage = async (stageId: string, description: string) => {
-    const res = await requestPut(`/api/v1/stages/${stageId}/config`, {
+export const modifyStage = async (stageId: string, description: string, updatedBy: string) => {
+    const res = await requestPut(`/api/v1/stages/${stageId}`, {
         body: {
             description: description,
+            updatedBy: updatedBy
         },
     });
 
@@ -61,15 +72,16 @@ export const modifyStage = async (stageId: string, description: string) => {
 };
 
 export interface PreviousDeploymentProps {
-    stageId: string;
-    targetDeploymentId: string;
-    activatedBy?: string | null;
+    deploymentId: string;
+    updatedBy: string;
 }
 
 // 이전 배포 활성화
-export const activatePreviousDeployment = async (data: PreviousDeploymentProps) => {
+export const activatePreviousDeployment = async (stageId: string, data: PreviousDeploymentProps) => {
     const res = await requestPost(
-        `/api/v1/deployments/stages/${data.stageId}/activate-previous?targetDeploymentId=${data.targetDeploymentId}&activatedBy=${data.activatedBy}`
+        `/api/v1/stages/${stageId}/deployment`, {
+        body: data,
+    }
     );
 
     return res;

@@ -27,7 +27,7 @@ export function useDeploymentList() {
   // 배포 기록 필터링
   const filteredDeployments = useMemo(
     () =>
-      deploymentHistoryData?.filter(
+      deploymentHistoryData?.content?.filter(
         (deployment: any) =>
           deployment.deploymentId
             ?.toLowerCase()
@@ -53,7 +53,7 @@ export function useDeploymentList() {
 
   // 현재 활성 배포
   const currentActiveDeployment = useMemo(
-    () => deploymentHistoryData?.find((d: any) => d.status === 'ACTIVE'),
+    () => deploymentHistoryData?.content?.find((d: any) => d.status === 'ACTIVE'),
     [deploymentHistoryData]
   );
 
@@ -61,7 +61,7 @@ export function useDeploymentList() {
   const selectedDeploymentData = useMemo(
     () =>
       selectedDeploymentId
-        ? deploymentHistoryData?.find((d: any) => d.deploymentId === selectedDeploymentId)
+        ? deploymentHistoryData?.content?.find((d: any) => d.deploymentId === selectedDeploymentId)
         : null,
     [selectedDeploymentId, deploymentHistoryData]
   );

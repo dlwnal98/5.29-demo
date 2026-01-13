@@ -45,11 +45,11 @@ export default function ModifyEndpointDialogView({
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="edit-url" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <Label htmlFor="edit-routeName" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Route Endpoint Name <span className="text-red-500">*</span>
             </Label>
             <Input
-              id="edit-url"
+              id="edit-routeName"
               value={routeName}
               onChange={(e) => onRouteNameChange(e.target.value)}
               placeholder="https://api.example.com/v1"
@@ -62,11 +62,11 @@ export default function ModifyEndpointDialogView({
             )}
           </div>
           <div>
-            <Label htmlFor="edit-url" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <Label htmlFor="edit-routeUrl" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Endpoint URL <span className="text-red-500">*</span>
             </Label>
             <Input
-              id="edit-url"
+              id="edit-routeUrl"
               value={routeUrl}
               onChange={(e) => onRouteUrlChange(e.target.value)}
               placeholder="https://api.example.com/v1"

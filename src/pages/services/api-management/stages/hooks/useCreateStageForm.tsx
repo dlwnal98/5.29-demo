@@ -4,7 +4,7 @@ import { useCreateStage, useGetDeployHistoryData } from '@/hooks/use-stages';
 
 interface UseCreateStageFormProps {
   open: boolean;
-  organizationId: string;
+  tenantId: string;
   userKey: string;
   apiId: string;
   onOpenChange: (open: boolean) => void;
@@ -15,7 +15,7 @@ interface UseCreateStageFormProps {
  */
 export function useCreateStageForm({
   open,
-  organizationId,
+  tenantId,
   userKey,
   apiId,
   onOpenChange,
@@ -29,7 +29,7 @@ export function useCreateStageForm({
 
   // 배포 기록 데이터 가져오기
   const { data: deploymentHistoryData } = useGetDeployHistoryData(
-    organizationId || '',
+    tenantId || '',
     0,
     20
   );
@@ -62,14 +62,11 @@ export function useCreateStageForm({
   // 스테이지 생성 핸들러
   const handleCreateStage = () => {
     createStage({
-      organizationId,
       stageName: createStageForm.name,
       description: createStageForm.description,
+      deploymentId: selectedDeploymentRecord || '',
       createdBy: userKey,
-      enabled: true,
-      deploymentSource: 'DRAFT',
       apiId,
-      sourceDeploymentId: selectedDeploymentRecord,
     });
   };
 

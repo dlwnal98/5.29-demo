@@ -7,6 +7,7 @@ interface StageResourceTreeProps {
   resource: ApiResource;
   level?: number;
   parentPath?: string;
+  stagesListData: any;
   selectedWholeStageInfo: SelectedWholeStageInfo;
   selectedMethod: SelectedMethod | null;
   expandedPaths: Set<string>;
@@ -23,6 +24,7 @@ export function StageResourceTree({
   resource,
   level = 0,
   parentPath = "",
+  stagesListData,
   selectedWholeStageInfo,
   selectedMethod,
   expandedPaths,

@@ -1,14 +1,13 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
-import { createStage, deleteStage, getDeployHistoryData, getDeploymentResourceTreeData, getStatesDocData, modifyStage } from '@/apis/stages.api';
+import { createStage, deleteStage, getDeployHistoryData, getDeploymentResourceTreeData, getStagesListData, getStagesOpenApiDocData, modifyStage } from '@/apis/stages.api';
 import { CreateStageProps } from '@/apis/stages.api';
 import { PreviousDeploymentProps } from '@/apis/stages.api';
 import { activatePreviousDeployment } from '@/apis/stages.api';
 
-
-export function useGetStagesDocData(apiId: string, path?: string) {
+export function useGetStagesListData(apiId: string) {
   return useQuery({
-    queryKey: ['getStatesDocData', apiId, path], // pathId별 캐싱
-    queryFn: () => getStatesDocData(apiId),
+    queryKey: ['getStagesListData', apiId], // pathId별 캐싱
+    queryFn: () => getStagesListData(apiId),
     enabled: !!apiId, // pathId 있을 때만 실행
     staleTime: Infinity, // 데이터 오래 유지
     refetchOnWindowFocus: false,
@@ -18,11 +17,25 @@ export function useGetStagesDocData(apiId: string, path?: string) {
 }
 
 
-export function useGetDeployHistoryData(organizationId: string, page?: number, size?: number) {
+
+export function useGetStagesDocData(stageId: string) {
   return useQuery({
-    queryKey: ['getDeployHistoryData', organizationId], // pathId별 캐싱
-    queryFn: () => getDeployHistoryData(organizationId, page, size),
-    enabled: !!organizationId, // pathId 있을 때만 실행
+    queryKey: ['getStatesDocData', stageId], // pathId별 캐싱
+    queryFn: () => getStagesOpenApiDocData(stageId),
+    enabled: !!stageId, // pathId 있을 때만 실행
+    staleTime: Infinity, // 데이터 오래 유지
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+}
+
+
+export function useGetDeployHistoryData(tenantId: string, page?: number, size?: number) {
+  return useQuery({
+    queryKey: ['getDeployHistoryData', tenantId], // pathId별 캐싱
+    queryFn: () => getDeployHistoryData(tenantId, page, size),
+    enabled: !!tenantId, // pathId 있을 때만 실행
     staleTime: Infinity, // 데이터 오래 유지
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -65,14 +78,14 @@ export function useCreateStage(options?: UseMutationOptions<any, Error, CreateSt
 
 
 export function useDeleteStage(
-  options?: UseMutationOptions<any, Error, { stageId: string; deletedBy: string }>
+  options?: UseMutationOptions<any, Error, { stageId: string }>
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...options,
-    mutationFn: ({ stageId, deletedBy }: { stageId: string; deletedBy: string }) =>
-      deleteStage(stageId, deletedBy),
+    mutationFn: ({ stageId }: { stageId: string }) =>
+      deleteStage(stageId),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ['getStatesDocData'],
@@ -84,14 +97,14 @@ export function useDeleteStage(
 
 
 export function useModifyStage(
-  options?: UseMutationOptions<any, Error, { stageId: string; description: string }>
+  options?: UseMutationOptions<any, Error, { stageId: string; description: string; updatedBy: string }>
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...options,
-    mutationFn: ({ stageId, description }: { stageId: string; description: string }) =>
-      modifyStage(stageId, description),
+    mutationFn: ({ stageId, description, updatedBy }: { stageId: string; description: string; updatedBy: string }) =>
+      modifyStage(stageId, description, updatedBy),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ['getStatesDocData'],
@@ -103,13 +116,13 @@ export function useModifyStage(
 
 
 export function useActivatePreviousDeployment(
-  options?: UseMutationOptions<any, Error, PreviousDeploymentProps>
+  options?: UseMutationOptions<any, Error, { stageId: string; data: PreviousDeploymentProps }>
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...options,
-    mutationFn: (data: PreviousDeploymentProps) => activatePreviousDeployment(data),
+    mutationFn: ({ stageId, data }: { stageId: string; data: PreviousDeploymentProps }) => activatePreviousDeployment(stageId, data),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ['getDeployHistoryData'],

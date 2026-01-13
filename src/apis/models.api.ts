@@ -46,39 +46,9 @@ export interface CreateModelProps {
     modelName: string,
     description: string,
     schema: {
-        type: string,
-        required: string[],
-        properties: {
-            name: {
-                type: string,
-                minLength: number,
-                maxLength: number,
-                description: string
-            },
-            email: {
-                type: string,
-                format: string,
-                description: string
-            }
-        }
-    },
-    properties: {
-        name: {
-            type: string,
-            minLength: number,
-            maxLength: number,
-            description: string
-        },
-        email: {
-            type: string,
-            format: string,
-            description: string
-        },
-        age: {
-            type: string,
-            minimum: number,
-            maximum: number
-        }
+        type: "object";
+        required: string[];
+        properties: {};
     },
     createdBy: string
 }
@@ -94,7 +64,12 @@ export const createModel = async (apiId: string, tenantId: string, data: CreateM
 
 export interface ModifyModelProps {
     modelName: string;
-    description: string;
+    description?: string;
+    schema: {
+        type: "object";
+        required: string[];
+        properties: {};
+    };
     updatedBy: string;
 }
 

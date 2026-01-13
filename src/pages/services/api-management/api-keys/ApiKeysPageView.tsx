@@ -143,7 +143,7 @@ export default function ApiKeysPageView({
                         <Button
                           className="text-white hover:text-white bg-amber-500 hover:bg-amber-500"
                           size="sm"
-                          onClick={() => onCopy(apiKey.keyName, apiKey.key)}
+                          onClick={() => onCopy(apiKey.keyName, apiKey.apiKeyId)}
                         >
                           <Copy className="h-4 w-4" />
                         </Button>

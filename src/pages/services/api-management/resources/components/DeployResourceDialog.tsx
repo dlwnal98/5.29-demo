@@ -29,6 +29,7 @@ interface DeployResourceDialogProps {
   onDeploySubmit: () => void;
   onStageChange: (value: string) => void;
   onNewStageNameChange: (value: string) => void;
+  onStageDescriptionChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
   onDeployModalClose: () => void;
 }
@@ -43,6 +44,7 @@ export default function DeployResourceDialog({
   onDeploySubmit,
   onStageChange,
   onNewStageNameChange,
+  onStageDescriptionChange,
   onDescriptionChange,
   onDeployModalClose,
 }: DeployResourceDialogProps) {
@@ -76,6 +78,11 @@ export default function DeployResourceDialog({
                     <Plus className="h-4 w-4" />새 스테이지 생성
                   </div>
                 </SelectItem>
+                <SelectItem value="snapshot" className="cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <Plus className="h-4 w-4" />새 스냅샷 생성
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -99,6 +106,18 @@ export default function DeployResourceDialog({
                   className="mt-2"
                 />
               </div>
+              <div>
+                <Label htmlFor="stage-description" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  스테이지 설명
+                </Label>
+                <Textarea
+                  id="stage-description"
+                  value={deploymentData.stageDescription}
+                  onChange={(e) => onStageDescriptionChange(e.target.value)}
+                  placeholder="스테이지에 대한 설명을 입력하세요"
+                  className="mt-1"
+                />
+              </div>
             </div>
           )}
 
@@ -108,7 +127,7 @@ export default function DeployResourceDialog({
             </Label>
             <Textarea
               id="deploy-description"
-              value={deploymentData.description}
+              value={deploymentData.deploymentReason}
               onChange={(e) => onDescriptionChange(e.target.value)}
               placeholder="배포에 대한 설명을 입력하세요"
               className="mt-1"

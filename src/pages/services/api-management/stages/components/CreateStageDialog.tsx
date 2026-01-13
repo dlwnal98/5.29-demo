@@ -24,7 +24,7 @@ import { useCreateStageForm } from '../hooks/useCreateStageForm';
 interface CreateStageDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    organizationId: string;
+    tenantId: string;
     userKey: string;
     apiId: string;
 }
@@ -32,7 +32,7 @@ interface CreateStageDialogProps {
 export default function CreateStageDialog({
     open,
     onOpenChange,
-    organizationId,
+    tenantId,
     userKey,
     apiId,
 }: CreateStageDialogProps) {
@@ -47,7 +47,7 @@ export default function CreateStageDialog({
         isValid,
     } = useCreateStageForm({
         open,
-        organizationId,
+        tenantId,
         userKey,
         apiId,
         onOpenChange,
@@ -109,7 +109,7 @@ export default function CreateStageDialog({
                                     <SelectValue placeholder="배포 기록을 선택하세요" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {deploymentHistoryData?.map((record) => (
+                                    {deploymentHistoryData?.content?.map((record) => (
                                         <SelectItem
                                             key={record.deploymentId}
                                             value={record.deploymentId}

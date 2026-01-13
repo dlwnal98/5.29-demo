@@ -6,6 +6,7 @@ import { useAuthStore } from "@/stores/store";
 import { useGetStagesDocData } from "@/hooks/use-stages";
 import { buildTree } from "@/libs/etc";
 import { requestGet } from "@/libs/apiClient";
+import { useGetStagesListData } from "@/hooks/use-stages";
 
 interface ApiResource {
   id: string;
@@ -44,13 +45,17 @@ interface SelectedMethod {
 export function useStagesPage() {
   const userData = useAuthStore((state) => state.user);
   const userKey = userData?.userKey || "";
-  const organizationId = userData?.organizationId || "";
+  const tenantId = userData?.organizationId ?? "kwwwksAsvmas";
   const [searchParams] = useSearchParams();
   const apiId = searchParams.get("apiId") || "";
+  const stageId = "0rsCzZzPY6li";
   const { pathname } = useLocation();
   const clipboard = useClipboard();
 
-  const { data: stagesDocData = [] } = useGetStagesDocData(apiId, pathname);
+  const { data: stagesListData } = useGetStagesListData(apiId);
+  const { data: stagesDocData = [] } = useGetStagesDocData(stageId);
+
+  console.log(stagesListData)
 
   const [selectedWholeStageInfo, setSelectedWholeStageInfo] =
     useState<SelectedWholeStageInfo>({
@@ -64,7 +69,8 @@ export function useStagesPage() {
   const [isDeleteStageDialogOpen, setIsDeleteStageDialogOpen] = useState(false);
   const [selectedStageEndpointUrl, setSelectedStageEndpointUrl] = useState("");
 
-  const resourceTree = useMemo(() => buildTree(stagesDocData), [stagesDocData]);
+  // const resourceTree = useMemo(() => buildTree(stagesDocData), [stagesDocData]);
+  const resourceTree = [];
 
   const getFinalEndpoint = useCallback(async (stageId: string) => {
     if (!stageId) return;
@@ -88,39 +94,42 @@ export function useStagesPage() {
     []
   );
 
-  useEffect(() => {
-    if (resourceTree.length === 0) return;
+  console.log(resourceTree)
 
-    const prevLength = prevLengthRef.current;
-    prevLengthRef.current = resourceTree.length;
+  // useEffect(() => {
 
-    const currentId = selectedWholeStageInfo.resource?.deploymentId;
-    const updated = currentId ? findResourceById(resourceTree, currentId) : null;
+  //   if (resourceTree?.length === 0) return;
 
-    if (!currentId) {
-      getFinalEndpoint(resourceTree[0]?.stageId || "");
-      setSelectedWholeStageInfo({ resource: resourceTree[0], type: "stage" });
-      return;
-    }
+  //   const prevLength = prevLengthRef.current;
+  //   prevLengthRef.current = resourceTree.length;
 
-    if (!updated) {
-      getFinalEndpoint(resourceTree[0]?.stageId || "");
-      setSelectedWholeStageInfo({ resource: resourceTree[0], type: "stage" });
-      return;
-    }
+  //   const currentId = selectedWholeStageInfo.resource?.deploymentId;
+  //   const updated = currentId ? findResourceById(resourceTree, currentId) : null;
 
-    if (resourceTree.length > prevLength) {
-      getFinalEndpoint(resourceTree[0]?.stageId || "");
-      setSelectedWholeStageInfo({ resource: resourceTree[0], type: "stage" });
-      return;
-    }
+  //   if (!currentId) {
+  //     getFinalEndpoint(resourceTree[0]?.stageId || "");
+  //     setSelectedWholeStageInfo({ resource: resourceTree[0], type: "stage" });
+  //     return;
+  //   }
 
-    getFinalEndpoint(updated?.stageId || "");
-    setSelectedWholeStageInfo((prev) => ({
-      ...prev,
-      resource: updated,
-    }));
-  }, [resourceTree, findResourceById, getFinalEndpoint, selectedWholeStageInfo.resource?.deploymentId]);
+  //   if (!updated) {
+  //     getFinalEndpoint(resourceTree[0]?.stageId || "");
+  //     setSelectedWholeStageInfo({ resource: resourceTree[0], type: "stage" });
+  //     return;
+  //   }
+
+  //   if (resourceTree.length > prevLength) {
+  //     getFinalEndpoint(resourceTree[0]?.stageId || "");
+  //     setSelectedWholeStageInfo({ resource: resourceTree[0], type: "stage" });
+  //     return;
+  //   }
+
+  //   getFinalEndpoint(updated?.stageId || "");
+  //   setSelectedWholeStageInfo((prev) => ({
+  //     ...prev,
+  //     resource: updated,
+  //   }));
+  // }, [resourceTree, findResourceById, getFinalEndpoint, selectedWholeStageInfo.resource?.deploymentId]);
 
   const getResourceKey = useCallback(
     (resource: ApiResource, parentPath = "") => {
@@ -213,9 +222,10 @@ export function useStagesPage() {
   return {
     // Data
     userKey,
-    organizationId,
+    tenantId,
     apiId,
     resourceTree,
+    stagesListData,
     selectedWholeStageInfo,
     selectedMethod,
     expandedPaths,
