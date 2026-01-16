@@ -30,7 +30,7 @@ interface SeleceAPIKeyProps {
     setNewApiKeyForm: React.Dispatch<SetStateAction<any>>;
     setApiKeyToggle: React.Dispatch<SetStateAction<boolean>>;
     userKey: string;
-    organizationId: string;
+    tenantId: string;
 }
 
 export function SelectAPIKeyModal({
@@ -44,19 +44,18 @@ export function SelectAPIKeyModal({
     newApiKeyForm,
     setNewApiKeyForm,
     userKey,
-    organizationId,
+    tenantId,
     setApiKeyToggle,
 }: SeleceAPIKeyProps) {
     const [selectApiKey, setSelectApiKey] = useState('');
-    const tenantId = organizationId ?? "kwwwksAsvmas";
 
 
     const { mutate: createAPIKey } = useCreateAPIKey({
         onSuccess: (data) => {
-            console.log(data);
             setApiKeyToggle(true);
-            setSelectedApiKeyValue(data.keyValue);
-            setSelectedApiKeyId(data.apiKeyId);
+            setSelectedApiKeyValue(data.keyValue || data.key);
+            // 백엔드 응답에서 apiKeyId 또는 keyId 필드 사용
+            setSelectedApiKeyId(data.apiKeyId || data.keyId);
             toast.success('성공');
             onOpenChange(false);
         },

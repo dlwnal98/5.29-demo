@@ -7,12 +7,13 @@ import { useGetAPIKeyList } from "@/hooks/use-apiKeys";
 import { useCreateMethod } from "@/hooks/use-methods";
 import { useGetModelList } from "@/hooks/use-model";
 import { useGetEndpointsList } from "@/hooks/use-endpoints";
-import { requestGet } from "@/libs/apiClient";
+import { useGetOpenAPIDoc } from "@/hooks/use-resources";
 import { useClipboard } from "use-clipboard-copy";
-import { onInputChange, onSave } from "@/libs/etc";
+import { onInputChange, onSave, resoureceBuildTree } from "@/libs/etc";
 import { useQueryClient } from "@tanstack/react-query";
 import { getValidatorList, getIntegrationTypeList } from "@/apis/methods.api";
 import { getAPIKeyDetail } from "@/apis/api-keys.api";
+import { exampleMethodList } from "@/constants/data";
 
 interface MethodForm {
   summary: string;
@@ -46,7 +47,6 @@ export function useCreateMethodPage() {
   const resourcePath = searchParams.get("resourcePath") || "";
   const userData = useAuthStore((state) => state.user);
   const userKey = userData?.userKey || "";
-  const organizationId = userData?.organizationId || "";
   const apiId = sessionStorage.getItem("selectedApiId") || "";
   const apiName = sessionStorage.getItem("selectedApiName") || "";
   const clipboard = useClipboard();
@@ -55,9 +55,41 @@ export function useCreateMethodPage() {
 
   const { data: apiKeyList = [] } = useGetAPIKeyList(tenantId);
   const { data: endpointList = [] } = useGetEndpointsList(tenantId);
-  const { data: modelList = [] } = useGetModelList(apiId, 1, 20);
+  const { data: modelList } = useGetModelList(apiId, 0, 20);
+  const { data: openAPIDocData } = useGetOpenAPIDoc(apiId);
 
   const queryClient = useQueryClient();
+
+  // 현재 리소스의 기존 메서드 목록 계산
+  const availableMethodList = useMemo(() => {
+    if (!openAPIDocData?.paths || !resourceId) {
+      return exampleMethodList;
+    }
+
+    const tree = resoureceBuildTree(openAPIDocData.paths);
+
+    // 트리에서 해당 resourceId를 가진 리소스 찾기
+    const findResourceById = (nodes: any[]): any | null => {
+      for (const node of nodes) {
+        if (node.resourceId === resourceId) {
+          return node;
+        }
+        if (node.children && node.children.length > 0) {
+          const found = findResourceById(node.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    const currentResource = findResourceById(tree);
+    const existingMethods = currentResource?.methods?.map((m: any) => m.type?.toUpperCase()) || [];
+
+    // 기존 메서드를 제외한 사용 가능한 메서드 목록 반환
+    return exampleMethodList.filter(
+      (method) => !existingMethods.includes(method.value.toUpperCase())
+    );
+  }, [openAPIDocData?.paths, resourceId]);
 
   const [methodForm, setMethodForm] = useState<MethodForm>({
     summary: "",
@@ -181,10 +213,13 @@ export function useCreateMethodPage() {
               apiKeyId: selectedApiKeyId,
               apiKeyRequired: apiKeyToggle,
               routingEndpoint: methodForm.customEndpointUrl || methodForm.endpointUrl,
-              requestModelId: bodyModelId || "",
+              requestBodyConfig: bodyModelId ? {
+                modelId: bodyModelId,
+                required: false,
+              } : undefined,
               queryParameters,
               headerParameters: headers,
-              requestValidator: methodForm.requestValidator,
+              requestValidation: methodForm.requestValidator,
             },
             apiId,
             resourceId
@@ -203,10 +238,13 @@ export function useCreateMethodPage() {
             apiKeyId: selectedApiKeyId,
             apiKeyRequired: apiKeyToggle,
             routingEndpoint: methodForm.customEndpointUrl || methodForm.endpointUrl,
-            requestModelId: bodyModelId || "",
+            requestBodyConfig: bodyModelId ? {
+              modelId: bodyModelId,
+              required: false,
+            } : undefined,
             queryParameters,
             headerParameters: headers,
-            requestValidator: methodForm.requestValidator,
+            requestValidation: methodForm.requestValidator,
           },
           apiId,
           resourceId
@@ -347,12 +385,13 @@ export function useCreateMethodPage() {
     // Data
     resourcePath,
     userKey,
-    organizationId,
+    tenantId,
     apiKeyList,
     endpointList,
-    modelList,
+    modelList: modelList?.content,
     validatorList,
     integrationTypeList,
+    availableMethodList,
 
     // Form state
     methodForm,

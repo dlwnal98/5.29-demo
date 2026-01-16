@@ -41,10 +41,8 @@ import {
 } from "lucide-react";
 import { QueryParameter, Header } from "@/types/methods";
 import RequestHeaderListSearch from "../models/components/RequestHeaderListSearch";
-import { exampleMethodList } from "@/constants/data";
 import { ModelData } from "@/apis/models.api";
 import { EndpointsData } from "@/apis/route-endpoints.api";
-import { Global } from "recharts";
 
 interface MethodForm {
   summary: string;
@@ -72,6 +70,7 @@ interface CreateMethodPageViewProps {
   modelList: ModelData[];
   validatorList: Array<{ code: string; description: string }>;
   integrationTypeList: Array<{ code: string; description: string }>;
+  availableMethodList: Array<{ id: number; label: string; value: string }>;
   methodForm: MethodForm;
   isDirectUrlInput: boolean;
   selectedApiKeyValue: string;
@@ -115,6 +114,7 @@ export default function CreateMethodPageView({
   modelList,
   validatorList,
   integrationTypeList,
+  availableMethodList,
   methodForm,
   isDirectUrlInput,
   selectedApiKeyValue,
@@ -145,7 +145,6 @@ export default function CreateMethodPageView({
 }: CreateMethodPageViewProps) {
 
 
-  console.log(integrationTypeList);
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Breadcrumb */}
@@ -247,7 +246,7 @@ export default function CreateMethodPageView({
                         <SelectValue placeholder="메서드 유형 선택" />
                       </SelectTrigger>
                       <SelectContent className="hover:cursor-pointer">
-                        {exampleMethodList.map((method) => (
+                        {availableMethodList.map((method) => (
                           <SelectItem
                             key={method.value}
                             className="hover:cursor-pointer"
@@ -641,19 +640,19 @@ export default function CreateMethodPageView({
                     <div className="grid grid-cols-12 gap-3 items-center mb-3">
                       <div className="col-span-10">
                         <Select value={bodyModelId} onValueChange={(value) => setBodyModelId(value)}
-                          disabled={modelList?.content?.length === 0}
+                          disabled={!modelList || modelList.length === 0}
                         >
                           <SelectTrigger>
                             <SelectValue
                               placeholder={
-                                modelList?.content?.length > 0
+                                modelList && modelList.length > 0
                                   ? "모델 선택"
                                   : "생성된 모델이 존재하지 않습니다."
                               }
                             />
                           </SelectTrigger>
                           <SelectContent>
-                            {modelList?.content?.map((model) => (
+                            {modelList?.map((model) => (
                               <SelectItem key={model.modelId} value={model.modelId}>
                                 {model.modelName}
                               </SelectItem>
@@ -662,7 +661,7 @@ export default function CreateMethodPageView({
                         </Select>
                       </div>
                       <div className="col-span-2 flex justify-start">
-                        {modelList?.content?.length > 0 &&
+                        {modelList && modelList.length > 0 &&
                           <Button
                             size="sm"
                             variant="outline"

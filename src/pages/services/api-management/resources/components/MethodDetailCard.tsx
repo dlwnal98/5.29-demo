@@ -1,58 +1,88 @@
-
-
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Monitor, Copy, ArrowRight } from 'lucide-react';
+import { BasicInfoTab } from './BasicInfoTab';
+import { BasicInfoEditTab } from './BasicInfoEditTab';
 import { MethodRequestView } from './MethodRequestView';
-import { MethodRequestEdit } from './MethodRequestEdit';
+import { MethodRequestEditTab } from './MethodRequestEditTab';
 import { MethodTestTab } from './MethodTestTab';
 import { MethodResponseTab } from './MethodResponseTab';
-import { MethodResponseEdit } from './MethodResponseEdit';
+import { MethodResponseEditTab } from './MethodResponseEditTab';
 import { DeleteMethodDialog } from './DeleteMethodDialog';
-import type {
-  TestResponse,
-  MethodResponse,
-  QueryParameter,
-  Method,
-  RequestHeader,
-  RequestBodyModel,
-} from '@/types/resource';
+import type { TestResponse, Method, QueryParameter, RequestHeader } from '@/types/resource';
 import { useClipboard } from 'use-clipboard-copy';
-import { toast, Toaster } from 'sonner';
+import { useDeleteMethod } from '@/hooks/use-methods';
+import { toast } from 'sonner';
 import { useSearchParams } from 'react-router-dom';
-import { getMethodStyle } from '@/libs/etc';
-import { useMethodEditStore, useAuthStore } from '@/stores/store';
+import { getMethodStyle, HttpMethod } from '@/libs/etc';
+import { useAuthStore } from '@/stores/store';
 import { useGetModelList } from '@/hooks/use-model';
-import { useDeleteMethodDialog } from '../hooks/useDeleteMethodDialog';
+import { useMethodEditForm } from '../hooks/useMethodEditForm';
+import { useModifyMethod } from '@/hooks/use-methods';
 
 export default function MethodDetailCard({ selectedMethod }: { selectedMethod: Method }) {
-  const [activeTab, setActiveTab] = useState('method-request');
+  // info 타입 캐스팅 (Method 타입의 info가 {} 로 정의되어 있음)
+  const methodInfo = selectedMethod?.info as any;
+
+  const [activeTab, setActiveTab] = useState('basic-info');
   const [selectedFlowStep, setSelectedFlowStep] = useState('');
   const [isMethodDeleteDialogOpen, setIsMethodDeleteDialogOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [searchParams] = useSearchParams();
   const apiId = searchParams.get('apiId');
-  const isEditMode = useMethodEditStore((state) => state.isEdit);
-  const setIsEditMode = useMethodEditStore((state) => state.setIsEdit);
   const clipboard = useClipboard();
   const userData = useAuthStore((state) => state.user);
   const userKey = userData?.userKey || '';
 
-  const { data: modelList = [] } = useGetModelList(apiId || '');
+  const { data: modelListData } = useGetModelList(apiId, 0, 20);
+  // modelList 타입 캐스팅 (API 응답이 페이지네이션 객체)
+  const modelList = (modelListData as any)?.content || [];
 
   const [methodToDelete, setMethodToDelete] = useState<Method | null>(null);
 
-  // Delete Method Dialog hook
-  const deleteMethodDialog = useDeleteMethodDialog({
-    methodToDelete,
-    userKey,
-    onOpenChange: setIsMethodDeleteDialogOpen,
-    setSelectedResource: () => { }, // Not needed in this context
-    onMethodDeleted: () => {
+  // 통합 폼 상태 관리
+  const {
+    formData,
+    updateBasicInfo,
+    updateRequestSettings,
+    updateResponseSettings,
+    resetForm,
+    getModifyMethodProps,
+    integrationTypeList,
+    validatorList,
+    isDirty,
+  } = useMethodEditForm(selectedMethod, userKey);
+
+  // 메서드 수정 mutation
+  const { mutate: modifyMethod, isPending: isModifying } = useModifyMethod({
+    onSuccess: () => {
+      toast.success('메서드가 성공적으로 수정되었습니다.');
+      setIsEditMode(false);
+    },
+    onError: () => {
+      toast.error('메서드 수정에 실패했습니다.');
+    },
+  });
+
+  // Delete Method mutation
+  const { mutate: deleteMethod, isPending: isDeleting } = useDeleteMethod({
+    onSuccess: () => {
+      toast.success('메서드가 삭제되었습니다.');
       setIsMethodDeleteDialogOpen(false);
       setMethodToDelete(null);
     },
+    onError: () => {
+      toast.error('메서드 삭제에 실패했습니다.');
+    },
   });
+
+  const handleDeleteMethod = () => {
+    const methodId = methodToDelete?.info?.['x-method-id'];
+    if (methodId) {
+      deleteMethod(methodId);
+    }
+  };
 
   // Test Tab States
   const [testSettings, setTestSettings] = useState({
@@ -63,62 +93,15 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
   });
   const [testResponse, setTestResponse] = useState<TestResponse | null>(null);
   const [isTestLoading, setIsTestLoading] = useState(false);
-  const [methodResponses, setMethodResponses] = useState<MethodResponse[]>([
-    {
-      id: '1',
-      statusCode: '200',
-      headers: [{ id: '1', name: 'content-type', value: '' }],
-      bodies: [{ id: '1', contentType: 'application/json', model: 'Empty' }],
-    },
-    {
-      id: '2',
-      statusCode: '201',
-      headers: [{ id: '2', name: 'authorization', value: '' }],
-      bodies: [{ id: '2', contentType: 'application/html', model: 'Error' }],
-    },
-  ]);
 
-  const [queryParameters, setQueryParameters] = useState<QueryParameter[]>([]);
-  const [requestHeaders, setRequestHeaders] = useState<RequestHeader[]>([]);
-  const [requestBodyModels, setRequestBodyModels] = useState<RequestBodyModel[]>([]);
-  const [requestModelId, setRequestModelId] = useState<string>('');
-
+  // selectedMethod 변경 시 편집 모드 해제
   useEffect(() => {
-    if (!selectedMethod) return;
-
-    const params = selectedMethod.info?.parameters ?? [];
-
-    const queries = params
-      .filter((param: any) => param.in?.trim().toLowerCase() === 'query')
-      .map((p: any, idx: number) => ({
-        ...p,
-        id: `query-${idx}-${p.name}`,
-      }));
-
-    const headers = params
-      .filter((param: any) => param.in?.trim().toLowerCase() === 'header')
-      .map((p: any, idx: number) => ({
-        ...p,
-        id: `header-${idx}-${p.name}`,
-      }));
-
-    if (selectedMethod.info.requestBody) {
-      // $ref 값을 파싱하는 예시
-      const ref = selectedMethod.info.requestBody?.content?.['application/json']?.schema?.$ref;
-      const match = ref.match(/\/schemas\/([^\/]+)$/);
-      const id = match ? match[1] : undefined; // "mn7exE0xAAAo"
-
-      setRequestModelId(id);
-    } else {
-      setRequestModelId('');
-    }
-
-    setQueryParameters(queries);
-    setRequestHeaders(headers);
-  }, [selectedMethod]);
+    setIsEditMode(false);
+    setActiveTab('basic-info');
+  }, [methodInfo?.['x-method-id']]);
 
   const handleCopyEndpoint = () => {
-    clipboard.copy(selectedMethod?.info['x-backend-endpoint'] ?? '');
+    clipboard.copy(methodInfo?.['x-route-endpoint'] ?? '');
     toast.success('ARN이 클립보드에 복사되었습니다.');
   };
 
@@ -135,6 +118,24 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
     setIsEditMode(true);
   };
 
+  const handleCancelEdit = () => {
+    resetForm();
+    setIsEditMode(false);
+  };
+
+  const handleSaveMethod = () => {
+    const methodId = methodInfo?.['x-method-id'];
+    if (!methodId) {
+      toast.error('메서드 ID를 찾을 수 없습니다.');
+      return;
+    }
+
+    modifyMethod({
+      methodId,
+      data: getModifyMethodProps(),
+    });
+  };
+
   const handleTest = async () => {
     if (!selectedMethod) return;
 
@@ -142,13 +143,11 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
     const startTime = Date.now();
 
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 2000));
 
       const endTime = Date.now();
       const responseTime = endTime - startTime;
 
-      // Mock response based on method type
       const mockResponse: TestResponse = {
         status: 200,
         statusText: 'OK',
@@ -190,69 +189,59 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
     }
   };
 
+  console.log(selectedMethod)
+
   return (
     <>
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         {/* Method Header */}
-        <div className="border-b border-gray-200 dark:border-gray-700 p-6">
-          <div className=" mb-4">
+        <div className="p-6">
+          <div>
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                   <span
-                    className={`${getMethodStyle(selectedMethod.type)} !font-mono !font-bold !text-xl !px-1.5 !py-0.5 rounded mr-2`}>
+                    className={`${getMethodStyle(selectedMethod.type as HttpMethod)} !font-mono !font-bold !text-xl !px-1.5 !py-0.5 rounded mr-2`}>
                     {selectedMethod.type}
                   </span>{' '}
                   {selectedMethod.resourcePath}
                 </h1>
                 <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 bg-transparent"
-                    onClick={() => {
-                      setMethodToDelete(selectedMethod);
-                      setIsMethodDeleteDialogOpen(true);
-                    }}>
-                    삭제
-                  </Button>
+                  {!isEditMode ? (
+                    <>
+                      <Button
+                        variant="outline"
+                        className="border-blue-200 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        onClick={handleEditMethod}>
+                        편집
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 bg-transparent"
+                        onClick={() => {
+                          setMethodToDelete(selectedMethod);
+                          setIsMethodDeleteDialogOpen(true);
+                        }}>
+                        삭제
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button variant="outline" onClick={handleCancelEdit} disabled={isModifying}>
+                        취소
+                      </Button>
+                      <Button
+                        onClick={handleSaveMethod}
+                        disabled={isModifying}
+                        className="bg-blue-500 hover:bg-blue-600 text-white">
+                        {isModifying ? '저장 중...' : '저장'}
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="w-[100%] mt-2">
-                <div>
-                  <div className="flex items-center gap-2  mb-2">
-                    <div className="w-20 text-sm text-gray-600 dark:text-gray-400">메서드 ID</div>
-                    <div className="font-mono text-sm">
-                      {selectedMethod?.info['x-method-id'] ?? ''}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2  mb-2">
-                    <div className="w-20 text-sm text-gray-600 dark:text-gray-400">메서드 이름</div>
-                    <div className="font-semibold text-sm">
-                      {selectedMethod?.info['x-method-name'] ?? ''}
-                    </div>
-                  </div>
-                  {selectedMethod?.info?.summary && (
-                    <div className="flex items-center gap-2  mb-2">
-                      <div className="w-20 text-sm text-gray-600 dark:text-gray-400">
-                        메서드 설명
-                      </div>
-                      <div className="font-semibold text-sm">{selectedMethod?.info?.summary}</div>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2">
-                    <span className="w-20 text-sm text-gray-600 dark:text-gray-400">URL</span>
-                    <div className="flex items-center gap-2">
-                      <code className="text-sm font-mono">
-                        {selectedMethod?.info['x-backend-endpoint'] ?? ''}
-                        {selectedMethod.resourcePath}
-                      </code>
-                      <Button size="sm" variant="ghost" onClick={handleCopyEndpoint}>
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-6 w-[100%] mt-3">
+                <div className="bg-blue-50 dark:bg-gray-700 rounded-lg p-6 w-[100%] mt-6">
                   <div className="flex items-center justify-between">
                     {/* Client */}
                     <div className="flex flex-col items-center">
@@ -270,10 +259,10 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                     </div>
 
                     {/* Method Request & Response */}
-                    <div className="flex flex-col items-center ">
+                    <div className="flex flex-col items-center">
                       <div
                         className={`bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3 text-center cursor-pointer transition-all mb-2 ${selectedFlowStep === 'method-request'
-                          ? 'bg-blue-200 dark:bg-blue-800 '
+                          ? 'bg-blue-200 dark:bg-blue-800'
                           : ''
                           }`}
                         onClick={() => handleFlowStepClick('method-request')}>
@@ -283,7 +272,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                       </div>
 
                       <div
-                        className={`bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3 text-center  cursor-pointer transition-all ${selectedFlowStep === 'method-response'
+                        className={`bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3 text-center cursor-pointer transition-all ${selectedFlowStep === 'method-response'
                           ? 'bg-blue-200 dark:bg-blue-800'
                           : ''
                           }`}
@@ -303,12 +292,12 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                     <div className="flex flex-col items-center">
                       <div className="bg-white border-2 border-blue-300 rounded-lg p-3 mb-2 min-w-[80px]">
                         <div className="text-center">
-                          <div className="text-xs font-bold text-gray-600">HTTP</div>
+                          <div className="text-xs font-bold text-gray-600">{selectedMethod?.info?.['x-integration-type']}</div>
                           <div className="text-xs text-gray-500">응답</div>
                         </div>
                       </div>
                       <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                        HTTP 응답
+                        {selectedMethod?.info?.['x-integration-type']} 응답
                       </span>
                     </div>
                   </div>
@@ -320,33 +309,59 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
 
         {/* Method Tabs */}
         <div className="p-6">
-          <Tabs
-            value={activeTab}
-            onValueChange={(value) => {
-              setActiveTab(value);
-              setIsEditMode(false);
-            }}
-            className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="basic-info">기본 정보</TabsTrigger>
               <TabsTrigger value="method-request">메서드 요청</TabsTrigger>
               <TabsTrigger value="method-response">메서드 응답</TabsTrigger>
               <TabsTrigger value="test">테스트</TabsTrigger>
             </TabsList>
 
+            {/* Basic Info Tab */}
+            <TabsContent value="basic-info" className="space-y-6 mt-6">
+              {!isEditMode ? (
+                <BasicInfoTab selectedMethod={selectedMethod} handleCopyEndpoint={handleCopyEndpoint} />
+              ) : (
+                <BasicInfoEditTab
+                  formData={formData}
+                  integrationTypeList={integrationTypeList}
+                  onChange={updateBasicInfo}
+                  selectedMethod={selectedMethod}
+                />
+              )}
+            </TabsContent>
+
             {/* Method Request Tab */}
-            {/* 메서드 요청 설정 */}
             <TabsContent value="method-request" className="space-y-6 mt-6">
               {!isEditMode ? (
                 <MethodRequestView
                   selectedMethod={selectedMethod}
-                  queryParameters={queryParameters}
-                  requestHeaders={requestHeaders}
-                  requestBodyModels={requestBodyModels}
-                  modelId={requestModelId}
+                  queryParameters={formData.queryParameters.map((p, idx) => ({
+                    id: `query-${idx}`,
+                    name: p.name,
+                    description: p.description,
+                    type: p.schema?.type || 'string',
+                    required: p.required,
+                    cacheKey: false,
+                  }))}
+                  requestHeaders={formData.headerParameters.map((p, idx) => ({
+                    id: `header-${idx}`,
+                    name: p.name,
+                    description: p.description,
+                    type: p.schema?.type || 'string',
+                    required: p.required,
+                  }))}
+                  requestBodyModels={[]}
+                  modelId={formData.requestBodyConfig.modelId}
                   handleEditMethod={handleEditMethod}
                 />
               ) : (
-                <MethodRequestEdit selectedMethod={selectedMethod} modelList={modelList || []} />
+                <MethodRequestEditTab
+                  formData={formData}
+                  validatorList={validatorList}
+                  modelList={modelList || []}
+                  onChange={updateRequestSettings}
+                />
               )}
             </TabsContent>
 
@@ -354,21 +369,24 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
             <TabsContent value="method-response" className="space-y-6 mt-6">
               {!isEditMode ? (
                 <MethodResponseTab
-                  methodResponses={methodResponses}
+                  methodResponses={formData.responses.map((r, idx) => ({
+                    id: `response-${idx}`,
+                    statusCode: r.statusCode,
+                    headers: [],
+                    bodies: r.modelId
+                      ? [{ id: `body-${idx}`, contentType: 'application/json', model: r.modelId }]
+                      : [],
+                  }))}
                   handleCreateResponse={() => { }}
                   handleEditResponse={() => { }}
                   handleDeleteResponse={() => { }}
                   availableModels={[]}
                 />
               ) : (
-                <MethodResponseEdit
-                  methodResponses={methodResponses}
-                  handleCreateResponse={() => { }}
-                  handleEditResponse={() => { }}
-                  handleDeleteResponse={() => { }}
-                  handleCancelEdit={() => { }}
-                  handleSaveEdit={() => { }}
-                  availableModels={[]}
+                <MethodResponseEditTab
+                  formData={formData}
+                  modelList={modelList || []}
+                  onChange={updateResponseSettings}
                 />
               )}
             </TabsContent>
@@ -393,6 +411,8 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
         open={isMethodDeleteDialogOpen}
         onOpenChange={setIsMethodDeleteDialogOpen}
         methodToDelete={methodToDelete}
+        isPending={isDeleting}
+        onDeleteMethod={handleDeleteMethod}
       />
     </>
   );
