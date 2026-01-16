@@ -24,7 +24,7 @@ import { Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { sampleApiData } from '@/constants/sample-api-data';
 import { useCloneCreateAPI, useCreateAPI, useUploadOpenAPIDocCreateAPI } from '@/hooks/use-apimanagement';
-import { APIListData } from '@/hooks/use-apimanagement';
+import { APIListData } from '@/apis/api-management.api';
 
 interface ApiCreateModalProps {
     userKey: string;
@@ -75,10 +75,10 @@ const ApiCreateDialog = ({
         if (files.length > 0) {
             const file = files[0];
             if (
-                file.type === 'application/json' ||
-                file.name.endsWith('.json') ||
-                file.name.endsWith('.yaml') ||
-                file.name.endsWith('.yml')
+                file?.type === 'application/json' ||
+                file?.name?.endsWith('.json') ||
+                file?.name?.endsWith('.yaml') ||
+                file?.name?.endsWith('.yml')
             ) {
                 setSwaggerFile(file);
                 const reader = new FileReader();
@@ -339,7 +339,7 @@ const ApiCreateDialog = ({
                 <DialogHeader>
                     <DialogTitle className="text-xl font-bold text-blue-600">API Plan 생성</DialogTitle>
                     <DialogDescription className="text-gray-600 dark:text-gray-400">
-                        API는 4가지 방법으로 생성할 수 있습니다. (<span className="text-red-500">*</span> 필수
+                        API는 3가지 방법으로 생성할 수 있습니다. (<span className="text-red-500">*</span> 필수
                         입력 사항입니다.)
                     </DialogDescription>
                 </DialogHeader>
@@ -357,7 +357,7 @@ const ApiCreateDialog = ({
                                 setCreateApiForm((prev) => ({ ...prev, name: '', description: '', swaggerContent: '' }));
                                 setSourcePlanId('');
                             }}
-                            className="grid grid-cols-2 gap-4">
+                            className="grid grid-cols-3 gap-4">
                             <div className="flex items-center space-x-2">
                                 <RadioGroupItem value="new" id="new" />
                                 <Label
@@ -379,7 +379,7 @@ const ApiCreateDialog = ({
                                 <Label
                                     htmlFor="swagger"
                                     className={`text-sm ${apiType === 'swagger' ? 'text-blue-600 font-medium' : ''} hover:cursor-pointer`}>
-                                    Swagger에서 가져오기
+                                    OpenAPI에서 가져오기
                                 </Label>
                             </div>
                             {/* <div className="flex items-center space-x-2">

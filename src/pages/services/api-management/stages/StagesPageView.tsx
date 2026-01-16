@@ -22,12 +22,20 @@ import { StageResourceTree } from "./components/StageResourceTree";
 import type { ApiResource, ApiMethod, SelectedWholeStageInfo, SelectedMethod } from "./types";
 
 interface StagesPageViewProps {
-  resourceTree: ApiResource[];
   stagesListData: any;
   selectedWholeStageInfo: SelectedWholeStageInfo;
   selectedMethod: SelectedMethod | null;
   expandedPaths: Set<string>;
   selectedStageEndpointUrl: string;
+  // Stage Resource Tree 관련
+  selectedStageId: string | null;
+  stageResourcesMap: Record<string, any[]>;
+  expandedStages: Set<string>;
+  expandedResources: string[];
+  selectedResource: any | null;
+  selectedTreeMethod: any | null;
+  stageDetailData: any | null;
+  refreshStageDetailData: () => Promise<void>;
   onResourceClick: (resource: ApiResource, type: "stage" | "resource") => void;
   onMethodClick: (method: ApiMethod, resource: ApiResource) => void;
   onToggleExpanded: (resource: ApiResource, parentPath?: string) => void;
@@ -37,16 +45,29 @@ interface StagesPageViewProps {
   onOpenCreateModal: () => void;
   onOpenEditModal: () => void;
   onOpenDeleteDialog: () => void;
+  onOpenExportModal: () => void;
   getResourceKey: (resource: ApiResource, parentPath?: string) => string;
+  onStageOpenApiData: (stageId: string) => void;
+  onToggleResourceExpansion: (resourceId: string) => void;
+  onTreeResourceClick: (resource: any) => void;
+  onTreeMethodClick: (method: any, resource: any) => void;
 }
 
 export default function StagesPageView({
-  resourceTree,
   stagesListData,
   selectedWholeStageInfo,
   selectedMethod,
   expandedPaths,
   selectedStageEndpointUrl,
+  // Stage Resource Tree 관련
+  selectedStageId,
+  stageResourcesMap,
+  expandedStages,
+  expandedResources,
+  selectedResource,
+  selectedTreeMethod,
+  stageDetailData,
+  refreshStageDetailData,
   onResourceClick,
   onMethodClick,
   onToggleExpanded,
@@ -56,9 +77,14 @@ export default function StagesPageView({
   onOpenCreateModal,
   onOpenEditModal,
   onOpenDeleteDialog,
+  onOpenExportModal,
   getResourceKey,
+  onStageOpenApiData,
+  onToggleResourceExpansion,
+  onTreeResourceClick,
+  onTreeMethodClick,
 }: StagesPageViewProps) {
-
+  console.log(stageDetailData)
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Breadcrumb */}
@@ -107,20 +133,18 @@ export default function StagesPageView({
               </Button>
             </div>
             <div className="space-y-1">
-              {resourceTree?.map((resource) => (
-                <StageResourceTree
-                  key={resource.id}
-                  resource={resource}
-                  stagesListData={stagesListData}
-                  selectedWholeStageInfo={selectedWholeStageInfo}
-                  selectedMethod={selectedMethod}
-                  expandedPaths={expandedPaths}
-                  onResourceClick={onResourceClick}
-                  onMethodClick={onMethodClick}
-                  onToggleExpanded={onToggleExpanded}
-                  getResourceKey={getResourceKey}
-                />
-              ))}
+              <StageResourceTree
+                stagesListData={stagesListData}
+                stageResourcesMap={stageResourcesMap}
+                expandedStages={expandedStages}
+                expandedResources={expandedResources}
+                selectedResource={selectedResource}
+                selectedTreeMethod={selectedTreeMethod}
+                onStageOpenApiData={onStageOpenApiData}
+                onToggleResourceExpansion={onToggleResourceExpansion}
+                onTreeResourceClick={onTreeResourceClick}
+                onTreeMethodClick={onTreeMethodClick}
+              />
             </div>
           </div>
         </div>
@@ -128,7 +152,7 @@ export default function StagesPageView({
         {/* Main Content */}
         <div className="col-span-9">
           <div className="space-y-6">
-            {selectedMethod ? (
+            {selectedTreeMethod ? (
               /* Method Detail View */
               <Card>
                 <CardHeader>
@@ -136,81 +160,104 @@ export default function StagesPageView({
                     <CardTitle className="flex items-center gap-2">
                       <span
                         className={`px-2 py-1 rounded text-xl font-mono ${getMethodStyle(
-                          selectedMethod.method.type
+                          selectedTreeMethod.type
                         )}`}
                       >
-                        {selectedMethod.method.type}
+                        {selectedTreeMethod.type}
                       </span>
-                      {selectedMethod.method.path} - 메서드 상세
+                      {selectedTreeMethod.path} - 메서드 상세
                     </CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
                     <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      엔드포인트 URL
+                      메서드 타입
+                    </Label>
+                    <div className="mt-1 text-gray-900 dark:text-gray-100">
+                      {selectedTreeMethod.type}
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      경로
                     </Label>
                     <div className="mt-1 flex items-center gap-2">
-                      <code className="flex-1 text-sm bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded border font-mono">
-                        {selectedMethod.url}
+                      <code className="text-gray-900 dark:text-gray-100 font-mono">
+                        {`${stageDetailData?.endpoint?.fullEndpoint}${selectedTreeMethod.resourcePath}`}
                       </code>
                       <Button
                         size="sm"
-                        variant="outline"
-                        onClick={() => onCopyMethodUrl(selectedMethod.url)}
+                        variant="ghost"
+                        onClick={() => onCopyMethodUrl(`${stageDetailData?.endpoint?.fullEndpoint}${selectedTreeMethod.resourcePath}`)}
+                        className="h-6 w-6 p-0"
+                        title="경로 복사"
                       >
-                        <Copy className="h-4 w-4" />
+                        <Copy className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>
+                  {selectedTreeMethod.info?.summary && (
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        요약
+                      </Label>
+                      <div className="mt-1 text-gray-900 dark:text-gray-100">
+                        {selectedTreeMethod.info.summary}
+                      </div>
+                    </div>
+                  )}
+                  {selectedTreeMethod.info?.description && (
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        설명
+                      </Label>
+                      <div className="mt-1 text-gray-900 dark:text-gray-100">
+                        {selectedTreeMethod.info.description}
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
-            ) : selectedWholeStageInfo.type === "resource" ? (
+            ) : selectedResource ? (
               /* Resource Detail View */
               <Card>
                 <CardHeader>
                   <CardTitle>
-                    메서드 - {selectedWholeStageInfo.resource.path}
+                    리소스 - {selectedResource.path || `/${selectedResource.name}`}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div>
                       <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        메서드 ({selectedWholeStageInfo?.resource?.methods?.length})
+                        메서드 ({selectedResource?.methods?.length || 0})
                       </Label>
-                      {(selectedWholeStageInfo?.resource?.methods?.length ?? 0) > 0 ? (
+                      {(selectedResource?.methods?.length ?? 0) > 0 ? (
                         <div className="mt-2 space-y-2">
-                          {selectedWholeStageInfo?.resource?.methods?.map(
-                            (method) => (
-                              <div
-                                key={method.id}
-                                className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
-                                onClick={() =>
-                                  onMethodClick(
-                                    method,
-                                    selectedWholeStageInfo.resource as ApiResource
-                                  )
-                                }
-                              >
-                                <div className="flex items-center gap-3">
-                                  <span
-                                    className={`px-2 py-1 rounded text-sm font-mono !font-bold ${getMethodStyle(
-                                      method.type
-                                    )}`}
-                                  >
-                                    {method.type}
-                                  </span>
-                                  <div>
-                                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                                      {method.info?.summary}
-                                    </div>
+                          {selectedResource?.methods?.map((method: any) => (
+                            <div
+                              key={method.id}
+                              className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                              onClick={() => onTreeMethodClick(method, selectedResource)}
+                            >
+                              <div className="flex items-center gap-3">
+                                <span
+                                  className={`px-2 py-1 rounded text-sm font-mono !font-bold ${getMethodStyle(
+                                    method.type
+                                  )}`}
+                                >
+                                  {method.type}
+                                </span>
+                                <div>
+                                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                                    {method.info?.summary}
                                   </div>
                                 </div>
-                                <ChevronRight className="h-4 w-4 text-gray-400" />
                               </div>
-                            )
-                          )}
+                              <ChevronRight className="h-4 w-4 text-gray-400" />
+                            </div>
+                          ))}
                         </div>
                       ) : (
                         <div className="mt-2 text-center py-8 text-gray-500 dark:text-gray-400">
@@ -221,7 +268,7 @@ export default function StagesPageView({
                   </div>
                 </CardContent>
               </Card>
-            ) : (
+            ) : stageDetailData ? (
               /* Stage Details */
               <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div className="border-b border-gray-200 dark:border-gray-700 p-4">
@@ -244,7 +291,7 @@ export default function StagesPageView({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={onExportApi}
+                        onClick={onOpenExportModal}
                         className="text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200 bg-transparent"
                         title="API 내보내기"
                       >
@@ -263,70 +310,91 @@ export default function StagesPageView({
                   </div>
                 </div>
 
-                <div className="p-4 space-y-2">
-                  {selectedWholeStageInfo.resource.name ? (
-                    <div className="grid grid-cols-3 gap-6">
-                      <div>
-                        <div className="space-y-4">
-                          <div>
-                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                              스테이지 이름
-                            </Label>
-                            <div className="mt-1 text-blue-600 font-medium">
-                              {selectedWholeStageInfo.resource.name}
-                            </div>
-                          </div>
-                        </div>
+                <div className="p-4 space-y-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      스테이지 이름
+                    </Label>
+                    <div className="mt-1 text-blue-600 font-medium">
+                      {stageDetailData.stageName}
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      스테이지 경로
+                    </Label>
+                    <div className="mt-1 flex items-center gap-2">
+                      <code className="text-blue-600 font-mono">
+                        {stageDetailData?.endpoint?.fullEndpoint}
+                      </code>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => onCopyMethodUrl(stageDetailData.endpoint?.fullEndpoint || "")}
+                        className="h-6 w-6 p-0"
+                        title="경로 복사"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  {stageDetailData.description && (
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        스테이지 설명
+                      </Label>
+                      <div className="mt-1 text-gray-900 dark:text-gray-100">
+                        {stageDetailData.description}
                       </div>
                     </div>
-                  ) : (
-                    <div className="py-3 px-1 text-[15px]">
-                      생성된 스테이지가 존재하지 않습니다.
-                    </div>
                   )}
-                  {selectedWholeStageInfo.resource.description && (
-                    <div className="grid grid-cols-3 gap-6">
-                      <div>
-                        <div className="space-y-4">
-                          <div>
-                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                              스테이지 설명
-                            </Label>
-                            <div className="mt-1 text-blue-600 font-medium">
-                              {selectedWholeStageInfo.resource.description}
-                            </div>
-                          </div>
-                        </div>
+                  {stageDetailData.baseUrl && (
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Base URL
+                      </Label>
+                      <div className="mt-1 flex items-center gap-2">
+                        <code className="text-blue-600 text-sm font-mono">
+                          {stageDetailData.baseUrl}
+                        </code>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={onCopyUrl}
+                          className="h-6 w-6 p-0"
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
                       </div>
                     </div>
                   )}
-                  {selectedWholeStageInfo.resource.path && (
-                    <div className="mt-3 space-y-4">
-                      <div>
-                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                          URL
-                        </Label>
-                        <div className="mt-1 flex items-center gap-2">
-                          <button
-                            onClick={onCopyUrl}
-                            className="text-blue-600 hover:text-blue-700 text-sm font-mono flex items-center gap-1"
-                          >
-                            {selectedStageEndpointUrl}
-                            <Copy className="ml-2 h-3 w-3" />
-                          </button>
-                        </div>
+                  {stageDetailData.createdAt && (
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        생성일
+                      </Label>
+                      <div className="mt-1 text-gray-900 dark:text-gray-100">
+                        {new Date(stageDetailData.createdAt).toLocaleString('ko-KR')}
                       </div>
                     </div>
                   )}
                 </div>
               </div>
+            ) : (
+              /* 초기 상태 - 스테이지 선택 안됨 */
+              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+                  좌측에서 스테이지를 선택해주세요.
+                </div>
+              </div>
             )}
             <DeploymentList
               selectedStage={{
-                deploymentId: selectedWholeStageInfo.resource.deploymentId || "",
-                stageId: selectedWholeStageInfo.resource.stageId || "",
-                name: selectedWholeStageInfo.resource.name || "",
+                activeDeploymentId: stageDetailData?.activeDeploymentId || "",
+                stageId: stageDetailData?.stageId || "",
+                name: stageDetailData?.stageName || "",
               }}
+              onActiveDeploymentChanged={refreshStageDetailData}
             />
           </div>
         </div>

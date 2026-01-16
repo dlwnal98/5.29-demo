@@ -6,9 +6,12 @@ import { AxiosError } from 'axios';
 import { createStage } from '@/apis/stages.api';
 import { useDeployAPI } from '@/hooks/use-resources';
 import { useGetStagesDocData } from '@/hooks/use-stages';
+import { useGetStagesListData } from '@/hooks/use-stages';
+import { getStagesListData } from '@/apis/stages.api';
 
 export interface DeployData {
-  stage: string;
+  stageName: string;
+  stageId: string;
   stageDescription: string;
   version: string;
   deploymentReason: string;
@@ -25,7 +28,7 @@ interface UseDeployResourceDialogProps {
   open: boolean;
   apiId: string;
   userKey: string;
-  organizationId: string;
+  tenantId: string;
   onOpenChange: (open: boolean) => void;
 }
 
@@ -33,15 +36,16 @@ export function useDeployResourceDialog({
   open,
   apiId,
   userKey,
-  organizationId,
+  tenantId,
   onOpenChange,
 }: UseDeployResourceDialogProps) {
-  const { data: stagesDocData = [] } = useGetStagesDocData(apiId || '');
+  // const { data: stagesDocData = [] } = useGetStagesDocData(apiId || '', open);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [deploymentData, setDeploymentData] = useState<DeployData>({
-    stage: '',
+    stageName: '',
+    stageId: '',
     stageDescription: '',
     version: '1.1.0',
     deploymentReason: '',
@@ -50,25 +54,28 @@ export function useDeployResourceDialog({
 
   const [stageForDeployment, setStageForDeployment] = useState<StageOption[]>([]);
 
+  const handleStagesListData = async (apiId: string) => {
+    const res = await getStagesListData(apiId);
+    if (res) {
+      return setStageForDeployment(res);
+    }
+  }
+
   useEffect(() => {
-    if (open && stagesDocData.length) {
+    if (open) {
       setDeploymentData({
-        stage: '',
+        stageName: '',
+        stageId: '',
         stageDescription: '',
         version: '1.1.0',
         deploymentReason: '',
         newStageName: '',
       });
+      handleStagesListData(apiId);
 
-      const stageList = stagesDocData.map((data: any, i: number) => ({
-        id: i,
-        label: data.name,
-        value: data.stageId,
-      }));
-
-      setStageForDeployment(stageList);
     }
-  }, [open, stagesDocData]);
+
+  }, [open]);
 
   const { mutate: handleDeploy, isPending } = useDeployAPI({
     onSuccess: () => {
@@ -85,11 +92,15 @@ export function useDeployResourceDialog({
 
     await toast.promise(
       (async () => {
-        await queryClient.invalidateQueries({ queryKey: ['getStatesDocData', apiId] });
-        await queryClient.refetchQueries({ queryKey: ['getStatesDocData', apiId] });
+        await queryClient.invalidateQueries({ queryKey: ['getStagesDocData', apiId] });
+        await queryClient.refetchQueries({ queryKey: ['getStagesDocData', apiId] });
 
-        await queryClient.invalidateQueries({ queryKey: ['getDeployHistoryData', organizationId] });
-        await queryClient.refetchQueries({ queryKey: ['getDeployHistoryData', organizationId] });
+        await queryClient.invalidateQueries({ queryKey: ['getDeployHistoryData', tenantId] });
+        await queryClient.refetchQueries({ queryKey: ['getDeployHistoryData', tenantId] });
+
+        // Stages 페이지 목록 갱신
+        await queryClient.invalidateQueries({ queryKey: ['getStagesListData', apiId] });
+        await queryClient.refetchQueries({ queryKey: ['getStagesListData', apiId] });
       })(),
       {
         loading: '스테이지 생성 중...',
@@ -101,82 +112,43 @@ export function useDeployResourceDialog({
     navigate(`/services/api-management/stages?apiId=${apiId}`);
   };
 
-  const handleCreateAndDeploy = async () => {
-    // try {
-    //   const res = await createStage({
-    //     organizationId: organizationId,
-    //     stageName: deploymentData.newStageName,
-    //     description: deploymentData.stageDescription,
-    //     createdBy: userKey,
-    //     enabled: true,
-    //     deploymentSource: 'DRAFT',
-    //     apiId: apiId,
-    //     sourceDeploymentId: '',
-    //   });
-    //   if (res) {
-    //     handleDeploy({
-    //       apiId: apiId,
-    //       stageId: res.stageId,
-    //       version: '1.1.0',
-    //       deployedBy: userKey,
-    //       deploymentReason: deploymentData.deploymentReason,
-    //       stageDescription: deploymentData.stageDescription,
-    //       gatewayCode: '',
-    //       baseUrl: '',
-    //     });
-    //   } else if ((res as any).statusCode == 400) {
-    //     toast.error((res as any).message);
-    //   } else {
-    //     toast.error('새로운 스테이지 생성에 실패하였습니다\n 재입력이 필요합니다.');
-    //   }
-    // } catch (e) {
-    //   const err = e as AxiosError<{ fieldErrors?: { stageName?: string } }>;
-    //   toast.error(err.response?.data?.fieldErrors?.stageName);
-    // }
-    try {
-      await handleDeploy({
+
+  const handleDeploySubmit = () => {
+    if (deploymentData.stageId === 'new') {
+      handleDeploy({
         apiId: apiId,
         version: '1.1.0',
         deploymentReason: deploymentData.deploymentReason,
         stageName: deploymentData.newStageName,
         stageDescription: deploymentData.stageDescription,
-        gatewayCode: '',
-        baseUrl: '',
         deployedBy: userKey,
       });
-    } catch (e) {
-      const err = e as AxiosError<{ fieldErrors?: { stageName?: string } }>;
-      toast.error(err.response?.data?.fieldErrors?.stageName);
-    }
-  };
-
-  const handleDeploySubmit = () => {
-    if (deploymentData.stage === 'new') {
       if (!deploymentData.newStageName.trim()) {
         toast.error('새 스테이지 이름을 입력해주세요.');
         return;
       }
-      handleCreateAndDeploy();
-    } else {
-      if (!deploymentData.stage) {
-        toast.error('배포 스테이지를 선택해주세요.');
-        return;
-      }
 
+    } else if (deploymentData.stageId === 'snapshot') {
       handleDeploy({
         apiId: apiId,
         version: '1.1.0',
         deploymentReason: deploymentData.deploymentReason,
-        stageId: deploymentData.stage,
         deployedBy: userKey,
       });
-    }
-  };
+    } else
+      handleDeploy({
+        apiId: apiId,
+        version: '1.1.0',
+        deploymentReason: deploymentData.deploymentReason,
+        stageId: deploymentData.stageId,
+        deployedBy: userKey,
+      });
+  }
 
   const handleStageChange = (value: string) => {
     setDeploymentData({
       ...deploymentData,
-      stage: value,
+      stageId: value,
       deploymentReason: '',
       newStageName: '',
     });
@@ -206,7 +178,8 @@ export function useDeployResourceDialog({
   const handleDeployModalClose = () => {
     onOpenChange(false);
     setDeploymentData({
-      stage: '',
+      stageName: '',
+      stageId: '',
       version: '',
       stageDescription: '',
       deploymentReason: '',
@@ -215,10 +188,10 @@ export function useDeployResourceDialog({
   };
 
   const isValidDeploy = useMemo(() => {
-    if (deploymentData.stage === 'new') {
+    if (deploymentData.stageId === 'new') {
       return deploymentData.newStageName.trim().length > 0;
     }
-    return deploymentData.stage.trim().length > 0;
+    return deploymentData.stageId.trim().length > 0;
   }, [deploymentData]);
 
   return {

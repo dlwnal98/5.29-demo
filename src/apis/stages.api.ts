@@ -15,6 +15,12 @@ export const getStagesOpenApiDocData = async (stageId: string) => {
     return res;
 };
 
+// 스테이지 상세 조회
+export const getStageDetailData = async (stageId: string) => {
+    const res = await requestGet(`/api/v1/stages/${stageId}`);
+
+    return res;
+};
 
 
 // 조직별 전체 배포이력 조회
@@ -38,9 +44,6 @@ export interface CreateStageProps {
     description?: string;
     deploymentId: string;
     createdBy: string;
-    gatewayCode?: string;
-    baseUrl?: string;
-
 }
 
 // 스테이지 생성
@@ -60,12 +63,9 @@ export const deleteStage = async (stageId: string) => {
     return res;
 };
 // 스테이지 수정(설명만)
-export const modifyStage = async (stageId: string, description: string, updatedBy: string) => {
+export const modifyStage = async (stageId: string, data: { description: string; updatedBy: string }) => {
     const res = await requestPut(`/api/v1/stages/${stageId}`, {
-        body: {
-            description: description,
-            updatedBy: updatedBy
-        },
+        body: data,
     });
 
     return res;
@@ -82,6 +82,26 @@ export const activatePreviousDeployment = async (stageId: string, data: Previous
         `/api/v1/stages/${stageId}/deployment`, {
         body: data,
     }
+    );
+
+    return res;
+};
+
+
+// Stage 내보내기 (파일 다운로드)
+export const getStageDocForExport = async (stageId: string, format?: 'OPENAPI_JSON' | 'OPENAPI_YAML' | 'POSTMAN', includeExtensions?: boolean) => {
+    const res = await requestGet(
+        `/api/v1/stages/${stageId}/export?format=${format}&includeExtensions=${includeExtensions}`
+    );
+
+    return res;
+};
+
+
+// Stage 내보내기 미리보기
+export const getStageDocForExportPreview = async (stageId: string, format?: 'OPENAPI_JSON' | 'OPENAPI_YAML' | 'POSTMAN', includeExtensions?: boolean) => {
+    const res = await requestGet(
+        `/api/v1/stages/${stageId}/export/preview?format=${format}&includeExtensions=${includeExtensions}`
     );
 
     return res;

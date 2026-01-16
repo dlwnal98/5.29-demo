@@ -8,12 +8,13 @@ export default function CreateMethodPage() {
   const {
     resourcePath,
     userKey,
-    organizationId,
+    tenantId,
     apiKeyList,
     endpointList,
     modelList,
     validatorList,
     integrationTypeList,
+    availableMethodList,
     methodForm,
     isDirectUrlInput,
     selectedApiKeyValue,
@@ -61,6 +62,7 @@ export default function CreateMethodPage() {
           modelList={modelList}
           validatorList={validatorList}
           integrationTypeList={integrationTypeList}
+          availableMethodList={availableMethodList}
           methodForm={methodForm}
           isDirectUrlInput={isDirectUrlInput}
           selectedApiKeyValue={selectedApiKeyValue}
@@ -102,7 +104,7 @@ export default function CreateMethodPage() {
           setNewApiKeyForm={setNewApiKeyForm}
           userKey={userKey}
           setApiKeyToggle={setApiKeyToggle}
-          organizationId={organizationId}
+          tenantId={tenantId}
         />
       </>
     </>

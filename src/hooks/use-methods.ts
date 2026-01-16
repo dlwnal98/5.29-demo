@@ -1,13 +1,12 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
-import { MethodsListProps, CreateMethodProps, ModifyMethodProps, DeleteMethodProps } from '@/apis/methods.api';
-import { getMethodsList, createMethod, modifyMethod, deleteMethod } from '@/apis/methods.api';
+import { MethodsDetailDataProps, CreateMethodProps, ModifyMethodProps } from '@/apis/methods.api';
+import { getMethodsDetailData, createMethod, modifyMethod, deleteMethod } from '@/apis/methods.api';
 
-// ✅ React Query Hook
-export function useGetMethodsList(pathId: string) {
-  return useQuery<MethodsListProps[]>({
-    queryKey: ['getMethodsList', pathId], // pathId별 캐싱
-    queryFn: () => getMethodsList(pathId),
-    enabled: !!pathId, // pathId 있을 때만 실행
+export function useGetMethodsDetailData(methodId: string) {
+  return useQuery<MethodsDetailDataProps>({
+    queryKey: ['getMethodsDetailData', methodId], // pathId별 캐싱
+    queryFn: () => getMethodsDetailData(methodId),
+    enabled: !!methodId, // pathId 있을 때만 실행
     staleTime: Infinity, // 데이터 오래 유지
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -51,7 +50,7 @@ export function useModifyMethod(
         exact: false,
       });
       queryClient.invalidateQueries({
-        queryKey: ['getMethodsList'],
+        queryKey: ['getMethodsDetailData', variables.methodId],
       });
       options?.onSuccess?.(data, variables, context);
     },
@@ -59,12 +58,12 @@ export function useModifyMethod(
 }
 
 // ✅ 메서드 삭제
-export function useDeleteMethod(options?: UseMutationOptions<any, Error, DeleteMethodProps>) {
+export function useDeleteMethod(options?: UseMutationOptions<any, Error, string>) {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...options,
-    mutationFn: (data: DeleteMethodProps) => deleteMethod(data),
+    mutationFn: (methodId: string) => deleteMethod(methodId),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: ['getOpenAPIDoc'],

@@ -32,6 +32,7 @@ export default function ModelsPageView({
   onEdit,
   onDelete,
 }: ModelsPageViewProps) {
+  console.log(models)
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
       {/* Breadcrumb */}
@@ -76,10 +77,10 @@ export default function ModelsPageView({
           <Table>
             <TableHeader className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
               <TableRow className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
-                <TableHead className="w-[15%]">ID</TableHead>
-                <TableHead className="w-[20%]">이름</TableHead>
-                <TableHead>설명</TableHead>
-                <TableHead className="w-[12%]">생성일자</TableHead>
+                <TableHead className="w-[15%] text-center">ID</TableHead>
+                <TableHead className="w-[20%] text-center">이름</TableHead>
+                <TableHead className="text-center">설명</TableHead>
+                <TableHead className="w-[12%] text-center">생성일자</TableHead>
                 <TableHead className="w-[10%] text-center">수정</TableHead>
               </TableRow>
             </TableHeader>
@@ -90,11 +91,11 @@ export default function ModelsPageView({
                     key={model.modelId}
                     className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700"
                   >
-                    <TableCell className="font-medium text-blue-600">{model.modelId}</TableCell>
-                    <TableCell className="font-mono text-sm">{model.modelName}</TableCell>
-                    <TableCell className="text-sm">{model.description}</TableCell>
-                    <TableCell>{new Date(model.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="font-mono text-sm text-center font-medium text-blue-600">{model.modelId}</TableCell>
+                    <TableCell className="text-center">{model.modelName}</TableCell>
+                    <TableCell className="text-center">{model.description}</TableCell>
+                    <TableCell className="text-center">{new Date(model.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-center">
                       <div className="flex gap-2 justify-end">
                         <Button
                           className="text-white hover:text-white bg-slate-500 hover:bg-slate-500"

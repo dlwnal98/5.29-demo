@@ -55,11 +55,6 @@ export default function ModifyEndpointDialogView({
               placeholder="https://api.example.com/v1"
               className="mt-2"
             />
-            {hasUrlError && (
-              <span className="text-xs mt-2 ml-2 text-red-500">
-                한글은 입력이 불가합니다.
-              </span>
-            )}
           </div>
           <div>
             <Label htmlFor="edit-routeUrl" className="text-sm font-medium text-gray-700 dark:text-gray-300">

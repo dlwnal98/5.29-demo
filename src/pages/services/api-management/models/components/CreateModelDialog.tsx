@@ -15,11 +15,12 @@ import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { CreateModelProps, useCreateModel } from '@/hooks/use-model';
+import { useCreateModel } from '@/hooks/use-model';
 import { useClipboard } from 'use-clipboard-copy';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
+import { CreateModelProps } from "@/apis/models.api"
 
 interface CreateModelDialogProps {
   open: boolean;
@@ -87,7 +88,6 @@ export default function CreateModelDialog({
         createdBy: userKey,
       };
 
-      console.log(apiId, tenantId)
 
       setCreateModelForm(updatedForm); // 상태는 업데이트
       createModelSchema({ apiId, tenantId, data: updatedForm }); // 동일한 최신 값으로 API 호출

@@ -16,18 +16,18 @@ import { useModifyStageForm } from '../hooks/useModifyStageForm';
 
 interface ModifyStageDialogProps {
     open: boolean;
+    userKey: string;
     onOpenChange: (open: boolean) => void;
-    selectedStage: {
-        name: string;
-        description: string;
-        stageId: string;
-    };
+    stageDetailData: any;
+    onSuccess?: () => void;
 }
 
 export default function ModifyStageDialog({
     open,
+    userKey,
     onOpenChange,
-    selectedStage,
+    stageDetailData,
+    onSuccess,
 }: ModifyStageDialogProps) {
     const {
         editForm,
@@ -35,9 +35,12 @@ export default function ModifyStageDialog({
         handleEditSave,
         isValid,
     } = useModifyStageForm({
-        selectedStage,
+        stageDetailData,
+        userKey,
         onOpenChange,
+        onSuccess,
     });
+
 
     return (
         <>

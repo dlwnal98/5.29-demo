@@ -5,6 +5,7 @@ import ApiManagementPageView from "./ApiManagementPageView";
 import ApiCreateDialog from "./components/ApiCreateDialog";
 import ApiModifyDialog from "./components/ApiModifyDialog";
 import ApiDeleteDialog from "./components/ApiDeleteDialog";
+import ApiExportDialog from "./components/ApiExportDialog";
 import { useApiManagementPage } from "./hooks/useApiManagementPage";
 
 export default function ApiManagementPage() {
@@ -21,6 +22,7 @@ export default function ApiManagementPage() {
     isCreateModalOpen,
     isModifyModalOpen,
     isDeleteModalOpen,
+    isExportModalOpen,
     setCurrentPage,
     onApiClick,
     onSearchTermChange,
@@ -30,12 +32,14 @@ export default function ApiManagementPage() {
     onCloseModifyModal,
     onOpenDeleteModal,
     onCloseDeleteModal,
+    onAPIExport,
+    onOpenExportModal,
+    onCloseExportModal,
   } = useApiManagementPage();
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <>
-
         <ApiManagementPageView
           searchTerm={searchTerm}
           filteredPlans={filteredPlans}
@@ -47,6 +51,7 @@ export default function ApiManagementPage() {
           onOpenCreateModal={onOpenCreateModal}
           onOpenModifyModal={onOpenModifyModal}
           onOpenDeleteModal={onOpenDeleteModal}
+          onOpenExportModal={onOpenExportModal}
         />
 
         <ApiCreateDialog
@@ -70,6 +75,13 @@ export default function ApiManagementPage() {
           onOpenChange={(open) => !open && onCloseDeleteModal()}
           selectedAPIId={selectedAPIId}
           userKey={userKey}
+          apiName={selectedApiName}
+        />
+
+        <ApiExportDialog
+          open={isExportModalOpen}
+          onOpenChange={(open) => !open && onCloseExportModal()}
+          selectedAPIId={selectedAPIId}
           apiName={selectedApiName}
         />
       </>

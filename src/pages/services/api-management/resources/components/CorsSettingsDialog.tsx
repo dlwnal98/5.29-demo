@@ -47,7 +47,6 @@ export function CorsSettingsDialog({
   onCorsEnabledChange
 }: CorsSettingsDialogProps) {
 
-  console.log(corsForm, checkedMethod)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

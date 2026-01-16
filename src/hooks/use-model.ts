@@ -3,7 +3,7 @@ import { ModelData, CreateModelProps, ModifyModelProps } from '@/apis/models.api
 import { getModelList, createModel, modifyModel, deleteModel } from '@/apis/models.api';
 
 // ✅ React Query Hook
-export function useGetModelList(apiId: string, page: number, size: number) {
+export function useGetModelList(apiId: string, page?: number, size?: number) {
   return useQuery<ModelData[]>({
     queryKey: ['getModelList', apiId], // pathId별 캐싱
     queryFn: () => getModelList(apiId, page, size),

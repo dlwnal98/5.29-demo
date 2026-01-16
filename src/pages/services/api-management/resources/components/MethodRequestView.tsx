@@ -1,8 +1,7 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { Edit, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Method, QueryParameter, RequestHeader, RequestBodyModel } from '@/types/resource';
 
 interface MethodRequestViewProps {
@@ -10,7 +9,6 @@ interface MethodRequestViewProps {
   queryParameters: QueryParameter[];
   requestHeaders: RequestHeader[];
   requestBodyModels: RequestBodyModel[];
-  handleEditMethod: () => void;
   modelId: string;
 }
 
@@ -19,7 +17,6 @@ export function MethodRequestView({
   queryParameters,
   requestHeaders,
   requestBodyModels,
-  handleEditMethod,
   modelId,
 }: MethodRequestViewProps) {
   const convertValidator = (data: string) => {
@@ -43,10 +40,6 @@ export function MethodRequestView({
       <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white">메서드 요청 설정</h3>
-          <Button variant="outline" size="sm" onClick={handleEditMethod}>
-            <Edit className="h-4 w-4 mr-2" />
-            편집
-          </Button>
         </div>
         <div>
           <div className="border-b pb-2 mb-2 grid grid-cols-5 gap-6">

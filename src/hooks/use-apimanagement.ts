@@ -2,11 +2,11 @@ import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tans
 import { APIListData, CreateAPIProps, ModifyAPIProps, CloneCreateAPIProps } from '@/apis/api-management.api';
 import { getAPIList, createAPI, cloneCreateAPI, modifyAPI, deleteAPI, uploadOpenAPIDocCreateAPI } from '@/apis/api-management.api';
 
-export function useGetAPIList(organizationId: string, page?: number, size?: number) {
+export function useGetAPIList(tenantId: string, page?: number, size?: number) {
   return useQuery<APIListData[]>({
-    queryKey: ['getAPIList', organizationId, page, size],
-    queryFn: () => getAPIList(organizationId, page, size),
-    enabled: !!organizationId, // 조건적 실행
+    queryKey: ['getAPIList', tenantId, page, size],
+    queryFn: () => getAPIList(tenantId, page, size),
+    enabled: !!tenantId, // 조건적 실행
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,

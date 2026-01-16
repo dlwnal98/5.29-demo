@@ -9,7 +9,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { toast, Toaster } from 'sonner';
 import { Copy, Edit } from 'lucide-react';
 import { useState } from 'react';
@@ -35,7 +35,6 @@ export default function ModifyModelDialog({
   userKey,
   selectedModel,
 }: ModifyModelDialogProps) {
-  console.log(selectedModel)
   const { mutate: modifyModelSchema } = useModifyModel({
     onSuccess: () => {
       toast.success('모델이 성공적으로 생성되었습니다.');
@@ -48,6 +47,9 @@ export default function ModifyModelDialog({
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [json, setJson] = useState('');
+
+
+  const ref = useRef(null);
 
   const [modelForm, setModelForm] = useState<ModifyModelProps>({
     modelName: '',
@@ -120,19 +122,21 @@ export default function ModifyModelDialog({
       <>
         <Toaster position="bottom-center" richColors expand={true} />
         <Dialog open={open} onOpenChange={onOpenChange}>
-          <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+          <DialogContent ref={ref} className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-blue-600 flex items-center gap-2">
                 <span>모델 편집</span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setIsEditMode(!isEditMode);
-                  }}
-                  className="h-8 w-8 p-0">
-                  <Edit className="h-4 w-4 text-gray-900" />
-                </Button>
+                {!isEditMode && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setIsEditMode(!isEditMode);
+                    }}
+                    className="h-8 w-8 p-0">
+                    <Edit className="h-4 w-4 text-gray-900" />
+                  </Button>
+                )}
               </DialogTitle>
 
               <DialogDescription className="text-gray-600">
@@ -262,13 +266,17 @@ export default function ModifyModelDialog({
             </div>
 
             <DialogFooter className="gap-2">
+
               <Button
                 variant="outline"
                 onClick={() => {
-                  onOpenChange(false);
+                  setIsEditMode(false);
+                  ref?.current?.scrollTo({ top: 0, behavior: 'smooth' });
+                  console.log(ref, ref?.current)
                 }}>
                 취소
               </Button>
+
               <Button
                 onClick={handleModifyModel}
                 className="bg-blue-500 hover:bg-blue-600 text-white">
@@ -428,6 +436,13 @@ export default function ModifyModelDialog({
             </div>
 
             <DialogFooter className="gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  onOpenChange(false)
+                }}>
+                닫기
+              </Button>
               <Button
                 onClick={() => {
                   onOpenChange(false);

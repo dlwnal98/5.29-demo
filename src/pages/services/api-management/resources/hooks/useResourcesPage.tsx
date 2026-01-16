@@ -15,7 +15,7 @@ export function useResourcesPage() {
   const currentApiName = searchParams.get("apiName") || "";
   const userData = useAuthStore((state) => state.user);
   const userKey = userData?.userKey || "";
-  const tenantId = userData?.organizationId || "";
+  const tenantId = userData?.organizationId || "kwwwksAsvmas";
   const setIsMethodEdit = useMethodEditStore((state) => state.setIsEdit);
   const isMethodEdit = useMethodEditStore((state) => state.isEdit);
 

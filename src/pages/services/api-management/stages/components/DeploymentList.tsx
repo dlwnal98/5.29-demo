@@ -9,11 +9,13 @@ import { useDeploymentList } from '../hooks/useDeploymentList';
 
 interface DeploymentListProps {
     selectedStage: any;
+    onActiveDeploymentChanged?: () => Promise<void>;
 }
 
-export default function DeploymentList({ selectedStage }: DeploymentListProps) {
+export default function DeploymentList({ selectedStage, onActiveDeploymentChanged }: DeploymentListProps) {
     const {
         userData,
+        tenantId,
         filteredDeployments,
         paginatedDeployments,
         currentActiveDeployment,
@@ -36,6 +38,9 @@ export default function DeploymentList({ selectedStage }: DeploymentListProps) {
         handlePreviousPage,
         handleNextPage,
     } = useDeploymentList();
+
+
+    console.log(paginatedDeployments)
 
     return (
         <>
@@ -69,16 +74,20 @@ export default function DeploymentList({ selectedStage }: DeploymentListProps) {
                     {/* Table Header */}
                     <div className="grid grid-cols-12 gap-4 py-3 border-b border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300">
                         <div className="col-span-1"></div>
-                        <div className="col-span-5">
+                        <div className="col-span-3 text-center">
                             배포 날짜
                             <ChevronDown className="inline h-4 w-4 ml-1" />
                         </div>
-                        <div className="col-span-2">
+                        <div className="col-span-4 text-center">
+                            배포 설명
+                            <ChevronDown className="inline h-4 w-4 ml-1" />
+                        </div>
+                        <div className="col-span-1 text-center">
                             상태
                             <ChevronDown className="inline h-4 w-4 ml-1" />
                         </div>
 
-                        <div className="col-span-3">
+                        <div className="col-span-2 text-center">
                             배포 ID
                             <ChevronDown className="inline h-4 w-4 ml-1" />
                         </div>
@@ -103,11 +112,14 @@ export default function DeploymentList({ selectedStage }: DeploymentListProps) {
                                         className="h-4 w-4 hover:cursor-pointer ext-blue-600 focus:ring-blue-500 border-gray-300"
                                     />
                                 </div>
-                                <div className="col-span-5 text-sm text-gray-900 dark:text-white">
+                                <div className="col-span-3 text-sm text-gray-900 dark:text-white text-center">
                                     {new Date(deployment.deployedAt).toLocaleString()}
                                 </div>
-                                <div className="col-span-2">
-                                    {selectedStage.deploymentId === deployment.deploymentId ? (
+                                <div className="col-span-4 text-sm text-gray-900 dark:text-white text-center">
+                                    {deployment?.metadata?.deploymentReason}
+                                </div>
+                                <div className="col-span-1 text-center">
+                                    {selectedStage.activeDeploymentId === deployment.deploymentId ? (
                                         <div className="flex items-center gap-1">
                                             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                                             <span className="text-sm text-green-700">활성</span>
@@ -117,7 +129,7 @@ export default function DeploymentList({ selectedStage }: DeploymentListProps) {
                                     )}
                                 </div>
 
-                                <div className="col-span-3 text-sm font-mono text-gray-900 dark:text-white">
+                                <div className="col-span-2 text-sm font-mono text-gray-900 dark:text-white text-center">
                                     {deployment.deploymentId}
                                 </div>
                                 <div className="col-span-1 flex items-center justify-end">
@@ -171,7 +183,7 @@ export default function DeploymentList({ selectedStage }: DeploymentListProps) {
             <ActiveDeploymentChangeDialog
                 open={isActiveDeploymentModalOpen}
                 onOpenChange={setIsActiveDeploymentModalOpen}
-                organizationId={userData?.organizationId || ''}
+                tenantId={tenantId}
                 userKey={userData?.userKey || ''}
                 apiId={selectedStage?.apiId || ''}
                 selectedStage={selectedStage}
@@ -179,6 +191,7 @@ export default function DeploymentList({ selectedStage }: DeploymentListProps) {
                 selectedDeploymentData={selectedDeploymentData}
                 setSelectedDeploymentId={setSelectedDeploymentId}
                 selectedDeploymentId={selectedDeploymentId}
+                onActiveDeploymentChanged={onActiveDeploymentChanged}
             />
         </>
     );

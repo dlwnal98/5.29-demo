@@ -48,6 +48,7 @@ export function ResourceDetailCard({
   const userKey = userData?.userKey || '';
   const navigate = useNavigate();
 
+
   // Dialog open states
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isCorsModalOpen, setIsCorsModalOpen] = useState(false);
@@ -207,52 +208,57 @@ export function ResourceDetailCard({
               <TableHeader className="hover:bg-white dark:hover:bg-gray-700">
                 <TableRow className="hover:bg-white dark:hover:bg-gray-700">
                   <TableHead className="w-[10%]">메서드 유형</TableHead>
-                  <TableHead>메서드 이름</TableHead>
+                  <TableHead>메서드 요약</TableHead>
+                  <TableHead>통합 유형</TableHead>
                   <TableHead>API 키</TableHead>
                   <TableHead>엔드포인트 URL</TableHead>
                   <TableHead className="w-[7%] text-center">작업</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {selectedResource?.methods.map((method) => (
-                  <TableRow
-                    key={method.id}
-                    className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
-                    onClick={() => {
-                      handleMethodClick(method, selectedResource);
-                    }}>
-                    <TableCell>
-                      <span
-                        className={`${getMethodStyle(method.type)}  font-mono text-sm px-2 py-1 rounded`}>
-                        {method.type}
-                      </span>
-                    </TableCell>
-                    <TableCell>{method?.info?.summary}</TableCell>
-                    <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
-                      {method?.info['x-api-key-required'] ? 'True' : 'False'}
-                    </TableCell>
-                    <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
-                      {method?.info['x-backend-endpoint'] && (
-                        <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-                          {method?.info['x-backend-endpoint'] ?? ''}
-                        </code>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 bg-transparent"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setMethodToDelete(method);
-                          setIsMethodDeleteDialogOpen(true);
-                        }}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {selectedResource?.methods.map((method) => {
+                  return (
+
+                    <TableRow
+                      key={method.id}
+                      className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
+                      onClick={() => {
+                        handleMethodClick(method, selectedResource);
+                      }}>
+                      <TableCell>
+                        <span
+                          className={`${getMethodStyle(method.type)}  font-mono text-sm px-2 py-1 rounded`}>
+                          {method.type}
+                        </span>
+                      </TableCell>
+                      <TableCell>{method?.info?.summary}</TableCell>
+                      <TableCell>{method?.info['x-integration-type']}</TableCell>
+                      <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
+                        {method?.info['x-api-key-required'] ? 'True' : 'False'}
+                      </TableCell>
+                      <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
+                        {method?.info['x-route-endpoint'] && (
+                          <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                            {method?.info['x-route-endpoint'] ?? ''}
+                          </code>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 bg-transparent"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setMethodToDelete(method);
+                            setIsMethodDeleteDialogOpen(true);
+                          }}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
               </TableBody>
             </Table>
           ) : (

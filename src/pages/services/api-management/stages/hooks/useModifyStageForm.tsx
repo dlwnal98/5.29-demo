@@ -3,47 +3,43 @@ import { toast } from 'sonner';
 import { useModifyStage } from '@/hooks/use-stages';
 
 interface UseModifyStageFormProps {
-  selectedStage: {
-    name: string;
-    description: string;
-    stageId: string;
-  };
+  stageDetailData: any;
+  userKey: string;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
 /**
  * ModifyStageDialog의 폼 상태 및 비즈니스 로직을 관리하는 hook
  */
 export function useModifyStageForm({
-  selectedStage,
+  stageDetailData,
+  userKey,
   onOpenChange,
+  onSuccess,
 }: UseModifyStageFormProps) {
   const [editForm, setEditForm] = useState({
-    name: selectedStage.name,
-    description: selectedStage.description,
-    apiCacheEnabled: false,
-    methodLevelCacheEnabled: false,
-    throttlingEnabled: false,
-    wafProfile: '없음',
-    clientCertificate: '없음',
+    name: stageDetailData?.stageName,
+    description: stageDetailData?.description,
   });
 
   // selectedStage가 변경될 때마다 폼 업데이트
   useEffect(() => {
-    if (selectedStage) {
+    if (stageDetailData) {
       setEditForm((prev) => ({
         ...prev,
-        name: selectedStage.name,
-        description: selectedStage.description,
+        name: stageDetailData.stageName,
+        description: stageDetailData.description,
       }));
     }
-  }, [selectedStage]);
+  }, [stageDetailData]);
 
   // 스테이지 수정 mutation
   const { mutate: modifyStage } = useModifyStage({
     onSuccess: () => {
       toast.success('스테이지가 수정되었습니다.');
       onOpenChange(false);
+      onSuccess?.();
     },
     onError: () => {
       toast.error('스테이지를 수정하는 데에 실패하였습니다.');
@@ -52,10 +48,13 @@ export function useModifyStageForm({
 
   // 스테이지 수정 핸들러
   const handleEditSave = () => {
-    if (selectedStage) {
+    if (stageDetailData) {
       modifyStage({
-        stageId: selectedStage.stageId,
-        description: editForm.description,
+        stageId: stageDetailData.stageId,
+        data: {
+          description: editForm.description,
+          updatedBy: userKey,
+        }
       });
     }
   };

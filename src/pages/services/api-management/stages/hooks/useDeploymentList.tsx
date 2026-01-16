@@ -7,10 +7,11 @@ import { useGetDeployHistoryData } from '@/hooks/use-stages';
  */
 export function useDeploymentList() {
   const userData = useAuthStore((state) => state.user);
+  const tenantId = userData?.organizationId ?? "kwwwksAsvmas"
 
   // 배포 기록 데이터 fetching
   const { data: deploymentHistoryData } = useGetDeployHistoryData(
-    userData?.organizationId || '',
+    tenantId,
     0,
     20
   );
@@ -101,6 +102,7 @@ export function useDeploymentList() {
   return {
     // 사용자 데이터
     userData,
+    tenantId,
 
     // 배포 데이터
     filteredDeployments,

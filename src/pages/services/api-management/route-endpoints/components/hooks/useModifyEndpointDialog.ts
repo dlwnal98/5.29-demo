@@ -60,12 +60,7 @@ export function useModifyEndpointDialog({
   };
 
   const handleRouteNameChange = (value: string) => {
-    if (onInputChange(value)) {
-      setHasUrlError(false);
-      setModifyForm((prev) => ({ ...prev, routeName: value }));
-    } else {
-      setHasUrlError(true);
-    }
+    setModifyForm((prev) => ({ ...prev, routeName: value }));
   };
 
   const handleDescriptionChange = (value: string) => {

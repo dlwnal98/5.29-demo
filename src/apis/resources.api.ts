@@ -33,6 +33,24 @@ export const createResource = async (apiId: string, data: CreateResourceProps) =
     return res;
 };
 
+
+//resource 수정
+export interface ModifyResourceProps {
+    resourceName: string;
+    description?: string;
+    corsEnabled: boolean;
+    updatedBy: string;
+}
+
+
+export const modifyResource = async (apiId: string, resourceId: string, data: ModifyResourceProps) => {
+    const res = await requestPut(`/api/v1/plans/${apiId}/resources/${resourceId}`, {
+        body: data,
+    });
+
+    return res;
+};
+
 // Resource별 CORS 정책 조회
 export interface resourceCorsConfig {
     allowedOrigins: string[];
@@ -105,7 +123,6 @@ export interface deploymentProps {
     deployedBy: string;
     deploymentReason: string;
     stageDescription?: string;
-    gatewayCode?: string;
     baseUrl?: string;
 }
 

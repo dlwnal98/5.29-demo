@@ -10,6 +10,7 @@ interface UseActiveDeploymentChangeProps {
   selectedDeploymentId: string | null;
   onOpenChange: (open: boolean) => void;
   setSelectedDeploymentId: (value: string | null) => void;
+  onActiveDeploymentChanged?: () => Promise<void>;
 }
 
 /**
@@ -21,13 +22,18 @@ export function useActiveDeploymentChange({
   selectedDeploymentId,
   onOpenChange,
   setSelectedDeploymentId,
+  onActiveDeploymentChanged,
 }: UseActiveDeploymentChangeProps) {
   // 배포 활성화 mutation
   const { mutate: changeDeployment } = useActivatePreviousDeployment({
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('배포가 성공적으로 변경되었습니다.');
       onOpenChange(false);
       setSelectedDeploymentId(null);
+      // stageDetailData 갱신
+      if (onActiveDeploymentChanged) {
+        await onActiveDeploymentChanged();
+      }
     },
     onError: () => {
       toast.error('배포 변경에 실패하였습니다.');
@@ -39,8 +45,10 @@ export function useActiveDeploymentChange({
     if (selectedStage.stageId && selectedDeploymentId) {
       changeDeployment({
         stageId: selectedStage.stageId,
-        targetDeploymentId: selectedDeploymentId,
-        activatedBy: userKey || '',
+        data: {
+          deploymentId: selectedDeploymentId,
+          updatedBy: userKey || '',
+        },
       });
     }
   };

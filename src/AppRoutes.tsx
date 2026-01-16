@@ -44,6 +44,7 @@ const StagesPage = lazy(() => import('@/pages/services/api-management/stages/Sta
 const ModelsPage = lazy(() => import('@/pages/services/api-management/models/ModelsPage'))
 const RouteEndpointsPage = lazy(() => import('@/pages/services/api-management/route-endpoints/RouteEndpointsPage'))
 const ApiKeysPage = lazy(() => import('@/pages/services/api-management/api-keys/ApiKeysPage'))
+const UsageDashboardPage = lazy(() => import('@/pages/services/api-management/usage-dashboard/UsageDashboardPage'))
 
 // Other pages
 const OrganizationManagePage = lazy(() => import('@/pages/OrganizationManagePage'))
@@ -107,6 +108,7 @@ export default function AppRoutes() {
             <Route path="/services/api-management/models" element={<ModelsPage />} />
             <Route path="/services/api-management/route-endpoints" element={<RouteEndpointsPage />} />
             <Route path="/services/api-management/api-keys" element={<ApiKeysPage />} />
+            <Route path="/services/api-management/usage-dashboard" element={<UsageDashboardPage />} />
 
             {/* Organization */}
             <Route path="/organization-manage" element={<OrganizationManagePage />} />

@@ -1,125 +1,116 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { MethodResponseEdit } from './MethodResponseEdit';
-import type { MethodResponse, Model } from '@/types/resource';
-import { useMethodEditStore } from '@/stores/store';
+import { Badge } from '@/components/ui/badge';
+
+interface ResponseHeader {
+  id: string;
+  name: string;
+  value: string;
+  required?: boolean;
+}
+
+interface ResponseBody {
+  id: string;
+  contentType: string;
+  model: string;
+}
+
+interface MethodResponse {
+  id: string;
+  statusCode: string;
+  description?: string;
+  headers: ResponseHeader[];
+  bodies: ResponseBody[];
+}
 
 interface MethodResponseTabProps {
   methodResponses: MethodResponse[];
-  handleCreateResponse: () => void;
-  handleEditResponse: (response: MethodResponse) => void;
-  handleDeleteResponse: (response: MethodResponse) => void;
-  availableModels?: Model[];
-  deleteModel?: (modelId: string) => void;
 }
+
+const getStatusCodeColor = (code: string) => {
+  if (code.startsWith('2')) return 'bg-green-100 text-green-800 border-green-200';
+  if (code.startsWith('3')) return 'bg-blue-100 text-blue-800 border-blue-200';
+  if (code.startsWith('4')) return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+  if (code.startsWith('5')) return 'bg-red-100 text-red-800 border-red-200';
+  return 'bg-gray-100 text-gray-800 border-gray-200';
+};
 
 export function MethodResponseTab({
   methodResponses,
-  handleCreateResponse,
-  handleEditResponse,
-  handleDeleteResponse,
-  availableModels,
-  deleteModel,
 }: MethodResponseTabProps) {
-  const isEditMode = useMethodEditStore((state) => state.isEdit);
-  const setIsEditMode = useMethodEditStore((state) => state.setIsEdit);
-
-  const [editingResponse, setEditingResponse] = useState<MethodResponse | null>(null);
-
-  const handleStartEdit = (response: MethodResponse) => {
-    setEditingResponse(response);
-    setIsEditMode(true);
-  };
-
-  const handleStartCreate = () => {
-    setEditingResponse(null);
-    setIsEditMode(true);
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditMode(false);
-    setEditingResponse(null);
-  };
-
-  const handleSaveEdit = () => {
-    setIsEditMode(false);
-    setEditingResponse(null);
-    // 실제 저장 로직은 부모 컴포넌트에서 처리
-  };
-
-  if (isEditMode) {
-    return (
-      <MethodResponseEdit
-        methodResponses={editingResponse ? [editingResponse] : []}
-        handleCreateResponse={handleCreateResponse}
-        handleEditResponse={handleEditResponse}
-        handleDeleteResponse={handleDeleteResponse}
-        handleCancelEdit={handleCancelEdit}
-        handleSaveEdit={handleSaveEdit}
-        editingResponse={editingResponse}
-        availableModels={availableModels}
-        deleteModel={deleteModel}
-      />
-    );
-  }
-
-  //응답 200은 기본적으로 들어가 있는 거라서
-
   return (
     <>
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold text-gray-900 dark:text-white">메서드 응답</h3>
-        <Button onClick={handleStartCreate} className="bg-blue-500 hover:bg-blue-600 text-white">
-          응답 추가
-        </Button>
       </div>
       {methodResponses.length > 0 ? (
         <div className="space-y-4">
           {methodResponses.map((response) => (
             <Card key={response.id}>
-              <CardHeader className="flex items-center justify-between">
-                <CardTitle>HTTP {response.statusCode}</CardTitle>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => handleStartEdit(response)}>
-                    편집
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDeleteResponse(response)}>
-                    삭제
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div>
-                  <Label className="text-sm font-medium">헤더</Label>
-                  {response.headers.length > 0 ? (
-                    <ul className="list-disc list-inside">
-                      {response.headers.map((header) => (
-                        <li key={header.id}>
-                          {header.name}: {header.value}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-sm text-gray-500">헤더가 없습니다.</p>
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-3">
+                  <span className={`px-3 py-1 rounded text-sm font-mono font-bold border ${getStatusCodeColor(response.statusCode)}`}>
+                    {response.statusCode}
+                  </span>
+                  {response.description && (
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {response.description}
+                    </span>
                   )}
                 </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* 응답 헤더 */}
                 <div>
-                  <Label className="text-sm font-medium">본문</Label>
-                  {response.bodies.length > 0 ? (
-                    <ul className="list-disc list-inside">
-                      {response.bodies.map((body) => (
-                        <li key={body.id}>
-                          {body.contentType}: {body.model}
-                        </li>
+                  <Label className="text-sm font-medium">응답 헤더</Label>
+                  {response.headers.length > 0 ? (
+                    <div className="mt-2 space-y-1">
+                      {response.headers.map((header) => (
+                        <div
+                          key={header.id}
+                          className="flex items-center gap-2 text-sm bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded"
+                        >
+                          <code className="font-mono text-blue-600 dark:text-blue-400">
+                            {header.name}
+                          </code>
+                          {header.required && (
+                            <Badge variant="outline" className="text-xs bg-red-50 text-red-600 border-red-200">
+                              필수
+                            </Badge>
+                          )}
+                          {header.value && (
+                            <span className="text-gray-500">- {header.value}</span>
+                          )}
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   ) : (
-                    <p className="text-sm text-gray-500">본문이 없습니다.</p>
+                    <p className="text-sm text-gray-500 mt-1">정의된 응답 헤더가 없습니다.</p>
+                  )}
+                </div>
+
+                {/* 응답 본문 */}
+                <div>
+                  <Label className="text-sm font-medium">응답 본문</Label>
+                  {response.bodies.length > 0 ? (
+                    <div className="mt-2 space-y-1">
+                      {response.bodies.map((body) => (
+                        <div
+                          key={body.id}
+                          className="flex items-center gap-2 text-sm bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded"
+                        >
+                          <Badge variant="outline" className="font-mono text-xs">
+                            {body.contentType}
+                          </Badge>
+                          <span className="text-gray-600 dark:text-gray-400">
+                            모델: <code className="font-mono text-purple-600 dark:text-purple-400">{body.model}</code>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500 mt-1">정의된 응답 본문이 없습니다.</p>
                   )}
                 </div>
               </CardContent>
@@ -130,7 +121,7 @@ export function MethodResponseTab({
         <div className="text-center py-6">
           <p className="text-gray-500 dark:text-gray-400 mb-2">정의된 응답이 없습니다</p>
           <p className="text-sm text-gray-400 dark:text-gray-500">
-            응답 추가 버튼을 클릭하여 새 응답을 추가하세요.
+            상단의 편집 버튼을 클릭하여 응답을 추가하세요.
           </p>
         </div>
       )}

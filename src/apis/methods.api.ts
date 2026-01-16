@@ -2,31 +2,110 @@ import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from
 
 
 // 메서드 리스트 타입
-export interface MethodsListProps {
+export interface MethodsDetailDataProps {
     methodId: string;
-    resourceId: string;
-    pathId: string;
     httpMethod: string;
-    methodName: string;
+    operationId: string;
+    summary: string;
     description: string;
-    routeEndpoint: string;
-    requiresAuthentication: boolean;
-    apiKeyRequired: boolean;
+    tags: string[];
     integrationType: string;
-    requestValidator: string;
-    enabled: boolean;
-    createdAt: string;
-    createdBy: string;
+    routingEndpoint: string;
+    mockResponse: {
+        statusCode: number;
+        contentType: string;
+        body: string;
+        headers: {}
+    },
+    requestValidation: string;
+    apiKeyRequired: boolean;
+    apiKeyId: string;
+    pathParameters: [
+        {
+            name: string;
+            description: string;
+            required: boolean;
+            type: string;
+            format: string;
+            defaultValue: string;
+            example: string;
+            schema: {},
+            deprecated: boolean
+        }
+    ],
+    queryParameters: [
+        {
+            name: string;
+            description: string;
+            required: boolean;
+            type: string;
+            format: string;
+            defaultValue: string;
+            example: string;
+            schema: {},
+            deprecated: boolean
+        }
+    ],
+    headerParameters: [
+        {
+            name: string;
+            description: string;
+            required: boolean;
+            type: string;
+            format: string;
+            defaultValue: string;
+            example: string;
+            schema: {},
+            deprecated: boolean
+        }
+    ],
+    requestBodyConfig: {
+        modelId: string;
+        required: boolean;
+        contentType: string;
+        description: string;
+        contentTypeOrDefault: string;
+    },
+    responses: [
+        {
+            statusCode: number;
+            description: string;
+            headers: [
+                {
+                    name: string;
+                    description: string;
+                    required: boolean;
+                    type: string;
+                    format: string;
+                    example: string;
+                    schema: {},
+                    deprecated: boolean
+                }
+            ],
+            content: {
+                modelId: string;
+                contentType: string;
+                contentTypeOrDefault: string;
+            },
+            successStatus: boolean;
+            errorStatus: boolean;
+        }
+    ],
+    createdAt: string,
+    createdBy: string,
+    updatedAt: string,
+    updatedBy: string
 }
 
-// ✅ 리소스 경로의 메서드 목록 조회 API
-export const getMethodsList = async (pathId: string): Promise<MethodsListProps[]> => {
-    const res = await requestGet(`/api/v1/methods/path/${pathId}`);
-    if (res.code === 200) {
-        return res.data;
-    }
-    throw new Error(res.message || '메서드 목록 조회 실패');
+
+
+// 메서드 상세 조회 API
+export const getMethodsDetailData = async (methodId: string): Promise<MethodsDetailDataProps> => {
+    const res = await requestGet(`/api/v1/methods/${methodId}`);
+
+    return res;
 };
+
 
 // 공통 파라미터 타입
 export interface QueryParameter {
@@ -109,34 +188,63 @@ export const createMethod = async (data: CreateMethodProps, apiId: string, resou
 };
 
 export interface ModifyMethodProps {
-    methodName: string;
+    summary: string;
     description: string;
-    backendServiceUrl: string;
-    responseModelId?: string;
-    requestModelId?: string;
-    queryParameters?: [
-        {
-            name?: string;
-            required?: boolean;
-        },
-    ];
-    headerParameters?: [
-        {
-            name?: string;
-            required?: boolean;
-        },
-    ];
-    pathParameters?: [
-        {
-            name?: string;
-            required?: boolean;
-        },
-    ];
-    enabled: boolean;
-    requestValidator: string;
+    tags: string[];
+    integrationType: string;
+    routingEndpoint: string;
+    requestValidation: string;
     apiKeyRequired: boolean;
     apiKeyId: string;
-    updatedBy: string;
+    pathParameters: [
+        {
+            name: string,
+            in: string,
+            required: boolean,
+            description: string,
+            schema: {
+                type: string
+            }
+        }
+    ],
+    queryParameters: [
+        {
+            name: string,
+            in: string,
+            required: boolean,
+            description: string,
+            schema: {
+                type: string,
+                default?: boolean
+            }
+        },
+
+    ],
+    headerParameters: [
+        {
+            name: string,
+            in: string,
+            required: boolean,
+            description: string,
+            schema: {
+                type: string,
+                format?: string
+            }
+        },
+    ],
+    requestBodyConfig: {
+        modelId: string,
+        required: boolean,
+        description: string
+    },
+    responses: [
+        {
+            statusCode: string,
+            description: string,
+            modelId?: string
+        },
+    ],
+    updatedBy: string
 }
 
 // ✅ API 요청 함수
@@ -148,17 +256,9 @@ export const modifyMethod = async (methodId: string, data: ModifyMethodProps) =>
     return res;
 };
 
-export interface DeleteMethodProps {
-    methodId: string;
-    userKey: string;
-}
 
-export const deleteMethod = async (data: DeleteMethodProps) => {
-    const res = await requestDelete(`/api/v1/methods/${data.methodId}`, {
-        body: {
-            headers: { 'X-User-Id': data.userKey },
-        },
-    });
+export const deleteMethod = async (methodId: string) => {
+    const res = await requestDelete(`/api/v1/methods/${methodId}`);
 
     return res;
 };
@@ -187,6 +287,25 @@ export interface IntegrationTypeListProps {
 // 통합 유형 목록 조회 API
 export const getIntegrationTypeList = async (): Promise<IntegrationTypeListProps[]> => {
     const res = await requestGet(`/api/v1/methods/integration-types`);
+
+    return res;
+};
+
+// 요청검사기 데이터
+export interface TestMethodProps {
+    queryParameters: {},
+    pathParameters: {},
+    headers: {},
+    body: string;
+}
+
+
+
+// ✅ API 메서드 요청 테스트
+export const testMethod = async (methodId: string, data: TestMethodProps) => {
+    const res = await requestPost(`/api/v1/invoke/${methodId}`, {
+        body: data,
+    });
 
     return res;
 };

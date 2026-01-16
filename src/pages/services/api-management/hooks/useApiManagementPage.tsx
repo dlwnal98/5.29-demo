@@ -2,7 +2,9 @@ import { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/store";
 import { setSelectedApiInfo } from "@/constants/app-layout-data";
-import { useGetAPIList, APIListData } from "@/hooks/use-apimanagement";
+import { useGetAPIList } from "@/hooks/use-apimanagement";
+import { getAPIDocForExport } from "@/apis/api-management.api";
+import { APIListData } from "@/apis/api-management.api";
 
 interface ModifyApiForm {
   name: string;
@@ -21,6 +23,7 @@ export function useApiManagementPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [selectedApiName, setSelectedApiName] = useState("");
   const [selectedAPIId, setSelectedAPIId] = useState("");
   const [modifyApiForm, setModifyApiForm] = useState<ModifyApiForm>({
@@ -32,13 +35,13 @@ export function useApiManagementPage() {
   const usersPerPage = 20;
 
   const { data: apisData } = useGetAPIList(tenantId, currentPage, usersPerPage);
-
+  console.log(apisData)
   const filteredPlans = useMemo(() => {
     return (apisData?.content ?? []).filter(
       (plan) =>
-        plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        plan.apiId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        plan.description.toLowerCase().includes(searchTerm.toLowerCase())
+        plan?.name?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
+        plan?.apiId?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
+        plan?.description?.toLowerCase()?.includes(searchTerm?.toLowerCase())
     );
   }, [apisData, searchTerm]);
 
@@ -86,9 +89,26 @@ export function useApiManagementPage() {
     setIsDeleteModalOpen(false);
   }, []);
 
+  const handleOpenExportModal = useCallback((api: APIListData) => {
+    setSelectedAPIId(api.apiId);
+    setSelectedApiName(api.name);
+    setIsExportModalOpen(true);
+  }, []);
+
+  const handleCloseExportModal = useCallback(() => {
+    setIsExportModalOpen(false);
+  }, []);
+
   const handleSearchTermChange = useCallback((term: string) => {
     setSearchTerm(term);
   }, []);
+
+  const handleApiExport = async (apiId: string, format?: 'OPENAPI_JSON' | 'OPENAPI_YAML' | 'POSTMAN', includeModels?: boolean, includeExtensions?: boolean) => {
+    const res = await getAPIDocForExport(apiId, format, includeModels, includeExtensions);
+    console.log(res);
+    return res;
+  }
+
 
   return {
     // Data
@@ -106,6 +126,7 @@ export function useApiManagementPage() {
     isCreateModalOpen,
     isModifyModalOpen,
     isDeleteModalOpen,
+    isExportModalOpen,
 
     // Setters
     setCurrentPage,
@@ -119,5 +140,8 @@ export function useApiManagementPage() {
     onCloseModifyModal: handleCloseModifyModal,
     onOpenDeleteModal: handleOpenDeleteModal,
     onCloseDeleteModal: handleCloseDeleteModal,
+    onAPIExport: handleApiExport,
+    onOpenExportModal: handleOpenExportModal,
+    onCloseExportModal: handleCloseExportModal,
   };
 }

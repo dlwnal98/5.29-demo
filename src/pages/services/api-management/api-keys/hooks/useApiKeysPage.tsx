@@ -5,18 +5,18 @@ import { useAuthStore } from "@/stores/store";
 import {
   useGetAPIKeyList,
   useCreateAPIKey,
-  useModifyAPIKey,
   useDeleteAPIKey,
-
 } from "@/hooks/use-apiKeys";
 import {
   ApiKey,
+  ApiKeyDetail,
   getAPIKeyDetail,
 } from "@/apis/api-keys.api";
 
 
 interface NewApiKeyForm {
   keyName: string;
+  expiresAt?: string;
   description: string;
 }
 
@@ -29,16 +29,19 @@ export function useApiKeysPage() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
-  const [editingApiKey, setEditingApiKey] = useState<ApiKey | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [deletingApiKey, setDeletingApiKey] = useState<ApiKey | null>(null);
+  const [apiKeyDetail, setApiKeyDetail] = useState<ApiKeyDetail | null>(null);
+  const [isDetailLoading, setIsDetailLoading] = useState(false);
   const [copyApiKey, setCopyApiKey] = useState("");
   const [newApiKey, setNewApiKey] = useState<NewApiKeyForm>({
     keyName: "",
+    expiresAt: "",
     description: "",
   });
+  console.log(newApiKey)
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -52,14 +55,6 @@ export function useApiKeysPage() {
       setIsCreateModalOpen(false);
       setNewApiKey({ keyName: "", description: "" });
       toast.success("API키가 생성되었습니다.");
-    },
-  });
-
-  // API Key 수정
-  const { mutate: modifyAPIKey } = useModifyAPIKey({
-    onSuccess: () => {
-      setIsEditModalOpen(false);
-      toast.success("API키가 수정되었습니다.");
     },
   });
 
@@ -103,10 +98,11 @@ export function useApiKeysPage() {
 
   // Handlers
   const handleCreate = () => {
-    console.log(tenantId, newApiKey, userData?.userKey)
+    console.log(newApiKey)
     createAPIKey({
       tenantId: tenantId ?? "",
       keyName: newApiKey.keyName,
+      expiresAt: newApiKey.expiresAt,
       description: newApiKey.description,
       createdBy: userData?.userKey ?? "",
     });
@@ -115,15 +111,6 @@ export function useApiKeysPage() {
   const handleRefresh = () => {
     toast.success("페이지가 새로고침되었습니다.");
     window.location.reload();
-  };
-
-  const handleEdit = (apiKey: ApiKey) => {
-    setEditingApiKey({ ...apiKey });
-    setIsEditModalOpen(true);
-  };
-
-  const handleUpdate = (apiKeyId: string, keyName: string, description: string) => {
-    modifyAPIKey({ apiKeyId, keyName, description, expiresAt: new Date().toISOString(), updatedBy: userData?.userKey ?? "" });
   };
 
   const handleDeleteClick = (apiKey: ApiKey) => {
@@ -148,15 +135,45 @@ export function useApiKeysPage() {
     );
   };
 
+  const handleViewDetail = async (apiKey: ApiKey) => {
+    setIsDetailModalOpen(true);
+    setIsDetailLoading(true);
+    setApiKeyDetail(null);
+    try {
+      const res = await getAPIKeyDetail(apiKey.apiKeyId);
+      setApiKeyDetail(res);
+    } catch (error) {
+      toast.error("API Key 상세 정보를 불러오는데 실패했습니다.");
+      setIsDetailModalOpen(false);
+    } finally {
+      setIsDetailLoading(false);
+    }
+  };
+
+  const closeDetailModal = () => {
+    setIsDetailModalOpen(false);
+    setApiKeyDetail(null);
+  };
+
+  // 현재 보고 있는 API Key 상세 정보 새로고침
+  const handleRefreshDetail = async () => {
+    if (!apiKeyDetail) return;
+
+    setIsDetailLoading(true);
+    try {
+      const res = await getAPIKeyDetail(apiKeyDetail.apiKeyId);
+      setApiKeyDetail(res);
+    } catch (error) {
+      toast.error("API Key 상세 정보를 불러오는데 실패했습니다.");
+    } finally {
+      setIsDetailLoading(false);
+    }
+  };
+
   const openCreateModal = () => setIsCreateModalOpen(true);
   const closeCreateModal = () => {
     setIsCreateModalOpen(false);
     setNewApiKey({ keyName: "", description: "" });
-  };
-
-  const closeEditModal = () => {
-    setIsEditModalOpen(false);
-    setEditingApiKey(null);
   };
 
   const closeDeleteModal = () => {
@@ -170,38 +187,38 @@ export function useApiKeysPage() {
     // Data
     currentApiKeys,
     filteredApiKeys,
-    editingApiKey,
     deletingApiKey,
     copyApiKey,
     newApiKey,
+    apiKeyDetail,
 
     // State
     searchTerm,
     currentPage,
     totalPages,
     isCreateModalOpen,
-    isEditModalOpen,
     isDeleteModalOpen,
     isCopyModalOpen,
+    isDetailModalOpen,
+    isDetailLoading,
 
     // Setters for forms
     setSearchTerm,
     setCurrentPage,
     setNewApiKey,
-    setEditingApiKey,
 
     // Handlers
     handleCreate,
     handleRefresh,
-    handleEdit,
-    handleUpdate,
     handleDeleteClick,
     handleDeleteConfirm,
     handleCopyApiKey,
+    handleViewDetail,
     openCreateModal,
     closeCreateModal,
-    closeEditModal,
     closeDeleteModal,
     closeCopyModal,
+    closeDetailModal,
+    handleRefreshDetail,
   };
 }

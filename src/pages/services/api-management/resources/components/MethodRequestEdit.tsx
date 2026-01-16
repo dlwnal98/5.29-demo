@@ -27,6 +27,7 @@ import { Header } from '@/types/methods';
 import { useModifyMethod } from '@/hooks/use-methods';
 import { useMethodEditStore } from '@/stores/store';
 import { ModelData } from '@/apis/models.api';
+import { getValidatorList } from '@/apis/methods.api'
 
 interface MethodRequestEditProps {
   selectedMethod: Method;
@@ -37,8 +38,9 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
   const userData = useAuthStore((state) => state.user);
   const setIsEditMode = useMethodEditStore((state) => state.setIsEdit);
   const clipboard = useClipboard();
+  const tenantId = userData?.organizationId || "kvwwwksAsvmas";
 
-  const { data: apiKeyList } = useGetAPIKeyList(userData?.organizationId || '');
+  const { data: apiKeyList } = useGetAPIKeyList(tenantId);
 
   const { mutate: modifyMethod } = useModifyMethod({
     onSuccess: () => {
@@ -52,14 +54,16 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
 
   const [validatorList, setValidatorList] = useState([]);
 
-  const getValidatorList = async (codeType = 'REQUEST_VALIDATOR') => {
-    const res = await requestGet(`/api/v1/common-codes/${codeType}`);
+  const handleValidatorList = async () => {
+    const res = await getValidatorList();
 
     return setValidatorList(res);
   };
 
+
+
   useEffect(() => {
-    getValidatorList();
+    handleValidatorList();
   }, []);
 
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
@@ -85,6 +89,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
   useEffect(() => {
     if (selectedMethod) {
       setApiKeyToggle(selectedMethod?.info['x-api-key-required']);
+      setSelectedApiKeyId(selectedMethod?.info['x-api-key-id'] || '');
       setMethodEditForm({
         selectedApiKeyValue: selectedMethod?.info['x-api-key-id'],
         requestValidator: selectedMethod?.info['x-request-validator'],
@@ -108,14 +113,25 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
             }))
         );
       }
-      if (selectedMethod.info.requestBody) {
-        // $ref 값을 파싱하는 예시
-        const ref = selectedMethod.info.requestBody?.content?.['application/json']?.schema?.$ref;
-        const match = ref.match(/\/schemas\/([^\/]+)$/);
-        const id = match ? match[1] : undefined; // "mn7exE0xAAAo"
-
-        setRequestModelId(id);
+      // 요청 본문 모델 ID 추출 (x-model-id 필드 사용)
+      let modelId = '';
+      // 1. 메서드 레벨에서 x-model-id 확인
+      if (selectedMethod.info['x-model-id']) {
+        modelId = selectedMethod.info['x-model-id'];
       }
+      // 2. requestBody 레벨에서 x-model-id 확인
+      else if (selectedMethod.info.requestBody?.['x-model-id']) {
+        modelId = selectedMethod.info.requestBody['x-model-id'];
+      }
+      // 3. requestBody에서 $ref 파싱
+      else if (selectedMethod.info.requestBody) {
+        const ref = selectedMethod.info.requestBody?.content?.['application/json']?.schema?.$ref;
+        if (ref) {
+          const match = ref.match(/\/schemas\/([^\/]+)$/);
+          modelId = match ? match[1] : '';
+        }
+      }
+      setRequestModelId(modelId);
     }
   }, [selectedMethod]);
 
@@ -207,7 +223,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
       data: {
         methodName: selectedMethod.info.summary,
         description: selectedMethod.info.description,
-        backendServiceUrl: selectedMethod.info['x-backend-endpoint'],
+        backendServiceUrl: selectedMethod.info['x-route-endpoint'],
         queryParameters: formattedQueryParameters,
         headerParameters: formattedHeaderParameters,
         enabled: true,
@@ -417,6 +433,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
                 <div className="col-span-10">
                   <Select
                     value={requestModelId}
+                    disabled={modelList?.length === 0}
                     onValueChange={(value) => {
                       setRequestModelId(value);
                     }}>
@@ -441,6 +458,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
                     size="sm"
                     variant="outline"
                     className="border-0 hover:bg-transparent bg-transparent cursor-pointer"
+                    disabled={modelList?.length === 0} R
                     onClick={() => setRequestModelId('')}>
                     <Trash2 className="h-5 w-5" />
                   </Button>
@@ -461,7 +479,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
           newApiKeyForm={newApiKeyForm}
           setNewApiKeyForm={setNewApiKeyForm}
           userKey={userData?.userKey || ''}
-          organizationId={userData?.organizationId || ''}
+          tenantId={tenantId}
           setApiKeyToggle={setApiKeyToggle}
           setSelectedApiKeyValue={setApiKeyContent}
         />

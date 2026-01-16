@@ -49,9 +49,6 @@ export function useCorsSettingsDialog({
   });
   const [checkedMethod, setCheckedMethod] = useState<string[]>([]);
 
-  console.log(corsSettings)
-  console.log(selectedResource?.methods)
-
 
   useEffect(() => {
     // 체크박스 목록: selectedResource의 methods + OPTIONS (고정)
@@ -73,15 +70,12 @@ export function useCorsSettingsDialog({
     });
   }, [open, corsSettings, selectedResource]);
 
-
-  console.log(checkedMethod)
   const { mutate: modifyCORSMutate, isPending } = useModifyResourceCorsSettings({
     onSuccess: () => {
       toast.success('리소스의 CORS 설정이 변경되었습니다.');
       onCorsSettingsSaved?.();
       onOpenChange(false);
     }, onError: (data) => {
-      console.log(data)
       toast.error(data?.response?.data?.errors?.[0]?.detail);
     }
   });
@@ -103,7 +97,6 @@ export function useCorsSettingsDialog({
   };
 
   const handleMethodToggle = (methodType: string, checked: boolean) => {
-    console.log(methodType, checked)
     // setCorsForm((prev) => ({
     //   ...prev,
     //   allowMethods: checked
@@ -162,7 +155,6 @@ export function useCorsSettingsDialog({
 
 
   const handleCorsEnabledChange = (checked: boolean) => {
-    console.log(checked)
     setCorsForm((prev) => ({
       ...prev,
       corsEnabled: checked,

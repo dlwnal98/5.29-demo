@@ -118,11 +118,7 @@ export const passwordRegex = /^.{4,}$/;
 const liveInputRegex = /^[A-Za-z0-9{}\-_/:.]*$/;
 // 2. 입력 이벤트 시
 export function onInputChange(value: string) {
-  if (!liveInputRegex.test(value)) {
-    console.log('허용되지 않은 문자!');
-    return false;
-  }
-  return true;
+  return liveInputRegex.test(value)
 }
 
 const endpointRegex =
@@ -138,7 +134,8 @@ export function onSave(value: string) {
 }
 
 // 리소스 생성 시 이름 정규식
-const inputRegex = /^(?!\/)[A-Za-z0-9{}\-_\/]*(?<!\/)$/;
+// 슬래시를 완전히 배제하고 지정된 문자만 허용하는 정규식
+const inputRegex = /^[A-Za-z0-9._\-:]*$/;
 
 export function isValidInput(str: string) {
   return inputRegex.test(str);
@@ -146,8 +143,8 @@ export function isValidInput(str: string) {
 
 // resource - 리소스 목록 생성
 export function resoureceBuildTree(flatData) {
+  console.log(flatData)
   const excludedKeys = ['x-cors-policy', 'x-resource-id', "x-resource-name", "x-cors-enabled", "x-parent-resource-id", "operationId", "x-method-id", "responses", 'summary', 'description', 'parameters'];
-  const includedKeys = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'];
 
   const paths = Object.keys(flatData);
   if (paths.length === 0) return [];
@@ -169,16 +166,6 @@ export function resoureceBuildTree(flatData) {
       })),
     children: [],
   };
-
-  console.log(paths, rootPath, Object.entries(flatData[rootPath]), Object.entries(flatData[rootPath])
-    .filter(([type]) => !excludedKeys.includes(type)), Object.entries(flatData[rootPath])
-      .filter(([type]) => !excludedKeys.includes(type))
-      .map(([type, methodObj], mIdx) => ({
-        id: `root-method-${mIdx}`,
-        type: type?.toUpperCase(),
-        resourcePath: rootPath,
-        info: methodObj,
-      })), rootNode)
 
 
   // 2️⃣ 나머지 path들을 children으로 계층적 추가
@@ -223,186 +210,96 @@ export function resoureceBuildTree(flatData) {
   return [rootNode];
 }
 
-// stage - 리소스 목록 생성 (순서 안정화)
-export function buildTree(openAPIData: any) {
-  console.log(openAPIData)
-  const excludedKeys = ['x-cors-policy', 'x-resource-id', 'summary', 'description', 'parameters'];
-
-  // Stage 순서를 deployedAt 기준으로 내림차순 정렬 (최신이 위)
-  const sortedStages = [...openAPIData].sort((a, b) => {
-    const aTime = new Date(a.createdAt || 0).getTime();
-    const bTime = new Date(b.createdAt || 0).getTime();
-    return bTime - aTime; // 최신이 먼저
-  });
-
-  // const stageNodes = sortedStages.map((stage, sIdx) => {
-  const pathsData = openAPIData?.paths ?? {};
-  const paths = Object.keys(pathsData); // 순서 그대로 유지
-  if (paths.length === 0) return null;
-
-  // Root node 생성
-  const rootPath = paths[0];
-  const rootNode = {
-    id: `node-root`,
-    name: '/',
-    path: '/',
-    resourceId: pathsData[rootPath]?.['x-resource-id'],
-    methods: Object.entries(pathsData[rootPath])
-      .filter(([type]) => !excludedKeys.includes(type))
-      .map(([type, methodObj], mIdx) => ({
-        id: `${rootPath}-method-${mIdx}`,
-        type: type?.toUpperCase(),
-        resourcePath: rootPath,
-        info: methodObj,
-      })),
-    children: [] as any[],
-  };
-
-  // Stage node 생성
-  // const stageNode = {
-  //   id: `stage-root`,
-  //   stageId: stage.stageId,
-  //   description: stage.description,
-  //   deploymentId: stage.deploymentId,
-  //   deployedAt: stage.deployedAt,
-  //   name: stage.name,
-  //   path: '/',
-  //   methods: [],
-  //   children: [rootNode],
-  // };
-
-  // paths 재귀 처리
-  paths.forEach((path) => {
-    const segments = path.split('/').filter(Boolean);
-    let currentLevel = rootNode.children;
-
-    segments.forEach((segment, idx) => {
-      const fullPath = '/' + segments.slice(0, idx + 1).join('/');
-      let existingNode = currentLevel.find((node) => node.path === fullPath);
-
-      if (!existingNode) {
-        existingNode = {
-          id: `node-${fullPath}`,
-          name: segment,
-          path: fullPath,
-          description: pathsData[path]?.description || '',
-          resourceId: pathsData[path]?.['x-resource-id'],
-          cors: pathsData[path]?.['x-cors-policy'],
-          methods:
-            idx === segments.length - 1
-              ? Object.entries(pathsData[path])
-                .filter(([type]) => !excludedKeys.includes(type))
-                .map(([type, methodObj], mIdx) => ({
-                  id: `${fullPath}-method-${mIdx}`,
-                  type: type?.toUpperCase(),
-                  resourcePath: path,
-                  info: methodObj,
-                }))
-              : [],
-          children: [],
-        };
-        currentLevel.push(existingNode);
-      }
-
-      currentLevel = existingNode.children;
-    });
-  });
-
-  return rootNode;
-  // });
-
-  // return stageNodes.filter(Boolean);
-}
-
 
 
 // // stage - 리소스 목록 생성 (순서 안정화)
-// export function buildTree(openAPIData: any[]) {
-//   console.log(openAPIData)
-//   const excludedKeys = ['x-cors-policy', 'x-resource-id', 'summary', 'description', 'parameters'];
+export function buildTree(openAPIData: any[]) {
+  const excludedKeys = ['x-cors-policy', 'x-resource-id', 'summary', 'description', 'parameters'];
 
-//   // Stage 순서를 deployedAt 기준으로 내림차순 정렬 (최신이 위)
-//   const sortedStages = [...openAPIData].sort((a, b) => {
-//     const aTime = new Date(a.createdAt || 0).getTime();
-//     const bTime = new Date(b.createdAt || 0).getTime();
-//     return bTime - aTime; // 최신이 먼저
-//   });
+  // Stage 순서를 deployedAt 기준으로 내림차순 정렬 (최신이 위)
+  // const sortedStages = [...openAPIData].sort((a, b) => {
+  //   const aTime = new Date(a.createdAt || 0).getTime();
+  //   const bTime = new Date(b.createdAt || 0).getTime();
+  //   return bTime - aTime; // 최신이 먼저
+  // });
 
-//   // const stageNodes = sortedStages.map((stage, sIdx) => {
-//     const pathsData = stage?.openApiDocument?.paths ?? {};
-//     const paths = Object.keys(pathsData); // 순서 그대로 유지
-//     if (paths.length === 0) return null;
+  const sortedStages = [...openAPIData]
 
-//     // Root node 생성
-//     const rootPath = paths[0];
-//     const rootNode = {
-//       id: `node-root-${sIdx}`,
-//       name: '/',
-//       path: '/',
-//       resourceId: pathsData[rootPath]?.['x-resource-id'],
-//       methods: Object.entries(pathsData[rootPath])
-//         .filter(([type]) => !excludedKeys.includes(type))
-//         .map(([type, methodObj], mIdx) => ({
-//           id: `${sIdx}-${rootPath}-method-${mIdx}`,
-//           type: type?.toUpperCase(),
-//           resourcePath: rootPath,
-//           info: methodObj,
-//         })),
-//       children: [] as any[],
-//     };
+  const stageNodes = sortedStages.map((stage, sIdx) => {
+    const pathsData = stage?.paths ?? {};
+    const paths = Object.keys(pathsData); // 순서 그대로 유지
+    if (paths.length === 0) return null;
 
-//     // Stage node 생성
-//     const stageNode = {
-//       id: `stage-root-${sIdx}`,
-//       stageId: stage.stageId,
-//       description: stage.description,
-//       deploymentId: stage.deploymentId,
-//       deployedAt: stage.deployedAt,
-//       name: stage.name,
-//       path: '/',
-//       methods: [],
-//       children: [rootNode],
-//     };
+    // Root node 생성
+    const rootPath = paths[0];
+    const rootNode = {
+      id: `node-root-${sIdx}`,
+      name: '/',
+      path: '/',
+      resourceId: pathsData[rootPath]?.['x-resource-id'],
+      methods: Object.entries(pathsData[rootPath])
+        .filter(([type]) => !excludedKeys.includes(type))
+        .map(([type, methodObj], mIdx) => ({
+          id: `${sIdx}-${rootPath}-method-${mIdx}`,
+          type: type?.toUpperCase(),
+          resourcePath: rootPath,
+          info: methodObj,
+        })),
+      children: [] as any[],
+    };
 
-//     // paths 재귀 처리
-//     paths.forEach((path) => {
-//       const segments = path.split('/').filter(Boolean);
-//       let currentLevel = rootNode.children;
+    // Stage node 생성
+    const stageNode = {
+      id: `stage-root-${sIdx}`,
+      stageId: stage.stageId,
+      description: stage.description,
+      deploymentId: stage.deploymentId,
+      deployedAt: stage.deployedAt,
+      name: stage.name,
+      path: '/',
+      methods: [],
+      children: [rootNode],
+    };
 
-//       segments.forEach((segment, idx) => {
-//         const fullPath = '/' + segments.slice(0, idx + 1).join('/');
-//         let existingNode = currentLevel.find((node) => node.path === fullPath);
+    // paths 재귀 처리
+    paths.forEach((path) => {
+      const segments = path.split('/').filter(Boolean);
+      let currentLevel = rootNode.children;
 
-//         if (!existingNode) {
-//           existingNode = {
-//             id: `node-${sIdx}-${fullPath}`,
-//             name: segment,
-//             path: fullPath,
-//             description: pathsData[path]?.description || '',
-//             resourceId: pathsData[path]?.['x-resource-id'],
-//             cors: pathsData[path]?.['x-cors-policy'],
-//             methods:
-//               idx === segments.length - 1
-//                 ? Object.entries(pathsData[path])
-//                   .filter(([type]) => !excludedKeys.includes(type))
-//                   .map(([type, methodObj], mIdx) => ({
-//                     id: `${sIdx}-${fullPath}-method-${mIdx}`,
-//                     type: type?.toUpperCase(),
-//                     resourcePath: path,
-//                     info: methodObj,
-//                   }))
-//                 : [],
-//             children: [],
-//           };
-//           currentLevel.push(existingNode);
-//         }
+      segments.forEach((segment, idx) => {
+        const fullPath = '/' + segments.slice(0, idx + 1).join('/');
+        let existingNode = currentLevel.find((node) => node.path === fullPath);
 
-//         currentLevel = existingNode.children;
-//       });
-//     });
+        if (!existingNode) {
+          existingNode = {
+            id: `node-${sIdx}-${fullPath}`,
+            name: segment,
+            path: fullPath,
+            description: pathsData[path]?.description || '',
+            resourceId: pathsData[path]?.['x-resource-id'],
+            cors: pathsData[path]?.['x-cors-policy'],
+            methods:
+              idx === segments.length - 1
+                ? Object.entries(pathsData[path])
+                  .filter(([type]) => !excludedKeys.includes(type))
+                  .map(([type, methodObj], mIdx) => ({
+                    id: `${sIdx}-${fullPath}-method-${mIdx}`,
+                    type: type?.toUpperCase(),
+                    resourcePath: path,
+                    info: methodObj,
+                  }))
+                : [],
+            children: [],
+          };
+          currentLevel.push(existingNode);
+        }
 
-//     return stageNode;
-//   // });
+        currentLevel = existingNode.children;
+      });
+    });
 
-//   // return stageNodes.filter(Boolean);
-// }
+    return stageNode;
+  });
+
+  return stageNodes.filter(Boolean);
+}

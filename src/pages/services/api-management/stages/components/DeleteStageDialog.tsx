@@ -14,10 +14,7 @@ interface DeleteStageDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     userKey: string;
-    selectedStage: {
-        name: string;
-        stageId: string;
-    };
+    stageDetailData: any;
     // 훅의 handleDeleteStage가 인자를 받지 않으므로 아래와 같이 수정
     deleteStage: () => void;
 }
@@ -26,7 +23,7 @@ export default function DeleteStageDialog({
     open,
     onOpenChange,
     userKey,
-    selectedStage,
+    stageDetailData,
     deleteStage,
 }: DeleteStageDialogProps) {
 
@@ -45,7 +42,7 @@ export default function DeleteStageDialog({
                                 <p>
                                     스테이지{' '}
                                     <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-                                        {selectedStage.name}
+                                        {stageDetailData?.stageName}
                                     </span>
                                     을(를) 삭제하시겠습니까?
                                 </p>

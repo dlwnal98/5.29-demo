@@ -50,12 +50,9 @@ export function useCreateEndpointDialog({
   };
 
   const handleSubmit = () => {
-    console.log('여기')
     if (onSave(endpointForm.routeUrl)) {
-      console.log('여기2')
 
       if (tenantId && createdBy) {
-        console.log('여기3')
 
         createEndpoint({
           tenantId,

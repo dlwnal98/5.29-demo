@@ -48,6 +48,8 @@ export default function DeployResourceDialog({
   onDescriptionChange,
   onDeployModalClose,
 }: DeployResourceDialogProps) {
+
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -62,15 +64,15 @@ export default function DeployResourceDialog({
               배포 할 스테이지 <span className="text-red-500">*</span>
             </Label>
             <Select
-              value={deploymentData.stage}
+              value={deploymentData.stageId}
               onValueChange={onStageChange}>
               <SelectTrigger className="mt-2">
                 <SelectValue placeholder="스테이지 선택" />
               </SelectTrigger>
               <SelectContent>
                 {stageForDeployment.map((stage) => (
-                  <SelectItem key={stage.id} value={stage.value} className="cursor-pointer">
-                    {stage.label}
+                  <SelectItem key={stage.id} value={stage.stageId} className="cursor-pointer">
+                    {stage?.stageName}
                   </SelectItem>
                 ))}
                 <SelectItem value="new" className="cursor-pointer">
@@ -88,7 +90,7 @@ export default function DeployResourceDialog({
           </div>
 
           {/* 새 스테이지 생성 필드들 */}
-          {deploymentData.stage === 'new' && (
+          {deploymentData.stageId === 'new' && (
             <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border dark:border-gray-700">
               <div className="flex items-center gap-2 mb-2">
                 <Plus className="h-4 w-4 text-orange-500" />

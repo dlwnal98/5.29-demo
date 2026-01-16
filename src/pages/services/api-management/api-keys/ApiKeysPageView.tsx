@@ -17,9 +17,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Plus, RefreshCw, Search, Edit, Trash2, Copy } from "lucide-react";
+import { Plus, RefreshCw, Search, Trash2, Copy, Eye } from "lucide-react";
 import CommonPagination from "@/components/CommonPagination";
-import { ApiKey } from "@/hooks/use-apiKeys";
+import { ApiKey, ApiKeyDetail } from "@/apis/api-keys.api";
+import { ApiKeyDetailDialog } from "./components/ApiKeyDetailDialog";
 import React from "react";
 
 interface ApiKeysPageViewProps {
@@ -31,9 +32,14 @@ interface ApiKeysPageViewProps {
   onPageChange: React.Dispatch<React.SetStateAction<number>>;
   onRefresh: () => void;
   onCreateClick: () => void;
-  onEdit: (apiKey: ApiKey) => void;
   onDelete: (apiKey: ApiKey) => void;
   onCopy: (apiKeyName: string, apiKey: string) => void;
+  onViewDetail: (apiKey: ApiKey) => void;
+  isDetailModalOpen: boolean;
+  onDetailModalClose: (open: boolean) => void;
+  apiKeyDetail: ApiKeyDetail | null;
+  isDetailLoading: boolean;
+  onDetailRefresh: () => void;
 }
 
 export default function ApiKeysPageView({
@@ -45,9 +51,14 @@ export default function ApiKeysPageView({
   onPageChange,
   onRefresh,
   onCreateClick,
-  onEdit,
   onDelete,
   onCopy,
+  onViewDetail,
+  isDetailModalOpen,
+  onDetailModalClose,
+  apiKeyDetail,
+  isDetailLoading,
+  onDetailRefresh,
 }: ApiKeysPageViewProps) {
   return (
     <div className="container mx-auto px-4 py-6">
@@ -88,9 +99,9 @@ export default function ApiKeysPageView({
               </div>
             </div>
           </div>
-          <Button variant="outline" onClick={onRefresh}>
+          {/* <Button variant="outline" onClick={onRefresh}>
             <RefreshCw className="h-4 w-4" />
-          </Button>
+          </Button> */}
           <Button
             onClick={onCreateClick}
             className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg"
@@ -108,10 +119,10 @@ export default function ApiKeysPageView({
           <Table>
             <TableHeader className="hover:bg-white dark:border-gray-700 dark:hover:bg-transparent">
               <TableRow className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
-                <TableHead className="w-[10%]">ID</TableHead>
-                <TableHead className="w-[30%]">이름</TableHead>
-                <TableHead className="w-[auto]">설명</TableHead>
-                <TableHead className="w-[10%]">생성일자</TableHead>
+                <TableHead className="w-[10%] text-center">ID</TableHead>
+                <TableHead className="w-[30%] text-center">이름</TableHead>
+                <TableHead className="w-[auto] text-center">설명</TableHead>
+                <TableHead className="w-[10%] text-center">생성일자</TableHead>
                 <TableHead className="text-center w-[8%]">작업</TableHead>
               </TableRow>
             </TableHeader>
@@ -128,12 +139,12 @@ export default function ApiKeysPageView({
                     key={apiKey.apiKeyId}
                     className="hover:bg-white dark:hover:bg-transparent"
                   >
-                    <TableCell className="font-medium text-blue-600">
+                    <TableCell className="font-mono text-sm font-medium text-center text-blue-600 ">
                       {apiKey.apiKeyId}
                     </TableCell>
-                    <TableCell className="font-medium">{apiKey.keyName}</TableCell>
-                    <TableCell>{apiKey.description}</TableCell>
-                    <TableCell>
+                    <TableCell className="text-center">{apiKey.keyName}</TableCell>
+                    <TableCell className="text-center">{apiKey.description}</TableCell>
+                    <TableCell className="text-center">
                       {apiKey.createdAt
                         ? new Date(apiKey.createdAt).toLocaleDateString()
                         : "-"}
@@ -141,24 +152,27 @@ export default function ApiKeysPageView({
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Button
+                          className="text-white hover:text-white bg-blue-500 hover:bg-blue-600"
+                          size="sm"
+                          onClick={() => onViewDetail(apiKey)}
+                          title="상세보기"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
                           className="text-white hover:text-white bg-amber-500 hover:bg-amber-500"
                           size="sm"
                           onClick={() => onCopy(apiKey.keyName, apiKey.apiKeyId)}
+                          title="복사"
                         >
                           <Copy className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          className="text-white hover:text-white bg-slate-500 hover:bg-slate-500"
-                          size="sm"
-                          onClick={() => onEdit(apiKey)}
-                        >
-                          <Edit className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="destructive"
                           size="sm"
                           onClick={() => onDelete(apiKey)}
                           className="hover:bg-destructive"
+                          title="삭제"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -181,6 +195,15 @@ export default function ApiKeysPageView({
           groupSize={5}
         />
       )}
+
+      {/* API Key 상세 정보 모달 */}
+      <ApiKeyDetailDialog
+        open={isDetailModalOpen}
+        onOpenChange={onDetailModalClose}
+        apiKeyDetail={apiKeyDetail}
+        isLoading={isDetailLoading}
+        onRefresh={onDetailRefresh}
+      />
     </div>
   );
 }

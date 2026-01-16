@@ -9,7 +9,7 @@ import {
     DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Toaster } from 'sonner';
+import { Loader2 } from 'lucide-react';
 import { useDeploymentResourceTree } from '../hooks/useDeploymentResourceTree';
 import { DeploymentResourceTreeItem } from './DeploymentResourceTreeItem';
 
@@ -24,32 +24,41 @@ export default function DeploymentResourceTreeDialog({
     onOpenChange,
     selectedDeploymentId,
 }: DeploymentResourceTreeDialogProps) {
-    const { resourceTree } = useDeploymentResourceTree(selectedDeploymentId);
+    const { resourceTree, isLoading, isReady } = useDeploymentResourceTree(selectedDeploymentId, open);
 
     return (
-        <>
-            <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle className="text-xl font-bold text-blue-600">배포 상세 설명</DialogTitle>
-                        <DialogDescription className="text-gray-600">
-                            배포된 리소스 목록을 보여줍니다.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="max-h-[600px] overflow-y-auto">
-                        {resourceTree[0] && <DeploymentResourceTreeItem resource={resourceTree[0]} />}
-                    </div>
-                    <DialogFooter className="gap-2">
-                        <Button
-                            variant="default"
-                            onClick={() => {
-                                onOpenChange(false);
-                            }}>
-                            확인
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-        </>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle className="text-xl font-bold text-blue-600">배포 상세 설명</DialogTitle>
+                    <DialogDescription className="text-gray-600">
+                        배포된 리소스 목록을 보여줍니다.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="max-h-[600px] overflow-y-auto min-h-[100px]">
+                    {isLoading ? (
+                        <div className="flex items-center justify-center py-8">
+                            <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
+                            <span className="ml-2 text-sm text-gray-500">리소스 트리를 불러오는 중...</span>
+                        </div>
+                    ) : isReady && resourceTree[0] ? (
+                        <DeploymentResourceTreeItem resource={resourceTree[0]} />
+                    ) : (
+                        <div className="flex items-center justify-center py-8 text-sm text-gray-500">
+                            리소스가 없습니다.
+                        </div>
+                    )}
+                </div>
+                <DialogFooter className="gap-2">
+                    <Button
+                        variant="default"
+                        onClick={() => {
+                            onOpenChange(false);
+                        }}>
+                        확인
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }

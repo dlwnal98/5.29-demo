@@ -209,6 +209,10 @@ export const getNavItems = (): NavItem[] => [
             label: 'API Keys',
             href: '/services/api-management/api-keys',
             icon: Key,
+          }, {
+            label: 'Usage Dashboard',
+            href: '/services/api-management/usage-dashboard',
+            icon: Key,
           },
         ],
       },

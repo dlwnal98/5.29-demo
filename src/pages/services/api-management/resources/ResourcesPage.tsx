@@ -18,7 +18,7 @@ export default function ApiResourcesPage() {
     currentApiId,
     currentApiName,
     userKey,
-    organizationId,
+    tenantId,
     isDeployModalOpen,
     isCreateModalOpen,
     setSelectedResource,
@@ -50,7 +50,7 @@ export default function ApiResourcesPage() {
     open: isDeployModalOpen,
     apiId: currentApiId,
     userKey,
-    organizationId,
+    tenantId,
     onOpenChange: (open) => !open && onCloseDeployModal(),
   });
 

@@ -8,9 +8,15 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { ko } from "date-fns/locale";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 
 interface NewApiKeyForm {
   keyName: string;
+  expiresAt?: string;
   description: string;
 }
 
@@ -53,6 +59,49 @@ export default function CreateAPIKeyDialog({
               placeholder=""
               className="mt-2"
             />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-sm">만료일</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full h-8 justify-start text-left font-normal"
+                >
+                  {newApiKey.expiresAt ? (
+                    format(new Date(newApiKey.expiresAt), 'yyyy-MM-dd HH:mm:ss', { locale: ko })
+                  ) : (
+                    <span className="text-gray-400">만료일을 선택하세요 (선택 사항)</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[300px] p-0" align="start">
+                <Calendar
+                  mode="single"
+                  // selected 역시 Date 객체여야 하므로 변환해줍니다.
+                  selected={newApiKey.expiresAt ? new Date(newApiKey.expiresAt) : undefined}
+                  onSelect={(date) => {
+                    if (date) {
+                      const year = date.getFullYear();
+                      const month = String(date.getMonth() + 1).padStart(2, '0');
+                      const day = String(date.getDate()).padStart(2, '0');
+
+                      // 문자열로 생성
+                      const localExpiresAt = `${year}-${month}-${day}T23:59:59`;
+
+                      onNewApiKeyChange({ ...newApiKey, expiresAt: localExpiresAt });
+                    } else {
+                      onNewApiKeyChange({ ...newApiKey, expiresAt: '' });
+                    }
+                  }}
+                  disabled={(date) => date < new Date()}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            <p className="text-xs text-gray-500">
+              만료일을 설정하지 않으면 무기한으로 유효합니다.
+            </p>
           </div>
           <div>
             <Label htmlFor="description" className="text-sm font-medium text-gray-700 dark:text-gray-300">

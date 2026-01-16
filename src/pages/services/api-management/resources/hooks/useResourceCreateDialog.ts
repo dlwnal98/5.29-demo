@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { requestGet } from '@/libs/apiClient';
-import { CreateResourceProps, useCreateResource } from '@/hooks/use-resources';
+import { useCreateResource } from '@/hooks/use-resources';
 import { toast } from 'sonner';
-import { isValidInput } from '@/libs/etc';
+import { isValidInput, onInputChange } from '@/libs/etc';
 import { getResourcePaths } from '@/apis/resources.api';
-
+import { CreateResourceProps } from "@/apis/resources.api"
 export interface CreateResourceForm {
   resourceName: string;
   description: string;
@@ -66,7 +66,6 @@ export function useResourceCreateDialog({
         const paths = res.map((path: any) => path.resourcePath);
         setResourcePaths(paths);
         const pathData = res.map((data: any) => {
-          console.log(data)
           return { resourcePath: data.resourcePath, resourceName: data.resourceName, parentResourceId: data.resourceId }
         });
         setResourcePathData(pathData);
@@ -77,7 +76,6 @@ export function useResourceCreateDialog({
   };
 
 
-  console.log(resourcePathData)
   const { mutate: createResourceMutate, isPending } = useCreateResource(apiId, {
     onSuccess: () => {
       const resourcePath =
@@ -101,7 +99,6 @@ export function useResourceCreateDialog({
     //     : `${pathPattern}/${createResourceForm.resourceName}`;
 
     const parentResource = resourcePathData.find((data) => data?.resourcePath === pathPattern);
-    console.log(resourcePathData, parentResource)
 
     if (isValidInput(createResourceForm.resourceName)) {
       createResourceMutate({ ...createResourceForm, parentPath: pathPattern, parentResourceId: parentResource?.parentResourceId });
@@ -110,7 +107,6 @@ export function useResourceCreateDialog({
     }
   };
 
-  console.log(createResourceForm)
 
   const handleResourceNameChange = (value: string) => {
     if (isValidInput(value)) {

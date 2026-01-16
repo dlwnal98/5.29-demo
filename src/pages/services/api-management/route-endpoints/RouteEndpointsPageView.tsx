@@ -91,10 +91,11 @@ export default function RouteEndpointsPageView({
                     <Table>
                         <TableHeader className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
                             <TableRow className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
-                                <TableHead className="w-[10%]">ID</TableHead>
-                                <TableHead className="w-[30%]">URL</TableHead>
-                                <TableHead>설명</TableHead>
-                                <TableHead className="w-[10%]">생성일자</TableHead>
+                                <TableHead className="w-[10%] text-center">ID</TableHead>
+                                <TableHead className="w-[30%] text-center">URL</TableHead>
+                                <TableHead className="text-center">이름</TableHead>
+                                <TableHead className="text-center">설명</TableHead>
+                                <TableHead className="w-[10%] text-center">생성일자</TableHead>
                                 <TableHead className="w-[8%] text-center">수정</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -102,20 +103,22 @@ export default function RouteEndpointsPageView({
                             {filteredEndpoints?.length > 0 ? (
                                 filteredEndpoints.map((endpoint) => (
                                     <TableRow key={endpoint.id} className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
-                                        <TableCell className="font-medium text-blue-600">
+                                        <TableCell className="font-mono text-sm text-center text-blue-600 ">
                                             {endpoint.id}
                                         </TableCell>
-                                        <TableCell className="font-mono text-sm">
-                                            {endpoint.routeName}
-                                        </TableCell>
-                                        <TableCell className="font-mono text-sm">
+                                        <TableCell className="text-center">
                                             {endpoint.routeUrl}
                                         </TableCell>
-                                        <TableCell>{endpoint.description}</TableCell>
-                                        <TableCell>
+                                        <TableCell className="text-center">
+                                            {endpoint.routeName}
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            {endpoint.description}
+                                        </TableCell>
+                                        <TableCell className="text-center">
                                             {new Date(endpoint.createdAt).toLocaleDateString()}
                                         </TableCell>
-                                        <TableCell className="text-right">
+                                        <TableCell className="text-center">
                                             <div className="flex gap-2 justify-end">
                                                 <Button
                                                     className="text-white hover:text-white bg-slate-500 hover:bg-slate-500"

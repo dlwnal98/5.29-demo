@@ -1,6 +1,7 @@
 import { useAuthStore } from "@/stores/store";
 import { useState } from "react";
-import { useGetEndpointsList, EndpointsData } from "@/hooks/use-endpoints";
+import { useGetEndpointsList } from "@/hooks/use-endpoints";
+import { EndpointsData } from "@/apis/route-endpoints.api"
 
 interface FormData {
   id: string;
@@ -10,9 +11,12 @@ interface FormData {
 }
 
 export function useRouteEndpoints() {
+
   const userData = useAuthStore((state) => state.user);
+  const tenantId = userData?.organizationId || "kwwwksAsvmas"
+
   const { data: endpoints = [] } = useGetEndpointsList(
-    userData?.organizationId || ""
+    tenantId
   );
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -84,7 +88,7 @@ export function useRouteEndpoints() {
     isDeleteModalOpen,
 
     // User data for dialogs
-    tenantId: userData?.organizationId || "",
+    tenantId,
     userKey: userData?.userKey || "",
 
     // Handlers

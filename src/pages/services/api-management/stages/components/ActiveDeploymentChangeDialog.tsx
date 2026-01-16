@@ -15,7 +15,7 @@ import { useActiveDeploymentChange } from '../hooks/useActiveDeploymentChange';
 interface ActiveDeploymentChangeProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    organizationId: string;
+    tenantId: string;
     userKey: string;
     apiId: string;
     selectedStage: any;
@@ -23,6 +23,7 @@ interface ActiveDeploymentChangeProps {
     selectedDeploymentData: any;
     setSelectedDeploymentId: (value: string | null) => void;
     selectedDeploymentId: string | null;
+    onActiveDeploymentChanged?: () => Promise<void>;
 }
 
 export default function ActiveDeploymentChangeDialog({
@@ -34,6 +35,7 @@ export default function ActiveDeploymentChangeDialog({
     selectedDeploymentData,
     setSelectedDeploymentId,
     selectedDeploymentId,
+    onActiveDeploymentChanged,
 }: ActiveDeploymentChangeProps) {
     const { confirmActiveDeploymentChange } = useActiveDeploymentChange({
         userKey,
@@ -41,7 +43,9 @@ export default function ActiveDeploymentChangeDialog({
         selectedDeploymentId,
         onOpenChange,
         setSelectedDeploymentId,
+        onActiveDeploymentChanged,
     });
+
     return (
         <>
             <Dialog open={open} onOpenChange={onOpenChange}>
@@ -71,7 +75,7 @@ export default function ActiveDeploymentChangeDialog({
                                     현재 활성 배포
                                 </div>
                                 <div className="text-sm text-gray-600 dark:text-gray-400 font-mono">
-                                    {currentActiveDeployment?.deploymentId}
+                                    {selectedStage?.activeDeploymentId || '-'}
                                 </div>
                             </div>
                             <div className="flex items-center space-x-[-13px] mx-auto">

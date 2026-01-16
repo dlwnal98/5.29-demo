@@ -1,40 +1,39 @@
 import { useApiKeysPage } from "./hooks/useApiKeysPage";
 import ApiKeysPageView from "./ApiKeysPageView";
 import CreateAPIKeyDialog from "./components/CreateAPIKeyDialog";
-import ModifyAPIKeyDialog from "./components/ModifyAPIKeyDialog";
 import DeleteAPIKeyDialog from "./components/DeleteAPIKeyDialog";
 import CopyAPIKeyDialog from "./components/CopyAPIKeyDialog";
 
 export default function ApiKeysPage() {
   const {
     currentApiKeys,
-    editingApiKey,
     deletingApiKey,
     copyApiKey,
     newApiKey,
+    apiKeyDetail,
     searchTerm,
     currentPage,
     totalPages,
     isCreateModalOpen,
-    isEditModalOpen,
     isDeleteModalOpen,
     isCopyModalOpen,
+    isDetailModalOpen,
+    isDetailLoading,
     setSearchTerm,
     setCurrentPage,
     setNewApiKey,
-    setEditingApiKey,
     handleCreate,
     handleRefresh,
-    handleEdit,
-    handleUpdate,
     handleDeleteClick,
     handleDeleteConfirm,
     handleCopyApiKey,
+    handleViewDetail,
     openCreateModal,
     closeCreateModal,
-    closeEditModal,
     closeDeleteModal,
     closeCopyModal,
+    closeDetailModal,
+    handleRefreshDetail,
   } = useApiKeysPage();
 
   return (
@@ -49,9 +48,14 @@ export default function ApiKeysPage() {
         onPageChange={setCurrentPage}
         onRefresh={handleRefresh}
         onCreateClick={openCreateModal}
-        onEdit={handleEdit}
         onDelete={handleDeleteClick}
         onCopy={handleCopyApiKey}
+        onViewDetail={handleViewDetail}
+        isDetailModalOpen={isDetailModalOpen}
+        onDetailModalClose={closeDetailModal}
+        apiKeyDetail={apiKeyDetail}
+        isDetailLoading={isDetailLoading}
+        onDetailRefresh={handleRefreshDetail}
       />
 
       {/* API key 생성 */}
@@ -61,15 +65,6 @@ export default function ApiKeysPage() {
         onClose={closeCreateModal}
         onNewApiKeyChange={setNewApiKey}
         onSubmit={handleCreate}
-      />
-
-      {/* API key 수정 */}
-      <ModifyAPIKeyDialog
-        isOpen={isEditModalOpen}
-        editingApiKey={editingApiKey}
-        onClose={closeEditModal}
-        onEditingApiKeyChange={setEditingApiKey}
-        onSubmit={handleUpdate}
       />
 
       {/* API key 삭제 */}

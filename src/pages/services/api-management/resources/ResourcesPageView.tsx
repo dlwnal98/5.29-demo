@@ -64,7 +64,6 @@ export default function ResourcesPageView({
         {list.map((res) => {
           const isExpanded = expandedResources?.includes(res.id);
           const isSelected = selectedResource?.id === res.id;
-          console.log(res)
           return (
             <div key={res.id}>
               <div
@@ -124,7 +123,8 @@ export default function ResourcesPageView({
 
               {/* children recursive */}
               {isExpanded && res.children?.length > 0 && (
-                <div className="ml-4">{renderResourceTree(res.children)}</div>
+                <div className="ml-4 border-l border-gray-200 dark:border-gray-700 pl-2">
+                  {renderResourceTree(res.children)}</div>
               )}
             </div>
           );

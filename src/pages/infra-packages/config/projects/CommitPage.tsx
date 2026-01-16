@@ -1,5 +1,5 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { RollbackConfirmationModal } from "@/components/rollback-confirmation-modal";
+import { RollbackConfirmationModal } from "@/pages/infra-packages/config/projects/components/RollbackConfirmationModal";
 import { useCommitPage } from "./hooks/useCommitPage";
 import CommitPageView from "./CommitPageView";
 

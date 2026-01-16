@@ -47,7 +47,6 @@ export interface CloneCreateAPIProps {
 
 //api 복제하여 생성 + 실시간 목록 생성
 export const cloneCreateAPI = async (sourcePlanId: string, data: CloneCreateAPIProps) => {
-    console.log(data);
     const res = await requestPost(`/api/v1/plans/${sourcePlanId}/clone`, {
         body: data,
     });
@@ -92,6 +91,27 @@ export const modifyAPI = async (apiId: string, data: ModifyAPIProps) => {
 //api 키 삭제 + 실시간 목록 생성
 export const deleteAPI = async (apiId: string) => {
     const res = await requestDelete(`/api/v1/plans/${apiId}`);
+
+    return res;
+};
+
+
+
+// API 내보내기 (파일 다운로드)
+export const getAPIDocForExport = async (apiId: string, format?: 'OPENAPI_JSON' | 'OPENAPI_YAML' | 'POSTMAN', includeModels?: boolean, includeExtensions?: boolean) => {
+    const res = await requestGet(
+        `/api/v1/plans/${apiId}/export?format=${format}&includeModels=${includeModels}&includeExtensions=${includeExtensions}`
+    );
+
+    return res;
+};
+
+
+// API List 조회
+export const getAPIDocForExportPreview = async (apiId: string, format?: 'OPENAPI_JSON' | 'OPENAPI_YAML' | 'POSTMAN', includeModels?: boolean, includeExtensions?: boolean) => {
+    const res = await requestGet(
+        `/api/v1/plans/${apiId}/export/preview?format=${format}&includeModels=${includeModels}&includeExtensions=${includeExtensions}`
+    );
 
     return res;
 };

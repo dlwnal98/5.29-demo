@@ -8,6 +8,7 @@ interface UseCreateStageFormProps {
   userKey: string;
   apiId: string;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
 /**
@@ -19,6 +20,7 @@ export function useCreateStageForm({
   userKey,
   apiId,
   onOpenChange,
+  onSuccess,
 }: UseCreateStageFormProps) {
   const [createStageForm, setCreateStageForm] = useState({
     name: '',
@@ -49,6 +51,7 @@ export function useCreateStageForm({
       setSelectedDeploymentRecord('');
       toast.success('스테이지가 생성되었습니다.');
       onOpenChange(false);
+      onSuccess?.();
     },
     onError: (error: any) => {
       setCreateStageForm({ name: '', description: '' });

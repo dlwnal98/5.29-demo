@@ -31,7 +31,11 @@ export default function DeleteModelDialog({
     onSuccess: () => {
       onOpenChange(false);
       toast.success('삭제되었습니다.');
-    },
+    }, onError: (error) => {
+      console.log(error)
+      toast.error(error?.response?.data?.detail);
+
+    }
   });
 
   const handleDeleteModel = () => {

@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { AlertCircle, Eye, EyeOff, Waves, CheckCircle } from 'lucide-react';
-import PolicyDialog from '@/components/PolicyDialog';
+import PolicyDialog from '@/pages/signup/components/PolicyDialog';
 import { MemberSignupFormData } from './hooks/useMemberSignupUIState';
 
 export interface MemberSignupPageViewProps {
