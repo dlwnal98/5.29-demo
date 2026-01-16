@@ -388,14 +388,18 @@ export default function StagesPageView({
                 </div>
               </div>
             )}
-            <DeploymentList
-              selectedStage={{
-                activeDeploymentId: stageDetailData?.activeDeploymentId || "",
-                stageId: stageDetailData?.stageId || "",
-                name: stageDetailData?.stageName || "",
-              }}
-              onActiveDeploymentChanged={refreshStageDetailData}
-            />
+            {stagesListData && stagesListData.length > 0 ? (
+              <DeploymentList
+                selectedStage={{
+                  activeDeploymentId: stageDetailData?.activeDeploymentId || "",
+                  stageId: stageDetailData?.stageId || "",
+                  name: stageDetailData?.stageName || "",
+                }}
+                onActiveDeploymentChanged={refreshStageDetailData}
+              />
+            ) : (
+              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex-1 min-h-[calc(100vh-450px)]" />
+            )}
           </div>
         </div>
       </div>
