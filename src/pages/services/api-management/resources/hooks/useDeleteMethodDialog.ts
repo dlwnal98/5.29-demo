@@ -34,6 +34,13 @@ export function useDeleteMethodDialog({
       onMethodDeleted?.();
       onOpenChange(false);
     },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message
+        || error?.response?.data?.detail
+        || error?.message
+        || '메서드 삭제 중 오류가 발생했습니다.';
+      toast.error(errorMessage);
+    },
   });
 
   const handleDeleteMethod = () => {

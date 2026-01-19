@@ -174,8 +174,12 @@ export function useCreateMethodPage() {
       }
       handleBack();
     },
-    onError: () => {
-      toast.error("메서드 생성에 실패하였습니다.");
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message
+        || error?.response?.data?.detail
+        || error?.message
+        || '메서드 생성 중 오류가 발생했습니다.';
+      toast.error(errorMessage);
     },
   });
 

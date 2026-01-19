@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface CreateEndpointDialogViewProps {
   isOpen: boolean;
@@ -17,9 +18,11 @@ interface CreateEndpointDialogViewProps {
   description: string;
   hasUrlError: boolean;
   isSubmitDisabled: boolean;
+  routeOption: string;
   onClose: () => void;
   onRouteUrlChange: (value: string) => void;
   onRouteNameChange: (value: string) => void;
+  onRouteOptionChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
   onSubmit: () => void;
 }
@@ -31,9 +34,11 @@ export default function CreateEndpointDialogView({
   description,
   hasUrlError,
   isSubmitDisabled,
+  routeOption,
   onClose,
   onRouteUrlChange,
   onRouteNameChange,
+  onRouteOptionChange,
   onDescriptionChange,
   onSubmit,
 }: CreateEndpointDialogViewProps) {
@@ -74,6 +79,32 @@ export default function CreateEndpointDialogView({
                 한글은 입력이 불가합니다.
               </span>
             )}
+          </div>
+          <div>
+            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 block">
+              Route Option <span className="text-red-500">*</span>
+            </Label>
+            <RadioGroup
+              value={routeOption}
+              onValueChange={(value) => onRouteOptionChange(value)}
+              className="grid grid-cols-2 gap-4">
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="AUTO" id="AUTO" />
+                <Label
+                  htmlFor="AUTO"
+                  className={`text-sm hover:cursor-pointer`}>
+                  자동 생성
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="DIRECT" id="DIRECT" />
+                <Label
+                  htmlFor="DIRECT"
+                  className={`text-sm hover:cursor-pointer`}>
+                  직접 입력
+                </Label>
+              </div>
+            </RadioGroup>
           </div>
           <div>
             <Label htmlFor="create-description" className="text-sm font-medium text-gray-700 dark:text-gray-300">

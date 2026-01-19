@@ -47,8 +47,12 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
       toast.success('메서드 요청 설정이 변경되었습니다.');
       setIsEditMode(false);
     },
-    onError: () => {
-      toast.error('메서드 요청 설정 변경에 실패하였습니다.');
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message
+        || error?.response?.data?.detail
+        || error?.message
+        || '메서드 요청 설정 변경 중 오류가 발생했습니다.';
+      toast.error(errorMessage);
     },
   });
 

@@ -21,8 +21,10 @@ export default function CreateEndpointDialog({
     description,
     hasUrlError,
     isSubmitDisabled,
+    routeOption,
     onRouteUrlChange,
     onRouteNameChange,
+    onRouteOptionChange,
     onDescriptionChange,
     onSubmit,
   } = useCreateEndpointDialog({
@@ -37,12 +39,14 @@ export default function CreateEndpointDialog({
         isOpen={isCreateModalOpen}
         routeUrl={routeUrl}
         routeName={routeName}
+        routeOption={routeOption}
         description={description}
         hasUrlError={hasUrlError}
         isSubmitDisabled={isSubmitDisabled}
         onClose={handleModalClose}
         onRouteUrlChange={onRouteUrlChange}
         onRouteNameChange={onRouteNameChange}
+        onRouteOptionChange={onRouteOptionChange}
         onDescriptionChange={onDescriptionChange}
         onSubmit={onSubmit}
       />

@@ -42,8 +42,12 @@ export default function CreateModelDialog({
       toast.success('모델이 성공적으로 생성되었습니다.');
       onOpenChange(false);
     },
-    onError: () => {
-      toast.error('유효한 JSON 형식이 아닙니다!');
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message
+        || error?.response?.data?.detail
+        || error?.message
+        || '모델 생성 중 오류가 발생했습니다.';
+      toast.error(errorMessage);
     },
   });
 

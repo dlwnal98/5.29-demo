@@ -35,6 +35,7 @@ export default function ApiManagementPage() {
     onAPIExport,
     onOpenExportModal,
     onCloseExportModal,
+    onAfterCreate,
   } = useApiManagementPage();
 
   return (
@@ -60,6 +61,7 @@ export default function ApiManagementPage() {
           open={isCreateModalOpen}
           onOpenChange={(open) => !open && onCloseCreateModal()}
           apiList={filteredPlans}
+          onAfterCreate={onAfterCreate}
         />
 
         <ApiModifyDialog

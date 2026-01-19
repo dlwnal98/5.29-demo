@@ -59,8 +59,12 @@ export function SelectAPIKeyModal({
             toast.success('성공');
             onOpenChange(false);
         },
-        onError: () => {
-            toast.error('실패');
+        onError: (error: any) => {
+            const errorMessage = error?.response?.data?.message
+                || error?.response?.data?.detail
+                || error?.message
+                || 'API 키 생성 중 오류가 발생했습니다.';
+            toast.error(errorMessage);
             setApiKeyToggle(false);
         },
     });

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useClipboard } from "use-clipboard-copy";
 import { useAuthStore } from "@/stores/store";
@@ -49,11 +49,15 @@ export function useApiKeysPage() {
 
   const clipboard = useClipboard();
 
+  // Flag to navigate to last page after creation
+  const pendingNavigateToLastPageRef = useRef(false);
+
   // API Key 생성
   const { mutate: createAPIKey } = useCreateAPIKey({
     onSuccess: () => {
       setIsCreateModalOpen(false);
       setNewApiKey({ keyName: "", description: "" });
+      pendingNavigateToLastPageRef.current = true;
       toast.success("API키가 생성되었습니다.");
     },
   });
@@ -85,7 +89,10 @@ export function useApiKeysPage() {
   // 페이지네이션
   const totalPages = Math.ceil(filteredApiKeys.length / usersPerPage);
   const currentApiKeys = useMemo(() => {
-    const startIndex = (currentPage - 1) * usersPerPage;
+    // Auto-adjust page range (prevent empty page rendering after deletion)
+    const maxPage = Math.max(1, Math.ceil(filteredApiKeys.length / usersPerPage));
+    const safePage = Math.min(currentPage, maxPage);
+    const startIndex = (safePage - 1) * usersPerPage;
     const endIndex = startIndex + usersPerPage;
     return filteredApiKeys.slice(startIndex, endIndex);
   }, [filteredApiKeys, currentPage]);
@@ -95,6 +102,22 @@ export function useApiKeysPage() {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
+
+  // Validate page range on data change (prevent empty page after deletion)
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
+  // Navigate to last page after creation
+  useEffect(() => {
+    if (pendingNavigateToLastPageRef.current && filteredApiKeys.length > 0) {
+      pendingNavigateToLastPageRef.current = false;
+      const lastPage = Math.ceil(filteredApiKeys.length / usersPerPage);
+      setCurrentPage(lastPage);
+    }
+  }, [filteredApiKeys.length]);
 
   // Handlers
   const handleCreate = () => {

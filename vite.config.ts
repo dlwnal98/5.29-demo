@@ -109,6 +109,14 @@ export default defineConfig({
         target: 'http://1.224.162.188:58084',
         changeOrigin: true,
       },
+      '/api/v1/invoke': {
+        target: 'http://1.224.162.188:58084',
+        changeOrigin: true,
+      },
+      '/api/v1/metrics': {
+        target: 'http://1.224.162.188:58084',
+        changeOrigin: true,
+      },
       '/api/v1/gateway/stage': {
         target: 'https://1.224.162.188:18082',
         changeOrigin: true,

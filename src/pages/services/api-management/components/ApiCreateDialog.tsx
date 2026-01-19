@@ -32,6 +32,7 @@ interface ApiCreateModalProps {
     open: boolean;
     apiList: APIListData[];
     onOpenChange: (open: boolean) => void;
+    onAfterCreate?: () => void;
 }
 
 const ApiCreateDialog = ({
@@ -40,6 +41,7 @@ const ApiCreateDialog = ({
     open,
     apiList,
     onOpenChange,
+    onAfterCreate,
 }: ApiCreateModalProps) => {
     const [createApiForm, setCreateApiForm] = useState({
         tenantId: tenantId,
@@ -118,7 +120,15 @@ const ApiCreateDialog = ({
         onSuccess: () => {
             onOpenChange(false);
             resetForm();
+            onAfterCreate?.();
             toast.success(`API '${createApiForm.name}'이(가) 생성되었습니다.`);
+        },
+        onError: (error: any) => {
+            const errorMessage = error?.response?.data?.message
+                || error?.response?.data?.detail
+                || error?.message
+                || 'API 생성 중 오류가 발생했습니다.';
+            toast.error(errorMessage);
         },
     });
 
@@ -127,15 +137,24 @@ const ApiCreateDialog = ({
         onSuccess: () => {
             onOpenChange(false);
             resetForm();
+            onAfterCreate?.();
             toast.success(`API '${createApiForm.name}'이(가) 생성되었습니다.`);
+        },
+        onError: (error: any) => {
+            const errorMessage = error?.response?.data?.message
+                || error?.response?.data?.detail
+                || error?.message
+                || 'API 생성 중 오류가 발생했습니다.';
+            toast.error(errorMessage);
         },
     });
 
-    // Swagger로 API 생성
+    // OpenAPI API 생성
     const { mutate: uploadOpenAPIDoc } = useUploadOpenAPIDocCreateAPI({
         onSuccess: () => {
             onOpenChange(false);
             resetForm();
+            onAfterCreate?.();
             toast.success('Swagger 문서로 API가 생성되었습니다.');
         },
         onError: (error: any) => {

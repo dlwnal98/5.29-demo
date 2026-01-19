@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/store";
 import { setSelectedApiInfo } from "@/constants/app-layout-data";
@@ -45,7 +45,30 @@ export function useApiManagementPage() {
     );
   }, [apisData, searchTerm]);
 
-  const totalPages = Math.ceil(filteredPlans.length / usersPerPage);
+  const totalPages = apisData?.totalPages ?? 0;
+  const totalElements = apisData?.totalElements ?? 0;
+
+  // Flag to navigate to last page after creation
+  const pendingNavigateToLastPageRef = useRef(false);
+
+  // Validate page range on data change (prevent empty page after deletion)
+  useEffect(() => {
+    if (totalPages > 0 && currentPage >= totalPages) {
+      setCurrentPage(totalPages - 1);
+    }
+  }, [totalPages, currentPage]);
+
+  // Navigate to last page after creation
+  useEffect(() => {
+    if (pendingNavigateToLastPageRef.current && totalPages > 0) {
+      pendingNavigateToLastPageRef.current = false;
+      setCurrentPage(totalPages - 1);
+    }
+  }, [totalElements]);
+
+  const handleAfterCreate = useCallback(() => {
+    pendingNavigateToLastPageRef.current = true;
+  }, []);
 
   const handleApiClick = useCallback(
     (api: APIListData) => {
@@ -143,5 +166,6 @@ export function useApiManagementPage() {
     onAPIExport: handleApiExport,
     onOpenExportModal: handleOpenExportModal,
     onCloseExportModal: handleCloseExportModal,
+    onAfterCreate: handleAfterCreate,
   };
 }

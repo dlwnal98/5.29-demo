@@ -17,6 +17,7 @@ export function useCreateEndpointDialog({
   const [endpointForm, setEndpointForm] = useState({
     routeName: '',
     routeUrl: "",
+    routeOption: "AUTO",
     description: "",
   });
   const [hasUrlError, setHasUrlError] = useState(false);
@@ -27,8 +28,12 @@ export function useCreateEndpointDialog({
       resetForm();
       onClose();
     },
-    onError: () => {
-      toast.error("endpoint를 생성하는 데 실패하였습니다.");
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message
+        || error?.response?.data?.detail
+        || error?.message
+        || 'endpoint 생성 중 오류가 발생했습니다.';
+      toast.error(errorMessage);
     },
   });
 
@@ -45,6 +50,10 @@ export function useCreateEndpointDialog({
     setEndpointForm((prev) => ({ ...prev, routeName: value }));
   };
 
+  const handleRouteOptionChange = (value: string) => {
+    setEndpointForm((prev) => ({ ...prev, routeOption: value }));
+  };
+
   const handleDescriptionChange = (value: string) => {
     setEndpointForm((prev) => ({ ...prev, description: value }));
   };
@@ -58,6 +67,7 @@ export function useCreateEndpointDialog({
           tenantId,
           routeName: endpointForm.routeName,
           routeUrl: endpointForm.routeUrl,
+          // routeOption: endpointForm.routeOption,
           description: endpointForm.description,
           createdBy,
         });
@@ -68,7 +78,7 @@ export function useCreateEndpointDialog({
   };
 
   const resetForm = () => {
-    setEndpointForm({ routeName: '', routeUrl: "", description: "" });
+    setEndpointForm({ routeName: '', routeUrl: "", routeOption: '', description: "" });
     setHasUrlError(false);
   };
 
@@ -77,11 +87,13 @@ export function useCreateEndpointDialog({
   return {
     routeName: endpointForm.routeName,
     routeUrl: endpointForm.routeUrl,
+    routeOption: endpointForm.routeOption,
     description: endpointForm.description,
     hasUrlError,
     isSubmitDisabled,
     onRouteNameChange: handleRouteNameChange,
     onRouteUrlChange: handleRouteUrlChange,
+    onRouteOptionChange: handleRouteOptionChange,
     onDescriptionChange: handleDescriptionChange,
     onSubmit: handleSubmit,
   };

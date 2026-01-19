@@ -60,8 +60,12 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
       toast.success('메서드가 성공적으로 수정되었습니다.');
       setIsEditMode(false);
     },
-    onError: () => {
-      toast.error('메서드 수정에 실패했습니다.');
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message
+        || error?.response?.data?.detail
+        || error?.message
+        || '메서드 수정 중 오류가 발생했습니다.';
+      toast.error(errorMessage);
     },
   });
 
@@ -72,8 +76,12 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
       setIsMethodDeleteDialogOpen(false);
       setMethodToDelete(null);
     },
-    onError: () => {
-      toast.error('메서드 삭제에 실패했습니다.');
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message
+        || error?.response?.data?.detail
+        || error?.message
+        || '메서드 삭제 중 오류가 발생했습니다.';
+      toast.error(errorMessage);
     },
   });
 

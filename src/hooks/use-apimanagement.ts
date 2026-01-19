@@ -1,4 +1,4 @@
-import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
+import { useQueryClient, useMutation, useQuery, UseMutationOptions, keepPreviousData } from '@tanstack/react-query';
 import { APIListData, CreateAPIProps, ModifyAPIProps, CloneCreateAPIProps } from '@/apis/api-management.api';
 import { getAPIList, createAPI, cloneCreateAPI, modifyAPI, deleteAPI, uploadOpenAPIDocCreateAPI } from '@/apis/api-management.api';
 
@@ -11,6 +11,7 @@ export function useGetAPIList(tenantId: string, page?: number, size?: number) {
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
+    placeholderData: keepPreviousData, // 페이지 전환 시 이전 데이터 유지 (깜빡임 방지)
   });
 }
 
