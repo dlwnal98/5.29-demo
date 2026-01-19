@@ -27,7 +27,7 @@ export function useActiveDeploymentChange({
   // 배포 활성화 mutation
   const { mutate: changeDeployment } = useActivatePreviousDeployment({
     onSuccess: async () => {
-      toast.success('배포가 성공적으로 변경되었습니다.');
+      toast.success('Deployment changed successfully.');
       onOpenChange(false);
       setSelectedDeploymentId(null);
       // stageDetailData 갱신
@@ -36,7 +36,7 @@ export function useActiveDeploymentChange({
       }
     },
     onError: () => {
-      toast.error('배포 변경에 실패하였습니다.');
+      toast.error('Deployment change failed.');
     },
   });
 

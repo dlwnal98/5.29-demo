@@ -70,14 +70,14 @@ export default function ApiManagementPageView({
             APIs
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            API 계획을 관리하고 배포하세요.
+            Manage and deploy your API plans.
           </p>
         </div>
         <div className="flex items-center space-x-2">
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
-              placeholder="검색어를 입력하세요."
+              placeholder="Enter search term"
               value={searchTerm}
               onChange={(e) => onSearchTermChange(e.target.value)}
               className="pl-10"
@@ -89,7 +89,7 @@ export default function ApiManagementPageView({
             className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg"
           >
             <Plus className="h-4 w-4" />
-            API 생성
+            Create API
           </Button>
         </div>
       </div>
@@ -102,10 +102,10 @@ export default function ApiManagementPageView({
             <TableHeader className="hover:bg-white dark:hover:bg-transparent">
               <TableRow className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
                 <TableHead className="w-[10%] text-center">ID</TableHead>
-                <TableHead className="w-[30%] text-center">이름</TableHead>
-                <TableHead className="w-auto text-center">설명</TableHead>
-                <TableHead className="w-[10%] text-center">수정일자</TableHead>
-                <TableHead className="w-[8%] text-center">작업</TableHead>
+                <TableHead className="w-[30%] text-center">Name</TableHead>
+                <TableHead className="w-auto text-center">Description</TableHead>
+                <TableHead className="w-[10%] text-center">Updated Date</TableHead>
+                <TableHead className="w-[8%] text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -151,7 +151,7 @@ export default function ApiManagementPageView({
                             onOpenExportModal(plan);
                           }}
                           className="text-white hover:text-white hover:bg-green-500 bg-green-500/80"
-                          title="API 내보내기"
+                          title="Export API"
                         >
                           <Download className="h-4 w-4" />
                         </Button>
@@ -176,7 +176,7 @@ export default function ApiManagementPageView({
                     colSpan={6}
                     className="text-center py-8 text-gray-500"
                   >
-                    검색 결과가 없습니다.
+                    No search results found.
                   </TableCell>
                 </TableRow>
               )}

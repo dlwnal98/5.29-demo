@@ -151,7 +151,7 @@ export function StageResourceTree({
             {/* 로딩 또는 빈 상태 */}
             {isStageExpanded && stageResources.length === 0 && (
               <div className="ml-6 py-2 text-sm text-gray-500 dark:text-gray-400">
-                리소스를 불러오는 중...
+                Loading resources...
               </div>
             )}
           </div>
@@ -161,7 +161,7 @@ export function StageResourceTree({
       {/* 스테이지가 없을 때 */}
       {(!stagesListData || stagesListData.length === 0) && (
         <div className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-          생성된 스테이지가 없습니다.
+          No stages created.
         </div>
       )}
     </div>

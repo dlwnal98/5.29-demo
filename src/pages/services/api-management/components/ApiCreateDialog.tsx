@@ -90,7 +90,7 @@ const ApiCreateDialog = ({
                 };
                 reader.readAsText(file);
             } else {
-                toast.error('JSON, YAML 파일만 업로드 가능합니다.');
+                toast.error('Only JSON and YAML files can be uploaded.');
             }
         }
     };
@@ -121,13 +121,13 @@ const ApiCreateDialog = ({
             onOpenChange(false);
             resetForm();
             onAfterCreate?.();
-            toast.success(`API '${createApiForm.name}'이(가) 생성되었습니다.`);
+            toast.success(`API '${createApiForm.name}' has been created.`);
         },
         onError: (error: any) => {
             const errorMessage = error?.response?.data?.message
                 || error?.response?.data?.detail
                 || error?.message
-                || 'API 생성 중 오류가 발생했습니다.';
+                || 'An error occurred while creating API.';
             toast.error(errorMessage);
         },
     });
@@ -138,13 +138,13 @@ const ApiCreateDialog = ({
             onOpenChange(false);
             resetForm();
             onAfterCreate?.();
-            toast.success(`API '${createApiForm.name}'이(가) 생성되었습니다.`);
+            toast.success(`API '${createApiForm.name}' has been created.`);
         },
         onError: (error: any) => {
             const errorMessage = error?.response?.data?.message
                 || error?.response?.data?.detail
                 || error?.message
-                || 'API 생성 중 오류가 발생했습니다.';
+                || 'An error occurred while creating API.';
             toast.error(errorMessage);
         },
     });
@@ -155,13 +155,13 @@ const ApiCreateDialog = ({
             onOpenChange(false);
             resetForm();
             onAfterCreate?.();
-            toast.success('Swagger 문서로 API가 생성되었습니다.');
+            toast.success('API has been created from Swagger document.');
         },
         onError: (error: any) => {
             const errorMessage = error?.response?.data?.message
                 || error?.response?.data?.errors?.[0]?.detail
                 || error?.message
-                || 'API 생성 중 오류가 발생했습니다.';
+                || 'An error occurred while creating API.';
             toast.error(errorMessage);
         },
     });
@@ -170,7 +170,7 @@ const ApiCreateDialog = ({
     const handleCreateApi = () => {
         if (apiType === 'new') {
             if (!createApiForm.name.trim()) {
-                toast.error('API 이름을 입력해주세요.');
+                toast.error('Please enter the API name.');
                 return;
             }
             if (tenantId && userKey) {
@@ -181,11 +181,11 @@ const ApiCreateDialog = ({
 
         if (apiType === 'copy') {
             if (!createApiForm.name.trim()) {
-                toast.error('API 이름을 입력해주세요.');
+                toast.error('Please enter the API name.');
                 return;
             }
             if (!sourcePlanId) {
-                toast.error('복사할 API를 선택해주세요.');
+                toast.error('Please select an API to copy.');
                 return;
             }
             cloneCreateAPI({
@@ -200,7 +200,7 @@ const ApiCreateDialog = ({
 
         if (apiType === 'swagger') {
             if (!createApiForm.swaggerContent.trim()) {
-                toast.error('Swagger 내용을 입력하거나 파일을 업로드해주세요.');
+                toast.error('Please enter Swagger content or upload a file.');
                 return;
             }
             uploadOpenAPIDoc({
@@ -238,13 +238,13 @@ const ApiCreateDialog = ({
                     <div className="space-y-4">
                         <div>
                             <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                                복사할 API 선택 <span className="text-red-500">*</span>
+                                Select API to Copy <span className="text-red-500">*</span>
                             </Label>
                             <Select
                                 value={sourcePlanId ? sourcePlanId : ''}
                                 onValueChange={(value) => setSourcePlanId(value)}>
                                 <SelectTrigger className="!h-[50px]">
-                                    <SelectValue placeholder="복사할 API를 선택하세요" />
+                                    <SelectValue placeholder="Select API to copy" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {apiList?.map((api) => (
@@ -284,7 +284,7 @@ const ApiCreateDialog = ({
                                             className="flex flex-col items-center space-y-3 w-full h-full cursor-pointer mb-2 text-blue-600 p-8 ">
                                             <Upload className="h-8 w-8 text-blue-600 mx-auto" />
                                             <p className="text-gray-600">
-                                                파일을 여기로 드래그하거나 클릭하여 업로드하세요
+                                                Drag file here or click to upload
                                             </p>
                                         </label>
                                     </div>
@@ -293,17 +293,17 @@ const ApiCreateDialog = ({
                                         <label
                                             htmlFor="swagger-upload"
                                             className="flex items-center text-[12px] font-medium cursor-pointer text-blue-600 hover:text-blue-700 px-4 py-2 border border-blue-300 rounded-md hover:bg-blue-50 transition-colors">
-                                            <Upload className="h-4 w-4 text-blue-600 mx-auto mr-2" /> 파일 선택
+                                            <Upload className="h-4 w-4 text-blue-600 mx-auto mr-2" /> Select File
                                         </label>
                                         <p className="ml-3 text-sm text-green-600 font-medium">
-                                            선택된 파일: {swaggerFile?.name}
+                                            Selected file: {swaggerFile?.name}
                                         </p>
                                     </div>
                                 )}
                                 <div className="grid grid-cols-4 gap-4">
                                     <div className="col-span-4">
                                         <Textarea
-                                            placeholder="Swagger JSON 또는 YAML 내용을 입력하세요..."
+                                            placeholder="Enter Swagger JSON or YAML content..."
                                             value={createApiForm.swaggerContent}
                                             onChange={(e) => {
                                                 setCreateApiForm((prev) => ({ ...prev, swaggerContent: e.target.value }));
@@ -317,7 +317,7 @@ const ApiCreateDialog = ({
                                 {createApiForm.swaggerContent ? (
                                     <div className="border rounded-lg bg-gray-50">
                                         <div className="p-3 border-b bg-white">
-                                            <Label className="text-sm font-medium text-gray-700">Swagger 미리보기</Label>
+                                            <Label className="text-sm font-medium text-gray-700">Swagger Preview</Label>
                                         </div>
                                         <div className="p-4">
                                             <pre className="text-xs bg-white p-4 rounded border max-h-96 overflow-auto font-mono">
@@ -327,8 +327,8 @@ const ApiCreateDialog = ({
                                     </div>
                                 ) : (
                                     <div className="text-center py-12 text-gray-500">
-                                        <p>미리보기할 내용이 없습니다.</p>
-                                        <p className="text-sm">Swagger 탭에서 내용을 입력해주세요.</p>
+                                        <p>No content to preview.</p>
+                                        <p className="text-sm">Please enter content in the Swagger tab.</p>
                                     </div>
                                 )}
                             </TabsContent>
@@ -356,17 +356,16 @@ const ApiCreateDialog = ({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto overflow-x-hidden">
                 <DialogHeader>
-                    <DialogTitle className="text-xl font-bold text-blue-600">API Plan 생성</DialogTitle>
+                    <DialogTitle className="text-xl font-bold text-blue-600">Create API Plan</DialogTitle>
                     <DialogDescription className="text-gray-600 dark:text-gray-400">
-                        API는 3가지 방법으로 생성할 수 있습니다. (<span className="text-red-500">*</span> 필수
-                        입력 사항입니다.)
+                        APIs can be created in 3 ways. (<span className="text-red-500">*</span> Required fields)
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-6 py-4">
                     {/* API 생성 유형 */}
                     <div>
                         <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 block">
-                            API 생성 유형 <span className="text-red-500">*</span>
+                            API Creation Type <span className="text-red-500">*</span>
                         </Label>
                         <RadioGroup
                             value={apiType}
@@ -382,7 +381,7 @@ const ApiCreateDialog = ({
                                 <Label
                                     htmlFor="new"
                                     className={`text-sm ${apiType === 'new' ? 'text-blue-600 font-medium' : ''} hover:cursor-pointer`}>
-                                    새로운 API
+                                    New API
                                 </Label>
                             </div>
                             <div className="flex items-center space-x-2">
@@ -390,7 +389,7 @@ const ApiCreateDialog = ({
                                 <Label
                                     htmlFor="copy"
                                     className={`text-sm ${apiType === 'copy' ? 'text-blue-600 font-medium' : ''} hover:cursor-pointer`}>
-                                    API 복사
+                                    Copy API
                                 </Label>
                             </div>
                             <div className="flex items-center space-x-2">
@@ -398,7 +397,7 @@ const ApiCreateDialog = ({
                                 <Label
                                     htmlFor="swagger"
                                     className={`text-sm ${apiType === 'swagger' ? 'text-blue-600 font-medium' : ''} hover:cursor-pointer`}>
-                                    OpenAPI에서 가져오기
+                                    Import from OpenAPI
                                 </Label>
                             </div>
                             {/* <div className="flex items-center space-x-2">
@@ -417,11 +416,11 @@ const ApiCreateDialog = ({
 
                             <div>
                                 <Label htmlFor="api-name" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                                    API 이름 <span className="text-red-500">*</span>
+                                    API Name <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
                                     id="api-name"
-                                    placeholder="API 이름을 입력하세요"
+                                    placeholder="Enter API name"
                                     value={createApiForm.name}
                                     onChange={(e) => setCreateApiForm((prev) => ({ ...prev, name: e.target.value }))}
                                     className="w-full"
@@ -430,11 +429,11 @@ const ApiCreateDialog = ({
                             {/* 설명 */}
                             <div>
                                 <Label htmlFor="description" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                                    설명
+                                    Description
                                 </Label>
                                 <Textarea
                                     id="description"
-                                    placeholder="설명을 입력하세요"
+                                    placeholder="Enter description"
                                     value={createApiForm.description}
                                     onChange={(e) =>
                                         setCreateApiForm((prev) => ({ ...prev, description: e.target.value }))
@@ -443,7 +442,7 @@ const ApiCreateDialog = ({
                                     maxLength={300}
                                 />
                                 <div className="text-right text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                    {createApiForm.description.length}/300 자
+                                    {createApiForm.description.length}/300 characters
                                 </div>
                             </div>
 
@@ -454,13 +453,13 @@ const ApiCreateDialog = ({
                 </div>
                 <DialogFooter className="gap-2">
                     <Button variant="outline" onClick={handleCancel}>
-                        취소
+                        Cancel
                     </Button>
                     <Button
                         onClick={handleCreateApi}
                         disabled={!isValidCreateApi}
                         className="bg-blue-500 hover:bg-blue-600 text-white">
-                        생성
+                        Create
                     </Button>
                 </DialogFooter>
             </DialogContent>

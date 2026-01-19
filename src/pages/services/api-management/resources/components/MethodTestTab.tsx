@@ -36,14 +36,13 @@ export function MethodTestTab({
       {/* Request Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 !text-lg font-bold">요청 설정</CardTitle>
+          <CardTitle className="flex items-center gap-2 !text-lg font-bold">Request Settings</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Method and URL */}
           <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
             <span
-              className={`px-3 py-1 rounded text-sm font-mono font-bold ${
-                selectedMethod.type === 'GET'
+              className={`px-3 py-1 rounded text-sm font-mono font-bold ${selectedMethod.type === 'GET'
                   ? 'bg-green-100 text-green-800'
                   : selectedMethod.type === 'POST'
                     ? 'bg-blue-100 text-blue-800'
@@ -52,7 +51,7 @@ export function MethodTestTab({
                       : selectedMethod.type === 'DELETE'
                         ? 'bg-red-100 text-red-800'
                         : 'bg-gray-100 text-gray-800'
-              }`}>
+                }`}>
               {selectedMethod.type}
             </span>
             <code className="flex-1 text-sm bg-white dark:bg-gray-700 px-3 py-2 rounded border">
@@ -65,7 +64,7 @@ export function MethodTestTab({
               {isTestLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  테스트 중...
+                  Testing...
                 </>
               ) : (
                 <>
@@ -308,7 +307,7 @@ export function MethodTestTab({
       {testResponse && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 !text-lg font-bold">응답 결과</CardTitle>
+            <CardTitle className="flex items-center gap-2 !text-lg font-bold">Response Result</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -318,13 +317,12 @@ export function MethodTestTab({
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">Status:</span>
                     <span
-                      className={`px-2 py-1 rounded text-sm font-mono ${
-                        testResponse.status >= 200 && testResponse.status < 300
+                      className={`px-2 py-1 rounded text-sm font-mono ${testResponse.status >= 200 && testResponse.status < 300
                           ? 'bg-green-100 text-green-800'
                           : testResponse.status >= 400
                             ? 'bg-red-100 text-red-800'
                             : 'bg-yellow-100 text-yellow-800'
-                      }`}>
+                        }`}>
                       {testResponse.status} {testResponse.statusText}
                     </span>
                   </div>
@@ -421,9 +419,9 @@ export function MethodTestTab({
       {!testResponse && (
         <div className="text-center py-12 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
           <Code className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500 dark:text-gray-400 mb-2">응답 대기 중</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-2">Response pending</p>
           <p className="text-sm text-gray-400 dark:text-gray-500">
-            Send 버튼을 클릭하여 API를 테스트하세요
+            Click the Send button to test the API.
           </p>
         </div>
       )}

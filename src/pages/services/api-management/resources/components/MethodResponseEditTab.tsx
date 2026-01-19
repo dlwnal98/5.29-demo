@@ -141,22 +141,22 @@ export function MethodResponseEditTab({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-3 !text-lg">
-            메서드 응답
+            Method Response
             <Button
               size="sm"
               variant={'outline'}
               className="h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
               onClick={addResponse}>
               <Plus className="h-4 w-4" />
-              <span className="font-bold">응답 추가</span>
+              <span className="font-bold">Add Response</span>
             </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
           {formData.responses.length === 0 ? (
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-              <p className="mb-4">응답이 정의되지 않았습니다.</p>
-              <p className="text-sm">응답 추가 버튼을 클릭하여 새로운 응답을 추가하세요.</p>
+              <p className="mb-4">No response defined.</p>
+              <p className="text-sm">Click the Add Response button to add a new response.</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -184,16 +184,16 @@ export function MethodResponseEditTab({
                         {response.statusCode || '???'}
                       </span>
                       <span className="text-sm text-gray-600 dark:text-gray-400">
-                        {response.description || '설명 없음'}
+                        {response.description || 'Description None'}
                       </span>
                       {response.headers.length > 0 && (
                         <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
-                          헤더 {response.headers.length}개
+                          Header {response.headers.length}
                         </span>
                       )}
                       {response.modelId && (
                         <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">
-                          모델 설정됨
+                          Model Set
                         </span>
                       )}
                     </div>
@@ -215,14 +215,14 @@ export function MethodResponseEditTab({
                       {/* 상태 코드 & 설명 */}
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label>상태 코드 <span className="text-red-500">*</span></Label>
+                          <Label>Status Code <span className="text-red-500">*</span></Label>
                           <Select
                             value={response.statusCode}
                             onValueChange={(value) =>
                               updateResponse(index, 'statusCode', value)
                             }>
                             <SelectTrigger>
-                              <SelectValue placeholder="상태 코드 선택" />
+                              <SelectValue placeholder="Status Code Select" />
                             </SelectTrigger>
                             <SelectContent>
                               {commonStatusCodes.map((status) => (
@@ -236,7 +236,7 @@ export function MethodResponseEditTab({
                             </SelectContent>
                           </Select>
                           <p className="text-xs text-gray-500">
-                            또는 직접 입력:
+                            Or directly input:
                             <Input
                               value={response.statusCode}
                               onChange={(e) =>
@@ -249,13 +249,13 @@ export function MethodResponseEditTab({
                         </div>
 
                         <div className="space-y-2">
-                          <Label>설명</Label>
+                          <Label>Description</Label>
                           <Textarea
                             value={response.description}
                             onChange={(e) =>
                               updateResponse(index, 'description', e.target.value)
                             }
-                            placeholder="이 응답에 대한 설명을 입력하세요"
+                            placeholder="Enter a description for this response"
                             rows={3}
                           />
                         </div>
@@ -263,17 +263,17 @@ export function MethodResponseEditTab({
 
                       {/* 응답 본문 (모델) */}
                       <div className="space-y-2">
-                        <Label>응답 본문 (모델)</Label>
+                        <Label>Response Body (Model)</Label>
                         <Select
                           value={response.modelId || '__none__'}
                           onValueChange={(value) =>
                             updateResponse(index, 'modelId', value === '__none__' ? '' : value)
                           }>
                           <SelectTrigger>
-                            <SelectValue placeholder="모델 선택 (선택사항)" />
+                            <SelectValue placeholder="Model Select (Optional)" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="__none__">없음</SelectItem>
+                            <SelectItem value="__none__">None</SelectItem>
                             {modelList?.map((model) => (
                               <SelectItem key={model.modelId} value={model.modelId}>
                                 {model.modelName}
@@ -282,34 +282,34 @@ export function MethodResponseEditTab({
                           </SelectContent>
                         </Select>
                         <p className="text-xs text-gray-500">
-                          응답 본문의 스키마를 정의할 모델을 선택하세요.
+                          Select the model to define the schema of the response body.
                         </p>
                       </div>
 
                       {/* 응답 헤더 */}
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <Label>응답 헤더</Label>
+                          <Label>Response Header</Label>
                           <Button
                             size="sm"
                             variant="outline"
                             className="h-[25px] !gap-1 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
                             onClick={() => addResponseHeader(index)}>
                             <Plus className="h-3 w-3" />
-                            <span className="text-xs font-bold">헤더 추가</span>
+                            <span className="text-xs font-bold">Header Add</span>
                           </Button>
                         </div>
 
                         {response.headers.length === 0 ? (
                           <div className="text-center py-4 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                            <p className="text-sm">정의된 응답 헤더가 없습니다.</p>
+                            <p className="text-sm">No defined response headers.</p>
                           </div>
                         ) : (
                           <div className="space-y-2">
                             <div className="grid grid-cols-12 gap-2 text-xs font-medium text-gray-500 px-2">
-                              <div className="col-span-4">헤더 이름</div>
-                              <div className="col-span-5">설명</div>
-                              <div className="col-span-2 text-center">필수</div>
+                              <div className="col-span-4">Header Name</div>
+                              <div className="col-span-5">Description</div>
+                              <div className="col-span-2 text-center">Required</div>
                               <div className="col-span-1"></div>
                             </div>
                             {response.headers.map((header, headerIndex) => (
@@ -327,7 +327,7 @@ export function MethodResponseEditTab({
                                         e.target.value
                                       )
                                     }
-                                    placeholder="헤더 이름"
+                                    placeholder="Header Name"
                                     className="h-8"
                                   />
                                 </div>
@@ -342,7 +342,7 @@ export function MethodResponseEditTab({
                                         e.target.value
                                       )
                                     }
-                                    placeholder="설명"
+                                    placeholder="Description"
                                     className="h-8"
                                   />
                                 </div>
@@ -387,7 +387,7 @@ export function MethodResponseEditTab({
       {/* 일반적인 응답 패턴 추가 도우미 */}
       <Card>
         <CardHeader>
-          <CardTitle className="!text-lg">빠른 응답 추가</CardTitle>
+          <CardTitle className="!text-lg">Quick Response Add</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
@@ -417,7 +417,7 @@ export function MethodResponseEditTab({
                     }
                   }}>
                   {status.code} {status.description}
-                  {isAdded && ' (추가됨)'}
+                  {isAdded && ' (Added)'}
                 </Button>
               );
             })}

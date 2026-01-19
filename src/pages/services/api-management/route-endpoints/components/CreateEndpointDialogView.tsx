@@ -80,7 +80,7 @@ export default function CreateEndpointDialogView({
               </span>
             )}
           </div>
-          <div>
+          {/* <div>
             <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 block">
               Route Option <span className="text-red-500">*</span>
             </Label>
@@ -105,7 +105,7 @@ export default function CreateEndpointDialogView({
                 </Label>
               </div>
             </RadioGroup>
-          </div>
+          </div> */}
           <div>
             <Label htmlFor="create-description" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Description
@@ -121,10 +121,10 @@ export default function CreateEndpointDialogView({
         </div>
         <DialogFooter className="flex space-x-2">
           <Button variant="outline" onClick={onClose}>
-            취소
+            Cancel
           </Button>
           <Button onClick={onSubmit} disabled={isSubmitDisabled}>
-            생성
+            Create
           </Button>
         </DialogFooter>
       </DialogContent>

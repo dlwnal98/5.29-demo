@@ -41,7 +41,7 @@ export function useModifyEndpointDialog({
 
   const { mutate: modifyEndpoint } = useModifyEndpoint({
     onSuccess: () => {
-      toast.success("endpoint가 수정되었습니다.");
+      toast.success("Endpoint modified successfully.");
       onClose();
       setIsModalOpen(false);
     },
@@ -49,7 +49,7 @@ export function useModifyEndpointDialog({
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || 'endpoint 수정 중 오류가 발생했습니다.';
+        || 'Endpoint modification failed.';
       toast.error(errorMessage);
     },
   });
@@ -85,7 +85,7 @@ export function useModifyEndpointDialog({
         });
       }
     } else {
-      toast.error("유효하지 않은 url 형식입니다.");
+      toast.error("Invalid URL format.");
     }
   };
 

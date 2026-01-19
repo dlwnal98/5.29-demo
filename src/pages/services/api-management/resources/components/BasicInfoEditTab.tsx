@@ -3,18 +3,23 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { MethodFormData, IntegrationTypeOption } from '../hooks/useMethodEditForm';
-import { Globe, Server, Cloud, Zap } from 'lucide-react';
+import { Globe, Server, Cloud, Zap, HelpCircle } from 'lucide-react';
 import { Method } from '@/types/resource';
+import { EndpointsData } from '@/apis/route-endpoints.api';
 
 interface BasicInfoEditTabProps {
   formData: MethodFormData;
   integrationTypeList: IntegrationTypeOption[];
   onChange: (updates: Partial<MethodFormData>) => void;
   selectedMethod: Method;
+  endpointList: EndpointsData[];
 }
 
-export function BasicInfoEditTab({ formData, integrationTypeList, onChange, selectedMethod }: BasicInfoEditTabProps) {
+export function BasicInfoEditTab({ formData, integrationTypeList, onChange, selectedMethod, endpointList }: BasicInfoEditTabProps) {
   const methodInfo = selectedMethod?.info as any;
   const getIntegrationIcon = (code: string) => {
     switch (code) {
@@ -34,13 +39,13 @@ export function BasicInfoEditTab({ formData, integrationTypeList, onChange, sele
   const getIntegrationDescription = (code: string) => {
     switch (code) {
       case 'HTTP':
-        return '백엔드 HTTP 엔드포인트로 요청을 프록시합니다.';
+        return 'Proxy the request to the backend HTTP endpoint.';
       case 'MOCK':
-        return '실제 백엔드 없이 Mock 응답을 반환합니다.';
+        return 'Return a mock response without a backend.';
       case 'AWS':
-        return 'AWS 서비스와 직접 통합합니다.';
+        return 'Integrate with AWS services directly.';
       case 'AWS_PROXY':
-        return 'AWS Lambda 함수로 요청을 프록시합니다.';
+        return 'Proxy the request to AWS Lambda function.';
       default:
         return '';
     }
@@ -50,33 +55,33 @@ export function BasicInfoEditTab({ formData, integrationTypeList, onChange, sele
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="!text-lg">기본 정보</CardTitle>
+          <CardTitle className="!text-lg">Basic Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>메서드 ID</Label>
+            <Label>Method ID</Label>
             <div className="text-sm font-mono bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded text-gray-600">
               {methodInfo?.['x-method-id'] || '-'}
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="summary">메서드 요약 <span className="text-red-500">*</span></Label>
+            <Label htmlFor="summary">Method Summary <span className="text-red-500">*</span></Label>
             <Input
               id="summary"
               value={formData.summary}
               onChange={(e) => onChange({ summary: e.target.value })}
-              placeholder="메서드에 대한 간단한 요약을 입력하세요"
+              placeholder="Enter a brief summary of the method"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">메서드 설명</Label>
+            <Label htmlFor="description">Method Description</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => onChange({ description: e.target.value })}
-              placeholder="메서드에 대한 상세 설명을 입력하세요"
+              placeholder="Enter a detailed description of the method"
               rows={3}
             />
           </div>
@@ -85,11 +90,11 @@ export function BasicInfoEditTab({ formData, integrationTypeList, onChange, sele
 
       <Card>
         <CardHeader>
-          <CardTitle className="!text-lg">통합 설정</CardTitle>
+          <CardTitle className="!text-lg">Integration Settings</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-3">
-            <Label>통합 유형 <span className="text-red-500">*</span></Label>
+            <Label>Integration Type <span className="text-red-500">*</span></Label>
             <RadioGroup
               value={formData.integrationType}
               onValueChange={(value) => onChange({ integrationType: value })}
@@ -126,19 +131,88 @@ export function BasicInfoEditTab({ formData, integrationTypeList, onChange, sele
                 <div className="text-sm font-mono bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded text-gray-600 break-all">
                   {methodInfo?.['x-route-endpoint'] ?? ''}{selectedMethod.resourcePath}
                 </div>
-                <p className="text-xs text-gray-500">API Gateway 엔드포인트 URL (읽기 전용)</p>
+                <p className="text-xs text-gray-500">API Gateway endpoint URL (Read-only)</p>
               </div>
 
               <div className="space-y-2 mt-4">
-                <Label htmlFor="routingEndpoint">백엔드 서비스 URL <span className="text-red-500">*</span></Label>
-                <Input
-                  id="routingEndpoint"
-                  value={formData.routingEndpoint}
-                  onChange={(e) => onChange({ routingEndpoint: e.target.value })}
-                  placeholder="https://api.example.com/endpoint"
-                />
+                <div className="flex items-center gap-3 mb-4">
+                  <Label htmlFor="routingEndpoint">
+                    Backend Service URL <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Label className="text-sm text-gray-600">Direct Input</Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="h-4 w-4 text-gray-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="relative top-[-10px] left-[60px] w-80 p-3 bg-slate-900 text-slate-50 shadow-xl border-none">
+                          <div className="space-y-2 text-xs leading-relaxed">
+                            <p className="font-semibold text-blue-400 border-b border-slate-700 pb-1 mb-2">
+                              Direct Input 가이드
+                            </p>
+                            <div className="flex gap-2">
+                              <span className="text-blue-400">•</span>
+                              <p>
+                                <strong>활성화 시:</strong> Routing Endpoint를 수정 없이 그대로 백엔드에 전달합니다.
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <span className="text-blue-400">•</span>
+                              <p>
+                                <strong>비활성화 시:</strong> Routing Endpoint와 리소스 경로가 자동으로 조합되어 적용됩니다.
+                              </p>
+                            </div>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <Switch
+                      checked={formData.isDirectUrlInput}
+                      onCheckedChange={(checked) => onChange({
+                        isDirectUrlInput: checked,
+                        routingMode: checked ? 'DIRECT' : 'PATH_APPEND'
+                      })}
+                    />
+                  </div>
+                </div>
+
+                {formData.isDirectUrlInput ? (
+                  <Input
+                    id="routingEndpoint"
+                    value={formData.routingEndpoint}
+                    onChange={(e) => onChange({ routingEndpoint: e.target.value })}
+                    placeholder="https://api.example.com/endpoint"
+                  />
+                ) : (
+                  <Select
+                    value={formData.selectedEndpointUrl || formData.routingEndpoint}
+                    onValueChange={(value) => onChange({
+                      selectedEndpointUrl: value,
+                      routingEndpoint: value
+                    })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={
+                        endpointList?.length > 0
+                          ? "Select an Endpoint URL"
+                          : "No endpoint URLs available."
+                      } />
+                    </SelectTrigger>
+                    {endpointList?.length > 0 && (
+                      <SelectContent>
+                        {endpointList?.map((endpoint) => (
+                          <SelectItem key={endpoint.id} value={endpoint.routeUrl} className="hover:cursor-pointer">
+                            {endpoint.routeUrl}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    )}
+                  </Select>
+                )}
+
                 <p className="text-xs text-gray-500">
-                  요청이 전달될 백엔드 서비스의 URL을 입력하세요.
+                  Enter the URL of the backend service to which the request will be forwarded.
                 </p>
               </div>
             </>
@@ -147,7 +221,7 @@ export function BasicInfoEditTab({ formData, integrationTypeList, onChange, sele
           {formData.integrationType === 'MOCK' && (
             <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 rounded-lg">
               <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                Mock 통합은 실제 백엔드 없이 미리 정의된 응답을 반환합니다. 응답 설정 탭에서 Mock 응답을 구성하세요.
+                Mock integration returns a pre-defined response without a backend. Configure the Mock response in the Response Settings tab.
               </p>
             </div>
           )}

@@ -14,7 +14,7 @@ export function useDeleteStageAction({
 }) {
     const { mutate: deleteStage } = useDeleteStage({
         onSuccess: () => {
-            toast.success('스테이지가 삭제되었습니다.');
+            toast.success('Stage deleted successfully.');
             onOpenChange(false);
             onSuccess?.();
         },

@@ -58,7 +58,7 @@ export function useApiKeysPage() {
       setIsCreateModalOpen(false);
       setNewApiKey({ keyName: "", description: "" });
       pendingNavigateToLastPageRef.current = true;
-      toast.success("API키가 생성되었습니다.");
+      toast.success("API Key has been created.");
     },
   });
 
@@ -66,12 +66,12 @@ export function useApiKeysPage() {
   const { mutate: deleteAPIKey } = useDeleteAPIKey({
     onSuccess: () => {
       setIsDeleteModalOpen(false);
-      toast.success("API키가 삭제되었습니다.");
+      toast.success("API Key has been deleted.");
     }, onError: (error: any) => {
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || 'API키 삭제 중 오류가 발생했습니다.';
+        || 'An error occurred while deleting API Key.';
       toast.error(errorMessage);
     },
   });
@@ -132,7 +132,7 @@ export function useApiKeysPage() {
   };
 
   const handleRefresh = () => {
-    toast.success("페이지가 새로고침되었습니다.");
+    toast.success("Page has been refreshed.");
     window.location.reload();
   };
 
@@ -151,9 +151,9 @@ export function useApiKeysPage() {
     clipboard.copy(res.keyValue);
     toast.success(
       <>
-        [{apiKeyName}] API Key가 복사되었습니다. <br />
-        http(s) 헤더에 <b>X-API-Key</b> 항목을 추가하여 <br />
-        복사된 키 값을 넣어 요청하면 됩니다.
+        [{apiKeyName}] API Key has been copied. <br />
+        Add <b>X-API-Key</b> header to your http(s) request <br />
+        with the copied key value.
       </>
     );
   };
@@ -166,7 +166,7 @@ export function useApiKeysPage() {
       const res = await getAPIKeyDetail(apiKey.apiKeyId);
       setApiKeyDetail(res);
     } catch (error) {
-      toast.error("API Key 상세 정보를 불러오는데 실패했습니다.");
+      toast.error("Failed to load API Key details.");
       setIsDetailModalOpen(false);
     } finally {
       setIsDetailLoading(false);
@@ -187,7 +187,7 @@ export function useApiKeysPage() {
       const res = await getAPIKeyDetail(apiKeyDetail.apiKeyId);
       setApiKeyDetail(res);
     } catch (error) {
-      toast.error("API Key 상세 정보를 불러오는데 실패했습니다.");
+      toast.error("Failed to load API Key details.");
     } finally {
       setIsDetailLoading(false);
     }

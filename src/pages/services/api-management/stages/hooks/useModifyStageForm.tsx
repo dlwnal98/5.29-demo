@@ -37,12 +37,12 @@ export function useModifyStageForm({
   // 스테이지 수정 mutation
   const { mutate: modifyStage } = useModifyStage({
     onSuccess: () => {
-      toast.success('스테이지가 수정되었습니다.');
+      toast.success('Stage modified successfully.');
       onOpenChange(false);
       onSuccess?.();
     },
     onError: () => {
-      toast.error('스테이지를 수정하는 데에 실패하였습니다.');
+      toast.error('Stage modification failed.');
     },
   });
 

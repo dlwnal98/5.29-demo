@@ -135,7 +135,7 @@ export function onSave(value: string) {
 
 // 리소스 생성 시 이름 정규식
 // 슬래시를 완전히 배제하고 지정된 문자만 허용하는 정규식
-const inputRegex = /^[A-Za-z0-9._\-:]*$/;
+const inputRegex = /^[A-Za-z0-9._\-:{}]*$/;
 
 export function isValidInput(str: string) {
   return inputRegex.test(str);

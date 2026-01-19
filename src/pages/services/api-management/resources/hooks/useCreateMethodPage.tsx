@@ -26,6 +26,7 @@ interface MethodForm {
   additionalParameter: string;
   customEndpointUrl: string;
   requestValidator: string;
+  routingMode: string;
 }
 
 interface OpenSections {
@@ -102,6 +103,7 @@ export function useCreateMethodPage() {
     additionalParameter: "",
     customEndpointUrl: "",
     requestValidator: "NONE",
+    routingMode: "PATH_APPEND"
   });
 
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
@@ -158,9 +160,9 @@ export function useCreateMethodPage() {
         await queryClient.refetchQueries({ queryKey: ["getOpenAPIDoc", apiId] });
       })(),
       {
-        loading: "메서드 생성 중...",
-        success: "메서드가 성공적으로 생성되었습니다.",
-        error: "메서드 생성에 실패했습니다.",
+        loading: "Method creation in progress...",
+        success: "Method created successfully.",
+        error: "Method creation failed.",
       }
     );
 
@@ -178,19 +180,19 @@ export function useCreateMethodPage() {
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || '메서드 생성 중 오류가 발생했습니다.';
+        || 'Method creation failed.';
       toast.error(errorMessage);
     },
   });
 
   const handleCreateMethod = useCallback(() => {
     if (!methodForm.methodType) {
-      toast.error("메서드 유형을 선택해주세요.");
+      toast.error("Method type not selected.");
       return;
     }
 
     if (methodForm.integrationType === "HTTP" && !methodForm.methodType) {
-      toast.error("HTTP 메서드를 선택해주세요.");
+      toast.error("HTTP method not selected.");
       return;
     }
 
@@ -199,7 +201,7 @@ export function useCreateMethodPage() {
         ? methodForm.customEndpointUrl
         : methodForm.endpointUrl;
       if (!finalUrl) {
-        toast.error("엔드포인트 URL을 입력해주세요.");
+        toast.error("Endpoint URL not provided.");
         return;
       }
     }
@@ -217,6 +219,7 @@ export function useCreateMethodPage() {
               apiKeyId: selectedApiKeyId,
               apiKeyRequired: apiKeyToggle,
               routingEndpoint: methodForm.customEndpointUrl || methodForm.endpointUrl,
+              routingMode: methodForm.routingMode,
               requestBodyConfig: bodyModelId ? {
                 modelId: bodyModelId,
                 required: false,
@@ -229,7 +232,7 @@ export function useCreateMethodPage() {
             resourceId
           });
         } else {
-          toast.error("유효하지 않은 엔드포인트 URL입니다.");
+          toast.error("Invalid endpoint URL.");
         }
       } else {
         createMethod({
@@ -337,7 +340,7 @@ export function useCreateMethodPage() {
   const handleCopyAPIKey = useCallback(
     (apiKey: string) => {
       clipboard.copy(apiKey);
-      toast.success("API Key가 복사되었습니다.");
+      toast.success("API Key copied to clipboard.");
     },
     [clipboard]
   );
@@ -359,6 +362,18 @@ export function useCreateMethodPage() {
   }, []);
 
   const handleDirectUrlToggle = useCallback((checked: boolean) => {
+    console.log(checked)
+    if (checked) {
+      setMethodForm((prev) => ({
+        ...prev,
+        routingMode: "DIRECT",
+      }));
+    } else {
+      setMethodForm((prev) => ({
+        ...prev,
+        routingMode: "PATH_APPEND",
+      }));
+    }
     setMethodForm((prev) => ({
       ...prev,
       customEndpointUrl: "",
@@ -366,6 +381,8 @@ export function useCreateMethodPage() {
     }));
     setIsDirectUrlInput(checked);
   }, []);
+
+  console.log(methodForm.routingMode)
 
   const isValidCreateMethod = useMemo(() => {
     if (methodForm.integrationType === 'HTTP') {

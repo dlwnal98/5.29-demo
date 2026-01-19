@@ -24,7 +24,7 @@ export function useCreateEndpointDialog({
 
   const { mutate: createEndpoint } = useCreateEndpoint({
     onSuccess: () => {
-      toast.success("endpoint가 생성되었습니다.");
+      toast.success("Endpoint created successfully.");
       resetForm();
       onClose();
     },
@@ -32,7 +32,7 @@ export function useCreateEndpointDialog({
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || 'endpoint 생성 중 오류가 발생했습니다.';
+        || 'Endpoint creation failed.';
       toast.error(errorMessage);
     },
   });
@@ -73,7 +73,7 @@ export function useCreateEndpointDialog({
         });
       }
     } else {
-      toast.error("유효하지 않은 url 형식입니다.");
+      toast.error("Invalid URL format.");
     }
   };
 

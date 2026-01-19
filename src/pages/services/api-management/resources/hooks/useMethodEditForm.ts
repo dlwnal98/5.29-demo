@@ -11,6 +11,11 @@ export interface MethodFormData {
   integrationType: string;
   routingEndpoint: string;
 
+  // Direct Input 토글 관련 필드
+  isDirectUrlInput: boolean;      // Direct Input 토글 상태
+  selectedEndpointUrl: string;    // Select에서 선택한 Endpoint URL
+  routingMode: string;            // "DIRECT" | "PATH_APPEND"
+
   // 요청 설정
   requestValidation: string;
   apiKeyRequired: boolean;
@@ -112,7 +117,7 @@ export function useMethodEditForm(selectedMethod: Method | null, userKey: string
     setIsDirty(true);
   };
 
-  const updateBasicInfo = (updates: Partial<Pick<MethodFormData, 'summary' | 'description' | 'tags' | 'integrationType' | 'routingEndpoint'>>) => {
+  const updateBasicInfo = (updates: Partial<Pick<MethodFormData, 'summary' | 'description' | 'tags' | 'integrationType' | 'routingEndpoint' | 'isDirectUrlInput' | 'selectedEndpointUrl' | 'routingMode'>>) => {
     updateFormData(updates);
   };
 
@@ -136,6 +141,7 @@ export function useMethodEditForm(selectedMethod: Method | null, userKey: string
       tags: formData.tags,
       integrationType: formData.integrationType,
       routingEndpoint: formData.routingEndpoint,
+      routingMode: formData.routingMode,
       requestValidation: formData.requestValidation,
       apiKeyRequired: formData.apiKeyRequired,
       apiKeyId: formData.apiKeyId,
@@ -171,6 +177,9 @@ function getInitialFormData(selectedMethod: Method | null, userKey: string): Met
       tags: [],
       integrationType: 'HTTP',
       routingEndpoint: '',
+      isDirectUrlInput: false,
+      selectedEndpointUrl: '',
+      routingMode: 'PATH_APPEND',
       requestValidation: 'NONE',
       apiKeyRequired: false,
       apiKeyId: '',
@@ -266,12 +275,23 @@ function getInitialFormData(selectedMethod: Method | null, userKey: string): Met
     });
   }
 
+  // x-append-path 기반으로 isDirectUrlInput 결정
+  // x-append-path가 true면 isDirectUrlInput = false (Select 모드)
+  // x-append-path가 false면 isDirectUrlInput = true (Direct Input 모드)
+  const appendPath = info?.['x-append-path'] ?? true;  // 기본값 true
+  const isDirectUrlInput = !appendPath;
+  const routingMode = isDirectUrlInput ? 'DIRECT' : 'PATH_APPEND';
+  const routingEndpoint = info?.['x-route-endpoint'] ?? '';
+
   return {
     summary: info?.summary ?? '',
     description: info?.description ?? '',
     tags: info?.tags ?? [],
     integrationType: info?.['x-integration-type'] ?? 'HTTP',
-    routingEndpoint: info?.['x-route-endpoint'] ?? '',
+    routingEndpoint,
+    isDirectUrlInput,
+    selectedEndpointUrl: isDirectUrlInput ? '' : routingEndpoint,
+    routingMode,
     requestValidation: info?.['x-request-validator'] ?? 'NONE',
     apiKeyRequired: info?.['x-api-key-required'] ?? false,
     apiKeyId: info?.['x-api-key-id'] ?? '',

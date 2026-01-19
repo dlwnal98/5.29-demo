@@ -130,15 +130,15 @@ export function MethodResponseEdit({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between px-2">
-        <h3 className="text-lg font-bold">{editingResponse ? '응답 편집' : '새 응답 추가'}</h3>
+        <h3 className="text-lg font-bold">{editingResponse ? 'Response Edit' : 'New Response'}</h3>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={handleCancelResponse}>
             <X className="h-4 w-4 mr-1" />
-            취소
+            Cancel
           </Button>
           <Button size="sm" onClick={handleSaveResponse}>
             <Save className="h-4 w-4 mr-1" />
-            {editingResponse ? '저장' : '추가'}
+            {editingResponse ? 'Save' : 'Add'}
           </Button>
         </div>
       </div>
@@ -155,7 +155,7 @@ export function MethodResponseEdit({
         <CardContent className="space-y-8">
           {/* 상태 코드 입력 */}
           <div className="mb-2">
-            <Label className="text-lg font-semibold">상태 코드</Label>
+            <Label className="text-lg font-semibold">Status Code</Label>
             <Input
               value={editForm.statusCode}
               onChange={(e) => setEditForm({ ...editForm, statusCode: e.target.value })}
@@ -167,13 +167,13 @@ export function MethodResponseEdit({
           {/* 응답 헤더 */}
           <div>
             <div className="flex items-center gap-3 mb-3">
-              <Label className="text-lg font-semibold">응답 헤더</Label>
+              <Label className="text-lg font-semibold">Response Header</Label>
               <Button
                 size="sm"
                 variant={'outline'}
                 className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
                 onClick={addHeader}>
-                <span className="font-bold">추가</span>
+                <span className="font-bold">Add</span>
               </Button>
             </div>
             <div className="space-y-2">
@@ -215,7 +215,7 @@ export function MethodResponseEdit({
               ))}
               {editForm.headers.length === 0 && (
                 <div className="text-center py-4 text-gray-500 text-sm">
-                  응답 헤더가 없습니다. 추가 버튼을 클릭하여 새로운 응답 헤더를 추가하세요.
+                  No response headers. Click the Add button to add a new response header.
                 </div>
               )}
             </div>
@@ -224,13 +224,13 @@ export function MethodResponseEdit({
           {/* 응답 본문 */}
           <div>
             <div className="flex items-center gap-3 mb-3">
-              <Label className="text-lg font-semibold">응답 본문</Label>
+              <Label className="text-lg font-semibold">Response Body</Label>
               <Button
                 size="sm"
                 variant={'outline'}
                 className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
                 onClick={addBody}>
-                <span className="font-bold">추가</span>
+                <span className="font-bold">Add</span>
               </Button>
             </div>
             <div className="space-y-2">
@@ -240,7 +240,7 @@ export function MethodResponseEdit({
                     <Input
                       value={body.contentType}
                       onChange={(e) => updateBody(body.id, 'contentType', e.target.value)}
-                      placeholder="콘텐츠 유형"
+                      placeholder="Content Type"
                     />
                   </div>
                   <div className="col-span-5">
@@ -254,7 +254,7 @@ export function MethodResponseEdit({
                         }
                       }}>
                       <SelectTrigger>
-                        <SelectValue placeholder="모델 선택" />
+                        <SelectValue placeholder="Model Select" />
                       </SelectTrigger>
                       <SelectContent>
                         {models.map((availableModel) => (
@@ -280,7 +280,7 @@ export function MethodResponseEdit({
               ))}
               {editForm.bodies.length === 0 && (
                 <div className="text-center py-4 text-gray-500 text-sm">
-                  응답 본문이 없습니다. 추가 버튼을 클릭하여 새로운 응답 본문을 추가하세요.
+                  No response body. Click the Add button to add a new response body.
                 </div>
               )}
             </div>

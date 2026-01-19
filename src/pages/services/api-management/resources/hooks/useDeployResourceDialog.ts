@@ -103,9 +103,9 @@ export function useDeployResourceDialog({
         await queryClient.refetchQueries({ queryKey: ['getStagesListData', apiId] });
       })(),
       {
-        loading: '스테이지 생성 중...',
-        success: '스테이지가 성공적으로 생성되어 배포되었습니다.',
-        error: '스테이지 생성 후 배포에 실패했습니다.',
+        loading: 'Stage creation in progress...',
+        success: 'Stage successfully created and deployed.',
+        error: 'Failed to deploy after stage creation.',
       }
     );
 
@@ -124,7 +124,7 @@ export function useDeployResourceDialog({
         deployedBy: userKey,
       });
       if (!deploymentData.newStageName.trim()) {
-        toast.error('새 스테이지 이름을 입력해주세요.');
+        toast.error('New stage name is required.');
         return;
       }
 

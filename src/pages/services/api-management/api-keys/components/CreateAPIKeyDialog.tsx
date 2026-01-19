@@ -42,13 +42,13 @@ export default function CreateAPIKeyDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-blue-600 mb-2">
-            API Key 생성
+            Create API Key
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
           <div>
             <Label htmlFor="keyName" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              이름 <span className="text-red-500">*</span>
+              Name <span className="text-red-500">*</span>
             </Label>
             <Input
               id="keyName"
@@ -61,7 +61,7 @@ export default function CreateAPIKeyDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-sm">만료일</Label>
+            <Label className="text-sm">Expiration Date</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -71,7 +71,7 @@ export default function CreateAPIKeyDialog({
                   {newApiKey.expiresAt ? (
                     format(new Date(newApiKey.expiresAt), 'yyyy-MM-dd HH:mm:ss', { locale: ko })
                   ) : (
-                    <span className="text-gray-400">만료일을 선택하세요 (선택 사항)</span>
+                    <span className="text-gray-400">Select expiration date (optional)</span>
                   )}
                 </Button>
               </PopoverTrigger>
@@ -100,12 +100,12 @@ export default function CreateAPIKeyDialog({
               </PopoverContent>
             </Popover>
             <p className="text-xs text-gray-500">
-              만료일을 설정하지 않으면 무기한으로 유효합니다.
+              If not set, the key will be valid indefinitely.
             </p>
           </div>
           <div>
             <Label htmlFor="description" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              설명
+              Description
             </Label>
             <Textarea
               id="description"
@@ -120,10 +120,10 @@ export default function CreateAPIKeyDialog({
 
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={onClose}>
-              취소
+              Cancel
             </Button>
             <Button onClick={onSubmit} disabled={!keyName}>
-              발급
+              Create
             </Button>
           </div>
         </div>

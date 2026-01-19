@@ -22,13 +22,13 @@ export function MethodRequestView({
   const convertValidator = (data: string) => {
     switch (data) {
       case 'ALL':
-        return '모든 요소 검증';
+        return 'All elements validation';
       case 'BODY_ONLY':
-        return '바디만 검증';
+        return 'Body only validation';
       case 'NONE':
-        return '검증 없음';
+        return 'No validation';
       case 'PARAMS_ONLY':
-        return '파라미터만 검증';
+        return 'Parameters only validation';
       default:
         return '';
     }
@@ -39,7 +39,7 @@ export function MethodRequestView({
       {/* Method Request Settings */}
       <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white">메서드 요청 설정</h3>
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white">Method Request Settings</h3>
         </div>
         <div>
           <div className="border-b pb-2 mb-2 grid grid-cols-5 gap-6">
@@ -47,7 +47,7 @@ export function MethodRequestView({
               <div className="space-y-3">
                 <div>
                   <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    API 키 등록 여부
+                    API Key Registration
                   </Label>
                 </div>
               </div>
@@ -56,7 +56,7 @@ export function MethodRequestView({
               <div className="space-y-3">
                 <div>
                   <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    API 키 ID
+                    API Key ID
                   </Label>
                 </div>
               </div>
@@ -65,7 +65,7 @@ export function MethodRequestView({
               <div className="space-y-3">
                 <div>
                   <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    요청 검사기
+                    Request Validator
                   </Label>
                 </div>
               </div>
@@ -91,7 +91,7 @@ export function MethodRequestView({
               <div className="space-y-3">
                 <div>
                   <div className="mt-1 text-sm text-gray-900 dark:text-white">
-                    {selectedMethod?.info['x-api-key-id'] || '없음'}
+                    {selectedMethod?.info['x-api-key-id'] || 'None'}
                   </div>
                 </div>
               </div>
@@ -100,7 +100,7 @@ export function MethodRequestView({
               <div className="space-y-3">
                 <div>
                   <div className="mt-1 text-sm text-gray-900 dark:text-white">
-                    {convertValidator(selectedMethod?.info['x-request-validator']) || '없음'}
+                    {convertValidator(selectedMethod?.info['x-request-validator']) || 'None'}
                   </div>
                 </div>
               </div>
@@ -113,7 +113,7 @@ export function MethodRequestView({
       <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
         <div className="flex items-center justify-between mb-4">
           <h4 className="text-md font-semibold text-gray-900 dark:text-white">
-            URL 쿼리 문자열 파라미터 ({queryParameters.length})
+            URL Query String Parameters ({queryParameters.length})
           </h4>
           <div className="flex items-center gap-2">
             <ChevronLeft className="h-4 w-4 text-gray-400" />
@@ -124,8 +124,8 @@ export function MethodRequestView({
         {queryParameters.length > 0 ? (
           <div className="space-y-2">
             <div className="grid grid-cols-5 gap-4 text-sm font-medium text-gray-600 dark:text-gray-400 border-b pb-2">
-              <div className="col-span-4">이름</div>
-              <div className="col-span-1">필수</div>
+              <div className="col-span-4">Name</div>
+              <div className="col-span-1">Required</div>
             </div>
             {queryParameters.map((param) => (
               <div
@@ -144,9 +144,9 @@ export function MethodRequestView({
           </div>
         ) : (
           <div className="text-center py-6">
-            <p className="text-gray-500 dark:text-gray-400 mb-2">요청 쿼리 문자열 없음</p>
+            <p className="text-gray-500 dark:text-gray-400 mb-2">No query string parameters</p>
             <p className="text-sm text-gray-400 dark:text-gray-500">
-              정의된 요청 쿼리 문자열이 없습니다
+              No query string parameters defined
             </p>
           </div>
         )}
@@ -155,7 +155,7 @@ export function MethodRequestView({
       <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
         <div className="flex items-center justify-between mb-4">
           <h4 className="text-md font-semibold text-gray-900 dark:text-white">
-            HTTP 요청 헤더 ({requestHeaders.length})
+            HTTP Request Headers ({requestHeaders.length})
           </h4>
           <div className="flex items-center gap-2">
             <ChevronLeft className="h-4 w-4 text-gray-400" />
@@ -166,8 +166,8 @@ export function MethodRequestView({
         {requestHeaders.length > 0 ? (
           <div className="space-y-2">
             <div className="grid grid-cols-5 gap-4 text-sm font-medium text-gray-600 dark:text-gray-400 border-b pb-2">
-              <div className="col-span-4">이름</div>
-              <div className="col-span-1">필수</div>
+              <div className="col-span-4">Name</div>
+              <div className="col-span-1">Required</div>
             </div>
 
             {requestHeaders.map((header) => (
@@ -187,15 +187,15 @@ export function MethodRequestView({
           </div>
         ) : (
           <div className="text-center py-6">
-            <p className="text-gray-500 dark:text-gray-400 mb-2">요청 헤더 없음</p>
-            <p className="text-sm text-gray-400 dark:text-gray-500">정의된 요청 헤더가 없습니다</p>
+            <p className="text-gray-500 dark:text-gray-400 mb-2">No request headers</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">No request headers defined</p>
           </div>
         )}
       </div>
       {/* Request Body */}
       <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
         <div className="flex items-center justify-between mb-4">
-          <h4 className="text-md font-semibold text-gray-900 dark:text-white">요청 본문</h4>
+          <h4 className="text-md font-semibold text-gray-900 dark:text-white">Request Body</h4>
           <div className="flex items-center gap-2">
             <ChevronLeft className="h-4 w-4 text-gray-400" />
             <span className="text-sm text-gray-600 dark:text-gray-400">1</span>
@@ -206,7 +206,7 @@ export function MethodRequestView({
           <div className="space-y-2">
             <div className="grid grid-cols-2 gap-4 text-sm font-medium text-gray-600 dark:text-gray-400 border-b pb-2">
               <div>ID</div>
-              <div>콘텐츠 유형</div>
+              <div>Content Type</div>
             </div>
             <div
               key={modelId}
@@ -217,8 +217,8 @@ export function MethodRequestView({
           </div>
         ) : (
           <div className="text-center py-6">
-            <p className="text-gray-500 dark:text-gray-400 mb-2">요청 본문 없음</p>
-            <p className="text-sm text-gray-400 dark:text-gray-500">정의된 요청 본문이 없습니다</p>
+            <p className="text-gray-500 dark:text-gray-400 mb-2">No request body</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">No request body defined</p>
           </div>
         )}
       </div>

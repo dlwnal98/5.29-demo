@@ -83,7 +83,7 @@ export default function CreateStageDialog({
             <Dialog open={open} onOpenChange={handleOpenChange}>
                 <DialogContent className={`transition-all duration-300 ${showPreview ? 'sm:max-w-[900px]' : 'sm:max-w-[500px]'}`}>
                     <DialogHeader>
-                        <DialogTitle className="text-xl font-bold text-blue-600">스테이지 생성</DialogTitle>
+                        <DialogTitle className="text-xl font-bold text-blue-600">Stage Creation</DialogTitle>
                     </DialogHeader>
 
                     <div className={`${showPreview ? 'flex gap-6' : ''}`}>
@@ -93,7 +93,7 @@ export default function CreateStageDialog({
                                 <Label
                                     htmlFor="create-stage-name"
                                     className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    스테이지 이름 <span className="text-red-500">*</span>
+                                    Stage Name <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
                                     id="create-stage-name"
@@ -104,7 +104,7 @@ export default function CreateStageDialog({
                                             name: e.target.value,
                                         })
                                     }
-                                    placeholder="스테이지 이름을 입력하세요"
+                                    placeholder="Enter stage name"
                                     className="mt-2"
                                 />
                             </div>
@@ -112,7 +112,7 @@ export default function CreateStageDialog({
                                 <Label
                                     htmlFor="create-stage-description"
                                     className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    스테이지 설명
+                                    Description
                                 </Label>
                                 <Textarea
                                     id="create-stage-description"
@@ -123,19 +123,19 @@ export default function CreateStageDialog({
                                             description: e.target.value,
                                         })
                                     }
-                                    placeholder="스테이지 설명을 입력하세요 (선택사항)"
+                                    placeholder="Enter stage description (optional)"
                                     className="mt-2"
                                 />
                             </div>
                             <div>
                                 <Label className="text-sm text-gray-600 dark:text-gray-300 block">
-                                    배포 기록 선택 <span className="text-red-500">*</span>
+                                    Deployment Record Selection <span className="text-red-500">*</span>
                                 </Label>
 
                                 <div className="flex items-center gap-2 mt-2">
                                     <Select value={selectedDeploymentRecord} onValueChange={setSelectedDeploymentRecord}>
                                         <SelectTrigger className="h-[48px] flex-1">
-                                            <SelectValue placeholder="배포 기록을 선택하세요" />
+                                            <SelectValue placeholder="Select deployment record" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {deploymentHistoryData?.content?.map((record) => (
@@ -164,7 +164,7 @@ export default function CreateStageDialog({
                                         className="h-[48px] w-[48px] shrink-0"
                                         disabled={!selectedDeploymentRecord}
                                         onClick={() => setShowPreview(!showPreview)}
-                                        title={showPreview ? "미리보기 닫기" : "배포 상세보기"}
+                                        title={showPreview ? "Close Preview" : "View Deployment Details"}
                                     >
                                         {showPreview ? (
                                             <EyeOff className="h-4 w-4" />
@@ -181,14 +181,14 @@ export default function CreateStageDialog({
                             <div className="w-1/2 py-4 border-l border-gray-200 dark:border-gray-700 pl-6">
                                 <div className="mb-3">
                                     <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        배포 리소스 미리보기
+                                        Deployment Resource Preview
                                     </Label>
                                 </div>
                                 <div className="border rounded-lg bg-gray-50 dark:bg-gray-900 max-h-[400px] overflow-y-auto min-h-[200px]">
                                     {isPreviewLoading ? (
                                         <div className="flex items-center justify-center py-8">
                                             <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
-                                            <span className="ml-2 text-sm text-gray-500">리소스 트리를 불러오는 중...</span>
+                                            <span className="ml-2 text-sm text-gray-500">Loading resource tree...</span>
                                         </div>
                                     ) : isPreviewReady && resourceTree[0] ? (
                                         <div className="p-3">
@@ -196,7 +196,7 @@ export default function CreateStageDialog({
                                         </div>
                                     ) : (
                                         <div className="flex items-center justify-center py-8 text-sm text-gray-500">
-                                            리소스가 없습니다.
+                                            No resources available.
                                         </div>
                                     )}
                                 </div>
@@ -211,14 +211,14 @@ export default function CreateStageDialog({
                                 handleOpenChange(false);
                                 handleReset();
                             }}>
-                            취소
+                            Cancel
                         </Button>
                         <Button
                             onClick={handleCreateStage}
                             disabled={!isValid}
                             variant={'default'}
                             className="transition-colors duration-200 ease-in-out">
-                            생성
+                            Create
                         </Button>
                     </DialogFooter>
                 </DialogContent>

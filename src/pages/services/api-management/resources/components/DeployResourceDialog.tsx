@@ -55,19 +55,19 @@ export default function DeployResourceDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center">
-            API 배포
+            API Deployment
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
             <Label htmlFor="deploy-stage" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              배포 할 스테이지 <span className="text-red-500">*</span>
+              Deploy Stage <span className="text-red-500">*</span>
             </Label>
             <Select
               value={deploymentData.stageId}
               onValueChange={onStageChange}>
               <SelectTrigger className="mt-2">
-                <SelectValue placeholder="스테이지 선택" />
+                <SelectValue placeholder="Stage Selection" />
               </SelectTrigger>
               <SelectContent>
                 {stageForDeployment.map((stage) => (
@@ -77,12 +77,12 @@ export default function DeployResourceDialog({
                 ))}
                 <SelectItem value="new" className="cursor-pointer">
                   <div className="flex items-center gap-2">
-                    <Plus className="h-4 w-4" />새 스테이지 생성
+                    <Plus className="h-4 w-4" />New Stage Creation
                   </div>
                 </SelectItem>
                 <SelectItem value="snapshot" className="cursor-pointer">
                   <div className="flex items-center gap-2">
-                    <Plus className="h-4 w-4" />새 스냅샷 생성
+                    <Plus className="h-4 w-4" />New Snapshot Creation
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -94,29 +94,29 @@ export default function DeployResourceDialog({
             <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border dark:border-gray-700">
               <div className="flex items-center gap-2 mb-2">
                 <Plus className="h-4 w-4 text-orange-500" />
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">새 스테이지 정보</Label>
+                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">New Stage Information</Label>
               </div>
               <div>
                 <Label htmlFor="new-stage-name" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  스테이지 이름 <span className="text-red-500">*</span>
+                  Stage Name <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="new-stage-name"
                   value={deploymentData.newStageName}
                   onChange={(e) => onNewStageNameChange(e.target.value)}
-                  placeholder="새 스테이지 이름을 입력하세요"
+                  placeholder="Enter new stage name"
                   className="mt-2"
                 />
               </div>
               <div>
                 <Label htmlFor="stage-description" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  스테이지 설명
+                  Stage Description
                 </Label>
                 <Textarea
                   id="stage-description"
                   value={deploymentData.stageDescription}
                   onChange={(e) => onStageDescriptionChange(e.target.value)}
-                  placeholder="스테이지에 대한 설명을 입력하세요"
+                  placeholder="Enter stage description"
                   className="mt-1"
                 />
               </div>
@@ -125,26 +125,26 @@ export default function DeployResourceDialog({
 
           <div>
             <Label htmlFor="deploy-description" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              배포 설명
+              Deployment Description
             </Label>
             <Textarea
               id="deploy-description"
               value={deploymentData.deploymentReason}
               onChange={(e) => onDescriptionChange(e.target.value)}
-              placeholder="배포에 대한 설명을 입력하세요"
+              placeholder="Enter deployment description"
               className="mt-1"
             />
           </div>
         </div>
         <DialogFooter className="flex space-x-2">
           <Button variant="outline" onClick={onDeployModalClose}>
-            취소
+            Cancel
           </Button>
           <Button
             onClick={onDeploySubmit}
             disabled={!isValidDeploy || isPending}
             className="bg-orange-500 hover:bg-orange-600 text-white">
-            {isPending ? '배포 중...' : '배포'}
+            {isPending ? 'Deploying...' : 'Deploy'}
           </Button>
         </DialogFooter>
       </DialogContent>

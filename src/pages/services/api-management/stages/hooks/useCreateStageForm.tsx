@@ -49,7 +49,7 @@ export function useCreateStageForm({
     onSuccess: () => {
       setCreateStageForm({ name: '', description: '' });
       setSelectedDeploymentRecord('');
-      toast.success('스테이지가 생성되었습니다.');
+      toast.success('Stage created successfully.');
       onOpenChange(false);
       onSuccess?.();
     },
@@ -57,7 +57,7 @@ export function useCreateStageForm({
       setCreateStageForm({ name: '', description: '' });
       setSelectedDeploymentRecord('');
       const serverMessage =
-        error?.response?.data?.message ?? '스테이지가 생성에 실패하였습니다.';
+        error?.response?.data?.message ?? 'Stage creation failed.';
       toast.error(serverMessage);
     },
   });

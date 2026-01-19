@@ -52,7 +52,7 @@ const ApiExportDialog = ({
         setPreviewContent(JSON.stringify(res, null, 2));
       }
     } catch (error) {
-      toast.error('미리보기를 불러오는데 실패했습니다.');
+      toast.error('Failed to load preview.');
       setPreviewContent('');
     } finally {
       setIsLoading(false);
@@ -107,9 +107,9 @@ const ApiExportDialog = ({
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      toast.success('파일이 다운로드되었습니다.');
+      toast.success('File has been downloaded.');
     } catch (error) {
-      toast.error('다운로드에 실패했습니다.');
+      toast.error('Download failed.');
     } finally {
       setIsDownloading(false);
     }
@@ -132,38 +132,38 @@ const ApiExportDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-blue-600">API 내보내기</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-blue-600">Export API</DialogTitle>
           <DialogDescription className="text-gray-600 dark:text-gray-400">
-            {apiName ? `"${apiName}" API를 내보냅니다.` : 'API를 파일로 내보냅니다.'} 형식을 선택하고 미리보기를 확인한 후 다운로드하세요.
+            {apiName ? `Export "${apiName}" API.` : 'Export API to file.'} Select a format, review the preview, and download.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div>
             <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-              내보내기 형식
+              Export Format
             </Label>
             <Select value={format} onValueChange={handleFormatChange}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="형식을 선택하세요" />
+                <SelectValue placeholder="Select format" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="OPENAPI_JSON">
                   <div className="flex flex-col items-start">
                     <span className="font-medium">OpenAPI JSON</span>
-                    <span className="text-xs text-gray-500">JSON 형식의 OpenAPI 3.0 문서</span>
+                    <span className="text-xs text-gray-500">OpenAPI 3.0 document in JSON format</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="OPENAPI_YAML">
                   <div className="flex flex-col items-start">
                     <span className="font-medium">OpenAPI YAML</span>
-                    <span className="text-xs text-gray-500">YAML 형식의 OpenAPI 3.0 문서</span>
+                    <span className="text-xs text-gray-500">OpenAPI 3.0 document in YAML format</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="POSTMAN">
                   <div className="flex flex-col items-start">
                     <span className="font-medium">Postman Collection</span>
-                    <span className="text-xs text-gray-500">Postman에서 가져올 수 있는 Collection 형식</span>
+                    <span className="text-xs text-gray-500">Collection format importable by Postman</span>
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -172,13 +172,13 @@ const ApiExportDialog = ({
 
           <div>
             <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-              미리보기
+              Preview
             </Label>
             <div className="border rounded-lg bg-gray-50 dark:bg-gray-900 min-h-[400px] max-h-[400px] overflow-auto">
               {isLoading ? (
                 <div className="flex items-center justify-center h-[400px]">
                   <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
-                  <span className="ml-2 text-sm text-gray-500">미리보기를 불러오는 중...</span>
+                  <span className="ml-2 text-sm text-gray-500">Loading preview...</span>
                 </div>
               ) : previewContent ? (
                 <pre className="text-xs p-4 font-mono whitespace-pre-wrap break-all">
@@ -186,7 +186,7 @@ const ApiExportDialog = ({
                 </pre>
               ) : (
                 <div className="flex items-center justify-center h-[400px] text-sm text-gray-500">
-                  미리보기할 내용이 없습니다.
+                  No content to preview.
                 </div>
               )}
             </div>
@@ -195,7 +195,7 @@ const ApiExportDialog = ({
 
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            취소
+            Cancel
           </Button>
           <Button
             onClick={handleDownload}
@@ -205,12 +205,12 @@ const ApiExportDialog = ({
             {isDownloading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                다운로드 중...
+                Downloading...
               </>
             ) : (
               <>
                 <Download className="h-4 w-4 mr-2" />
-                다운로드
+                Download
               </>
             )}
           </Button>

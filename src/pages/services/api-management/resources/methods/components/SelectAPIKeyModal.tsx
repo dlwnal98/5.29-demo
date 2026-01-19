@@ -56,14 +56,14 @@ export function SelectAPIKeyModal({
             setSelectedApiKeyValue(data.keyValue || data.key);
             // 백엔드 응답에서 apiKeyId 또는 keyId 필드 사용
             setSelectedApiKeyId(data.apiKeyId || data.keyId);
-            toast.success('성공');
+            toast.success('Success');
             onOpenChange(false);
         },
         onError: (error: any) => {
             const errorMessage = error?.response?.data?.message
                 || error?.response?.data?.detail
                 || error?.message
-                || 'API 키 생성 중 오류가 발생했습니다.';
+                || 'API key creation failed.';
             toast.error(errorMessage);
             setApiKeyToggle(false);
         },
@@ -95,7 +95,7 @@ export function SelectAPIKeyModal({
                 <DialogHeader className="w-full">
                     <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                         <Key className="h-5 w-5" />
-                        API 키 설정
+                        API Key Setting
                     </DialogTitle>
                 </DialogHeader>
 
@@ -111,7 +111,7 @@ export function SelectAPIKeyModal({
                             }}
                             className="flex items-center gap-2">
                             <Settings className="h-4 w-4" />
-                            기존 API 키 선택
+                            Select Existing API Key
                         </Button>
                         <Button
                             variant={isCreatingNewApiKey ? 'default' : 'outline'}
@@ -121,7 +121,7 @@ export function SelectAPIKeyModal({
                                 setNewApiKeyForm({ name: '', description: '' });
                             }}
                             className="flex items-center gap-2">
-                            <Plus className="h-4 w-4" />새 API 키 생성
+                            <Plus className="h-4 w-4" />Create New API Key
                         </Button>
                     </div>
 
@@ -129,7 +129,7 @@ export function SelectAPIKeyModal({
                         // Existing API Keys Selection
                         <div>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                                사용할 API 키를 선택하세요.
+                                Select the API key to use.
                             </p>
 
                             {apiKeyList?.length > 0 ? (
@@ -191,8 +191,8 @@ export function SelectAPIKeyModal({
                             ) : (
                                 <div className="text-center py-8 text-gray-500">
                                     <Key className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                                    <p>등록된 API 키가 없습니다.</p>
-                                    <p className="text-sm">새 API 키를 생성해주세요.</p>
+                                    <p>No API keys found.</p>
+                                    <p className="text-sm">Create a new API key.</p>
                                 </div>
                             )}
                         </div>
@@ -200,17 +200,17 @@ export function SelectAPIKeyModal({
                         // New API Key Creation Form
                         <div>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                                새로운 API 키를 생성합니다.
+                                Create a new API key.
                             </p>
 
                             <div className="space-y-4">
                                 <div>
                                     <Label htmlFor="new-api-key-name" className="text-sm font-medium">
-                                        API 키 이름 <span className="text-red-500">*</span>
+                                        API Key Name <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
                                         id="new-api-key-name"
-                                        placeholder="예: Production API Key"
+                                        placeholder="e.g: Production API Key"
                                         value={newApiKeyForm.name}
                                         onChange={(e) => setNewApiKeyForm({ ...newApiKeyForm, name: e.target.value })}
                                         className="mt-1"
@@ -219,11 +219,11 @@ export function SelectAPIKeyModal({
 
                                 <div>
                                     <Label htmlFor="new-api-key-description" className="text-sm font-medium">
-                                        설명
+                                        Description
                                     </Label>
                                     <Textarea
                                         id="new-api-key-description"
-                                        placeholder="API 키에 대한 설명을 입력하세요"
+                                        placeholder="Enter a description for the API key"
                                         value={newApiKeyForm.description}
                                         onChange={(e) =>
                                             setNewApiKeyForm({ ...newApiKeyForm, description: e.target.value })
@@ -236,8 +236,8 @@ export function SelectAPIKeyModal({
                                     <div className="flex items-start gap-2">
                                         <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
                                         <div className="text-sm text-blue-800 dark:text-blue-200">
-                                            <p className="font-medium mb-1">참고사항</p>
-                                            <p>API 키는 자동으로 생성되며, 생성된 해당 API키로 설정됩니다.</p>
+                                            <p className="font-medium mb-1">Note</p>
+                                            <p>API key is automatically generated and set to the generated API key.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -252,10 +252,10 @@ export function SelectAPIKeyModal({
                         onClick={() => {
                             onOpenChange(false);
                         }}>
-                        취소
+                        Cancel
                     </Button>
                     <Button onClick={handleCreateAPIKey} className="bg-blue-600 hover:bg-blue-700 text-white">
-                        {isCreatingNewApiKey ? '생성 및 선택' : '선택'}
+                        {isCreatingNewApiKey ? 'Create and Select' : 'Select'}
                     </Button>
                 </DialogFooter>
             </DialogContent>

@@ -48,13 +48,13 @@ export default function DeploymentList({ selectedStage, onActiveDeploymentChange
                 <div className="border-b border-gray-200 dark:border-gray-700 p-4">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            배포 ({filteredDeployments?.length})
+                            Deployments ({filteredDeployments?.length})
                         </h2>
                         <Button
                             onClick={handleActiveDeploymentChange}
                             disabled={!selectedDeploymentId}
                             className="rounded-full h-[25px] bg-white !gap-1 border-2 border-blue-500 text-[#0F74E1] font-bold hover:text-blue-700 hover:bg-blue-50 disabled:border-gray-500 disabled:text-gray-700 disabled:bg-gray-100">
-                            활성 배포 변경
+                            Change Active Deployment
                         </Button>
                     </div>
 
@@ -62,7 +62,7 @@ export default function DeploymentList({ selectedStage, onActiveDeploymentChange
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                         <Input
-                            placeholder="배포 날짜 혹은 배포 ID를 검색해주세요"
+                            placeholder="Search deployment date or deployment ID"
                             value={deploymentSearchTerm}
                             onChange={(e) => setDeploymentSearchTerm(e.target.value)}
                             className="pl-10"
@@ -75,20 +75,20 @@ export default function DeploymentList({ selectedStage, onActiveDeploymentChange
                     <div className="grid grid-cols-12 gap-4 py-3 border-b border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300">
                         <div className="col-span-1"></div>
                         <div className="col-span-3 text-center">
-                            배포 날짜
+                            Deployment Date
                             <ChevronDown className="inline h-4 w-4 ml-1" />
                         </div>
                         <div className="col-span-4 text-center">
-                            배포 설명
+                            Deployment Description
                             <ChevronDown className="inline h-4 w-4 ml-1" />
                         </div>
                         <div className="col-span-1 text-center">
-                            상태
+                            Status
                             <ChevronDown className="inline h-4 w-4 ml-1" />
                         </div>
 
                         <div className="col-span-2 text-center">
-                            배포 ID
+                            Deployment ID
                             <ChevronDown className="inline h-4 w-4 ml-1" />
                         </div>
                         <div className="col-span-1"></div>
@@ -122,7 +122,7 @@ export default function DeploymentList({ selectedStage, onActiveDeploymentChange
                                     {selectedStage.activeDeploymentId === deployment.deploymentId ? (
                                         <div className="flex items-center gap-1">
                                             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                            <span className="text-sm text-green-700">활성</span>
+                                            <span className="text-sm text-green-700">Active</span>
                                         </div>
                                     ) : (
                                         <span className="text-sm text-gray-500">-</span>

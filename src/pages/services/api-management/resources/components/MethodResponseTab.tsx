@@ -42,7 +42,7 @@ export function MethodResponseTab({
   return (
     <>
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white">메서드 응답</h3>
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Method Response</h3>
       </div>
       {methodResponses.length > 0 ? (
         <div className="space-y-4">
@@ -63,7 +63,7 @@ export function MethodResponseTab({
               <CardContent className="space-y-4">
                 {/* 응답 헤더 */}
                 <div>
-                  <Label className="text-sm font-medium">응답 헤더</Label>
+                  <Label className="text-sm font-medium">Response Header</Label>
                   {response.headers.length > 0 ? (
                     <div className="mt-2 space-y-1">
                       {response.headers.map((header) => (
@@ -76,7 +76,7 @@ export function MethodResponseTab({
                           </code>
                           {header.required && (
                             <Badge variant="outline" className="text-xs bg-red-50 text-red-600 border-red-200">
-                              필수
+                              Required
                             </Badge>
                           )}
                           {header.value && (
@@ -86,13 +86,13 @@ export function MethodResponseTab({
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500 mt-1">정의된 응답 헤더가 없습니다.</p>
+                    <p className="text-sm text-gray-500 mt-1">No defined response headers.</p>
                   )}
                 </div>
 
                 {/* 응답 본문 */}
                 <div>
-                  <Label className="text-sm font-medium">응답 본문</Label>
+                  <Label className="text-sm font-medium">Response Body</Label>
                   {response.bodies.length > 0 ? (
                     <div className="mt-2 space-y-1">
                       {response.bodies.map((body) => (
@@ -104,13 +104,13 @@ export function MethodResponseTab({
                             {body.contentType}
                           </Badge>
                           <span className="text-gray-600 dark:text-gray-400">
-                            모델: <code className="font-mono text-purple-600 dark:text-purple-400">{body.model}</code>
+                            Model: <code className="font-mono text-purple-600 dark:text-purple-400">{body.model}</code>
                           </span>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500 mt-1">정의된 응답 본문이 없습니다.</p>
+                    <p className="text-sm text-gray-500 mt-1">No defined response body.</p>
                   )}
                 </div>
               </CardContent>
@@ -119,9 +119,9 @@ export function MethodResponseTab({
         </div>
       ) : (
         <div className="text-center py-6">
-          <p className="text-gray-500 dark:text-gray-400 mb-2">정의된 응답이 없습니다</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-2">No defined response.</p>
           <p className="text-sm text-gray-400 dark:text-gray-500">
-            상단의 편집 버튼을 클릭하여 응답을 추가하세요.
+            Click the edit button at the top to add a response.
           </p>
         </div>
       )}

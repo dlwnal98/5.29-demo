@@ -72,7 +72,7 @@ export function useCorsSettingsDialog({
 
   const { mutate: modifyCORSMutate, isPending } = useModifyResourceCorsSettings({
     onSuccess: () => {
-      toast.success('리소스의 CORS 설정이 변경되었습니다.');
+      toast.success('CORS settings modified successfully.');
       onCorsSettingsSaved?.();
       onOpenChange(false);
     }, onError: (data) => {

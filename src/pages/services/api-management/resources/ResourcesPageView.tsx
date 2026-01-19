@@ -165,8 +165,7 @@ export default function ResourcesPageView({
               Resources
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
-              API Gateway에서 엔드포인트 경로(URI)를 정의하는 객체들을
-              관리하세요.
+              Manage objects that define endpoint paths (URIs) within the API Gateway.
             </p>
           </div>
         </div>
@@ -176,7 +175,7 @@ export default function ResourcesPageView({
             onClick={onOpenDeployModal}
             className="text-sm rounded-full !px-4 h-[28px] bg-orange-500 hover:bg-orange-600 text-white text-xs lg:text-sm"
           >
-            API 배포
+            Deploy API
           </Button>
         </div>
       </div>
@@ -194,7 +193,7 @@ export default function ResourcesPageView({
                 onClick={onOpenCreateModal}
                 className="rounded-full h-[25px] !gap-1 border-2 border-blue-500 text-[#0F74E1] font-bold hover:text-blue-700 hover:bg-blue-50"
               >
-                리소스 생성
+                Create Resource
               </Button>
             </div>
             {renderResourceTree(tree)}

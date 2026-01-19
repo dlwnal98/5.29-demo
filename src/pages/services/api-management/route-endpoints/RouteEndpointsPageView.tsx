@@ -60,14 +60,14 @@ export default function RouteEndpointsPageView({
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Route Endpoints</h1>
-                    <p className="text-gray-600 dark:text-gray-400 mt-1">API 대상 Route Endpoint를 관리하세요.</p>
+                    <p className="text-gray-600 dark:text-gray-400 mt-1">Manage Target Route Endpoints.</p>
                 </div>
 
                 <div className="flex gap-2">
                     <div className="relative w-64">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                         <Input
-                            placeholder="Enpoint 검색..."
+                            placeholder="Enter search Endpoint"
                             value={searchTerm}
                             onChange={(e) => onSearchTermChange(e.target.value)}
                             className="pl-10"
@@ -79,7 +79,7 @@ export default function RouteEndpointsPageView({
                         className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg"
                     >
                         <Plus className="h-4 w-4" />
-                        Endpoint 생성
+                        Create Endpoint
                     </Button>
                 </div>
             </div>
@@ -93,10 +93,10 @@ export default function RouteEndpointsPageView({
                             <TableRow className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
                                 <TableHead className="w-[10%] text-center">ID</TableHead>
                                 <TableHead className="w-[30%] text-center">URL</TableHead>
-                                <TableHead className="text-center">이름</TableHead>
-                                <TableHead className="text-center">설명</TableHead>
-                                <TableHead className="w-[10%] text-center">생성일자</TableHead>
-                                <TableHead className="w-[8%] text-center">수정</TableHead>
+                                <TableHead className="text-center">Name</TableHead>
+                                <TableHead className="text-center">Description</TableHead>
+                                <TableHead className="w-[10%] text-center">Created Date</TableHead>
+                                <TableHead className="w-[8%] text-center">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -142,7 +142,7 @@ export default function RouteEndpointsPageView({
                             ) : (
                                 <TableRow className="hover:bg-white dark:hover:bg-gray-800">
                                     <TableCell colSpan={6} className="text-center py-8 text-gray-500 dark:text-gray-400">
-                                        검색 결과가 없습니다.
+                                        No results found.
                                     </TableCell>
                                 </TableRow>
                             )}

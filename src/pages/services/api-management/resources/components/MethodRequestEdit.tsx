@@ -44,14 +44,14 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
 
   const { mutate: modifyMethod } = useModifyMethod({
     onSuccess: () => {
-      toast.success('메서드 요청 설정이 변경되었습니다.');
+      toast.success('Method request settings modified successfully.');
       setIsEditMode(false);
     },
     onError: (error: any) => {
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || '메서드 요청 설정 변경 중 오류가 발생했습니다.';
+        || 'Method request settings modification failed.';
       toast.error(errorMessage);
     },
   });
@@ -205,7 +205,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
   // 비밀번호 복사 함수
   const handleCopyAPIKey = (apiKey: string) => {
     clipboard.copy(apiKey);
-    toast.success('API Key가 복사되었습니다.');
+    toast.success('API Key copied to clipboard.');
   };
   const formattedQueryParameters = queryParameters.map((param) => ({
     name: param.name,
@@ -244,26 +244,26 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
     <>
       <div className="space-y-6">
         <div className="flex items-center justify-between px-2">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white">메서드 요청 편집</h3>
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white">Method Request Edit</h3>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setIsEditMode(false)}>
-              취소
+              Cancel
             </Button>
             <Button
               onClick={handleModifyMedthod}
               className="bg-blue-500 hover:bg-blue-600 text-white">
-              저장
+              Save
             </Button>
           </div>
         </div>
         {/* Method Request Settings Edit */}
         <Card className="!mt-3">
           <CardHeader>
-            <CardTitle className="!text-lg">메서드 요청 설정</CardTitle>
+            <CardTitle className="!text-lg">Method Request Settings</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center space-x-2">
-              <Label className="text-sm font-medium">API 키가 필요함</Label>
+              <Label className="text-sm font-medium">API Key Required</Label>
               <Switch checked={apiKeyToggle} onCheckedChange={handleApiKeyToggle} />
             </div>
             {apiKeyToggle && (
@@ -273,10 +273,10 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <h4 className="font-semibold text-green-900 dark:text-green-100">
-                        선택된 API 키
+                        Selected API Key
                       </h4>
                       <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-xs rounded-full font-medium">
-                        활성화됨
+                        Activated
                       </span>
                       <button
                         className="hover:underline"
@@ -285,8 +285,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
                       </button>
                     </div>
                     <p className="text-red-500 text-xs mb-2">
-                      *http(s) 헤더에 <strong>X-API-Key</strong> 항목을 추가하여 복사된 키 값을 넣어
-                      요청하면 됩니다.
+                      Add the X-API-Key field to your HTTP(S) header and include the copied key value in your request.
                     </p>
                   </div>
                 </div>
@@ -294,7 +293,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
             )}
             <div>
               <div>
-                <Label className="text-sm font-medium">요청 검사기</Label>
+                <Label className="text-sm font-medium">Request Validator</Label>
                 <Select
                   value={methodEditForm?.requestValidator}
                   onValueChange={(value) =>
@@ -319,13 +318,13 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center !text-lg  gap-3">
-              URL 쿼리 문자열 파라미터
+              URL Query String Parameters
               <Button
                 size="sm"
                 variant={'outline'}
                 className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
                 onClick={addQueryParameter}>
-                <span className="font-bold">추가</span>
+                <span className="font-bold">Add</span>
               </Button>
             </CardTitle>
           </CardHeader>
@@ -337,12 +336,12 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
                     <Input
                       value={param.name}
                       onChange={(e) => updateQueryParameter(param.id, 'name', e.target.value)}
-                      placeholder="파라미터 이름"
+                      placeholder="Parameter Name"
                     />
                   </div>
                   <div className="col-span-2 gap-1 flex items-center">
                     <div className="flex items-center space-x-2">
-                      <Label className="text-xs">필수</Label>
+                      <Label className="text-xs">Required</Label>
                       <Switch
                         checked={param.required}
                         onCheckedChange={(checked) =>
@@ -362,7 +361,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
               ))}
               {queryParameters.length === 0 && (
                 <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-                  쿼리 파라미터가 없습니다. 추가 버튼을 클릭하여 새 파라미터를 추가하세요.
+                  No query parameters. Click the Add button to add a new parameter.
                 </div>
               )}
             </div>
@@ -372,13 +371,13 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center  gap-3 !text-lg">
-              HTTP 요청 헤더
+              HTTP Request Headers
               <Button
                 size="sm"
                 variant={'outline'}
                 className=" h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
                 onClick={addRequestHeader}>
-                <span className="font-bold">추가</span>
+                <span className="font-bold">Add</span>
               </Button>
             </CardTitle>
           </CardHeader>
@@ -400,7 +399,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
                   <div
                     className={`col-span-2 gap-1 flex items-center ${openId === header.id ? 'mt-1' : ''}`}>
                     <div className="flex items-center space-x-2">
-                      <Label className="text-xs">필수</Label>
+                      <Label className="text-xs">Required</Label>
                       <Switch
                         checked={header.required}
                         onCheckedChange={(checked) =>
@@ -420,7 +419,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
               ))}
               {requestHeaders.length === 0 && (
                 <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-                  요청 헤더가 없습니다. 추가 버튼을 클릭하여 새로운 요청 헤더를 추가하세요.
+                  No request headers. Click the Add button to add a new request header.
                 </div>
               )}
             </div>
@@ -429,7 +428,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
         {/* Request Body Edit */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-3 !text-lg">요청 본문</CardTitle>
+            <CardTitle className="flex items-center gap-3 !text-lg">Request Body</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -444,7 +443,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
                     <SelectTrigger>
                       <SelectValue
                         placeholder={
-                          modelList?.length > 0 ? '모델 선택' : '생성된 모델이 존재하지 않습니다.'
+                          modelList?.length > 0 ? 'Select Model' : 'No models available.'
                         }
                       />
                     </SelectTrigger>

@@ -103,16 +103,16 @@ export function ResourceDetailCard({
         {/* Resource Details Header */}
         <div className="border-b border-gray-200 dark:border-gray-700 p-6  space-y-3">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">리소스 세부 정보</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Resource Details</h2>
             <div className="flex items-center gap-3">
               {/* {selectedResource?.cors && ( */}
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setIsCorsModalOpen(true)}
-                title="리소스 수정"
+                title="Resource Update"
                 className={`rounded-full h-[25px] !gap-1 border-2 border-blue-500 text-[#0F74E1] font-bold hover:text-blue-700 hover:bg-blue-50`}>
-                CORS 활성화 설정
+                CORS Activation
               </Button>
               {/* )} */}
               {selectedResource?.path !== '/' && (
@@ -121,8 +121,8 @@ export function ResourceDetailCard({
                   size="sm"
                   onClick={() => setIsDeleteDialogOpen(true)}
                   className="rounded-full h-[25px] !gap-1 border-2 border-red-500 text-red-600 font-bold hover:text-red-700 hover:bg-red-50"
-                  title="삭제">
-                  리소스 삭제
+                  title="Delete">
+                  Resource Delete
                 </Button>
               )}
             </div>
@@ -130,7 +130,7 @@ export function ResourceDetailCard({
           <div className="grid grid-cols-3 gap-6">
             <div className={`${selectedResource?.description ? 'col-span-1' : 'col-span-3'}`}>
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                리소스 이름
+                Resource Name
               </Label>
               <div className="mt-1 text-sm font-mono text-gray-900 dark:text-gray-400">
                 {selectedResource?.name}
@@ -138,7 +138,7 @@ export function ResourceDetailCard({
             </div>
             {selectedResource?.description && (
               <div className="col-span-2">
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">설명</Label>
+                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Description</Label>
                 <div className="mt-1 text-sm font-mono text-gray-900 dark:text-white">
                   {selectedResource?.description}
                 </div>
@@ -148,21 +148,21 @@ export function ResourceDetailCard({
           <div className="grid grid-cols-3 gap-6">
             <div>
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                리소스 ID
+                Resource ID
               </Label>
               <div className="mt-1 text-sm font-mono text-gray-900 dark:text-gray-400">
                 {selectedResource?.resourceId}
               </div>
             </div>
             <div>
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">경로</Label>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Path</Label>
               <div className="mt-1 text-sm font-mono text-gray-900 dark:text-white">
                 {selectedResource?.path}
               </div>
             </div>
             <div>
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                CORS 활성화 여부
+                CORS Activation
               </Label>
               <div className="mt-1 text-sm font-mono text-gray-600 dark:text-gray-400">
                 {selectedResource?.cors ? (
@@ -185,7 +185,7 @@ export function ResourceDetailCard({
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className={`text-lg font-semibold text-gray-900 dark:text-white`}>
-              메서드
+              Methods
               {selectedResource?.methods?.length > 0 && (
                 <span>({selectedResource?.methods?.length})</span>
               )}
@@ -199,7 +199,7 @@ export function ResourceDetailCard({
                   );
                 }}
                 className="rounded-full h-[28px] bg-blue-500 hover:bg-blue-600 text-white">
-                메서드 생성
+                Method Create
               </Button>
             </div>
           </div>
@@ -207,12 +207,12 @@ export function ResourceDetailCard({
             <Table>
               <TableHeader className="hover:bg-white dark:hover:bg-gray-700">
                 <TableRow className="hover:bg-white dark:hover:bg-gray-700">
-                  <TableHead className="w-[10%]">메서드 유형</TableHead>
-                  <TableHead>메서드 요약</TableHead>
-                  <TableHead>통합 유형</TableHead>
-                  <TableHead>API 키</TableHead>
-                  <TableHead>엔드포인트 URL</TableHead>
-                  <TableHead className="w-[7%] text-center">작업</TableHead>
+                  <TableHead className="w-[10%]">Method Type</TableHead>
+                  <TableHead>Method Summary</TableHead>
+                  <TableHead>Integration Type</TableHead>
+                  <TableHead>API Key</TableHead>
+                  <TableHead>Endpoint URL</TableHead>
+                  <TableHead className="w-[7%] text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -264,8 +264,8 @@ export function ResourceDetailCard({
           ) : (
             <div className="text-center py-12">
               <Shield className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 dark:text-gray-400 mb-2">메서드 없음</p>
-              <p className="text-sm text-gray-500">정의된 메서드가 없습니다.</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-2">No Methods</p>
+              <p className="text-sm text-gray-500">No methods defined.</p>
             </div>
           )}
         </div>

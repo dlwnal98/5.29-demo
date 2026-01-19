@@ -113,7 +113,7 @@ export default function StagesPageView({
             Stages
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            배포된 API의 실행 환경을 구분하는 Stage들을 관리하세요.
+            Manage stages to divide the execution environment of deployed APIs.
           </p>
         </div>
       </div>
@@ -129,7 +129,7 @@ export default function StagesPageView({
                 className="rounded-full h-[25px] !gap-1 border-2 border-blue-500 text-[#0F74E1] font-bold hover:text-blue-700 hover:bg-blue-50"
                 onClick={onOpenCreateModal}
               >
-                스테이지 생성
+                Create Stage
               </Button>
             </div>
             <div className="space-y-1">
@@ -165,14 +165,14 @@ export default function StagesPageView({
                       >
                         {selectedTreeMethod.type}
                       </span>
-                      {selectedTreeMethod.path} - 메서드 상세
+                      {selectedTreeMethod.path} - Method Detail
                     </CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
                     <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      메서드 타입
+                      Method Type
                     </Label>
                     <div className="mt-1 text-gray-900 dark:text-gray-100">
                       {selectedTreeMethod.type}
@@ -180,7 +180,7 @@ export default function StagesPageView({
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      경로
+                      Path
                     </Label>
                     <div className="mt-1 flex items-center gap-2">
                       <code className="text-gray-900 dark:text-gray-100 font-mono">
@@ -191,7 +191,7 @@ export default function StagesPageView({
                         variant="ghost"
                         onClick={() => onCopyMethodUrl(`${stageDetailData?.endpoint?.fullEndpoint}${selectedTreeMethod.resourcePath}`)}
                         className="h-6 w-6 p-0"
-                        title="경로 복사"
+                        title="Copy Path"
                       >
                         <Copy className="h-3 w-3" />
                       </Button>
@@ -200,7 +200,7 @@ export default function StagesPageView({
                   {selectedTreeMethod.info?.summary && (
                     <div>
                       <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        요약
+                        Summary
                       </Label>
                       <div className="mt-1 text-gray-900 dark:text-gray-100">
                         {selectedTreeMethod.info.summary}
@@ -210,7 +210,7 @@ export default function StagesPageView({
                   {selectedTreeMethod.info?.description && (
                     <div>
                       <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        설명
+                        Description
                       </Label>
                       <div className="mt-1 text-gray-900 dark:text-gray-100">
                         {selectedTreeMethod.info.description}
@@ -224,14 +224,14 @@ export default function StagesPageView({
               <Card>
                 <CardHeader>
                   <CardTitle>
-                    리소스 - {selectedResource.path || `/${selectedResource.name}`}
+                    Resource - {selectedResource.path || `/${selectedResource.name}`}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div>
                       <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        메서드 ({selectedResource?.methods?.length || 0})
+                        Methods ({selectedResource?.methods?.length || 0})
                       </Label>
                       {(selectedResource?.methods?.length ?? 0) > 0 ? (
                         <div className="mt-2 space-y-2">
@@ -261,7 +261,7 @@ export default function StagesPageView({
                         </div>
                       ) : (
                         <div className="mt-2 text-center py-8 text-gray-500 dark:text-gray-400">
-                          이 리소스에는 정의된 메서드가 없습니다.
+                          This resource has no defined methods.
                         </div>
                       )}
                     </div>
@@ -275,7 +275,7 @@ export default function StagesPageView({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        스테이지 세부 정보
+                        Stage Details
                       </h2>
                     </div>
                     <div className="flex items-center gap-2">
@@ -284,7 +284,7 @@ export default function StagesPageView({
                         size="sm"
                         onClick={onOpenEditModal}
                         className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 border-gray-200"
-                        title="스테이지 수정"
+                        title="Stage Edit"
                       >
                         <Settings className="h-4 w-4" />
                       </Button>
@@ -293,7 +293,7 @@ export default function StagesPageView({
                         size="sm"
                         onClick={onOpenExportModal}
                         className="text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200 bg-transparent"
-                        title="API 내보내기"
+                        title="Export API"
                       >
                         <Download className="h-4 w-4" />
                       </Button>
@@ -302,7 +302,7 @@ export default function StagesPageView({
                         size="sm"
                         onClick={onOpenDeleteDialog}
                         className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-                        title="스테이지 삭제"
+                        title="Delete Stage"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -313,7 +313,7 @@ export default function StagesPageView({
                 <div className="p-4 space-y-4">
                   <div>
                     <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      스테이지 이름
+                      Stage Name
                     </Label>
                     <div className="mt-1 text-blue-600 font-medium">
                       {stageDetailData.stageName}
@@ -321,7 +321,7 @@ export default function StagesPageView({
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      스테이지 경로
+                      Stage Path
                     </Label>
                     <div className="mt-1 flex items-center gap-2">
                       <code className="text-blue-600 font-mono">
@@ -332,7 +332,7 @@ export default function StagesPageView({
                         variant="ghost"
                         onClick={() => onCopyMethodUrl(stageDetailData.endpoint?.fullEndpoint || "")}
                         className="h-6 w-6 p-0"
-                        title="경로 복사"
+                        title="Copy Path"
                       >
                         <Copy className="h-3 w-3" />
                       </Button>
@@ -341,7 +341,7 @@ export default function StagesPageView({
                   {stageDetailData.description && (
                     <div>
                       <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        스테이지 설명
+                        Description
                       </Label>
                       <div className="mt-1 text-gray-900 dark:text-gray-100">
                         {stageDetailData.description}
@@ -371,7 +371,7 @@ export default function StagesPageView({
                   {stageDetailData.createdAt && (
                     <div>
                       <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        생성일
+                        Created At
                       </Label>
                       <div className="mt-1 text-gray-900 dark:text-gray-100">
                         {new Date(stageDetailData.createdAt).toLocaleString('ko-KR')}
@@ -384,7 +384,7 @@ export default function StagesPageView({
               /* 초기 상태 - 스테이지 선택 안됨 */
               <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-                  좌측에서 스테이지를 선택해주세요.
+                  Please select a stage from the left.
                 </div>
               </div>
             )}

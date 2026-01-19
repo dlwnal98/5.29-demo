@@ -20,6 +20,7 @@ import { useAuthStore } from '@/stores/store';
 import { useGetModelList } from '@/hooks/use-model';
 import { useMethodEditForm } from '../hooks/useMethodEditForm';
 import { useModifyMethod } from '@/hooks/use-methods';
+import { useGetEndpointsList } from '@/hooks/use-endpoints';
 
 export default function MethodDetailCard({ selectedMethod }: { selectedMethod: Method }) {
   // info 타입 캐스팅 (Method 타입의 info가 {} 로 정의되어 있음)
@@ -39,6 +40,10 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
   // modelList 타입 캐스팅 (API 응답이 페이지네이션 객체)
   const modelList = (modelListData as any)?.content || [];
 
+  // endpointList 조회
+  const tenantId = userData?.organizationId ?? '';
+  const { data: endpointList = [] } = useGetEndpointsList(tenantId);
+
   const [methodToDelete, setMethodToDelete] = useState<Method | null>(null);
 
   // 통합 폼 상태 관리
@@ -57,14 +62,14 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
   // 메서드 수정 mutation
   const { mutate: modifyMethod, isPending: isModifying } = useModifyMethod({
     onSuccess: () => {
-      toast.success('메서드가 성공적으로 수정되었습니다.');
+      toast.success('Method modified successfully.');
       setIsEditMode(false);
     },
     onError: (error: any) => {
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || '메서드 수정 중 오류가 발생했습니다.';
+        || 'Method modification failed.';
       toast.error(errorMessage);
     },
   });
@@ -72,7 +77,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
   // Delete Method mutation
   const { mutate: deleteMethod, isPending: isDeleting } = useDeleteMethod({
     onSuccess: () => {
-      toast.success('메서드가 삭제되었습니다.');
+      toast.success('Method deleted successfully.');
       setIsMethodDeleteDialogOpen(false);
       setMethodToDelete(null);
     },
@@ -80,7 +85,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || '메서드 삭제 중 오류가 발생했습니다.';
+        || 'Method deletion failed.';
       toast.error(errorMessage);
     },
   });
@@ -110,7 +115,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
 
   const handleCopyEndpoint = () => {
     clipboard.copy(methodInfo?.['x-route-endpoint'] ?? '');
-    toast.success('ARN이 클립보드에 복사되었습니다.');
+    toast.success('ARN copied to clipboard.');
   };
 
   const handleFlowStepClick = (step: string) => {
@@ -134,7 +139,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
   const handleSaveMethod = () => {
     const methodId = methodInfo?.['x-method-id'];
     if (!methodId) {
-      toast.error('메서드 ID를 찾을 수 없습니다.');
+      toast.error('Method ID not found.');
       return;
     }
 
@@ -172,7 +177,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
       };
 
       setTestResponse(mockResponse);
-      toast.success('API 테스트가 완료되었습니다.');
+      toast.success('API test completed successfully.');
     } catch (error) {
       const endTime = Date.now();
       const responseTime = endTime - startTime;
@@ -191,7 +196,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
         ),
         responseTime,
       });
-      toast.error('API 테스트 중 오류가 발생했습니다.');
+      toast.error('API test failed.');
     } finally {
       setIsTestLoading(false);
     }
@@ -221,7 +226,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                         variant="outline"
                         className="border-blue-200 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                         onClick={handleEditMethod}>
-                        편집
+                        Edit
                       </Button>
                       <Button
                         variant="outline"
@@ -230,19 +235,19 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                           setMethodToDelete(selectedMethod);
                           setIsMethodDeleteDialogOpen(true);
                         }}>
-                        삭제
+                        Delete
                       </Button>
                     </>
                   ) : (
                     <>
                       <Button variant="outline" onClick={handleCancelEdit} disabled={isModifying}>
-                        취소
+                        Cancel
                       </Button>
                       <Button
                         onClick={handleSaveMethod}
                         disabled={isModifying}
                         className="bg-blue-500 hover:bg-blue-600 text-white">
-                        {isModifying ? '저장 중...' : '저장'}
+                        {isModifying ? 'Saving...' : 'Save'}
                       </Button>
                     </>
                   )}
@@ -257,7 +262,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                         <Monitor className="h-6 w-6 text-gray-600" />
                       </div>
                       <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                        클라이언트
+                        Client
                       </span>
                     </div>
 
@@ -275,7 +280,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                           }`}
                         onClick={() => handleFlowStepClick('method-request')}>
                         <div className="text-xs font-medium text-blue-700 dark:text-blue-300">
-                          메서드 요청
+                          Method Request
                         </div>
                       </div>
 
@@ -286,7 +291,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                           }`}
                         onClick={() => handleFlowStepClick('method-response')}>
                         <div className="text-xs font-medium text-blue-700 dark:text-blue-300">
-                          메서드 응답
+                          Method Response
                         </div>
                       </div>
                     </div>
@@ -301,11 +306,11 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                       <div className="bg-white border-2 border-blue-300 rounded-lg p-3 mb-2 min-w-[80px]">
                         <div className="text-center">
                           <div className="text-xs font-bold text-gray-600">{selectedMethod?.info?.['x-integration-type']}</div>
-                          <div className="text-xs text-gray-500">응답</div>
+                          <div className="text-xs text-gray-500">Response</div>
                         </div>
                       </div>
                       <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                        {selectedMethod?.info?.['x-integration-type']} 응답
+                        {selectedMethod?.info?.['x-integration-type']} Response
                       </span>
                     </div>
                   </div>
@@ -319,10 +324,10 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
         <div className="p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="basic-info">기본 정보</TabsTrigger>
-              <TabsTrigger value="method-request">메서드 요청</TabsTrigger>
-              <TabsTrigger value="method-response">메서드 응답</TabsTrigger>
-              <TabsTrigger value="test">테스트</TabsTrigger>
+              <TabsTrigger value="basic-info">Basic Info</TabsTrigger>
+              <TabsTrigger value="method-request">Method Request</TabsTrigger>
+              <TabsTrigger value="method-response">Method Response</TabsTrigger>
+              <TabsTrigger value="test">Test</TabsTrigger>
             </TabsList>
 
             {/* Basic Info Tab */}
@@ -335,6 +340,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                   integrationTypeList={integrationTypeList}
                   onChange={updateBasicInfo}
                   selectedMethod={selectedMethod}
+                  endpointList={endpointList}
                 />
               )}
             </TabsContent>

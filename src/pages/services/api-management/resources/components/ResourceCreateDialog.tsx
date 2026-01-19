@@ -54,7 +54,7 @@ export function ResourceCreateDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-blue-600">리소스 생성</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-blue-600">Resource Create</DialogTitle>
         </DialogHeader>
         <div className="space-y-6 py-4">
           {/* Resource Path and Name - Side by Side */}
@@ -63,13 +63,13 @@ export function ResourceCreateDialog({
               <Label
                 htmlFor="resource-path"
                 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                리소스 경로<span className="text-red-500 ml-1">*</span>
+                Resource Path<span className="text-red-500 ml-1">*</span>
               </Label>
               <Select
                 value={pathPattern ? pathPattern : '/'}
                 onValueChange={onPathPatternChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="경로를 선택하세요" />
+                  <SelectValue placeholder="Select a path" />
                 </SelectTrigger>
                 <SelectContent>
                   {resourcePaths.map((path) => (
@@ -84,7 +84,7 @@ export function ResourceCreateDialog({
               <Label
                 htmlFor="resource-name"
                 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                리소스 이름<span className="text-red-500 ml-1">*</span>
+                Resource Name<span className="text-red-500 ml-1">*</span>
               </Label>
               <Input
                 id="resource-name"
@@ -93,7 +93,7 @@ export function ResourceCreateDialog({
                 onChange={(e) => onResourceNameChange(e.target.value)}
               />
               {checkUrl && (
-                <span className="text-xs mt-2 ml-2 text-red-500">한글은 입력이 불가합니다.</span>
+                <span className="text-xs mt-2 ml-2 text-red-500">Korean is not allowed.</span>
               )}
             </div>
           </div>
@@ -103,7 +103,7 @@ export function ResourceCreateDialog({
               <Label
                 htmlFor="resource-description"
                 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                리소스 설명
+                Resource Description
               </Label>
               <Textarea
                 id="resource-description"
@@ -120,11 +120,10 @@ export function ResourceCreateDialog({
               <Label
                 htmlFor="cors-toggle"
                 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                원본에서 CORS
+                CORS from Source
               </Label>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                모든 오리진, 모든 메서드 및 몇 가지 공통 헤더를 허용하는 OPTIONS 메서드를
-                생성합니다.
+                Creates an OPTIONS method that allows all origins, all methods, and a few common headers.
               </p>
             </div>
             <Switch
@@ -136,13 +135,13 @@ export function ResourceCreateDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onCancel}>
-            취소
+            Cancel
           </Button>
           <Button
             onClick={onCreateResource}
             disabled={!createResourceForm.resourceName || isPending}
             className="bg-blue-500 hover:bg-blue-600 text-white">
-            {isPending ? '생성 중...' : '생성'}
+            {isPending ? 'Creating...' : 'Create'}
           </Button>
         </DialogFooter>
       </DialogContent>

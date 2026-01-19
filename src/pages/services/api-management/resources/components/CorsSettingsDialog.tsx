@@ -53,7 +53,7 @@ export function CorsSettingsDialog({
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-scroll">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-blue-600 flex items-center space-x-2 gap-2 mb-2">
-            CORS 활성화 설정
+            CORS Enable Setting
             <Switch
               checked={corsForm.corsEnabled}
               onCheckedChange={onCorsEnabledChange}
@@ -168,13 +168,13 @@ export function CorsSettingsDialog({
         </div>
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            취소
+            Cancel
           </Button>
           <Button
             onClick={onSaveCorsSettings}
             disabled={isPending || (corsForm?.corsEnabled && checkedMethod?.length === 0)}
             className="bg-blue-500 hover:bg-blue-600 text-white">
-            {isPending ? '저장 중...' : '저장'}
+            {isPending ? 'Saving...' : 'Save'}
           </Button>
         </DialogFooter>
       </DialogContent>
