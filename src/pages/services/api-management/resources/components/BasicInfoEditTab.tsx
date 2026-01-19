@@ -137,7 +137,7 @@ export function BasicInfoEditTab({ formData, integrationTypeList, onChange, sele
               <div className="space-y-2 mt-4">
                 <div className="flex items-center gap-3 mb-4">
                   <Label htmlFor="routingEndpoint">
-                    Backend Service URL <span className="text-red-500">*</span>
+                    Routing Endpoint URL <span className="text-red-500">*</span>
                   </Label>
                   <div className="flex items-center gap-2">
                     <Label className="text-sm text-gray-600">Direct Input</Label>

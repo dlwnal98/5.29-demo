@@ -97,23 +97,13 @@ export function useCorsSettingsDialog({
   };
 
   const handleMethodToggle = (methodType: string, checked: boolean) => {
-    // setCorsForm((prev) => ({
-    //   ...prev,
-    //   allowMethods: checked
-    //     ? [...new Set([...prev.allowMethods, methodType])]
-    //     : prev.allowMethods.filter((m) => m !== methodType),
-    // }));
     setCheckedMethod((prev) => {
       if (checked) {
-        // 체크된 경우: 기존 배열에 methodType 추가 (중복 방지를 위해 확인 후 추가)
         return prev.includes(methodType) ? prev : [...prev, methodType];
       } else {
-        // 체크 해제된 경우: 해당 methodType을 제외한 새 배열 생성
-        // return prev.filter((m) => m !== methodType);
-        return ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'];
+        return prev.filter((m) => m !== methodType);
       }
     });
-
   };
 
 
