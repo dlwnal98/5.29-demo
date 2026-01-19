@@ -19,7 +19,7 @@ interface CorsSettingsDialogProps {
   onOpenChange: (open: boolean) => void;
   selectedResource: Resource;
   corsForm: CorsForm;
-  checkedMethod: string[];
+  selectedMethods: string[];  // 사용자가 선택한 메서드 (체크박스 상태, API 전송용)
   isPending?: boolean;
   onSaveCorsSettings: () => void;
   onMethodToggle: (methodType: string, checked: boolean) => void;
@@ -37,7 +37,7 @@ export function CorsSettingsDialog({
   onOpenChange,
   selectedResource,
   corsForm,
-  checkedMethod,
+  selectedMethods,
   isPending,
   onSaveCorsSettings,
   onMethodToggle,
@@ -73,7 +73,7 @@ export function CorsSettingsDialog({
                     <div className="flex items-center space-x-2" key={i}>
                       <CheckboxPrimitive.Root
                         id={method}
-                        checked={checkedMethod?.includes(method)}
+                        checked={selectedMethods?.includes(method)}
                         disabled={!corsForm?.corsEnabled}
                         onCheckedChange={(checked) => onMethodToggle(method, checked as boolean)}
                         className="w-5 h-5 border border-gray-300 bg-white rounded
@@ -172,7 +172,7 @@ export function CorsSettingsDialog({
           </Button>
           <Button
             onClick={onSaveCorsSettings}
-            disabled={isPending || (corsForm?.corsEnabled && checkedMethod?.length === 0)}
+            disabled={isPending || (corsForm?.corsEnabled && selectedMethods?.length === 0)}
             className="bg-blue-500 hover:bg-blue-600 text-white">
             {isPending ? 'Saving...' : 'Save'}
           </Button>

@@ -96,6 +96,8 @@ export function ResourceDetailCard({
     }
   };
 
+  console.log(selectedResource)
+
 
   return (
     <>
@@ -276,7 +278,7 @@ export function ResourceDetailCard({
         onOpenChange={setIsCorsModalOpen}
         selectedResource={selectedResource}
         corsForm={corsDialog.corsForm}
-        checkedMethod={corsDialog.checkedMethod}
+        selectedMethods={corsDialog.selectedMethods}
         isPending={corsDialog.isPending}
         onSaveCorsSettings={corsDialog.onSaveCorsSettings}
         onMethodToggle={corsDialog.onMethodToggle}

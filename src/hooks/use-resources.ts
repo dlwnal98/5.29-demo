@@ -1,5 +1,5 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
-import { OpenAPIData, CreateResourceProps, resourceCorsSettingsData, ModifyResourceProps, deploymentProps } from '@/apis/resources.api';
+import { OpenAPIData, CreateResourceProps, resourceCorsConfig, ModifyResourceCorsProps, deploymentProps } from '@/apis/resources.api';
 import { createResource, deleteResource, getOpenAPIDoc, getResourceCorsSettings, modifyResourceCorsSettings } from '@/apis/resources.api';
 import { deployAPI } from '@/apis/resources.api';
 
@@ -34,7 +34,7 @@ export function useCreateResource(apiId: string, options?: UseMutationOptions<an
 }
 
 export function useGetResourceCorsSettings(apiId: string, resourceId: string) {
-  return useQuery<resourceCorsSettingsData[]>({
+  return useQuery<resourceCorsConfig[]>({
     queryKey: ['getResourceCorsSettings', apiId, resourceId],
     queryFn: () => getResourceCorsSettings(apiId, resourceId),
     enabled: !!apiId && !!resourceId,
@@ -47,13 +47,13 @@ export function useGetResourceCorsSettings(apiId: string, resourceId: string) {
 
 
 export function useModifyResourceCorsSettings(
-  options?: UseMutationOptions<any, Error, { apiId: string, resourceId: string; data: ModifyResourceProps }>
+  options?: UseMutationOptions<any, Error, { apiId: string, resourceId: string; data: ModifyResourceCorsProps }>
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...options,
-    mutationFn: ({ apiId, resourceId, data }: { apiId: string, resourceId: string; data: ModifyResourceProps }) =>
+    mutationFn: ({ apiId, resourceId, data }: { apiId: string, resourceId: string; data: ModifyResourceCorsProps }) =>
       modifyResourceCorsSettings(apiId, resourceId, data),
     onSuccess: (data, variables, context) => {
       // 리소스 목록 invalidate

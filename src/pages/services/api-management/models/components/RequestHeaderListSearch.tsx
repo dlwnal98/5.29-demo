@@ -35,18 +35,24 @@ export default function RequestHeaderListSearch({
     );
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (!isOpen) return;
-
         if (e.key === 'ArrowDown') {
             e.preventDefault();
-            setHighlightedIndex((prev) => (prev < filtered.length - 1 ? prev + 1 : prev));
+            if (!isOpen) {
+                setIsOpen(true);
+            } else {
+                setHighlightedIndex((prev) => (prev < filtered.length - 1 ? prev + 1 : prev));
+            }
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
             setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : 0));
         } else if (e.key === 'Enter') {
             e.preventDefault();
-            if (filtered[highlightedIndex]) {
+            if (isOpen && filtered[highlightedIndex]) {
+                // 옵션 목록에서 선택
                 selectOption(filtered[highlightedIndex]);
+            } else if (search.trim()) {
+                // 직접 입력한 값 사용
+                applyDirectInput();
             }
         } else if (e.key === 'Escape') {
             setIsOpen(false);
@@ -57,8 +63,28 @@ export default function RequestHeaderListSearch({
         setSelected(option);
         setSearch(option.value);
         setIsOpen(false);
-        updateHeader('name', option.value); // id 필요 없음
+        updateHeader('name', option.value);
         inputRef.current?.focus();
+    };
+
+    // 직접 입력한 값 적용
+    const applyDirectInput = () => {
+        if (search.trim()) {
+            setSelected(null);
+            setIsOpen(false);
+            updateHeader('name', search.trim());
+        }
+    };
+
+    // blur 시 직접 입력값 적용
+    const handleBlur = () => {
+        // 드롭다운 선택 중이 아닐 때만 적용
+        setTimeout(() => {
+            if (search.trim() && !selected) {
+                updateHeader('name', search.trim());
+            }
+            setIsOpen(false);
+        }, 150);
     };
 
     useEffect(() => {
@@ -92,7 +118,7 @@ export default function RequestHeaderListSearch({
                     ref={inputRef}
                     type="text"
                     className="text-[14px] border px-3 py-2 pr-[35px] rounded-md cursor-pointer w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Type to search..."
+                    placeholder="Type to search or enter custom header..."
                     aria-autocomplete="list"
                     aria-controls="autocomplete-list"
                     aria-expanded={isOpen}
@@ -104,10 +130,12 @@ export default function RequestHeaderListSearch({
                     value={search}
                     onChange={(e) => {
                         setSearch(e.target.value);
+                        setSelected(null);
                         setIsOpen(true);
                         setHighlightedIndex(0);
                     }}
                     onFocus={() => setIsOpen(true)}
+                    onBlur={handleBlur}
                     onKeyDown={handleKeyDown}
                 />
                 <ChevronDown className="absolute right-[12px] top-[20%]" stroke="gray" width={'16px'} />
@@ -133,6 +161,12 @@ export default function RequestHeaderListSearch({
                                 {opt.value}
                             </li>
                         ))
+                    ) : search.trim() ? (
+                        <li
+                            className="text-[14px] px-3 py-2 rounded-md cursor-pointer bg-blue-50 text-blue-600"
+                            onMouseDown={() => applyDirectInput()}>
+                            Use "{search}" as custom header
+                        </li>
                     ) : (
                         <li className="px-3 py-2 text-gray-400">No results</li>
                     )}

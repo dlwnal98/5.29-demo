@@ -61,17 +61,17 @@ export interface resourceCorsConfig {
     maxAge: number;
 }
 
-export interface resourceCorsSettingsData {
-    allowMethods: string[];
-    allowHeaders: string[];
-    allowOrigins: string[];
-    exposeHeaders: string[];
-    maxAge: number;
-    allowCredentials: boolean;
-    standardCompliant?: boolean;
-    validHttpMethods?: boolean;
-    corsEnabled: boolean;
-}
+// export interface resourceCorsSettingsData {
+//     allowMethods: string[];
+//     allowHeaders: string[];
+//     allowOrigins: string[];
+//     exposeHeaders: string[];
+//     maxAge: number;
+//     allowCredentials: boolean;
+//     standardCompliant?: boolean;
+//     validHttpMethods?: boolean;
+//     corsEnabled: boolean;
+// }
 
 export const getResourceCorsSettings = async (apiId: string, resourceId: string) => {
     const res = await requestGet(`/api/v1/plans/${apiId}/resources/${resourceId}/cors`);
@@ -89,7 +89,7 @@ export const getResourcePaths = async (apiId: string) => {
 
 
 //Resource CORS  수정
-export interface ModifyResourceProps {
+export interface ModifyResourceCorsProps {
     allowedOrigins?: string[];
     allowedMethods?: string[];
     allowedHeaders?: string[];
@@ -101,7 +101,7 @@ export interface ModifyResourceProps {
     validHttpMethods?: boolean;
 }
 
-export const modifyResourceCorsSettings = async (apiId: string, resourceId: string, data: ModifyResourceProps) => {
+export const modifyResourceCorsSettings = async (apiId: string, resourceId: string, data: ModifyResourceCorsProps) => {
     const res = await requestPut(`/api/v1/plans/${apiId}/resources/${resourceId}/cors`, {
         body: data,
     });

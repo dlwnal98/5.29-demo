@@ -34,6 +34,8 @@ export function MethodRequestView({
     }
   };
 
+  console.log(selectedMethod);
+
   return (
     <>
       {/* Method Request Settings */}

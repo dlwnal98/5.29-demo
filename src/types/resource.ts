@@ -1,10 +1,11 @@
 export interface Resource {
   id: number | string;
+  resourceId?: string;
   path: string;
   name: string;
   description: string;
   children?: Resource[];
-  methods: string[];
+  methods: Method[];
   cors?: {
     allowMethods?: string[];
     allowHeaders?: string[];

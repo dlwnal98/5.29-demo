@@ -114,8 +114,8 @@ export const passwordRegex = /^.{4,}$/;
 
 
 // endpoint 주소 정규식
-// 1. 영어, 숫자, {}, -, _, :, /, . 허용
-const liveInputRegex = /^[A-Za-z0-9{}\-_/:.]*$/;
+// 1. 영어, 숫자, -, _, :, /, . 허용
+const liveInputRegex = /^[A-Za-z0-9\-_/:.]*$/;
 // 2. 입력 이벤트 시
 export function onInputChange(value: string) {
   return liveInputRegex.test(value)
@@ -156,6 +156,7 @@ export function resoureceBuildTree(flatData) {
     name: '/',
     path: '/',
     resourceId: flatData['/']?.['x-resource-id'],
+    cors: flatData['/']?.['x-cors-enabled'],
     methods: Object.entries(flatData[rootPath])
       .filter(([type]) => !excludedKeys.includes(type))
       .map(([type, methodObj], mIdx) => ({
