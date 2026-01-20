@@ -4,10 +4,9 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 
 interface ResponseHeader {
-  id: string;
   name: string;
-  value: string;
-  required?: boolean;
+  description: string;
+  required: boolean;
 }
 
 interface ResponseBody {
@@ -39,6 +38,9 @@ const getStatusCodeColor = (code: string) => {
 export function MethodResponseTab({
   methodResponses,
 }: MethodResponseTabProps) {
+
+  console.log(methodResponses)
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -66,21 +68,25 @@ export function MethodResponseTab({
                   <Label className="text-sm font-medium">Response Header</Label>
                   {response.headers.length > 0 ? (
                     <div className="mt-2 space-y-1">
-                      {response.headers.map((header) => (
+                      {response.headers.map((header, i) => (
                         <div
-                          key={header.id}
+                          key={i}
                           className="flex items-center gap-2 text-sm bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded"
                         >
                           <code className="font-mono text-blue-600 dark:text-blue-400">
                             {header.name}
                           </code>
-                          {header.required && (
+                          {header.required ? (
                             <Badge variant="outline" className="text-xs bg-red-50 text-red-600 border-red-200">
                               Required
                             </Badge>
-                          )}
-                          {header.value && (
-                            <span className="text-gray-500">- {header.value}</span>
+                          ) :
+                            <Badge variant="outline" className="text-xs bg-gray-50 text-gray-600 border-gray-200">
+                              Optional
+                            </Badge>
+                          }
+                          {header.description && (
+                            <span className="text-gray-500">- {header.description}</span>
                           )}
                         </div>
                       ))}
@@ -100,12 +106,13 @@ export function MethodResponseTab({
                           key={body.id}
                           className="flex items-center gap-2 text-sm bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded"
                         >
+
+                          <span className="text-gray-600 dark:text-gray-400">
+                            ID: <code className="font-mono text-purple-600 dark:text-purple-400">{body.model}</code>
+                          </span>
                           <Badge variant="outline" className="font-mono text-xs">
                             {body.contentType}
                           </Badge>
-                          <span className="text-gray-600 dark:text-gray-400">
-                            Model: <code className="font-mono text-purple-600 dark:text-purple-400">{body.model}</code>
-                          </span>
                         </div>
                       ))}
                     </div>

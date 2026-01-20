@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,13 +12,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Send, Play, FileText, CheckCircle, Code } from 'lucide-react';
+import { Play, Code, RotateCcw } from 'lucide-react';
 
 interface MethodTestTabProps {
   selectedMethod: any;
   testSettings: any;
   setTestSettings: (settings: any) => void;
-  handleTest: () => void;
+  handleTest: (requestBody: any) => void;
   isTestLoading: boolean;
   testResponse: any;
 }
@@ -31,6 +31,77 @@ export function MethodTestTab({
   isTestLoading,
   testResponse,
 }: MethodTestTabProps) {
+  const [requestTab, setRequestTab] = useState('params');
+  const [bodyType, setBodyType] = useState('json');
+
+  // 파라미터 개수 계산
+  const queryParams = selectedMethod.parameters?.filter((p: any) => p.in === 'query') || [];
+  const pathParams = selectedMethod.parameters?.filter((p: any) => p.in === 'path') || [];
+  const headerParams = selectedMethod.parameters?.filter((p: any) => p.in === 'header') || [];
+  const totalParams = queryParams.length + pathParams.length;
+
+  // GET은 query/path 파라미터만, POST, PUT은 body 포함 가능
+  const methodsWithBody = ['POST', 'PUT'];
+  const methodsWithParamsOnly = ['GET'];
+  const hasBody = methodsWithBody.includes(selectedMethod.type);
+
+  // 기본 요청 예시 생성
+  const getDefaultRequestBody = useMemo(() => {
+    // GET: queryParameters 또는 pathParameters만 사용
+    if (methodsWithParamsOnly.includes(selectedMethod.type)) {
+      if (queryParams.length > 0) {
+        const queryExample: Record<string, string> = {};
+        queryParams.forEach((param: any) => {
+          queryExample[param.name] = param.schema?.example || (param.schema?.type === 'integer' ? '0' : 'value');
+        });
+        return JSON.stringify({ queryParameters: queryExample }, null, 2);
+      } else if (pathParams.length > 0) {
+        const pathExample: Record<string, string> = {};
+        pathParams.forEach((param: any) => {
+          pathExample[param.name] = param.schema?.example || '123';
+        });
+        return JSON.stringify({ pathParameters: pathExample }, null, 2);
+      }
+      return JSON.stringify({ queryParameters: { page: '0', size: '20' } }, null, 2);
+    }
+
+    // POST, PUT: headers와 body 사용
+    if (methodsWithBody.includes(selectedMethod.type)) {
+      return JSON.stringify({
+        headers: {
+          Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        },
+        body: '{"name": "John Doe", "email": "john@example.com"}'
+      }, null, 2);
+    }
+
+    return '{}';
+  }, [selectedMethod.type, queryParams, pathParams]);
+
+  // 편집 가능한 요청 본문 상태
+  const [requestBodyText, setRequestBodyText] = useState(getDefaultRequestBody);
+
+  // 메서드 변경 시 기본값으로 리셋
+  useEffect(() => {
+    setRequestBodyText(getDefaultRequestBody);
+  }, [selectedMethod?.info?.['x-method-id'], getDefaultRequestBody]);
+
+  // 기본값으로 리셋하는 함수
+  const handleResetRequestBody = () => {
+    setRequestBodyText(getDefaultRequestBody);
+  };
+
+  // Send 버튼 클릭 시 요청 본문 파싱하여 전달
+  const handleSendTest = () => {
+    try {
+      const parsedBody = JSON.parse(requestBodyText);
+      handleTest(parsedBody);
+    } catch (error) {
+      // JSON 파싱 실패 시 문자열 그대로 전달
+      handleTest(requestBodyText);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Request Section */}
@@ -43,23 +114,23 @@ export function MethodTestTab({
           <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
             <span
               className={`px-3 py-1 rounded text-sm font-mono font-bold ${selectedMethod.type === 'GET'
-                  ? 'bg-green-100 text-green-800'
-                  : selectedMethod.type === 'POST'
-                    ? 'bg-blue-100 text-blue-800'
-                    : selectedMethod.type === 'PUT'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : selectedMethod.type === 'DELETE'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-gray-100 text-gray-800'
+                ? 'bg-green-100 text-green-800'
+                : selectedMethod.type === 'POST'
+                  ? 'bg-blue-100 text-blue-800'
+                  : selectedMethod.type === 'PUT'
+                    ? 'bg-yellow-100 text-yellow-800'
+                    : selectedMethod.type === 'DELETE'
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-gray-100 text-gray-800'
                 }`}>
               {selectedMethod.type}
             </span>
             <code className="flex-1 text-sm bg-white dark:bg-gray-700 px-3 py-2 rounded border">
-              {selectedMethod.endpointUrl}
+              {`/api/v1/invoke/${selectedMethod?.info['x-method-id']}`}
             </code>
             <Button
               className="bg-orange-500 hover:bg-orange-600 text-white px-6"
-              onClick={handleTest}
+              onClick={handleSendTest}
               disabled={isTestLoading}>
               {isTestLoading ? (
                 <>
@@ -75,231 +146,36 @@ export function MethodTestTab({
             </Button>
           </div>
 
-          {/* Query Parameters */}
-          {selectedMethod.parameters?.filter((p: any) => p.in === 'query').length > 0 && (
-            <div>
-              <Label className="text-base font-medium text-gray-900 dark:text-white mb-3 block">
-                Query Parameters
-              </Label>
-              <div className="space-y-2">
-                {selectedMethod.parameters
-                  .filter((param: any) => param.in === 'query')
-                  .map((param: any, index: number) => (
-                    <div key={param.name} className="grid grid-cols-12 gap-3 items-center">
-                      <div className="col-span-1 flex justify-center">
-                        <input
-                          type="checkbox"
-                          defaultChecked={param.required}
-                          className="rounded border-gray-300"
-                        />
-                      </div>
-                      <div className="col-span-3">
-                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                          {param.name}
-                          {param.required && <span className="text-red-500 ml-1">*</span>}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {param.schema?.type || 'string'}
-                        </div>
-                      </div>
-                      <div className="col-span-8">
-                        <Input placeholder={`Enter ${param.name}`} className="w-full" />
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          )}
 
-          {/* Path Parameters */}
-          {selectedMethod.parameters?.filter((p: any) => p.in === 'path').length > 0 && (
-            <div>
-              <Label className="text-base font-medium text-gray-900 dark:text-white mb-3 block">
-                Path Parameters
-              </Label>
-              <div className="space-y-2">
-                {selectedMethod.parameters
-                  .filter((param: any) => param.in === 'path')
-                  .map((param: any) => (
-                    <div key={param.name} className="grid grid-cols-12 gap-3 items-center">
-                      <div className="col-span-1 flex justify-center">
-                        <input
-                          type="checkbox"
-                          defaultChecked={true}
-                          disabled
-                          className="rounded border-gray-300"
-                        />
-                      </div>
-                      <div className="col-span-3">
-                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                          {param.name}
-                          <span className="text-red-500 ml-1">*</span>
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {param.schema?.type || 'string'}
-                        </div>
-                      </div>
-                      <div className="col-span-8">
-                        <Input placeholder={`Enter ${param.name}`} className="w-full" required />
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          )}
 
-          {/* Headers */}
-          <div>
-            <Label className="text-base font-medium text-gray-900 dark:text-white mb-3 block">
-              Headers
-            </Label>
-            <div className="space-y-2">
-              {/* Common Headers */}
-              <div className="grid grid-cols-12 gap-3 items-center">
-                <div className="col-span-1 flex justify-center">
-                  <input
-                    type="checkbox"
-                    defaultChecked={selectedMethod.apiKey !== '-'}
-                    className="rounded border-gray-300"
-                  />
-                </div>
-                <div className="col-span-3">
-                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Authorization
-                  </div>
-                  <div className="text-xs text-gray-500">Authentication</div>
-                </div>
-                <div className="col-span-8">
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select auth type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="bearer">Bearer Token</SelectItem>
-                      <SelectItem value="basic">Basic Auth</SelectItem>
-                      <SelectItem value="apikey">API Key</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-12 gap-3 items-center">
-                <div className="col-span-1 flex justify-center">
-                  <input
-                    type="checkbox"
-                    defaultChecked={['POST', 'PUT', 'PATCH'].includes(selectedMethod.type)}
-                    className="rounded border-gray-300"
-                  />
-                </div>
-                <div className="col-span-3">
-                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Content-Type
-                  </div>
-                  <div className="text-xs text-gray-500">Media type</div>
-                </div>
-                <div className="col-span-8">
-                  <Select defaultValue="application/json">
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="application/json">application/json</SelectItem>
-                      <SelectItem value="application/xml">application/xml</SelectItem>
-                      <SelectItem value="text/plain">text/plain</SelectItem>
-                      <SelectItem value="application/x-www-form-urlencoded">
-                        application/x-www-form-urlencoded
-                      </SelectItem>
-                      <SelectItem value="multipart/form-data">multipart/form-data</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-12 gap-3 items-center">
-                <div className="col-span-1 flex justify-center">
-                  <input type="checkbox" className="rounded border-gray-300" />
-                </div>
-                <div className="col-span-3">
-                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Accept</div>
-                  <div className="text-xs text-gray-500">Response type</div>
-                </div>
-                <div className="col-span-8">
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select accept type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="application/json">application/json</SelectItem>
-                      <SelectItem value="application/xml">application/xml</SelectItem>
-                      <SelectItem value="text/html">text/html</SelectItem>
-                      <SelectItem value="*/*">*/*</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-12 gap-3 items-center">
-                <div className="col-span-1 flex justify-center">
-                  <input type="checkbox" className="rounded border-gray-300" />
-                </div>
-                <div className="col-span-3">
-                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    User-Agent
-                  </div>
-                  <div className="text-xs text-gray-500">Client info</div>
-                </div>
-                <div className="col-span-8">
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select user agent" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="postman">Postman Runtime/7.29.2</SelectItem>
-                      <SelectItem value="chrome">Mozilla/5.0 (Chrome)</SelectItem>
-                      <SelectItem value="firefox">Mozilla/5.0 (Firefox)</SelectItem>
-                      <SelectItem value="custom">Custom</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Request Body (for POST, PUT, PATCH) */}
-          {['POST', 'PUT', 'PATCH'].includes(selectedMethod.type) && (
-            <div>
-              <Label className="text-base font-medium text-gray-900 dark:text-white mb-3 block">
+          {/* Request Body Section */}
+          <div className="">
+            <div className="flex items-center justify-between mb-3">
+              <Label className="text-base font-medium text-gray-900 dark:text-white">
                 Request Body
               </Label>
-              <div className="space-y-3">
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="bg-blue-50 text-blue-600">
-                    JSON
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    XML
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    Form Data
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    Raw
-                  </Button>
-                </div>
-                <Textarea
-                  value={testSettings.requestBody}
-                  onChange={(e) =>
-                    setTestSettings({
-                      ...testSettings,
-                      requestBody: e.target.value,
-                    })
-                  }
-                  placeholder={`{
-  "name": "John Doe",
-  "email": "john@example.com"
-}`}
-                  className="min-h-[150px] font-mono text-sm"
-                />
-              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleResetRequestBody}
+                className="text-xs">
+                <RotateCcw className="h-3 w-3 mr-1" />
+                Reset to Default
+              </Button>
             </div>
-          )}
+            <Textarea
+              value={requestBodyText}
+              onChange={(e) => setRequestBodyText(e.target.value)}
+              className="min-h-[200px] font-mono text-sm bg-gray-900 text-green-400 border-gray-700"
+              placeholder="Enter request body as JSON..."
+            />
+            <p className="text-xs text-gray-500 mt-2">
+              {methodsWithParamsOnly.includes(selectedMethod.type) && queryParams.length > 0 && `Query parameters are sent as URL query string for ${selectedMethod.type} request.`}
+              {methodsWithParamsOnly.includes(selectedMethod.type) && pathParams.length > 0 && queryParams.length === 0 && `Path parameters are sent as part of the URL path for ${selectedMethod.type} request.`}
+              {methodsWithBody.includes(selectedMethod.type) && `Headers and body are sent with the ${selectedMethod.type} request.`}
+              {methodsWithParamsOnly.includes(selectedMethod.type) && queryParams.length === 0 && pathParams.length === 0 && `Default query parameters example for ${selectedMethod.type} request.`}
+            </p>
+          </div>
         </CardContent>
       </Card>
 
@@ -307,109 +183,59 @@ export function MethodTestTab({
       {testResponse && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 !text-lg font-bold">Response Result</CardTitle>
+            <CardTitle className="flex items-center gap-2 !text-lg font-bold">
+              Response Result
+              {testResponse.error ? (
+                <span className="ml-2 px-2 py-0.5 text-xs rounded bg-red-100 text-red-800">
+                  Error
+                </span>
+              ) : (
+                <span className="ml-2 px-2 py-0.5 text-xs rounded bg-green-100 text-green-800">
+                  Success
+                </span>
+              )}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {/* Status and Time */}
-              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div className="flex items-center gap-4">
+              {/* Status Info */}
+              {testResponse.status && (
+                <div className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">Status:</span>
                     <span
-                      className={`px-2 py-1 rounded text-sm font-mono ${testResponse.status >= 200 && testResponse.status < 300
-                          ? 'bg-green-100 text-green-800'
-                          : testResponse.status >= 400
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-yellow-100 text-yellow-800'
+                      className={`px-2 py-1 rounded text-sm font-mono ${!testResponse.error
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
                         }`}>
-                      {testResponse.status} {testResponse.statusText}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Time:</span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {testResponse.responseTime}ms
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Size:</span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {new Blob([testResponse.body]).size} bytes
+                      {testResponse.status}
                     </span>
                   </div>
                 </div>
+              )}
+
+              {/* Response Body */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Response Body
+                </Label>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 max-h-96 overflow-auto border">
+                  <pre className="text-sm font-mono text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                    {(() => {
+                      try {
+                        // testResponse가 직접 데이터인 경우
+                        if (testResponse.error) {
+                          return JSON.stringify(testResponse, null, 2);
+                        }
+                        // 응답 데이터를 그대로 표시
+                        return JSON.stringify(testResponse, null, 2);
+                      } catch {
+                        return String(testResponse);
+                      }
+                    })()}
+                  </pre>
+                </div>
               </div>
-
-              {/* Response Tabs */}
-              <Tabs defaultValue="body" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="body">Body</TabsTrigger>
-                  <TabsTrigger value="headers">
-                    Headers ({Object.keys(testResponse.headers).length})
-                  </TabsTrigger>
-                  <TabsTrigger value="test-results">Test Results</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="body" className="mt-4">
-                  <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="bg-blue-50 text-blue-600">
-                        Pretty
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        Raw
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        Preview
-                      </Button>
-                    </div>
-                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 max-h-96 overflow-auto">
-                      <pre className="text-sm font-mono text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                        {JSON.stringify(JSON.parse(testResponse.body), null, 2)}
-                      </pre>
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="headers" className="mt-4">
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                    <div className="space-y-2">
-                      {Object.entries(testResponse.headers).map(([key, value]) => (
-                        <div
-                          key={key}
-                          className="grid grid-cols-3 gap-4 py-2 border-b border-gray-200 dark:border-gray-600 last:border-b-0">
-                          <div className="font-medium text-sm text-gray-700 dark:text-gray-300">
-                            {key}
-                          </div>
-                          <div className="col-span-2 text-sm text-gray-600 dark:text-gray-400 font-mono">
-                            {value}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="test-results" className="mt-4">
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                        <span className="text-sm">Status code is 200</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                        <span className="text-sm">Response time is less than 2000ms</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                        <span className="text-sm">Content-Type header is present</span>
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
             </div>
           </CardContent>
         </Card>

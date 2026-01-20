@@ -1,6 +1,6 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
 import { MethodsDetailDataProps, CreateMethodProps, ModifyMethodProps } from '@/apis/methods.api';
-import { getMethodsDetailData, createMethod, modifyMethod, deleteMethod } from '@/apis/methods.api';
+import { getMethodsDetailData, createMethod, modifyMethod, deleteMethod, testMethod } from '@/apis/methods.api';
 
 export function useGetMethodsDetailData(methodId: string) {
   return useQuery<MethodsDetailDataProps>({
@@ -71,5 +71,13 @@ export function useDeleteMethod(options?: UseMutationOptions<any, Error, string>
 
       options?.onSuccess?.(data, variables, context);
     },
+  });
+}
+
+// ✅ 메서드 테스트
+export function useTestMethod(options?: UseMutationOptions<any, Error, { methodId: string; data: any }>) {
+  return useMutation({
+    ...options,
+    mutationFn: ({ methodId, data }: { methodId: string; data: any }) => testMethod(methodId, data),
   });
 }

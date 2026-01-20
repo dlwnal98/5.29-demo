@@ -28,14 +28,14 @@ interface MethodResponseEditTabProps {
 }
 
 const commonStatusCodes = [
-  { code: '200', description: '성공' },
-  { code: '201', description: '생성됨' },
-  { code: '204', description: '콘텐츠 없음' },
-  { code: '400', description: '잘못된 요청' },
-  { code: '401', description: '인증 필요' },
-  { code: '403', description: '접근 금지' },
-  { code: '404', description: '찾을 수 없음' },
-  { code: '500', description: '서버 오류' },
+  { code: '200', description: 'SUCCESS' },
+  { code: '201', description: 'CREATED' },
+  { code: '204', description: 'NO_CONTENT' },
+  { code: '400', description: 'BAD_REQUEST' },
+  { code: '401', description: 'UNAUTHORIZED' },
+  { code: '403', description: 'FORBIDDEN' },
+  { code: '404', description: 'NOT_FOUND' },
+  { code: '500', description: 'SERVER_ERROR' },
 ];
 
 export function MethodResponseEditTab({

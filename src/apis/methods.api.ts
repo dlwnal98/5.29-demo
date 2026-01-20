@@ -312,3 +312,9 @@ export const testMethod = async (methodId: string, data: TestMethodProps) => {
     return res;
 };
 
+// // ✅ API 메서드 요청 테스트
+// export const testMethod = async (methodId: string) => {
+//     const res = await requestPost(`/api/v1/invoke/${methodId}`);
+
+//     return res;
+// };

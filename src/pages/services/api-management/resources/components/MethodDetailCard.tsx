@@ -12,7 +12,7 @@ import { MethodResponseEditTab } from './MethodResponseEditTab';
 import { DeleteMethodDialog } from './DeleteMethodDialog';
 import type { TestResponse, Method, QueryParameter, RequestHeader } from '@/types/resource';
 import { useClipboard } from 'use-clipboard-copy';
-import { useDeleteMethod } from '@/hooks/use-methods';
+import { useDeleteMethod, useTestMethod } from '@/hooks/use-methods';
 import { toast } from 'sonner';
 import { useSearchParams } from 'react-router-dom';
 import { getMethodStyle, HttpMethod } from '@/libs/etc';
@@ -59,6 +59,8 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
     isDirty,
   } = useMethodEditForm(selectedMethod, userKey);
 
+  console.log(formData)
+
   // 메서드 수정 mutation
   const { mutate: modifyMethod, isPending: isModifying } = useModifyMethod({
     onSuccess: () => {
@@ -104,8 +106,28 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
     requestBody: '',
     contentType: 'application/json',
   });
-  const [testResponse, setTestResponse] = useState<TestResponse | null>(null);
-  const [isTestLoading, setIsTestLoading] = useState(false);
+  const [testResponse, setTestResponse] = useState<any>(null);
+
+  // Test Method mutation
+  const { mutate: testMethodMutate, isPending: isTestLoading } = useTestMethod({
+    onSuccess: (response: any) => {
+      setTestResponse(response);
+      toast.success('API test completed successfully.');
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message
+        || error?.response?.data?.detail
+        || error?.message
+        || 'API test failed.';
+      setTestResponse({
+        error: true,
+        message: errorMessage,
+        status: error?.response?.status || 500,
+        data: error?.response?.data,
+      });
+      toast.error(errorMessage);
+    },
+  });
 
   // selectedMethod 변경 시 편집 모드 해제
   useEffect(() => {
@@ -149,57 +171,13 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
     });
   };
 
-  const handleTest = async () => {
-    if (!selectedMethod) return;
-
-    setIsTestLoading(true);
-    const startTime = Date.now();
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 2000));
-
-      const endTime = Date.now();
-      const responseTime = endTime - startTime;
-
-      const mockResponse: TestResponse = {
-        status: 200,
-        statusText: 'OK',
-        headers: {
-          'Content-Type': testSettings.contentType,
-          'Access-Control-Allow-Origin': '*',
-          'X-Response-Time': `${responseTime}ms`,
-        },
-        body:
-          selectedMethod.type === 'GET'
-            ? JSON.stringify({ message: 'Success', data: { id: 1, name: 'Test Data' } }, null, 2)
-            : JSON.stringify({ message: 'Created successfully', id: Date.now() }, null, 2),
-        responseTime,
-      };
-
-      setTestResponse(mockResponse);
-      toast.success('API test completed successfully.');
-    } catch (error) {
-      const endTime = Date.now();
-      const responseTime = endTime - startTime;
-
-      setTestResponse({
-        status: 500,
-        statusText: 'Internal Server Error',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Response-Time': `${responseTime}ms`,
-        },
-        body: JSON.stringify(
-          { error: 'Internal server error', message: 'Something went wrong' },
-          null,
-          2
-        ),
-        responseTime,
-      });
-      toast.error('API test failed.');
-    } finally {
-      setIsTestLoading(false);
+  const handleTest = (requestBody: any) => {
+    const methodId = methodInfo?.['x-method-id'];
+    if (!methodId) {
+      toast.error('Method ID not found.');
+      return;
     }
+    testMethodMutate({ methodId, data: requestBody });
   };
 
   console.log(selectedMethod)
@@ -323,11 +301,13 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
         {/* Method Tabs */}
         <div className="p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className={`grid w-full ${['GET', 'PUT', 'POST'].includes(selectedMethod.type) ? 'grid-cols-4' : 'grid-cols-3'}`}>
               <TabsTrigger value="basic-info">Basic Info</TabsTrigger>
               <TabsTrigger value="method-request">Method Request</TabsTrigger>
               <TabsTrigger value="method-response">Method Response</TabsTrigger>
-              <TabsTrigger value="test">Test</TabsTrigger>
+              {['GET', 'PUT', 'POST'].includes(selectedMethod.type) && (
+                <TabsTrigger value="test">Test</TabsTrigger>
+              )}
             </TabsList>
 
             {/* Basic Info Tab */}
@@ -386,7 +366,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                   methodResponses={formData.responses.map((r, idx) => ({
                     id: `response-${idx}`,
                     statusCode: r.statusCode,
-                    headers: [],
+                    headers: r.headers,
                     bodies: r.modelId
                       ? [{ id: `body-${idx}`, contentType: 'application/json', model: r.modelId }]
                       : [],
@@ -405,17 +385,19 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
               )}
             </TabsContent>
 
-            {/* Enhanced Test Tab */}
-            <TabsContent value="test" className="space-y-6 mt-6">
-              <MethodTestTab
-                selectedMethod={selectedMethod}
-                testSettings={testSettings}
-                setTestSettings={setTestSettings}
-                handleTest={handleTest}
-                isTestLoading={isTestLoading}
-                testResponse={testResponse}
-              />
-            </TabsContent>
+            {/* Enhanced Test Tab - Only for GET, PUT, POST methods */}
+            {['GET', 'PUT', 'POST'].includes(selectedMethod.type) && (
+              <TabsContent value="test" className="space-y-6 mt-6">
+                <MethodTestTab
+                  selectedMethod={selectedMethod}
+                  testSettings={testSettings}
+                  setTestSettings={setTestSettings}
+                  handleTest={handleTest}
+                  isTestLoading={isTestLoading}
+                  testResponse={testResponse}
+                />
+              </TabsContent>
+            )}
           </Tabs>
         </div>
       </div>

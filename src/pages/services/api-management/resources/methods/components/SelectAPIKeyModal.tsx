@@ -168,7 +168,7 @@ export function SelectAPIKeyModal({
                                                     className="mt-1"
                                                 />
                                                 <div className="flex-1">
-                                                    <div className="flex items-center gap-2 mb-2">
+                                                    <div className={`flex items-center gap-2 ${apiKey.description ? 'mb-2' : ''}`}>
                                                         <h4 className="font-medium text-gray-900 dark:text-white">
                                                             {apiKey.keyName}
                                                         </h4>
