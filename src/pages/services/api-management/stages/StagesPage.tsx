@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import StagesPageView from "./StagesPageView";
 import CreateStageDialog from "./components/CreateStageDialog";
 import ModifyStageDialog from "./components/ModifyStageDialog";
@@ -13,10 +14,8 @@ export default function StagesPage() {
     tenantId,
     apiId,
     stagesListData,
-    selectedWholeStageInfo,
-    selectedMethod,
-    expandedPaths,
-    selectedStageEndpointUrl,
+    deploymentHistoryData,
+    refetchDeploymentHistory,
     isEditModalOpen,
     isCreateStageModalOpen,
     isDeleteStageDialogOpen,
@@ -32,12 +31,8 @@ export default function StagesPage() {
     refreshStageDetailData,
     onAfterStageDelete,
     onAfterStageCreate,
-    onResourceClick,
-    onMethodClick,
-    onToggleExpanded,
     onCopyUrl,
     onCopyMethodUrl,
-    onExportApi,
     onStageOpenApiData,
     onToggleResourceExpansion,
     onTreeResourceClick,
@@ -50,40 +45,41 @@ export default function StagesPage() {
     onCloseDeleteDialog,
     onOpenExportModal,
     onCloseExportModal,
-    getResourceKey,
   } = useStagesPage();
 
   const { handleDeleteStage } = useDeleteStageAction({
-    userKey,
     stageDetailData: stageDetailData,
     onOpenChange: onCloseDeleteDialog,
     onSuccess: onAfterStageDelete,
   });
 
+  // Stage 생성 후 refetch 호출
+  const handleAfterStageCreateWithRefetch = useCallback(() => {
+    onAfterStageCreate();
+    refetchDeploymentHistory();
+  }, [onAfterStageCreate, refetchDeploymentHistory]);
+
+  // 활성배포 변경 후 refetch 호출
+  const handleRefreshStageDetailDataWithRefetch = useCallback(async () => {
+    await refreshStageDetailData();
+    refetchDeploymentHistory();
+  }, [refreshStageDetailData, refetchDeploymentHistory]);
 
   return (
     <>
       <StagesPageView
         stagesListData={stagesListData}
-        selectedWholeStageInfo={selectedWholeStageInfo}
-        selectedMethod={selectedMethod}
-        expandedPaths={expandedPaths}
-        selectedStageEndpointUrl={selectedStageEndpointUrl}
+        deploymentHistoryData={deploymentHistoryData}
         // Stage Resource Tree 관련
-        selectedStageId={selectedStageId}
         stageResourcesMap={stageResourcesMap}
         expandedStages={expandedStages}
         expandedResources={expandedResources}
         selectedResource={selectedResource}
         selectedTreeMethod={selectedTreeMethod}
         stageDetailData={stageDetailData}
-        refreshStageDetailData={refreshStageDetailData}
-        onResourceClick={onResourceClick}
-        onMethodClick={onMethodClick}
-        onToggleExpanded={onToggleExpanded}
+        refreshStageDetailData={handleRefreshStageDetailDataWithRefetch}
         onCopyUrl={onCopyUrl}
         onCopyMethodUrl={onCopyMethodUrl}
-        onExportApi={onExportApi}
         onStageOpenApiData={onStageOpenApiData}
         onToggleResourceExpansion={onToggleResourceExpansion}
         onTreeResourceClick={onTreeResourceClick}
@@ -92,16 +88,16 @@ export default function StagesPage() {
         onOpenEditModal={onOpenEditModal}
         onOpenDeleteDialog={onOpenDeleteDialog}
         onOpenExportModal={onOpenExportModal}
-        getResourceKey={getResourceKey}
       />
 
       <CreateStageDialog
+        deploymentHistoryData={deploymentHistoryData}
         open={isCreateStageModalOpen}
         onOpenChange={(open) => !open && onCloseCreateModal()}
         tenantId={tenantId}
         userKey={userKey}
         apiId={apiId}
-        onSuccess={onAfterStageCreate}
+        onSuccess={handleAfterStageCreateWithRefetch}
       />
 
       <ModifyStageDialog
@@ -115,7 +111,6 @@ export default function StagesPage() {
       <DeleteStageDialog
         open={isDeleteStageDialogOpen}
         onOpenChange={(open) => !open && onCloseDeleteDialog()}
-        userKey={userKey}
         stageDetailData={stageDetailData}
         deleteStage={handleDeleteStage}
       />

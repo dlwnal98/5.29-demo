@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface CreateEndpointDialogViewProps {
   isOpen: boolean;
@@ -18,11 +17,9 @@ interface CreateEndpointDialogViewProps {
   description: string;
   hasUrlError: boolean;
   isSubmitDisabled: boolean;
-  routeOption: string;
   onClose: () => void;
   onRouteUrlChange: (value: string) => void;
   onRouteNameChange: (value: string) => void;
-  onRouteOptionChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
   onSubmit: () => void;
 }
@@ -34,11 +31,9 @@ export default function CreateEndpointDialogView({
   description,
   hasUrlError,
   isSubmitDisabled,
-  routeOption,
   onClose,
   onRouteUrlChange,
   onRouteNameChange,
-  onRouteOptionChange,
   onDescriptionChange,
   onSubmit,
 }: CreateEndpointDialogViewProps) {

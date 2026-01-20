@@ -4,7 +4,6 @@ import type { Resource, Method } from "@/types/resource";
 import { useGetOpenAPIDoc } from "@/hooks/use-resources";
 import { useAuthStore, useMethodEditStore } from "@/stores/store";
 import { resoureceBuildTree } from "@/libs/etc";
-import { useGetStagesListData } from "@/hooks/use-stages";
 
 export function useResourcesPage() {
   const navigate = useNavigate();

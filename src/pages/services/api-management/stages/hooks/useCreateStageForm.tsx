@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { useCreateStage, useGetDeployHistoryData } from '@/hooks/use-stages';
+import { useCreateStage } from '@/hooks/use-stages';
 
 interface UseCreateStageFormProps {
   open: boolean;
@@ -9,6 +9,7 @@ interface UseCreateStageFormProps {
   apiId: string;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  deploymentHistoryData: any;
 }
 
 /**
@@ -21,6 +22,7 @@ export function useCreateStageForm({
   apiId,
   onOpenChange,
   onSuccess,
+  deploymentHistoryData,
 }: UseCreateStageFormProps) {
   const [createStageForm, setCreateStageForm] = useState({
     name: '',
@@ -28,13 +30,6 @@ export function useCreateStageForm({
   });
 
   const [selectedDeploymentRecord, setSelectedDeploymentRecord] = useState('');
-
-  // 배포 기록 데이터 가져오기
-  const { data: deploymentHistoryData } = useGetDeployHistoryData(
-    tenantId || '',
-    0,
-    20
-  );
 
   // 모달이 열릴 때마다 폼 초기화
   useEffect(() => {

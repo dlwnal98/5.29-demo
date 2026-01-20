@@ -45,7 +45,7 @@ export function useDeleteMethodDialog({
 
   const handleDeleteMethod = () => {
     if (methodToDelete) {
-      deleteMethod({ methodId: methodToDelete.info['x-method-id'], userKey });
+      deleteMethod({ methodId: methodToDelete?.info['x-method-id'] || '', userKey });
     }
   };
 

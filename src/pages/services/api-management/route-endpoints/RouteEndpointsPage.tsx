@@ -1,4 +1,3 @@
-import { AppLayout } from '@/components/layout/AppLayout';
 import CreateEndpointDialog from './components/CreateEndpointDialog';
 import ModifyEndpointDialog from './components/ModifyEndpointDialog';
 import DeleteEndpointDialog from './components/DeleteEndpointDialog';

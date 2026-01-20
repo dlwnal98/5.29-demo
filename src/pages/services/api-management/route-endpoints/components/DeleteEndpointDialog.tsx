@@ -1,4 +1,3 @@
-import { Toaster } from "sonner";
 import { useDeleteEndpointDialog } from "./hooks/useDeleteEndpointDialog";
 import DeleteEndpointDialogView from "./DeleteEndpointDialogView";
 

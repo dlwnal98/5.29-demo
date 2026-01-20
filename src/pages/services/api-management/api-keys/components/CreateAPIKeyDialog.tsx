@@ -12,7 +12,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { ko } from "date-fns/locale";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
 
 interface NewApiKeyForm {
   keyName: string;
@@ -35,6 +34,7 @@ export default function CreateAPIKeyDialog({
   onNewApiKeyChange,
   onSubmit,
 }: CreateAPIKeyDialogProps) {
+
   const { keyName, description } = newApiKey;
 
   return (

@@ -23,12 +23,8 @@ import type { ApiResource, ApiMethod, SelectedWholeStageInfo, SelectedMethod } f
 
 interface StagesPageViewProps {
   stagesListData: any;
-  selectedWholeStageInfo: SelectedWholeStageInfo;
-  selectedMethod: SelectedMethod | null;
-  expandedPaths: Set<string>;
-  selectedStageEndpointUrl: string;
+  deploymentHistoryData: any;
   // Stage Resource Tree 관련
-  selectedStageId: string | null;
   stageResourcesMap: Record<string, any[]>;
   expandedStages: Set<string>;
   expandedResources: string[];
@@ -36,17 +32,12 @@ interface StagesPageViewProps {
   selectedTreeMethod: any | null;
   stageDetailData: any | null;
   refreshStageDetailData: () => Promise<void>;
-  onResourceClick: (resource: ApiResource, type: "stage" | "resource") => void;
-  onMethodClick: (method: ApiMethod, resource: ApiResource) => void;
-  onToggleExpanded: (resource: ApiResource, parentPath?: string) => void;
   onCopyUrl: () => void;
   onCopyMethodUrl: (url: string) => void;
-  onExportApi: () => void;
   onOpenCreateModal: () => void;
   onOpenEditModal: () => void;
   onOpenDeleteDialog: () => void;
   onOpenExportModal: () => void;
-  getResourceKey: (resource: ApiResource, parentPath?: string) => string;
   onStageOpenApiData: (stageId: string) => void;
   onToggleResourceExpansion: (resourceId: string) => void;
   onTreeResourceClick: (resource: any) => void;
@@ -55,12 +46,8 @@ interface StagesPageViewProps {
 
 export default function StagesPageView({
   stagesListData,
-  selectedWholeStageInfo,
-  selectedMethod,
-  expandedPaths,
-  selectedStageEndpointUrl,
+  deploymentHistoryData,
   // Stage Resource Tree 관련
-  selectedStageId,
   stageResourcesMap,
   expandedStages,
   expandedResources,
@@ -68,17 +55,12 @@ export default function StagesPageView({
   selectedTreeMethod,
   stageDetailData,
   refreshStageDetailData,
-  onResourceClick,
-  onMethodClick,
-  onToggleExpanded,
   onCopyUrl,
   onCopyMethodUrl,
-  onExportApi,
   onOpenCreateModal,
   onOpenEditModal,
   onOpenDeleteDialog,
   onOpenExportModal,
-  getResourceKey,
   onStageOpenApiData,
   onToggleResourceExpansion,
   onTreeResourceClick,
@@ -404,6 +386,7 @@ export default function StagesPageView({
                   name: stageDetailData?.stageName || "",
                 }}
                 onActiveDeploymentChanged={refreshStageDetailData}
+                deploymentHistoryData={deploymentHistoryData}
               />
             ) : (
               <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex-1 min-h-[calc(100vh-450px)]" />

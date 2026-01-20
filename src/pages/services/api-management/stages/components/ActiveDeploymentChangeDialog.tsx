@@ -19,7 +19,6 @@ interface ActiveDeploymentChangeProps {
     userKey: string;
     apiId: string;
     selectedStage: any;
-    currentActiveDeployment: any;
     selectedDeploymentData: any;
     setSelectedDeploymentId: (value: string | null) => void;
     selectedDeploymentId: string | null;
@@ -31,7 +30,6 @@ export default function ActiveDeploymentChangeDialog({
     onOpenChange,
     userKey,
     selectedStage,
-    currentActiveDeployment,
     selectedDeploymentData,
     setSelectedDeploymentId,
     selectedDeploymentId,

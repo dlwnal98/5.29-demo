@@ -3,12 +3,10 @@ import { toast } from "sonner";
 
 export function useDeleteStageAction({
     stageDetailData,
-    userKey,
     onOpenChange,
     onSuccess,
 }: {
     stageDetailData: any;
-    userKey: string;
     onOpenChange: (open: boolean) => void;
     onSuccess?: () => void;
 }) {
@@ -21,7 +19,7 @@ export function useDeleteStageAction({
     });
 
     const handleDeleteStage = () => {
-        if (userKey && stageDetailData)
+        if (stageDetailData)
             deleteStage({
                 stageId: stageDetailData?.stageId,
             });

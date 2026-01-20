@@ -31,6 +31,14 @@ export const getDeployHistoryData = async (tenantId: string, page?: number, size
     return res;
 };
 
+// API별 전체 배포이력 조회
+export const getDeployHistoryDataByApiId = async (apiId: string, page?: number, size?: number) => {
+    const res = await requestGet(
+        `/api/v1/deployments/api/${apiId}?page=${page}&size=${size}`
+    );
+    return res;
+};
+
 // 특정 배포 이력 Open API문서 (스냅샷 리소스 트리 조회)
 export const getDeploymentResourceTreeData = async (deploymentId: string) => {
     const res = await requestGet(`/api/v1/deployments/${deploymentId}/snapshot`);

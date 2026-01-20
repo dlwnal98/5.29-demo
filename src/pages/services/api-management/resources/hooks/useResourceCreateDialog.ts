@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
-import { requestGet } from '@/libs/apiClient';
 import { useCreateResource } from '@/hooks/use-resources';
 import { toast } from 'sonner';
-import { isValidInput, onInputChange } from '@/libs/etc';
+import { isValidInput } from '@/libs/etc';
 import { getResourcePaths } from '@/apis/resources.api';
-import { CreateResourceProps } from "@/apis/resources.api"
 export interface CreateResourceForm {
   resourceName: string;
   description: string;
-  resourcePath: string;
+  parentPath: string;
   corsEnabled: boolean;
   parentResourceId: string;
   createdBy: string;
@@ -93,11 +91,6 @@ export function useResourceCreateDialog({
   });
 
   const handleCreateResource = () => {
-    // const resourcePath =
-    //   pathPattern === '/'
-    //     ? `${pathPattern}${createResourceForm.resourceName}`
-    //     : `${pathPattern}/${createResourceForm.resourceName}`;
-
     const parentResource = resourcePathData.find((data) => data?.resourcePath === pathPattern);
 
     if (isValidInput(createResourceForm.resourceName)) {

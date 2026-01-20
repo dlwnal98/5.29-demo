@@ -59,7 +59,6 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
     isDirty,
   } = useMethodEditForm(selectedMethod, userKey);
 
-  console.log(formData)
 
   // 메서드 수정 mutation
   const { mutate: modifyMethod, isPending: isModifying } = useModifyMethod({
@@ -179,8 +178,6 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
     }
     testMethodMutate({ methodId, data: requestBody });
   };
-
-  console.log(selectedMethod)
 
   return (
     <>
@@ -345,15 +342,14 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                     type: p.schema?.type || 'string',
                     required: p.required,
                   }))}
-                  requestBodyModels={[]}
                   modelId={formData.requestBodyConfig.modelId}
-                  handleEditMethod={handleEditMethod}
                 />
               ) : (
                 <MethodRequestEditTab
                   formData={formData}
                   validatorList={validatorList}
                   modelList={modelList || []}
+                  httpMethod={selectedMethod.type}
                   onChange={updateRequestSettings}
                 />
               )}
@@ -371,10 +367,6 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                       ? [{ id: `body-${idx}`, contentType: 'application/json', model: r.modelId }]
                       : [],
                   }))}
-                  handleCreateResponse={() => { }}
-                  handleEditResponse={() => { }}
-                  handleDeleteResponse={() => { }}
-                  availableModels={[]}
                 />
               ) : (
                 <MethodResponseEditTab
@@ -390,8 +382,6 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
               <TabsContent value="test" className="space-y-6 mt-6">
                 <MethodTestTab
                   selectedMethod={selectedMethod}
-                  testSettings={testSettings}
-                  setTestSettings={setTestSettings}
                   handleTest={handleTest}
                   isTestLoading={isTestLoading}
                   testResponse={testResponse}

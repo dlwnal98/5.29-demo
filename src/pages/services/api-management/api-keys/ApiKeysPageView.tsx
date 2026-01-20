@@ -30,7 +30,6 @@ interface ApiKeysPageViewProps {
   totalPages: number;
   onSearchTermChange: (value: string) => void;
   onPageChange: React.Dispatch<React.SetStateAction<number>>;
-  onRefresh: () => void;
   onCreateClick: () => void;
   onDelete: (apiKey: ApiKey) => void;
   onCopy: (apiKeyName: string, apiKey: string) => void;
@@ -49,7 +48,6 @@ export default function ApiKeysPageView({
   totalPages,
   onSearchTermChange,
   onPageChange,
-  onRefresh,
   onCreateClick,
   onDelete,
   onCopy,

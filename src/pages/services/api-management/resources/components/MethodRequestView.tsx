@@ -1,14 +1,12 @@
-import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import type { Method, QueryParameter, RequestHeader, RequestBodyModel } from '@/types/resource';
+import type { Method, QueryParameter, RequestHeader } from '@/types/resource';
 
 interface MethodRequestViewProps {
   selectedMethod: Method;
   queryParameters: QueryParameter[];
   requestHeaders: RequestHeader[];
-  requestBodyModels: RequestBodyModel[];
   modelId: string;
 }
 
@@ -16,7 +14,6 @@ export function MethodRequestView({
   selectedMethod,
   queryParameters,
   requestHeaders,
-  requestBodyModels,
   modelId,
 }: MethodRequestViewProps) {
   const convertValidator = (data: string) => {
@@ -34,7 +31,6 @@ export function MethodRequestView({
     }
   };
 
-  console.log(selectedMethod);
 
   return (
     <>

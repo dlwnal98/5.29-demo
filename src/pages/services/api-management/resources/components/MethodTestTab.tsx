@@ -1,23 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Play, Code, RotateCcw } from 'lucide-react';
+import { Play, RotateCcw } from 'lucide-react';
+import { Code } from 'lucide-react';
 
 interface MethodTestTabProps {
   selectedMethod: any;
-  testSettings: any;
-  setTestSettings: (settings: any) => void;
   handleTest: (requestBody: any) => void;
   isTestLoading: boolean;
   testResponse: any;
@@ -25,25 +15,20 @@ interface MethodTestTabProps {
 
 export function MethodTestTab({
   selectedMethod,
-  testSettings,
-  setTestSettings,
   handleTest,
   isTestLoading,
   testResponse,
 }: MethodTestTabProps) {
-  const [requestTab, setRequestTab] = useState('params');
-  const [bodyType, setBodyType] = useState('json');
+
 
   // 파라미터 개수 계산
   const queryParams = selectedMethod.parameters?.filter((p: any) => p.in === 'query') || [];
   const pathParams = selectedMethod.parameters?.filter((p: any) => p.in === 'path') || [];
-  const headerParams = selectedMethod.parameters?.filter((p: any) => p.in === 'header') || [];
-  const totalParams = queryParams.length + pathParams.length;
+
 
   // GET은 query/path 파라미터만, POST, PUT은 body 포함 가능
   const methodsWithBody = ['POST', 'PUT'];
   const methodsWithParamsOnly = ['GET'];
-  const hasBody = methodsWithBody.includes(selectedMethod.type);
 
   // 기본 요청 예시 생성
   const getDefaultRequestBody = useMemo(() => {

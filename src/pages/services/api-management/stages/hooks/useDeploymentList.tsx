@@ -1,20 +1,16 @@
 import { useState, useMemo } from 'react';
 import { useAuthStore } from '@/stores/store';
-import { useGetDeployHistoryData } from '@/hooks/use-stages';
+
+interface UseDeploymentListProps {
+  deploymentHistoryData: any;
+}
 
 /**
  * DeploymentList의 상태 및 비즈니스 로직을 관리하는 hook
  */
-export function useDeploymentList() {
+export function useDeploymentList({ deploymentHistoryData }: UseDeploymentListProps) {
   const userData = useAuthStore((state) => state.user);
-  const tenantId = userData?.organizationId ?? "kwwwksAsvmas"
-
-  // 배포 기록 데이터 fetching
-  const { data: deploymentHistoryData } = useGetDeployHistoryData(
-    tenantId,
-    0,
-    20
-  );
+  const tenantId = userData?.organizationId ?? "kwwwksAsvmas";
 
   // 상태 관리
   const [selectedDeploymentId, setSelectedDeploymentId] = useState<string | null>(null);

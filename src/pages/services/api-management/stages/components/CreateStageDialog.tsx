@@ -31,6 +31,7 @@ interface CreateStageDialogProps {
     userKey: string;
     apiId: string;
     onSuccess?: () => void;
+    deploymentHistoryData: any;
 }
 
 export default function CreateStageDialog({
@@ -40,6 +41,7 @@ export default function CreateStageDialog({
     userKey,
     apiId,
     onSuccess,
+    deploymentHistoryData,
 }: CreateStageDialogProps) {
     const [showPreview, setShowPreview] = useState(false);
 
@@ -48,7 +50,6 @@ export default function CreateStageDialog({
         setCreateStageForm,
         selectedDeploymentRecord,
         setSelectedDeploymentRecord,
-        deploymentHistoryData,
         handleCreateStage,
         handleResetForm,
         isValid,
@@ -59,6 +60,7 @@ export default function CreateStageDialog({
         apiId,
         onOpenChange,
         onSuccess,
+        deploymentHistoryData,
     });
 
     const { resourceTree, isLoading: isPreviewLoading, isReady: isPreviewReady } = useDeploymentResourceTree(

@@ -1,12 +1,11 @@
-import { useEffect, useState, useMemo, useRef, useCallback } from "react";
-import { useSearchParams, useLocation } from "react-router-dom";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useClipboard } from "use-clipboard-copy";
 import { useAuthStore } from "@/stores/store";
-import { useGetStagesDocData } from "@/hooks/use-stages";
-import { buildTree, resoureceBuildTree } from "@/libs/etc";
+import { resoureceBuildTree } from "@/libs/etc";
 import { requestGet } from "@/libs/apiClient";
-import { useGetStagesListData } from "@/hooks/use-stages";
+import { useGetStagesListData, useGetDeployHistoryDataByApiId } from "@/hooks/use-stages";
 import { getStagesOpenApiDocData, getStageDetailData } from "@/apis/stages.api";
 
 interface ApiResource {
@@ -49,11 +48,15 @@ export function useStagesPage() {
   const tenantId = userData?.organizationId ?? "kwwwksAsvmas";
   const [searchParams] = useSearchParams();
   const apiId = searchParams.get("apiId") || "";
-  const stageId = "0rsCzZzPY6li";
-  const { pathname } = useLocation();
+  const urlStageId = searchParams.get("stageId") || "";
   const clipboard = useClipboard();
 
   const { data: stagesListData } = useGetStagesListData(apiId);
+  const { data: deploymentHistoryData, refetch: refetchDeploymentHistory } = useGetDeployHistoryDataByApiId(
+    apiId,
+    0,
+    20
+  );
 
   const [selectedWholeStageInfo, setSelectedWholeStageInfo] =
     useState<SelectedWholeStageInfo>({
@@ -76,16 +79,12 @@ export function useStagesPage() {
   const [stageDetailData, setStageDetailData] = useState<any | null>(null);
 
 
-  // const { data: stagesDocData = [] } = useGetStagesDocData(selectedStageId);
-
-
   const getFinalEndpoint = useCallback(async (stageId: string) => {
     if (!stageId) return;
     const res = await requestGet(`/api/v1/gateway/stage/${stageId}`);
     setSelectedStageEndpointUrl(res.data.baseUrl);
   }, []);
 
-  const prevLengthRef = useRef(0);
   const initializedRef = useRef(false);
   const pendingDeleteSelectionRef = useRef(false);
   const pendingCreateSelectionRef = useRef(false);
@@ -103,41 +102,6 @@ export function useStagesPage() {
     },
     []
   );
-
-  // useEffect(() => {
-
-  //   if (resourceTree?.length === 0) return;
-
-  //   const prevLength = prevLengthRef.current;
-  //   prevLengthRef.current = resourceTree.length;
-
-  //   const currentId = selectedWholeStageInfo.resource?.deploymentId;
-  //   const updated = currentId ? findResourceById(resourceTree, currentId) : null;
-
-  //   if (!currentId) {
-  //     getFinalEndpoint(resourceTree[0]?.stageId || "");
-  //     setSelectedWholeStageInfo({ resource: resourceTree[0], type: "stage" });
-  //     return;
-  //   }
-
-  //   if (!updated) {
-  //     getFinalEndpoint(resourceTree[0]?.stageId || "");
-  //     setSelectedWholeStageInfo({ resource: resourceTree[0], type: "stage" });
-  //     return;
-  //   }
-
-  //   if (resourceTree.length > prevLength) {
-  //     getFinalEndpoint(resourceTree[0]?.stageId || "");
-  //     setSelectedWholeStageInfo({ resource: resourceTree[0], type: "stage" });
-  //     return;
-  //   }
-
-  //   getFinalEndpoint(updated?.stageId || "");
-  //   setSelectedWholeStageInfo((prev) => ({
-  //     ...prev,
-  //     resource: updated,
-  //   }));
-  // }, [resourceTree, findResourceById, getFinalEndpoint, selectedWholeStageInfo.resource?.deploymentId]);
 
   const getResourceKey = useCallback(
     (resource: ApiResource, parentPath = "") => {
@@ -244,7 +208,7 @@ export function useStagesPage() {
     }
   }, [stageResourcesMap]);
 
-  // 첫 번째 stage 자동 선택
+  // 첫 번째 stage 자동 선택 또는 URL에서 지정된 stageId 선택
   useEffect(() => {
     if (
       !initializedRef.current &&
@@ -252,10 +216,23 @@ export function useStagesPage() {
       stagesListData.length > 0
     ) {
       initializedRef.current = true;
-      const firstStage = stagesListData[0];
-      handleStageOpenApiData(firstStage.stageId);
+
+      // URL에 stageId가 있으면 해당 스테이지 선택, 없으면 첫 번째 스테이지 선택
+      if (urlStageId) {
+        const targetStage = stagesListData.find((stage: any) => stage.stageId === urlStageId);
+        if (targetStage) {
+          handleStageOpenApiData(targetStage.stageId);
+        } else {
+          // URL의 stageId가 존재하지 않으면 첫 번째 스테이지 선택
+          const firstStage = stagesListData[0];
+          handleStageOpenApiData(firstStage.stageId);
+        }
+      } else {
+        const firstStage = stagesListData[0];
+        handleStageOpenApiData(firstStage.stageId);
+      }
     }
-  }, [stagesListData, handleStageOpenApiData]);
+  }, [stagesListData, handleStageOpenApiData, urlStageId]);
 
   // 삭제 후 마지막 스테이지 선택
   useEffect(() => {
@@ -379,6 +356,8 @@ export function useStagesPage() {
     tenantId,
     apiId,
     stagesListData,
+    deploymentHistoryData,
+    refetchDeploymentHistory,
     selectedWholeStageInfo,
     selectedMethod,
     expandedPaths,

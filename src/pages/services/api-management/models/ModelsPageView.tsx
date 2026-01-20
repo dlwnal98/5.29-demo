@@ -88,13 +88,13 @@ export default function ModelsPageView({
               {models?.length > 0 ? (
                 models.map((model) => (
                   <TableRow
-                    key={model.modelId}
+                    key={model?.modelId}
                     className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700"
                   >
-                    <TableCell className="font-mono text-sm text-center font-medium text-blue-600">{model.modelId}</TableCell>
-                    <TableCell className="text-center">{model.modelName}</TableCell>
-                    <TableCell className="text-center">{model.description}</TableCell>
-                    <TableCell className="text-center">{new Date(model.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell className="font-mono text-sm text-center font-medium text-blue-600">{model?.modelId}</TableCell>
+                    <TableCell className="text-center">{model?.modelName}</TableCell>
+                    <TableCell className="text-center">{model?.description}</TableCell>
+                    <TableCell className="text-center">{new Date(model?.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell className="text-center">
                       <div className="flex gap-2 justify-end">
                         <Button

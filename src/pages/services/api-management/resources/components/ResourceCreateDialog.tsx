@@ -128,7 +128,7 @@ export function ResourceCreateDialog({
             </div>
             <Switch
               id="cors-toggle"
-              checked={createResourceForm.enableCors}
+              checked={createResourceForm?.corsEnabled}
               onCheckedChange={onEnableCorsChange}
             />
           </div>

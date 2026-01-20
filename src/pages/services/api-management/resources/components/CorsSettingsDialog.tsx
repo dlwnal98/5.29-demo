@@ -17,7 +17,6 @@ import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 interface CorsSettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedResource: Resource;
   corsForm: CorsForm;
   selectedMethods: string[];  // 사용자가 선택한 메서드 (체크박스 상태, API 전송용)
   isPending?: boolean;
@@ -35,7 +34,6 @@ interface CorsSettingsDialogProps {
 export function CorsSettingsDialog({
   open,
   onOpenChange,
-  selectedResource,
   corsForm,
   selectedMethods,
   isPending,

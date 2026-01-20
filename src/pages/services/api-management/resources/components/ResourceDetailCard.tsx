@@ -21,7 +21,6 @@ import { useAuthStore } from '@/stores/store';
 import { useCorsSettingsDialog } from '../hooks/useCorsSettingsDialog';
 import { useDeleteMethodDialog } from '../hooks/useDeleteMethodDialog';
 import { useDeleteResourceDialog } from '../hooks/useDeleteResourceDialog';
-import { useGetResourceCorsSettings } from '@/hooks/use-resources';
 
 interface ResourceDetailCardProps {
   selectedResource: Resource;
@@ -276,7 +275,6 @@ export function ResourceDetailCard({
       <CorsSettingsDialog
         open={isCorsModalOpen}
         onOpenChange={setIsCorsModalOpen}
-        selectedResource={selectedResource}
         corsForm={corsDialog.corsForm}
         selectedMethods={corsDialog.selectedMethods}
         isPending={corsDialog.isPending}

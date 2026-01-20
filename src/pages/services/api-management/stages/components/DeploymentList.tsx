@@ -10,15 +10,15 @@ import { useDeploymentList } from '../hooks/useDeploymentList';
 interface DeploymentListProps {
     selectedStage: any;
     onActiveDeploymentChanged?: () => Promise<void>;
+    deploymentHistoryData: any;
 }
 
-export default function DeploymentList({ selectedStage, onActiveDeploymentChanged }: DeploymentListProps) {
+export default function DeploymentList({ selectedStage, onActiveDeploymentChanged, deploymentHistoryData }: DeploymentListProps) {
     const {
         userData,
         tenantId,
         filteredDeployments,
         paginatedDeployments,
-        currentActiveDeployment,
         selectedDeploymentData,
         selectedDeploymentId,
         setSelectedDeploymentId,
@@ -37,10 +37,7 @@ export default function DeploymentList({ selectedStage, onActiveDeploymentChange
         handleDetailDeployment,
         handlePreviousPage,
         handleNextPage,
-    } = useDeploymentList();
-
-
-    console.log(paginatedDeployments)
+    } = useDeploymentList({ deploymentHistoryData });
 
     return (
         <>
@@ -187,7 +184,6 @@ export default function DeploymentList({ selectedStage, onActiveDeploymentChange
                 userKey={userData?.userKey || ''}
                 apiId={selectedStage?.apiId || ''}
                 selectedStage={selectedStage}
-                currentActiveDeployment={currentActiveDeployment}
                 selectedDeploymentData={selectedDeploymentData}
                 setSelectedDeploymentId={setSelectedDeploymentId}
                 selectedDeploymentId={selectedDeploymentId}

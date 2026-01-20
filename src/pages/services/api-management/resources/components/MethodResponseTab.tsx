@@ -39,8 +39,6 @@ export function MethodResponseTab({
   methodResponses,
 }: MethodResponseTabProps) {
 
-  console.log(methodResponses)
-
   return (
     <>
       <div className="flex items-center justify-between">

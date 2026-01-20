@@ -13,7 +13,6 @@ import { AlertTriangle } from 'lucide-react';
 interface DeleteStageDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    userKey: string;
     stageDetailData: any;
     // 훅의 handleDeleteStage가 인자를 받지 않으므로 아래와 같이 수정
     deleteStage: () => void;
@@ -22,7 +21,6 @@ interface DeleteStageDialogProps {
 export default function DeleteStageDialog({
     open,
     onOpenChange,
-    userKey,
     stageDetailData,
     deleteStage,
 }: DeleteStageDialogProps) {

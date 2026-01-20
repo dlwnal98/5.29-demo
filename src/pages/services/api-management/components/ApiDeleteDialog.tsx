@@ -15,7 +15,6 @@ import { toast } from 'sonner';
 
 interface DeleteMethodDialogProps {
     selectedAPIId: string;
-    userKey: string;
     open: boolean;
     apiName: string;
     onOpenChange: (open: boolean) => void;
@@ -25,7 +24,6 @@ export default function ApiDeleteDialog({
     selectedAPIId,
     open,
     onOpenChange,
-    userKey,
     apiName,
 }: DeleteMethodDialogProps) {
     const { mutate: deleteAPI } = useDeleteAPI({
@@ -40,9 +38,7 @@ export default function ApiDeleteDialog({
     });
 
     const handleDeleteApi = () => {
-        if (userKey) {
-            deleteAPI({ apiId: selectedAPIId, userKey: userKey });
-        }
+        deleteAPI({ apiId: selectedAPIId });
     };
 
     return (
