@@ -45,7 +45,7 @@ const StageExportDialog = ({
 
     setIsLoading(true);
     try {
-      const res = await getStageDocForExportPreview(selectedStageId, format, true);
+      const res = await getStageDocForExportPreview(selectedStageId, format, false);
       if (typeof res === 'string') {
         setPreviewContent(res);
       } else {
@@ -81,7 +81,7 @@ const StageExportDialog = ({
 
     setIsDownloading(true);
     try {
-      const res = await getStageDocForExport(selectedStageId, format, true);
+      const res = await getStageDocForExport(selectedStageId, format, false);
 
       let content: string;
       let mimeType: string;

@@ -156,9 +156,9 @@ export function ResourceDetailCard({
                 {selectedResource?.resourceId}
               </div>
             </div>
-            <div>
+            <div className="min-w-0">
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Path</Label>
-              <div className="mt-1 text-sm font-mono text-gray-900 dark:text-white">
+              <div className="mt-1 text-sm font-mono text-gray-900 dark:text-white break-all">
                 {selectedResource?.path}
               </div>
             </div>

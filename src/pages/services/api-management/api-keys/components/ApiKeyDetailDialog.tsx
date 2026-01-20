@@ -342,14 +342,14 @@ export function ApiKeyDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col overflow-hidden">
+        <DialogHeader className="flex-shrink-0 border-b pb-4">
           <DialogTitle className="text-xl font-bold text-blue-600">
             API Key Details
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 overflow-y-auto flex-1 pr-2">
           {/* 기본 정보 */}
           <Card>
             <CardHeader className="pb-3">
@@ -893,7 +893,7 @@ export function ApiKeyDetailDialog({
                 </Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent className='max-h-[192px] overflow-y-scroll'>
+            <CardContent className='max-h-[192px] overflow-y-auto'>
               {isUsageLoading ? (
                 <div className="flex items-center justify-center py-6">
                   <Loader2 className="h-6 w-6 animate-spin text-blue-500" />

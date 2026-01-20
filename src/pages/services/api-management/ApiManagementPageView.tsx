@@ -67,7 +67,7 @@ export default function ApiManagementPageView({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            APIs
+            API Plan
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
             Manage and deploy your API plans.

@@ -175,7 +175,7 @@ export const getNavItems = (): NavItem[] => [
         icon: Shield,
         subItems: [
           {
-            label: 'APIs',
+            label: 'API Plan',
             href: '/services/api-management',
             icon: Globe,
           },

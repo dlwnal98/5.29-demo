@@ -313,6 +313,14 @@ export default function StagesPageView({
                 <div className="p-4 space-y-4">
                   <div>
                     <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Stage ID
+                    </Label>
+                    <div className="mt-1 text-blue-600 font-medium">
+                      {stageDetailData.stageId}
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Stage Name
                     </Label>
                     <div className="mt-1 text-blue-600 font-medium">
