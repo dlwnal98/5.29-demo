@@ -128,7 +128,7 @@ export function useDeployResourceDialog({
         deployedBy: userKey,
       });
       if (!deploymentData.newStageName.trim()) {
-        toast.error('New stage name is required.');
+        toast.error('New stage name이 입력되지 않았습니다.');
         return;
       }
 

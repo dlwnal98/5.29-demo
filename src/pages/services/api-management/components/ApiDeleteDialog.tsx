@@ -28,11 +28,11 @@ export default function ApiDeleteDialog({
 }: DeleteMethodDialogProps) {
     const { mutate: deleteAPI } = useDeleteAPI({
         onSuccess: () => {
-            toast.success('API has been deleted.');
+            toast.success('API가 삭제되었습니다.');
             onOpenChange(false);
         },
         onError: (error: unknown) => {
-            const axiosError = error as { response?: { data?: { message?: string } } }; const serverMessage = axiosError?.response?.data?.message ?? 'Failed to delete API.';
+            const axiosError = error as { response?: { data?: { message?: string } } }; const serverMessage = axiosError?.response?.data?.message ?? 'API 삭제 중 오류가 발생했습니다.';
             toast.error(serverMessage);
         },
     });

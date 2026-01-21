@@ -20,10 +20,10 @@ export function useDeleteResourceDialog({
     onSuccess: () => {
       setCreatedResourceId('');
       onResourceDeleted?.();
-      toast.success('Resource deleted successfully.');
+      toast.success('Resource가 삭제되었습니다.');
       onOpenChange(false);
     }, onError: (error: any) => {
-      const serverMessage = error?.response?.data?.detail ?? 'Resource deletion failed.';
+      const serverMessage = error?.response?.data?.detail ?? 'Resource 삭제 중 오류가 발생했습니다.';
       toast.error(serverMessage);
     },
   });

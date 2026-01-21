@@ -135,7 +135,7 @@ export function MethodRequestEditTab({
 
   const handleCopyAPIKey = (apiKey: string) => {
     clipboard.copy(apiKey);
-    toast.success('API Key copied to clipboard.');
+    toast.success('API Key가 클립보드에 복사되었습니다.');
   };
 
   const handleApiKeySelected = (keyId: string, keyValue: string) => {

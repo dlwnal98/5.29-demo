@@ -143,21 +143,21 @@ export function useStagesUI({
   // URL 복사
   const handleCopyUrl = useCallback(() => {
     clipboard.copy(selectedStageEndpointUrl);
-    toast.success("URL copied to clipboard.");
+    toast.success("URL이 클립보드에 복사되었습니다.");
   }, [clipboard, selectedStageEndpointUrl]);
 
   // Method URL 복사
   const handleCopyMethodUrl = useCallback(
     (url: string) => {
       clipboard.copy(url);
-      toast.success("Method URL copied to clipboard.");
+      toast.success("Method URL이 클립보드에 복사되었습니다.");
     },
     [clipboard]
   );
 
   // API 내보내기
   const handleExportApi = useCallback(() => {
-    toast.success("API export started.");
+    toast.success("API 내보내기가 시작되었습니다.");
   }, []);
 
   // 모달 제어 핸들러들

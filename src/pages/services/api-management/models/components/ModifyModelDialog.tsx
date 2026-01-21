@@ -37,7 +37,7 @@ export default function ModifyModelDialog({
 }: ModifyModelDialogProps) {
   const { mutate: modifyModelSchema } = useModifyModel({
     onSuccess: () => {
-      toast.success('Model modified successfully.');
+      toast.success('Model이 성공적으로 수정되었습니다.');
       onOpenChange(false);
     },
     onError: (error: any) => {
@@ -102,7 +102,7 @@ export default function ModifyModelDialog({
       setModelForm(updatedForm); // 상태는 업데이트
       modifyModelSchema({ modelId: selectedModel.modelId, data: updatedForm }); // 동일한 최신 값으로 API 호출
     } catch (error) {
-      toast.error('Invalid JSON format.');
+      toast.error('JSON 형식이 유효하지 않습니다.');
       console.error('Invalid JSON:', error);
     }
   };

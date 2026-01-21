@@ -81,11 +81,11 @@ export function useResourceCreateDialog({
           ? `${pathPattern}${createResourceForm.resourceName}`
           : `${pathPattern}/${createResourceForm.resourceName}`;
       setCreatedResourceId(`node-${resourcePath}`);
-      toast.success('Resource created successfully.');
+      toast.success('Resource가 성공적으로 생성되었습니다.');
       onOpenChange(false);
     },
     onError: (error: any) => {
-      const serverMessage = error?.response?.data?.message ?? 'Resource creation failed.';
+      const serverMessage = error?.response?.data?.message ?? 'Resource 생성 중 오류가 발생했습니다.';
       toast.error(serverMessage);
     },
   });
@@ -96,7 +96,7 @@ export function useResourceCreateDialog({
     if (isValidInput(createResourceForm.resourceName)) {
       createResourceMutate({ ...createResourceForm, parentPath: pathPattern, parentResourceId: parentResource?.parentResourceId });
     } else {
-      toast.error('Invalid resource name.');
+      toast.error('유효하지 않은 resource 이름 입니다.');
     }
   };
 

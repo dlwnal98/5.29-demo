@@ -12,14 +12,14 @@ export function useDeleteEndpointDialog({
 }: UseDeleteEndpointDialogProps) {
   const { mutate: deleteEndpoint } = useDeleteEndpoint({
     onSuccess: () => {
-      toast.success("Endpoint deleted successfully.");
+      toast.success("Endpoint가 삭제되었습니다.");
       onClose();
     },
     onError: (error: any) => {
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || 'Endpoint deletion failed.';
+        || 'Endpoint 삭제 중 오류가 발생했습니다.';
       toast.error(errorMessage);
     },
   });

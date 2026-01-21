@@ -20,7 +20,7 @@ export function useDeleteMethodDialog({
   const { mutate: deleteMethod, isPending } = useDeleteMethod({
     onSuccess: () => {
       if (methodToDelete) {
-        toast.success(`Method '${methodToDelete.type} ${methodToDelete.resourcePath}' deleted successfully.`);
+        toast.success(`Method '${methodToDelete.type} ${methodToDelete.resourcePath}'이 삭제되었습니다.`);
         setSelectedResource((prev: Resource) => {
           if (!prev) return prev;
           return {
@@ -38,7 +38,7 @@ export function useDeleteMethodDialog({
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || 'Method deletion failed.';
+        || 'Method 삭제 중 오류가 발생했습니다.';
       toast.error(errorMessage);
     },
   });

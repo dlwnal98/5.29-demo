@@ -40,20 +40,20 @@ const ApiModifyDialog = ({
         onSuccess: () => {
             onOpenChange(false);
             setForm(existingValue);
-            toast.success(`API '${form.name}' has been updated.`);
+            toast.success(`API '${form.name}'가 수정되었습니다.`);
         },
         onError: (error: any) => {
             const errorMessage = error?.response?.data?.message
                 || error?.response?.data?.detail
                 || error?.message
-                || 'An error occurred while updating API.';
+                || 'API 수정 중 오류가 발생했습니다.';
             toast.error(errorMessage);
         },
     });
 
     const handleModify = () => {
         if (!form.name.trim()) {
-            toast.error('Please enter the API name.');
+            toast.error('API 이름을 입력해주세요.');
             return;
         }
 

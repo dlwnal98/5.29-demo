@@ -26,6 +26,7 @@ axios.interceptors.request.use(
           config.headers.Authorization = `Bearer ${newAccessToken}`;
         } catch (err) {
           clearAuth();
+          sessionStorage.setItem('auth_redirect_reason', '토큰이 만료되어 자동 갱신을 시도했으나 실패했습니다.');
           window.location.replace('/');
           return Promise.reject(err);
         }
@@ -65,6 +66,7 @@ axios.interceptors.response.use(
         return axios(originalRequest); // 재요청
       } catch (refreshError) {
         clearAuth();
+        sessionStorage.setItem('auth_redirect_reason', '인증이 만료되었습니다. 다시 로그인해 주세요.');
         window.location.replace('/');
         return Promise.reject(refreshError);
       }

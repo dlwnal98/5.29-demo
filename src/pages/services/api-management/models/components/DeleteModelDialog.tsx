@@ -30,7 +30,7 @@ export default function DeleteModelDialog({
   const { mutate: deleteModel } = useDeleteModel({
     onSuccess: () => {
       onOpenChange(false);
-      toast.success('Deleted successfully.');
+      toast.success('Model이 성공적으로 삭제되었습니다.');
     }, onError: (error) => {
       console.log(error)
       toast.error(error?.response?.data?.detail);

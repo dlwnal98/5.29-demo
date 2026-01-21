@@ -58,7 +58,7 @@ export function useApiKeysPage() {
       setIsCreateModalOpen(false);
       setNewApiKey({ keyName: "", description: "" });
       pendingNavigateToLastPageRef.current = true;
-      toast.success("API Key has been created.");
+      toast.success("API Key가 생성되었습니다.");
     },
   });
 
@@ -66,12 +66,12 @@ export function useApiKeysPage() {
   const { mutate: deleteAPIKey } = useDeleteAPIKey({
     onSuccess: () => {
       setIsDeleteModalOpen(false);
-      toast.success("API Key has been deleted.");
+      toast.success("API Key가 삭제되었습니다.");
     }, onError: (error: any) => {
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || 'An error occurred while deleting API Key.';
+        || 'API Key 삭제 중 오류가 발생했습니다.';
       toast.error(errorMessage);
     },
   });
@@ -132,7 +132,7 @@ export function useApiKeysPage() {
   };
 
   const handleRefresh = () => {
-    toast.success("Page has been refreshed.");
+    toast.success("페이지가 새로고침되었습니다.");
     window.location.reload();
   };
 
@@ -151,9 +151,8 @@ export function useApiKeysPage() {
     clipboard.copy(res.keyValue);
     toast.success(
       <>
-        [{apiKeyName}] API Key has been copied. <br />
-        Add <b>X-API-Key</b> header to your http(s) request <br />
-        with the copied key value.
+        [{apiKeyName}] API Key가 복사되었습니다. <br />
+        복사된 키 값을 <b>X-API-Key</b> 헤더에 추가하여 http(s) 요청에 포함시켜주세요.
       </>
     );
   };
@@ -166,7 +165,7 @@ export function useApiKeysPage() {
       const res = await getAPIKeyDetail(apiKey.apiKeyId);
       setApiKeyDetail(res);
     } catch (error) {
-      toast.error("Failed to load API Key details.");
+      toast.error("API 키 상세 정보를 가져오는데 실패했습니다.");
       setIsDetailModalOpen(false);
     } finally {
       setIsDetailLoading(false);
@@ -187,7 +186,7 @@ export function useApiKeysPage() {
       const res = await getAPIKeyDetail(apiKeyDetail.apiKeyId);
       setApiKeyDetail(res);
     } catch (error) {
-      toast.error("Failed to load API Key details.");
+      toast.error("API 키 상세 정보를 가져오는데 실패했습니다.");
     } finally {
       setIsDetailLoading(false);
     }

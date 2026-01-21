@@ -63,14 +63,14 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
   // 메서드 수정 mutation
   const { mutate: modifyMethod, isPending: isModifying } = useModifyMethod({
     onSuccess: () => {
-      toast.success('Method modified successfully.');
+      toast.success('Method가 성공적으로 수정되었습니다.');
       setIsEditMode(false);
     },
     onError: (error: any) => {
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || 'Method modification failed.';
+        || 'Method 수정 중 오류가 발생했습니다.';
       toast.error(errorMessage);
     },
   });
@@ -78,7 +78,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
   // Delete Method mutation
   const { mutate: deleteMethod, isPending: isDeleting } = useDeleteMethod({
     onSuccess: () => {
-      toast.success('Method deleted successfully.');
+      toast.success('Method가 성공적으로 삭제되었습니다.');
       setIsMethodDeleteDialogOpen(false);
       setMethodToDelete(null);
     },
@@ -86,7 +86,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || 'Method deletion failed.';
+        || 'Method 삭제 중 오류가 발생했습니다.';
       toast.error(errorMessage);
     },
   });
@@ -111,13 +111,13 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
   const { mutate: testMethodMutate, isPending: isTestLoading } = useTestMethod({
     onSuccess: (response: any) => {
       setTestResponse(response);
-      toast.success('API test completed successfully.');
+      toast.success('API 테스트가 성공적으로 완료되었습니다.');
     },
     onError: (error: any) => {
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || 'API test failed.';
+        || 'API 테스트 중 오류가 발생했습니다.';
       setTestResponse({
         error: true,
         message: errorMessage,
@@ -136,7 +136,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
 
   const handleCopyEndpoint = () => {
     clipboard.copy(methodInfo?.['x-route-endpoint'] ?? '');
-    toast.success('ARN copied to clipboard.');
+    toast.success('URL이 클립보드에 복사되었습니다.');
   };
 
   const handleFlowStepClick = (step: string) => {

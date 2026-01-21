@@ -44,14 +44,14 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
 
   const { mutate: modifyMethod } = useModifyMethod({
     onSuccess: () => {
-      toast.success('Method request settings modified successfully.');
+      toast.success('Method 요청 설정이 성공적으로 수정되었습니다.');
       setIsEditMode(false);
     },
     onError: (error: any) => {
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || 'Method request settings modification failed.';
+        || 'Method 요청 설정 수정 중 오류가 발생했습니다.';
       toast.error(errorMessage);
     },
   });

@@ -39,14 +39,14 @@ export default function CreateModelDialog({
 }: CreateModelDialogProps) {
   const { mutate: createModelSchema } = useCreateModel({
     onSuccess: () => {
-      toast.success('Model created successfully.');
+      toast.success('Model이 성공적으로 생성되었습니다.');
       onOpenChange(false);
     },
     onError: (error: any) => {
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || 'Model creation failed.';
+        || 'Model 생성 중 오류가 발생했습니다.';
       toast.error(errorMessage);
     },
   });
@@ -96,7 +96,7 @@ export default function CreateModelDialog({
       setCreateModelForm(updatedForm); // 상태는 업데이트
       createModelSchema({ apiId, tenantId, data: updatedForm }); // 동일한 최신 값으로 API 호출
     } catch (error) {
-      toast.error('Invalid JSON format.');
+      toast.error('JSON 형식이 유효하지 않습니다.');
       console.error('Invalid JSON:', error);
     }
   };

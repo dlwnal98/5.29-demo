@@ -152,13 +152,13 @@ export function useStagesPage() {
 
   const handleCopyUrl = useCallback(() => {
     clipboard.copy(selectedStageEndpointUrl);
-    toast.success("URL copied to clipboard.");
+    toast.success("URL이 클립보드에 복사되었습니다.");
   }, [clipboard, selectedStageEndpointUrl]);
 
   const handleCopyMethodUrl = useCallback(
     (url: string) => {
       clipboard.copy(url);
-      toast.success("Method URL copied to clipboard.");
+      toast.success("Method URL이 클립보드에 복사되었습니다.");
     },
     [clipboard]
   );
@@ -346,7 +346,7 @@ export function useStagesPage() {
   }, [stageResourcesMap, findResourcePath]);
 
   const handleExportApi = useCallback(() => {
-    toast.success("API export started.");
+    toast.success("API 내보내기가 시작되었습니다.");
   }, []);
 
   const handleOpenCreateModal = useCallback(() => {

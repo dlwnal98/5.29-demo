@@ -7,7 +7,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { ArrowLeft, SquarePlus, SquareMinus, Eye } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ArrowLeft, SquarePlus, SquareMinus, Eye, ChevronDown, Rocket, Download } from "lucide-react";
 import type { Resource, Method } from "@/types/resource";
 import { getMethodStyle } from "@/libs/etc";
 import { ResourceDetailCard } from "./components/ResourceDetailCard";
@@ -28,6 +34,7 @@ interface ResourcesPageViewProps {
   onMethodClick: (method: Method, resource: Resource) => void;
   onToggleResourceExpansion: (id: string) => void;
   onOpenDeployModal: () => void;
+  onOpenExportModal: () => void;
   onOpenCreateModal: () => void;
   setSelectedResource: (resource: Resource | null) => void;
   setCreatedResourceId: (id: string) => void;
@@ -50,6 +57,7 @@ export default function ResourcesPageView({
   onMethodClick,
   onToggleResourceExpansion,
   onOpenDeployModal,
+  onOpenExportModal,
   onOpenCreateModal,
   setSelectedResource,
   setCreatedResourceId,
@@ -170,13 +178,25 @@ export default function ResourcesPageView({
           </div>
         </div>
         <div className="flex items-center justify-end p-2 gap-2">
-          <Button
-            size="sm"
-            onClick={onOpenDeployModal}
-            className="text-sm rounded-full !px-4 h-[28px] bg-orange-500 hover:bg-orange-600 text-white text-xs lg:text-sm"
-          >
-            API 배포
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                size="sm"
+                className="cursor-pointer text-sm rounded-full !px-4 h-[28px] bg-orange-500 hover:bg-orange-600 text-white text-xs lg:text-sm"
+              >
+                API 작업
+                <ChevronDown className="ml-1 h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center">
+              <DropdownMenuItem className='cursor-pointer text-center' onClick={onOpenDeployModal}>
+                API 배포
+              </DropdownMenuItem>
+              <DropdownMenuItem className='cursor-pointer text-center' onClick={onOpenExportModal}>
+                API 내보내기
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

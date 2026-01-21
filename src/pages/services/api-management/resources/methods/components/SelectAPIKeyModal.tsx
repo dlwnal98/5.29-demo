@@ -56,14 +56,14 @@ export function SelectAPIKeyModal({
             setSelectedApiKeyValue(data.keyValue || data.key);
             // 백엔드 응답에서 apiKeyId 또는 keyId 필드 사용
             setSelectedApiKeyId(data.apiKeyId || data.keyId);
-            toast.success('Success');
+            toast.success('API key가 성공적으로 생성되었습니다.');
             onOpenChange(false);
         },
         onError: (error: any) => {
             const errorMessage = error?.response?.data?.message
                 || error?.response?.data?.detail
                 || error?.message
-                || 'API key creation failed.';
+                || 'API key 생성 중 오류가 발생했습니다.';
             toast.error(errorMessage);
             setApiKeyToggle(false);
         },

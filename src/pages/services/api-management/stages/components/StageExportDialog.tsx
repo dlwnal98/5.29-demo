@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select';
 import { Download, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Switch } from '@/components/ui/switch';
 import { getStageDocForExport, getStageDocForExportPreview } from '@/apis/stages.api';
 
 type ExportFormat = 'OPENAPI_JSON' | 'OPENAPI_YAML' | 'POSTMAN';
@@ -36,6 +37,7 @@ const StageExportDialog = ({
   stageName,
 }: StageExportDialogProps) => {
   const [format, setFormat] = useState<ExportFormat>('OPENAPI_JSON');
+  const [includeExtensions, setIncludeExtensions] = useState(true);
   const [previewContent, setPreviewContent] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -45,19 +47,19 @@ const StageExportDialog = ({
 
     setIsLoading(true);
     try {
-      const res = await getStageDocForExportPreview(selectedStageId, format, false);
+      const res = await getStageDocForExportPreview(selectedStageId, format, includeExtensions);
       if (typeof res === 'string') {
         setPreviewContent(res);
       } else {
         setPreviewContent(JSON.stringify(res, null, 2));
       }
     } catch (error) {
-      toast.error('Failed to load preview.');
+      toast.error('Stage 내보내기 미리보기 중 오류가 발생했습니다.');
       setPreviewContent('');
     } finally {
       setIsLoading(false);
     }
-  }, [selectedStageId, format, open]);
+  }, [selectedStageId, format, includeExtensions, open]);
 
   useEffect(() => {
     if (open) {
@@ -81,7 +83,7 @@ const StageExportDialog = ({
 
     setIsDownloading(true);
     try {
-      const res = await getStageDocForExport(selectedStageId, format, false);
+      const res = await getStageDocForExport(selectedStageId, format, includeExtensions);
 
       let content: string;
       let mimeType: string;
@@ -107,9 +109,9 @@ const StageExportDialog = ({
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      toast.success('File downloaded successfully.');
+      toast.success('Stage 내보내기 파일이 성공적으로 다운로드되었습니다.');
     } catch (error) {
-      toast.error('Failed to download file.');
+      toast.error('Stage 내보내기 파일 다운로드 중 오류가 발생했습니다.');
     } finally {
       setIsDownloading(false);
     }
@@ -157,17 +159,33 @@ const StageExportDialog = ({
               </SelectContent>
             </Select>
           </div>
+
+          <div className="mt-4 flex items-center justify-between">
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                확장 필드 포함
+              </Label>
+              <p className="text-xs text-gray-500 mt-1">
+                x-amazon-apigateway 등 확장 필드를 포함합니다.
+              </p>
+            </div>
+            <Switch
+              checked={includeExtensions}
+              onCheckedChange={setIncludeExtensions}
+            />
+          </div>
         </div>
 
         {/* 스크롤 영역: 미리보기 본문 */}
         <div className="px-6 py-4">
-          <div className="border rounded-lg bg-gray-50 dark:bg-gray-900">
-            {isLoading ? (
-              <div className="flex items-center justify-center h-[200px]">
+          <div className="border rounded-lg bg-gray-50 dark:bg-gray-900 relative min-h-[200px]">
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-50/80 dark:bg-gray-900/80 z-10 rounded-lg">
                 <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
                 <span className="ml-2 text-sm text-gray-500">미리보기 로딩 중...</span>
               </div>
-            ) : previewContent ? (
+            )}
+            {previewContent ? (
               <pre className="text-xs p-4 font-mono whitespace-pre-wrap break-all">
                 {previewContent}
               </pre>

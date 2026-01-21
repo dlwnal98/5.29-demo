@@ -180,19 +180,19 @@ export function useCreateMethodPage() {
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || 'Method creation failed.';
+        || 'Method 생성 중 오류가 발생했습니다.';
       toast.error(errorMessage);
     },
   });
 
   const handleCreateMethod = useCallback(() => {
     if (!methodForm.methodType) {
-      toast.error("Method type not selected.");
+      toast.error("Method type이 선택되지 않았습니다.");
       return;
     }
 
     if (methodForm.integrationType === "HTTP" && !methodForm.methodType) {
-      toast.error("HTTP method not selected.");
+      toast.error("HTTP method가 선택되지 않았습니다.");
       return;
     }
 
@@ -201,7 +201,7 @@ export function useCreateMethodPage() {
         ? methodForm.customEndpointUrl
         : methodForm.endpointUrl;
       if (!finalUrl) {
-        toast.error("Endpoint URL not provided.");
+        toast.error("Endpoint URL이 제공되지 않았습니다.");
         return;
       }
     }
@@ -232,7 +232,7 @@ export function useCreateMethodPage() {
             resourceId
           });
         } else {
-          toast.error("Invalid endpoint URL.");
+          toast.error("유효하지 않은 endpoint URL입니다.");
         }
       } else {
         createMethod({
@@ -340,7 +340,7 @@ export function useCreateMethodPage() {
   const handleCopyAPIKey = useCallback(
     (apiKey: string) => {
       clipboard.copy(apiKey);
-      toast.success("API Key copied to clipboard.");
+      toast.success("API Key가 클립보드에 복사되었습니다.");
     },
     [clipboard]
   );

@@ -67,7 +67,7 @@ export default function RouteEndpointsPageView({
                     <div className="relative w-64">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                         <Input
-                            placeholder="Route Endpoint 검색해주세요"
+                            placeholder="검색어를 입력해주세요"
                             value={searchTerm}
                             onChange={(e) => onSearchTermChange(e.target.value)}
                             className="pl-10"

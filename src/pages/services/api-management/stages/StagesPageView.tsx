@@ -99,10 +99,10 @@ export default function StagesPageView({
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-6">
+      <div className="grid grid-cols-12 gap-6 items-start">
         {/* Left Sidebar - Resource Tree */}
         <div className="col-span-3">
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3 h-full">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3 sticky top-6">
             <div className="flex items-center justify-end p-2">
               <Button
                 size={"sm"}
@@ -136,9 +136,9 @@ export default function StagesPageView({
             {selectedTreeMethod ? (
               /* Method Detail View */
               <Card>
-                <CardHeader>
+                <CardHeader className="h-[72px]">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
+                    <CardTitle className="text-xl flex items-center gap-2">
                       <span
                         className={`px-2 py-1 rounded text-xl font-mono ${getMethodStyle(
                           selectedTreeMethod.type
@@ -150,7 +150,7 @@ export default function StagesPageView({
                     </CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="h-[300px] space-y-4">
                   {/* <div>
                     <Label className="text-sm font-medium text-muted-foreground dark:text-gray-300">
                       유형
@@ -203,24 +203,27 @@ export default function StagesPageView({
             ) : selectedResource ? (
               /* Resource Detail View */
               <Card>
-                <CardHeader>
-                  <CardTitle>
+                <CardHeader className="h-[72px]">
+                  <CardTitle className="text-xl">
                     Resource - {selectedResource.path || `/${selectedResource.name}`}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="h-[300px]">
                   <div className="space-y-4">
                     <div>
                       <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Methods ({selectedResource?.methods?.length || 0})
                       </Label>
                       {(selectedResource?.methods?.length ?? 0) > 0 ? (
-                        <div className="mt-2 space-y-2">
+                        <div className="mt-2 space-y-2 max-h-[250px] overflow-y-auto">
                           {selectedResource?.methods?.map((method: any) => (
                             <div
                               key={method.id}
                               className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
-                              onClick={() => onTreeMethodClick(method, selectedResource)}
+                              onClick={() => onTreeMethodClick(
+                                { ...method, uniqueId: `${selectedResource?.stageId}-${method.id}`, stageId: selectedResource?.stageId },
+                                selectedResource
+                              )}
                             >
                               <div className="flex items-center gap-3">
                                 <span
@@ -252,10 +255,10 @@ export default function StagesPageView({
             ) : stageDetailData ? (
               /* Stage Details */
               <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="border-b border-gray-200 dark:border-gray-700 p-4">
+                <div className="h-[72px]  border-b border-gray-200 dark:border-gray-700 p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                         Stage 상세정보
                       </h2>
                     </div>
@@ -291,7 +294,7 @@ export default function StagesPageView({
                   </div>
                 </div>
 
-                <div className="p-4 space-y-4">
+                <div className="p-4 space-y-4 h-[300px]">
                   <div>
                     <Label className="text-sm font-medium text-muted-foreground">
                       ID

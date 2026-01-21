@@ -103,11 +103,11 @@ export function useCorsSettingsDialog({
 
   const { mutate: modifyCORSMutate, isPending } = useModifyResourceCorsSettings({
     onSuccess: () => {
-      toast.success('CORS settings modified successfully.');
+      toast.success('CORS 설정이 성공적으로 수정되었습니다.');
       onCorsSettingsSaved?.();
       onOpenChange(false);
     }, onError: (error: any) => {
-      toast.error(error?.response?.data?.errors?.[0]?.detail || 'Failed to save CORS settings');
+      toast.error(error?.response?.data?.errors?.[0]?.detail || 'CORS 설정 수정 중 오류가 발생했습니다.');
     }
   });
 

@@ -23,19 +23,19 @@ import { getAPIDocForExport, getAPIDocForExportPreview } from '@/apis/api-manage
 
 type ExportFormat = 'OPENAPI_JSON' | 'OPENAPI_YAML' | 'POSTMAN';
 
-interface ApiExportDialogProps {
+interface ResourceExportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedAPIId: string;
+  apiId: string;
   apiName: string;
 }
 
-const ApiExportDialog = ({
+const ResourceExportDialog = ({
   open,
   onOpenChange,
-  selectedAPIId,
+  apiId,
   apiName,
-}: ApiExportDialogProps) => {
+}: ResourceExportDialogProps) => {
   const [format, setFormat] = useState<ExportFormat>('OPENAPI_JSON');
   const [includeExtensions, setIncludeExtensions] = useState(true);
   const [previewContent, setPreviewContent] = useState<string>('');
@@ -43,23 +43,23 @@ const ApiExportDialog = ({
   const [isDownloading, setIsDownloading] = useState(false);
 
   const fetchPreview = useCallback(async () => {
-    if (!selectedAPIId || !open) return;
+    if (!apiId || !open) return;
 
     setIsLoading(true);
     try {
-      const res = await getAPIDocForExportPreview(selectedAPIId, format, true, includeExtensions);
+      const res = await getAPIDocForExportPreview(apiId, format, true, includeExtensions);
       if (typeof res === 'string') {
         setPreviewContent(res);
       } else {
         setPreviewContent(JSON.stringify(res, null, 2));
       }
     } catch (error) {
-      toast.error('API 문서 미리보기를 가져오는데 실패했습니다.');
+      toast.error('미리보기를 불러오지 못했습니다.');
       setPreviewContent('');
     } finally {
       setIsLoading(false);
     }
-  }, [selectedAPIId, format, includeExtensions, open]);
+  }, [apiId, format, includeExtensions, open]);
 
   useEffect(() => {
     if (open) {
@@ -79,11 +79,11 @@ const ApiExportDialog = ({
   };
 
   const handleDownload = async () => {
-    if (!selectedAPIId) return;
+    if (!apiId) return;
 
     setIsDownloading(true);
     try {
-      const res = await getAPIDocForExport(selectedAPIId, format, true, includeExtensions);
+      const res = await getAPIDocForExport(apiId, format, true, includeExtensions);
 
       let content: string;
       let mimeType: string;
@@ -109,24 +109,11 @@ const ApiExportDialog = ({
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      toast.success('API 문서가 성공적으로 다운로드되었습니다.');
+      toast.success('파일이 다운로드되었습니다.');
     } catch (error) {
-      toast.error('API 문서 다운로드에 실패했습니다.');
+      toast.error('다운로드에 실패했습니다.');
     } finally {
       setIsDownloading(false);
-    }
-  };
-
-  const getFormatLabel = (format: ExportFormat) => {
-    switch (format) {
-      case 'OPENAPI_JSON':
-        return 'OpenAPI JSON';
-      case 'OPENAPI_YAML':
-        return 'OpenAPI YAML';
-      case 'POSTMAN':
-        return 'Postman Collection';
-      default:
-        return format;
     }
   };
 
@@ -134,11 +121,11 @@ const ApiExportDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto p-0">
         {/* 상단 고정 영역: 헤더 + 내보내기 형식 */}
-        <div className="sticky top-0 z-10 bg-white dark:bg-gray-950 px-6 pt-6 pb-4 border-b ">
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-950 px-6 pt-6 pb-4 border-b">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-blue-600">API 내보내기</DialogTitle>
             <DialogDescription className="text-gray-600 dark:text-gray-400">
-              {apiName ? `"${apiName}" API 내보내기.` : 'API를 파일로 내보냅니다.'} 형식을 선택하고 미리보기를 확인한 후 다운로드합니다.
+              {apiName ? `"${apiName}" API를 내보냅니다.` : 'API를 파일로 내보냅니다.'} 형식을 선택하고 미리보기를 확인한 후 다운로드합니다.
             </DialogDescription>
           </DialogHeader>
 
@@ -148,11 +135,11 @@ const ApiExportDialog = ({
             </Label>
             <Select value={format} onValueChange={handleFormatChange}>
               <SelectTrigger className="w-full h-[50px]">
-                <SelectValue placeholder="Select format" />
+                <SelectValue placeholder="형식 선택" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="OPENAPI_JSON">
-                  <div className="flex flex-col items-start ">
+                  <div className="flex flex-col items-start">
                     <span className="font-medium">OpenAPI JSON</span>
                     <span className="text-xs text-gray-500">OpenAPI 3.0 문서 JSON 형식</span>
                   </div>
@@ -238,4 +225,4 @@ const ApiExportDialog = ({
   );
 };
 
-export default ApiExportDialog;
+export default ResourceExportDialog;

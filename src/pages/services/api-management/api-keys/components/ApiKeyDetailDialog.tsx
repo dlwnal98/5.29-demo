@@ -166,7 +166,7 @@ export function ApiKeyDetailDialog({
             apiKeyExpired: res.expired,
           });
         } catch (error) {
-          console.error('Failed to fetch usage data:', error);
+          console.error('API 키 사용처 데이터를 가져오는데 실패했습니다:', error);
           setUsageData({ deployedUsages: [] });
           setStatusData({
             apiKeyActive: false,
@@ -184,7 +184,7 @@ export function ApiKeyDetailDialog({
   // Rate Limit 유효성 검사
   useEffect(() => {
     if (rateLimitForm.burstCapacity < rateLimitForm.requestsPerSecond) {
-      setRateLimitError('Burst capacity must be greater than or equal to requests per second.');
+      setRateLimitError('버스트 용량(Burst capacity)은 초당 요청 수(Requests per second)보다 크거나 같아야 합니다.');
     } else {
       setRateLimitError('');
     }
@@ -195,7 +195,7 @@ export function ApiKeyDetailDialog({
     if (!apiKeyDetail) return;
 
     if (!basicInfoForm.keyName.trim()) {
-      toast.error('Please enter the API Key name.');
+      toast.error('API Key 이름을 입력해주세요.');
       return;
     }
 
@@ -208,11 +208,11 @@ export function ApiKeyDetailDialog({
         expiresAt: basicInfoForm.expiresAt || undefined,
         updatedBy: userData?.userKey || '',
       });
-      toast.success('API Key information has been updated.');
+      toast.success('API Key 정보가 성공적으로 업데이트되었습니다.');
       setIsBasicInfoEditMode(false);
       onRefresh?.();
     } catch (error) {
-      toast.error('Failed to update API Key information.');
+      toast.error('API Key 정보 업데이트에 실패했습니다.');
     } finally {
       setIsBasicInfoSaving(false);
     }
@@ -246,11 +246,11 @@ export function ApiKeyDetailDialog({
         requestLimit: quotaForm.requestLimit,
         updatedBy: userData?.userKey || '',
       });
-      toast.success('Quota settings have been saved.');
+      toast.success('Quota 설정이 성공적으로 저장되었습니다.');
       setIsQuotaEditMode(false);
       onRefresh?.();
     } catch (error) {
-      toast.error('Failed to save Quota settings.');
+      toast.error('Quota 설정 저장에 실패했습니다.');
     } finally {
       setIsQuotaSaving(false);
     }
@@ -271,7 +271,7 @@ export function ApiKeyDetailDialog({
     if (!apiKeyDetail) return;
 
     if (rateLimitForm.burstCapacity < rateLimitForm.requestsPerSecond) {
-      toast.error('Burst capacity must be greater than or equal to requests per second.');
+      toast.error('버스트 용량(Burst capacity)은 초당 요청 수(Requests per second)보다 크거나 같아야 합니다.');
       return;
     }
 
@@ -286,11 +286,11 @@ export function ApiKeyDetailDialog({
         requestsPerHour: rateLimitForm.requestsPerHour,
         updatedBy: userData?.userKey || '',
       });
-      toast.success('Rate Limit settings have been saved.');
+      toast.success('Rate Limit 설정이 성공적으로 저장되었습니다.');
       setIsRateLimitEditMode(false);
       onRefresh?.();
     } catch (error) {
-      toast.error('Failed to save Rate Limit settings.');
+      toast.error('Rate Limit 설정 저장에 실패했습니다.');
     } finally {
       setIsRateLimitSaving(false);
     }
