@@ -38,11 +38,12 @@ const getStatusCodeColor = (code: string) => {
 export function MethodResponseTab({
   methodResponses,
 }: MethodResponseTabProps) {
+  console.log(methodResponses)
 
   return (
     <>
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Method Response</h3>
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Method 응답</h3>
       </div>
       {methodResponses.length > 0 ? (
         <div className="space-y-4">
@@ -63,7 +64,7 @@ export function MethodResponseTab({
               <CardContent className="space-y-4">
                 {/* 응답 헤더 */}
                 <div>
-                  <Label className="text-sm font-medium">Response Header</Label>
+                  <Label className="text-sm font-medium">응답 헤더</Label>
                   {response.headers.length > 0 ? (
                     <div className="mt-2 space-y-1">
                       {response.headers.map((header, i) => (
@@ -76,11 +77,11 @@ export function MethodResponseTab({
                           </code>
                           {header.required ? (
                             <Badge variant="outline" className="text-xs bg-red-50 text-red-600 border-red-200">
-                              Required
+                              필수
                             </Badge>
                           ) :
                             <Badge variant="outline" className="text-xs bg-gray-50 text-gray-600 border-gray-200">
-                              Optional
+                              선택
                             </Badge>
                           }
                           {header.description && (
@@ -90,13 +91,13 @@ export function MethodResponseTab({
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500 mt-1">No defined response headers.</p>
+                    <p className="text-sm text-gray-500 mt-1">응답 헤더가 정의되지 않았습니다.</p>
                   )}
                 </div>
 
                 {/* 응답 본문 */}
                 <div>
-                  <Label className="text-sm font-medium">Response Body</Label>
+                  <Label className="text-sm font-medium">응답 본문</Label>
                   {response.bodies.length > 0 ? (
                     <div className="mt-2 space-y-1">
                       {response.bodies.map((body) => (
@@ -115,7 +116,7 @@ export function MethodResponseTab({
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500 mt-1">No defined response body.</p>
+                    <p className="text-sm text-gray-500 mt-1">응답 본문이 정의되지 않았습니다.</p>
                   )}
                 </div>
               </CardContent>
@@ -124,9 +125,9 @@ export function MethodResponseTab({
         </div>
       ) : (
         <div className="text-center py-6">
-          <p className="text-gray-500 dark:text-gray-400 mb-2">No defined response.</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-2">응답이 정의되지 않았습니다.</p>
           <p className="text-sm text-gray-400 dark:text-gray-500">
-            Click the edit button at the top to add a response.
+            상단의 편집 버튼을 클릭하여 응답을 추가할 수 있습니다.
           </p>
         </div>
       )}

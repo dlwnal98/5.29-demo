@@ -16,7 +16,7 @@ export default function AuthCallbackPage() {
 
 
   const getJWTToken = async () => {
-    const EXPIRES_IN = 3600;
+    const EXPIRES_IN = 86400; // 1일 (24시간)
 
     const res = await requestPost('/api/v1/access-token/issue', {
       body: {

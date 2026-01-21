@@ -114,21 +114,21 @@ export default function CreateModelDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-blue-600">Create Model</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-blue-600">Model 생성</DialogTitle>
             <DialogDescription className="text-gray-600">
-              Create a new model. (<span className="text-red-500">*</span> Required fields)
+              새로운 모델을 생성합니다. (<span className="text-red-500">*</span> 필수 항목)
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
+          <div className="space-y-6 py-2">
             {/* Model Name */}
             <div>
               <Label htmlFor="model-name" className="text-sm font-medium text-gray-700 mb-2 block">
-                Name <span className="text-red-500">*</span>
+                이름 <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="model-name"
-                placeholder="Enter model name"
+                placeholder="모델 이름을 입력하세요"
                 value={createModelForm.modelName}
                 onChange={(e) =>
                   setCreateModelForm((prev) => ({
@@ -136,8 +136,11 @@ export default function CreateModelDialog({
                     modelName: e.target.value,
                   }))
                 }
-                className="w-full"
+                className={`w-full ${createModelForm.modelName.includes(' ') ? 'border-red-500 focus:ring-red-500' : ''}`}
               />
+              {createModelForm.modelName.includes(' ') && (
+                <p className="text-xs text-red-500 mt-1">모델 이름에 공백을 포함할 수 없습니다.</p>
+              )}
             </div>
 
             {/* Content Type */}
@@ -145,7 +148,7 @@ export default function CreateModelDialog({
               <Label
                 htmlFor="content-type"
                 className="text-sm font-medium text-gray-700 mb-2 block">
-                Content Type
+                콘텐츠 유형
               </Label>
               <Input
                 id="content-type"
@@ -160,11 +163,11 @@ export default function CreateModelDialog({
             {/* Description */}
             <div>
               <Label htmlFor="description" className="text-sm font-medium text-gray-700 mb-2 block">
-                Description
+                설명
               </Label>
               <Textarea
                 id="description"
-                placeholder="Enter model description"
+                placeholder="모델 설명을 입력하세요"
                 value={createModelForm.description}
                 onChange={(e) =>
                   setCreateModelForm((prev) => ({
@@ -176,13 +179,13 @@ export default function CreateModelDialog({
                 maxLength={500}
               />
               <div className="text-right text-sm text-gray-500 mt-1">
-                {createModelForm?.description?.length}/500 characters
+                {createModelForm?.description?.length}/500 자
               </div>
             </div>
 
             {/* Model Schema */}
             <div>
-              <Label className="text-sm font-medium text-gray-700 mb-2 block">Model Schema</Label>
+              <Label className="text-sm font-medium text-gray-700 mb-2 block">모델 스키마</Label>
               <div className="border rounded-lg overflow-hidden">
                 <div className="bg-gray-50 px-3 py-2 border-b flex items-center justify-between">
                   <span className="text-sm font-medium text-gray-700">JSON Schema</span>
@@ -239,12 +242,13 @@ export default function CreateModelDialog({
               onClick={() => {
                 onOpenChange(false);
               }}>
-              Cancel
+              취소
             </Button>
             <Button
               onClick={handleCreateModel}
+              disabled={!createModelForm.modelName.trim() || createModelForm.modelName.includes(' ')}
               className="bg-blue-500 hover:bg-blue-600 text-white">
-              Create
+              생성
             </Button>
           </DialogFooter>
         </DialogContent>

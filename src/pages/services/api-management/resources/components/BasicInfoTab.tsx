@@ -18,16 +18,16 @@ export function BasicInfoTab({ selectedMethod, handleCopyEndpoint }: BasicInfoTa
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="!text-lg">Basic Information</CardTitle>
+          <CardTitle className="!text-lg">Method 기본 정보</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-[120px_1fr] gap-y-4">
-            <div className="text-sm text-gray-600 dark:text-gray-400">Method ID</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">ID</div>
             <div className="text-sm font-medium">{info?.['x-method-id'] || '-'}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Method Summary</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">요약</div>
             <div className="text-sm font-medium">{info?.summary || '-'}</div>
 
-            <div className="text-sm text-gray-600 dark:text-gray-400">Method Description</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">설명</div>
             <div className="text-sm">{info?.description || '-'}</div>
 
           </div>
@@ -36,11 +36,11 @@ export function BasicInfoTab({ selectedMethod, handleCopyEndpoint }: BasicInfoTa
 
       <Card>
         <CardHeader>
-          <CardTitle className="!text-lg">Integration Settings</CardTitle>
+          <CardTitle className="!text-lg">통합 설정</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-[120px_1fr] gap-y-4">
-            <div className="text-sm text-gray-600 dark:text-gray-400">Integration Type</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">통합 유형</div>
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="font-mono">
                 {info?.['x-integration-type'] || 'HTTP'}
@@ -65,8 +65,8 @@ export function BasicInfoTab({ selectedMethod, handleCopyEndpoint }: BasicInfoTa
 
             {info?.['x-integration-type'] === 'MOCK' && (
               <>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Mock Response</div>
-                <div className="text-sm text-gray-500">Mock integration is configured.</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Mock 응답</div>
+                <div className="text-sm text-gray-500">Mock 통합이 구성되었습니다.</div>
               </>
             )}
           </div>
@@ -79,13 +79,13 @@ export function BasicInfoTab({ selectedMethod, handleCopyEndpoint }: BasicInfoTa
 function getIntegrationTypeLabel(type: string): string {
   switch (type) {
     case 'HTTP':
-      return 'HTTP proxy integration';
+      return 'HTTP 프록시 통합';
     case 'MOCK':
-      return 'Mock integration';
+      return 'Mock 통합';
     case 'AWS':
-      return 'AWS service integration';
+      return 'AWS 서비스 통합';
     case 'AWS_PROXY':
-      return 'AWS Lambda proxy integration';
+      return 'AWS Lambda 프록시 통합';
     default:
       return '';
   }

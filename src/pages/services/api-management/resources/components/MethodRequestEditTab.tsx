@@ -150,11 +150,11 @@ export function MethodRequestEditTab({
         {/* Method Request Settings Edit */}
         <Card className="!mt-3">
           <CardHeader>
-            <CardTitle className="!text-lg">Method Request Settings</CardTitle>
+            <CardTitle className="!text-lg">Method 요청 설정</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center space-x-2">
-              <Label className="text-sm font-medium">API Key Required</Label>
+              <Label className="text-sm font-medium">API Key 설정</Label>
               <Switch checked={formData.apiKeyRequired} onCheckedChange={handleApiKeyToggle} />
             </div>
             {formData.apiKeyRequired && (
@@ -164,10 +164,10 @@ export function MethodRequestEditTab({
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <h4 className="font-semibold text-green-900 dark:text-green-100">
-                        Selected API Key
+                        선택된 API Key
                       </h4>
                       <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-xs rounded-full font-medium">
-                        Enabled
+                        활성화
                       </span>
                       {apiKeyContent && (
                         <button
@@ -186,11 +186,11 @@ export function MethodRequestEditTab({
             )}
             <div>
               <div>
-                <Label className="text-sm font-medium">Request Validator</Label>
+                <Label className="text-sm font-medium">요청 검사기</Label>
                 <Select
                   value={formData.requestValidation}
                   onValueChange={(value) => onChange({ requestValidation: value })}>
-                  <SelectTrigger className="mt-2">
+                  <SelectTrigger className="mt-2 w-full lg:w-2/3">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -210,13 +210,13 @@ export function MethodRequestEditTab({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center !text-lg gap-3">
-              URL Query String Parameters
+              URL 쿼리 스트링 파라미터
               <Button
                 size="sm"
                 variant={'outline'}
                 className="h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
                 onClick={addQueryParameter}>
-                <span className="font-bold">Add</span>
+                <span className="font-bold">추가</span>
               </Button>
             </CardTitle>
           </CardHeader>
@@ -228,12 +228,12 @@ export function MethodRequestEditTab({
                     <Input
                       value={param.name}
                       onChange={(e) => updateQueryParameter(index, 'name', e.target.value)}
-                      placeholder="Parameter Name"
+                      placeholder="파라미터 이름"
                     />
                   </div>
                   <div className="col-span-2 gap-1 flex items-center">
                     <div className="flex items-center space-x-2">
-                      <Label className="text-xs">Required</Label>
+                      <Label className="text-xs">필수</Label>
                       <Switch
                         checked={param.required}
                         onCheckedChange={(checked) =>
@@ -253,7 +253,7 @@ export function MethodRequestEditTab({
               ))}
               {formData.queryParameters.length === 0 && (
                 <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-                  No query parameters. Click the Add button to add a new parameter.
+                  쿼리 파라미터 없음. 추가 버튼을 눌러 새로운 파라미터 추가.
                 </div>
               )}
             </div>
@@ -264,13 +264,13 @@ export function MethodRequestEditTab({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-3 !text-lg">
-              HTTP Request Headers
+              HTTP 요청 헤더
               <Button
                 size="sm"
                 variant={'outline'}
                 className="h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
                 onClick={addRequestHeader}>
-                <span className="font-bold">Add</span>
+                <span className="font-bold">추가</span>
               </Button>
             </CardTitle>
           </CardHeader>
@@ -300,7 +300,7 @@ export function MethodRequestEditTab({
                     className={`col-span-2 gap-1 flex items-center ${openId === `header-${index}` ? 'mt-1' : ''
                       }`}>
                     <div className="flex items-center space-x-2">
-                      <Label className="text-xs">Required</Label>
+                      <Label className="text-xs">필수</Label>
                       <Switch
                         checked={header.required}
                         onCheckedChange={(checked) =>
@@ -320,7 +320,7 @@ export function MethodRequestEditTab({
               ))}
               {formData.headerParameters.length === 0 && (
                 <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-                  No request headers. Click the Add button to add a new request header.
+                  요청 헤더 없음. 추가 버튼을 눌러 새로운 헤더 추가.
                 </div>
               )}
             </div>
@@ -330,14 +330,16 @@ export function MethodRequestEditTab({
         {/* Request Body Edit */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-3 !text-lg">Request Body</CardTitle>
+            <CardTitle className="flex items-center gap-3 !text-lg">요청 바디</CardTitle>
           </CardHeader>
           <CardContent>
             {!isBodyRequired ? (
               <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-                <p className="mb-2">{httpMethod} method does not support request body.</p>
+                <p className="mb-2">
+                  {httpMethod} 메서드는 요청 본문(Request Body)을 지원하지 않습니다.
+                </p>
                 <p className="text-sm text-gray-400 dark:text-gray-500">
-                  POST, PUT, PATCH methods can set request body.
+                  요청 본문은 POST, PUT, PATCH 메서드에서만 설정할 수 있습니다.
                 </p>
               </div>
             ) : (
@@ -358,7 +360,7 @@ export function MethodRequestEditTab({
                       <SelectTrigger>
                         <SelectValue
                           placeholder={
-                            modelList?.length > 0 ? 'Select Model' : 'No models created.'
+                            modelList?.length > 0 ? '모델 선택' : '모델이 없습니다.'
                           }
                         />
                       </SelectTrigger>

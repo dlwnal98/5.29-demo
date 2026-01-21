@@ -46,7 +46,7 @@ export default function ModifyStageDialog({
             <Dialog open={open} onOpenChange={onOpenChange}>
                 <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle className="text-xl font-bold text-blue-600">Stage Modify</DialogTitle>
+                        <DialogTitle className="text-xl font-bold text-blue-600">Stage 수정</DialogTitle>
                     </DialogHeader>
 
                     <div className="space-y-6 py-4">
@@ -55,7 +55,7 @@ export default function ModifyStageDialog({
                                 <Label
                                     htmlFor="stage-name"
                                     className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Stage Name
+                                    이름
                                 </Label>
                                 <Input
                                     id="stage-name"
@@ -69,7 +69,7 @@ export default function ModifyStageDialog({
                                 <Label
                                     htmlFor="stage-description"
                                     className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Stage Description
+                                    설명
                                 </Label>
                                 <Textarea
                                     id="stage-description"
@@ -83,13 +83,13 @@ export default function ModifyStageDialog({
 
                     <DialogFooter className="gap-2">
                         <Button variant="outline" onClick={() => onOpenChange(false)}>
-                            Cancel
+                            취소
                         </Button>
                         <Button
                             onClick={handleEditSave}
                             disabled={!isValid}
                             className="bg-blue-500 hover:bg-blue-600 text-white">
-                            Save
+                            수정
                         </Button>
                     </DialogFooter>
                 </DialogContent>

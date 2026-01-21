@@ -110,7 +110,7 @@ export default function RequestHeaderListSearch({
     return (
         <div className="w-100 relative">
             <label htmlFor="autocomplete-input" className="sr-only">
-                Select header type
+                헤더 유형을 선택해주세요.
             </label>
             <div className="relative">
                 <input
@@ -118,7 +118,7 @@ export default function RequestHeaderListSearch({
                     ref={inputRef}
                     type="text"
                     className="text-[14px] border px-3 py-2 pr-[35px] rounded-md cursor-pointer w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Type to search or enter custom header..."
+                    placeholder="검색어를 입력하거나 사용자 정의 헤더를 입력하세요..."
                     aria-autocomplete="list"
                     aria-controls="autocomplete-list"
                     aria-expanded={isOpen}
@@ -146,7 +146,7 @@ export default function RequestHeaderListSearch({
                     id="autocomplete-list"
                     ref={listRef}
                     role="listbox"
-                    className={`relative z-50 w-full p-1 bg-white border rounded-md shadow max-h-48 overflow-auto mt-1 transform origin-top transition-all duration-200 ${isOpen ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-95 pointer-events-none'}`}>
+                    className={`absolute top-full left-0 z-50 w-full p-1 bg-white border rounded-md shadow max-h-48 overflow-auto mt-1 transform origin-top transition-all duration-200 ${isOpen ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-95 pointer-events-none'}`}>
                     {filtered.length > 0 ? (
                         filtered.map((opt, idx) => (
                             <li
@@ -165,10 +165,10 @@ export default function RequestHeaderListSearch({
                         <li
                             className="text-[14px] px-3 py-2 rounded-md cursor-pointer bg-blue-50 text-blue-600"
                             onMouseDown={() => applyDirectInput()}>
-                            Use "{search}" as custom header
+                            "{search}"를 사용자 정의 헤더로 사용
                         </li>
                     ) : (
-                        <li className="px-3 py-2 text-gray-400">No results</li>
+                        <li className="px-3 py-2 text-gray-400">결과가 없습니다.</li>
                     )}
                 </ul>
             )}

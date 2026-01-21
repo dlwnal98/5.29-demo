@@ -40,13 +40,13 @@ export default function ModifyEndpointDialogView({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-blue-600 mb-2">
-            Modify Route Endpoint
+            Route Endpoint 수정
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
             <Label htmlFor="edit-routeName" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Route Endpoint Name <span className="text-red-500">*</span>
+              이름 <span className="text-red-500">*</span>
             </Label>
             <Input
               id="edit-routeName"
@@ -69,28 +69,28 @@ export default function ModifyEndpointDialogView({
             />
             {hasUrlError && (
               <span className="text-xs mt-2 ml-2 text-red-500">
-                Korean is not allowed.
+                한글은 입력이 불가합니다.
               </span>
             )}
           </div>
           <div>
             <Label htmlFor="edit-description" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Description
+              설명
             </Label>
             <Textarea
               id="edit-description"
               value={description}
               onChange={(e) => onDescriptionChange(e.target.value)}
-              placeholder="엔드포인트 설명을 입력하세요"
+              placeholder="Endpoint 설명을 입력하세요"
               className="mt-2"
             />
           </div>
         </div>
         <DialogFooter className="flex space-x-2">
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            취소
           </Button>
-          <Button onClick={onSubmit}>Update</Button>
+          <Button onClick={onSubmit}>수정</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -45,13 +45,13 @@ export default function DeploymentList({ selectedStage, onActiveDeploymentChange
                 <div className="border-b border-gray-200 dark:border-gray-700 p-4">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            Deployments ({filteredDeployments?.length})
+                            배포 목록 ({filteredDeployments?.length})
                         </h2>
                         <Button
                             onClick={handleActiveDeploymentChange}
                             disabled={!selectedDeploymentId}
                             className="rounded-full h-[25px] bg-white !gap-1 border-2 border-blue-500 text-[#0F74E1] font-bold hover:text-blue-700 hover:bg-blue-50 disabled:border-gray-500 disabled:text-gray-700 disabled:bg-gray-100">
-                            Change Active Deployment
+                            활성 배포 변경
                         </Button>
                     </div>
 
@@ -59,7 +59,7 @@ export default function DeploymentList({ selectedStage, onActiveDeploymentChange
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                         <Input
-                            placeholder="Search deployment date or deployment ID"
+                            placeholder="배포 날짜 또는 배포 ID 검색"
                             value={deploymentSearchTerm}
                             onChange={(e) => setDeploymentSearchTerm(e.target.value)}
                             className="pl-10"
@@ -72,21 +72,17 @@ export default function DeploymentList({ selectedStage, onActiveDeploymentChange
                     <div className="grid grid-cols-12 gap-4 py-3 border-b border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300">
                         <div className="col-span-1"></div>
                         <div className="col-span-3 text-center">
-                            Deployment Date
-                            <ChevronDown className="inline h-4 w-4 ml-1" />
+                            배포 날짜
                         </div>
                         <div className="col-span-4 text-center">
-                            Deployment Description
-                            <ChevronDown className="inline h-4 w-4 ml-1" />
+                            배포 설명
                         </div>
                         <div className="col-span-1 text-center">
-                            Status
-                            <ChevronDown className="inline h-4 w-4 ml-1" />
+                            상태
                         </div>
 
                         <div className="col-span-2 text-center">
-                            Deployment ID
-                            <ChevronDown className="inline h-4 w-4 ml-1" />
+                            배포 ID
                         </div>
                         <div className="col-span-1"></div>
                     </div>
@@ -117,9 +113,9 @@ export default function DeploymentList({ selectedStage, onActiveDeploymentChange
                                 </div>
                                 <div className="col-span-1 text-center">
                                     {selectedStage.activeDeploymentId === deployment.deploymentId ? (
-                                        <div className="flex items-center gap-1">
-                                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                            <span className="text-sm text-green-700">Active</span>
+                                        <div className="flex items-center justify-center">
+                                            <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                                            <span className="text-sm text-green-700">활성</span>
                                         </div>
                                     ) : (
                                         <span className="text-sm text-gray-500">-</span>

@@ -18,7 +18,7 @@ axios.interceptors.request.use(
           });
 
           const { accessToken: newAccessToken, refreshToken: newRefreshToken } = res.data;
-          const EXPIRES_IN = 3600;
+          const EXPIRES_IN = 86400; // 1일 (24시간)
           const newExpiresAt = String(Date.now() + EXPIRES_IN * 1000);
 
           // ✅ Zustand 스토어 업데이트 (자동으로 스토리지까지 반영됨)
@@ -55,7 +55,7 @@ axios.interceptors.response.use(
         });
 
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } = refreshRes.data;
-        const EXPIRES_IN = 3600;
+        const EXPIRES_IN = 86400; // 1일 (24시간)
         const newExpiresAt = String(Date.now() + EXPIRES_IN * 1000);
 
         // ✅ Zustand 스토어 업데이트

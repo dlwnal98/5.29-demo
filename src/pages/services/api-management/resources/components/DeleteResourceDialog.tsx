@@ -29,35 +29,33 @@ export function DeleteResourceDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-2 text-red-600">
-            <AlertTriangle className="h-5 w-5" />
-            Resource Delete Confirm
+          <AlertDialogTitle className="flex items-center gap-2 text-red-600 text-xl">
+            Resource 삭제
           </AlertDialogTitle>
           <AlertDialogDescription className="text-gray-600 dark:text-gray-300">
             <div className="space-y-2">
-              <p className="font-semibold">⚠️ Warning: This action cannot be undone!</p>
+              <p className="font-semibold">⚠️ 경고: 이 작업은 되돌릴 수 없습니다!</p>
               <p>
-                Resource{' '}
                 <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
                   {resourcePath}
                 </span>
-                will be permanently deleted.
+                이(가) 영구적으로 삭제됩니다.
               </p>
-              <p className="text-sm text-red-600">
-                • All methods associated with this resource will be deleted.
-                <br />• API calls may fail.
-                <br />• This action will be applied immediately and cannot be undone.
+              <p className="text-sm text-red-600 font-medium">
+                • 이 Resource와 연결된 모든 메서드가 삭제됩니다.
+                <br />• API 호출이 실패할 수 있습니다.
+                <br />• 이 작업은 즉시 적용되고 되돌릴 수 없습니다.
               </p>
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>취소</AlertDialogCancel>
           <AlertDialogAction
             onClick={onDeleteResource}
             disabled={isPending}
             className="bg-red-600 hover:bg-red-700 text-white">
-            {isPending ? 'Removing...' : 'Remove'}
+            {isPending ? '삭제중...' : '삭제'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

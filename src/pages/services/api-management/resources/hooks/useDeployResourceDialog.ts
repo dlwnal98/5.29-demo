@@ -84,6 +84,10 @@ export function useDeployResourceDialog({
         await queryClient.invalidateQueries({ queryKey: ['getDeployHistoryData', tenantId] });
         await queryClient.refetchQueries({ queryKey: ['getDeployHistoryData', tenantId] });
 
+        // StagesPage에서 사용하는 deployment history도 갱신
+        await queryClient.invalidateQueries({ queryKey: ['getDeployHistoryDataByApiId', apiId] });
+        await queryClient.refetchQueries({ queryKey: ['getDeployHistoryDataByApiId', apiId] });
+
         // Stages 페이지 목록 갱신
         await queryClient.invalidateQueries({ queryKey: ['getStagesListData', apiId] });
         await queryClient.refetchQueries({ queryKey: ['getStagesListData', apiId] });

@@ -104,18 +104,16 @@ export function ResourceDetailCard({
         {/* Resource Details Header */}
         <div className="border-b border-gray-200 dark:border-gray-700 p-6  space-y-3">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Resource Details</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Resource 상세 정보</h2>
             <div className="flex items-center gap-3">
-              {/* {selectedResource?.cors && ( */}
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setIsCorsModalOpen(true)}
                 title="Resource Update"
                 className={`rounded-full h-[25px] !gap-1 border-2 border-blue-500 text-[#0F74E1] font-bold hover:text-blue-700 hover:bg-blue-50`}>
-                CORS Activation
+                CORS 활성화 설정
               </Button>
-              {/* )} */}
               {selectedResource?.path !== '/' && (
                 <Button
                   variant="outline"
@@ -123,47 +121,33 @@ export function ResourceDetailCard({
                   onClick={() => setIsDeleteDialogOpen(true)}
                   className="rounded-full h-[25px] !gap-1 border-2 border-red-500 text-red-600 font-bold hover:text-red-700 hover:bg-red-50"
                   title="Delete">
-                  Resource Delete
+                  Resource 삭제
                 </Button>
               )}
             </div>
           </div>
+
           <div className="grid grid-cols-3 gap-6">
-            <div className={`${selectedResource?.description ? 'col-span-1' : 'col-span-3'}`}>
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Resource Name
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground dark:text-gray-300">
+                이름
               </Label>
               <div className="mt-1 text-sm font-mono text-gray-900 dark:text-gray-400">
                 {selectedResource?.name}
               </div>
             </div>
-            {selectedResource?.description && (
-              <div className="col-span-2">
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Description</Label>
-                <div className="mt-1 text-sm font-mono text-gray-900 dark:text-white">
-                  {selectedResource?.description}
-                </div>
-              </div>
-            )}
-          </div>
-          <div className="grid grid-cols-3 gap-6">
             <div>
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Resource ID
+              <Label className="text-sm font-medium text-muted-foreground dark:text-gray-300">
+                ID
               </Label>
               <div className="mt-1 text-sm font-mono text-gray-900 dark:text-gray-400">
                 {selectedResource?.resourceId}
               </div>
             </div>
-            <div className="min-w-0">
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Path</Label>
-              <div className="mt-1 text-sm font-mono text-gray-900 dark:text-white break-all">
-                {selectedResource?.path}
-              </div>
-            </div>
+
             <div>
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                CORS Activation
+              <Label className="text-sm font-medium text-muted-foreground dark:text-gray-300">
+                CORS 활성화 여부
               </Label>
               <div className="mt-1 text-sm font-mono text-gray-600 dark:text-gray-400">
                 {selectedResource?.cors ? (
@@ -180,6 +164,22 @@ export function ResourceDetailCard({
                   </div>
                 )}
               </div>
+            </div>
+
+          </div>
+
+          {selectedResource?.description && (
+            <div className="col-span-2">
+              <Label className="text-sm font-medium text-muted-foreground dark:text-gray-300">설명</Label>
+              <div className="mt-1 text-sm font-mono text-gray-900 dark:text-white">
+                {selectedResource?.description}
+              </div>
+            </div>
+          )}
+          <div className="min-w-0">
+            <Label className="text-sm font-medium text-muted-foreground dark:text-gray-300">경로</Label>
+            <div className="mt-1 text-sm font-mono text-gray-900 dark:text-white break-all">
+              {selectedResource?.path}
             </div>
           </div>
         </div>
@@ -200,7 +200,7 @@ export function ResourceDetailCard({
                   );
                 }}
                 className="rounded-full h-[28px] bg-blue-500 hover:bg-blue-600 text-white">
-                Method Create
+                Method 생성
               </Button>
             </div>
           </div>
@@ -208,12 +208,12 @@ export function ResourceDetailCard({
             <Table>
               <TableHeader className="hover:bg-white dark:hover:bg-gray-700">
                 <TableRow className="hover:bg-white dark:hover:bg-gray-700">
-                  <TableHead className="w-[10%]">Method Type</TableHead>
-                  <TableHead>Method Summary</TableHead>
-                  <TableHead>Integration Type</TableHead>
-                  <TableHead>API Key</TableHead>
-                  <TableHead>Endpoint URL</TableHead>
-                  <TableHead className="w-[7%] text-center">Actions</TableHead>
+                  <TableHead className="w-[10%] text-center">유형</TableHead>
+                  <TableHead className='text-center'>요약</TableHead>
+                  <TableHead className='text-center'>통합 유형</TableHead>
+                  <TableHead className='text-center'>API Key</TableHead>
+                  <TableHead className='text-center'>Route Endpoint URL</TableHead>
+                  <TableHead className="w-[7%] text-center">작업</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -226,25 +226,25 @@ export function ResourceDetailCard({
                       onClick={() => {
                         handleMethodClick(method, selectedResource);
                       }}>
-                      <TableCell>
+                      <TableCell className='text-center'>
                         <span
                           className={`${getMethodStyle(method.type)}  font-mono text-sm px-2 py-1 rounded`}>
                           {method.type}
                         </span>
                       </TableCell>
-                      <TableCell>{method?.info?.summary}</TableCell>
-                      <TableCell>{method?.info['x-integration-type']}</TableCell>
-                      <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
+                      <TableCell className='text-center'>{method?.info?.summary}</TableCell>
+                      <TableCell className='text-center'>{method?.info['x-integration-type']}</TableCell>
+                      <TableCell className='text-center' onClick={() => handleMethodClick(method, selectedResource)}>
                         {method?.info['x-api-key-required'] ? 'True' : 'False'}
                       </TableCell>
-                      <TableCell onClick={() => handleMethodClick(method, selectedResource)}>
+                      <TableCell className='text-center' onClick={() => handleMethodClick(method, selectedResource)}>
                         {method?.info['x-route-endpoint'] && (
                           <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                             {method?.info['x-route-endpoint'] ?? ''}
                           </code>
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className='text-center'>
                         <Button
                           size="sm"
                           variant="outline"
@@ -265,8 +265,8 @@ export function ResourceDetailCard({
           ) : (
             <div className="text-center py-12">
               <Shield className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 dark:text-gray-400 mb-2">No Methods</p>
-              <p className="text-sm text-gray-500">No methods defined.</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-2">Method 없음</p>
+              <p className="text-sm text-gray-500">Method가 정의되지 않았습니다.</p>
             </div>
           )}
         </div>

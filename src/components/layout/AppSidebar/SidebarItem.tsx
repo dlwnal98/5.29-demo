@@ -93,8 +93,9 @@ const SubNavButton = ({
     };
 
     const handleSubSubItemClick = (label: string, href: string) => {
-        if (label === 'APIs') {
-            // APIs 메뉴를 클릭했을 때만 API 정보 초기화
+        // 특정 API 선택 시 생기는 하위 메뉴를 초기화해야 하는 메뉴들
+        const clearApiInfoMenus = ['API Plan', 'Route Endpoints', 'API Keys', 'Usage Dashboard'];
+        if (clearApiInfoMenus.includes(label)) {
             clearSelectedApiInfo();
         }
         router(href);

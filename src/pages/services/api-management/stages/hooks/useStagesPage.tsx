@@ -283,7 +283,9 @@ export function useStagesPage() {
     setExpandedStages(new Set());
     // 마지막 스테이지 선택을 위한 플래그 설정
     pendingCreateSelectionRef.current = true;
-  }, []);
+    // deployment history 갱신
+    refetchDeploymentHistory();
+  }, [refetchDeploymentHistory]);
 
   const handleToggleResourceExpansion = useCallback((resourceId: string) => {
     setExpandedResources((prev) => {
@@ -299,10 +301,49 @@ export function useStagesPage() {
     setSelectedTreeMethod(null);
   }, []);
 
+  // 리소스 트리에서 특정 리소스까지의 경로를 찾는 함수
+  const findResourcePath = useCallback((
+    tree: any[],
+    targetId: string,
+    stageId: string,
+    currentPath: string[] = []
+  ): string[] | null => {
+    for (const node of tree) {
+      const uniqueId = `${stageId}-${node.id}`;
+      const newPath = [...currentPath, uniqueId];
+
+      if (node.id === targetId) {
+        return newPath;
+      }
+
+      if (node.children?.length > 0) {
+        const foundPath = findResourcePath(node.children, targetId, stageId, newPath);
+        if (foundPath) {
+          return foundPath;
+        }
+      }
+    }
+    return null;
+  }, []);
+
   const handleTreeMethodClick = useCallback((method: any, resource: any) => {
     setSelectedTreeMethod(method);
     setSelectedResource(resource);
-  }, []);
+
+    // 해당 리소스까지의 경로를 찾아서 모두 펼치기
+    if (resource?.stageId && resource?.id) {
+      const resourceTree = stageResourcesMap[resource.stageId] || [];
+      const pathToResource = findResourcePath(resourceTree, resource.id, resource.stageId);
+
+      if (pathToResource && pathToResource.length > 0) {
+        setExpandedResources((prev) => {
+          const newExpanded = new Set(prev);
+          pathToResource.forEach((id) => newExpanded.add(id));
+          return Array.from(newExpanded);
+        });
+      }
+    }
+  }, [stageResourcesMap, findResourcePath]);
 
   const handleExportApi = useCallback(() => {
     toast.success("API export started.");

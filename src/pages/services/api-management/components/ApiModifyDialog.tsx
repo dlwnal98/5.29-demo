@@ -71,17 +71,17 @@ const ApiModifyDialog = ({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
-                    <DialogTitle className="text-xl font-bold text-blue-600">Modify API Plan</DialogTitle>
+                    <DialogTitle className="text-xl font-bold text-blue-600">API Plan 수정</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-6 py-4">
+                <div className="space-y-6 py-2">
                     {/* API Name */}
                     <div>
                         <Label htmlFor="api-name" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                            API Name <span className="text-red-500">*</span>
+                            이름 <span className="text-red-500">*</span>
                         </Label>
                         <Input
                             id="api-name"
-                            placeholder="Enter API name"
+                            placeholder="API 이름을 입력하세요."
                             value={form.name}
                             onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
                             className="w-full"
@@ -90,18 +90,18 @@ const ApiModifyDialog = ({
                     {/* Description */}
                     <div>
                         <Label htmlFor="description" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                            Description
+                            설명
                         </Label>
                         <Textarea
                             id="description"
-                            placeholder="Enter description"
+                            placeholder="설명을 입력하세요."
                             value={form?.description}
                             onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
                             className="w-full min-h-[100px] resize-none"
                             maxLength={300}
                         />
                         <div className="text-right text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            {form?.description?.length}/300 characters
+                            {form?.description?.length}/300 자
                         </div>
                     </div>
                 </div>
@@ -112,10 +112,10 @@ const ApiModifyDialog = ({
                             onOpenChange(false);
                             setForm(existingValue);
                         }}>
-                        Cancel
+                        취소
                     </Button>
                     <Button onClick={handleModify} className="bg-blue-500 hover:bg-blue-600 text-white">
-                        Update
+                        수정
                     </Button>
                 </DialogFooter>
             </DialogContent>

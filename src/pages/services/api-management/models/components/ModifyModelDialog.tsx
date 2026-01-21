@@ -129,7 +129,7 @@ export default function ModifyModelDialog({
           <DialogContent ref={ref} className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-blue-600 flex items-center gap-2">
-                <span>Modify Model</span>
+                <span>Model 수정</span>
                 {!isEditMode && (
                   <Button
                     variant="outline"
@@ -144,30 +144,33 @@ export default function ModifyModelDialog({
               </DialogTitle>
 
               <DialogDescription className="text-gray-600">
-                Edit existing model. (<span className="text-red-500">*</span> Required fields.)
+                기존 모델을 수정합니다. (<span className="text-red-500">*</span> 필수 항목)
               </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-6 py-4">
+            <div className="space-y-6 py-2">
               {/* Model Name */}
               <div>
                 <Label
                   htmlFor="model-name"
                   className="text-sm font-medium text-gray-700 mb-2 block">
-                  Name <span className="text-red-500">*</span>
+                  이름 <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="model-name"
-                  placeholder="Enter model name"
-                  value={modelForm.modelName ? modelForm.modelName : selectedModel?.modelName}
+                  placeholder="모델 이름을 입력하세요"
+                  value={modelForm.modelName}
                   onChange={(e) =>
                     setModelForm((prev) => ({
                       ...prev,
                       modelName: e.target.value,
                     }))
                   }
-                  className="w-full"
+                  className={`w-full ${modelForm.modelName.includes(' ') ? 'border-red-500 focus:ring-red-500' : ''}`}
                 />
+                {modelForm.modelName.includes(' ') && (
+                  <p className="text-xs text-red-500 mt-1">모델 이름에 공백을 포함할 수 없습니다.</p>
+                )}
               </div>
 
               {/* Content Type */}
@@ -175,7 +178,7 @@ export default function ModifyModelDialog({
                 <Label
                   htmlFor="content-type"
                   className="text-sm font-medium text-gray-700 mb-2 block">
-                  Content Type
+                  콘텐츠 유형
                 </Label>
                 <Input
                   id="content-type"
@@ -190,11 +193,11 @@ export default function ModifyModelDialog({
                 <Label
                   htmlFor="description"
                   className="text-sm font-medium text-gray-700 mb-2 block">
-                  Description
+                  설명
                 </Label>
                 <Textarea
                   id="description"
-                  placeholder="Enter model description"
+                  placeholder="모델 설명을 입력하세요"
                   value={modelForm.description ? modelForm.description : selectedModel?.description}
                   onChange={(e) =>
                     setModelForm((prev) => ({
@@ -206,13 +209,13 @@ export default function ModifyModelDialog({
                   maxLength={500}
                 />
                 <div className="text-right text-sm text-gray-500 mt-1">
-                  {modelForm?.description?.length}/500 characters
+                  {modelForm?.description?.length}/500 자
                 </div>
               </div>
 
               {/* Model Schema */}
               <div>
-                <Label className="text-sm font-medium text-gray-700 mb-2 block">Model Schema</Label>
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">모델 스키마</Label>
                 <div className="border rounded-lg overflow-hidden">
                   <div className="bg-gray-50 px-3 py-2 border-b flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-700">JSON Schema</span>
@@ -232,7 +235,7 @@ export default function ModifyModelDialog({
                     {/* Schema Editor */}
                     <div className="col-span-12 p-0">
                       <AceEditor
-                        placeholder="Enter model schema"
+                        placeholder="모델 스키마를 입력하세요"
                         mode="json"
                         theme="monokai"
                         name="blah2"
@@ -277,13 +280,14 @@ export default function ModifyModelDialog({
                   ref?.current?.scrollTo({ top: 0, behavior: 'smooth' });
                   console.log(ref, ref?.current)
                 }}>
-                Cancel
+                취소
               </Button>
 
               <Button
                 onClick={handleModifyModel}
+                disabled={!modelForm.modelName.trim() || modelForm.modelName.includes(' ')}
                 className="bg-blue-500 hover:bg-blue-600 text-white">
-                Modify
+                수정
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -298,7 +302,7 @@ export default function ModifyModelDialog({
           <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-blue-600 flex items-center gap-2">
-                <span>Model Details</span>
+                <span>Model 상세 정보</span>
                 <Button
                   variant="outline"
                   size="sm"
@@ -311,7 +315,7 @@ export default function ModifyModelDialog({
               </DialogTitle>
 
               <DialogDescription className="text-gray-600">
-                View details of the created model.
+                생성된 모델의 상세 정보 보기
               </DialogDescription>
             </DialogHeader>
 
@@ -321,11 +325,11 @@ export default function ModifyModelDialog({
                 <Label
                   htmlFor="model-name"
                   className="text-sm font-medium text-gray-500 mb-1 block">
-                  Name
+                  이름
                 </Label>
                 <Input
                   id="model-name"
-                  placeholder="Enter model name"
+                  placeholder="모델 이름을 입력하세요"
                   disabled
                   value={modelForm.modelName ? modelForm.modelName : selectedModel?.modelName}
                   onChange={(e) =>
@@ -343,7 +347,7 @@ export default function ModifyModelDialog({
                 <Label
                   htmlFor="content-type"
                   className="text-sm font-medium text-gray-500 mb-1 block">
-                  Content Type
+                  콘텐츠 유형
                 </Label>
                 <Input
                   id="content-type"
@@ -360,11 +364,11 @@ export default function ModifyModelDialog({
                 <Label
                   htmlFor="description"
                   className="text-sm font-medium text-gray-500 mb-1 block">
-                  Description
+                  설명
                 </Label>
                 <Textarea
                   id="description"
-                  placeholder="Enter model description"
+                  placeholder="모델 설명을 입력하세요"
                   value={modelForm.description ? modelForm.description : selectedModel?.description}
                   onChange={(e) =>
                     setModelForm((prev) => ({
@@ -380,7 +384,7 @@ export default function ModifyModelDialog({
 
               {/* Model Schema */}
               <div>
-                <Label className="text-sm font-medium text-gray-500 mb-2 block">Model Schema</Label>
+                <Label className="text-sm font-medium text-gray-500 mb-2 block">모델 스키마</Label>
                 <div className="border rounded-lg overflow-hidden">
                   <div className="bg-gray-50 px-3 py-2 border-b flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-700">JSON Schema</span>
@@ -444,13 +448,13 @@ export default function ModifyModelDialog({
                 onClick={() => {
                   onOpenChange(false)
                 }}>
-                Close
+                닫기
               </Button>
               <Button
                 onClick={() => {
                   onOpenChange(false);
                 }}>
-                Confirm
+                확인
               </Button>
             </DialogFooter>
           </DialogContent>
