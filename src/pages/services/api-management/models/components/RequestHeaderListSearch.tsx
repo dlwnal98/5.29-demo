@@ -13,6 +13,7 @@ interface HeaderSearchProps {
     setIsOpen: React.Dispatch<React.SetStateAction<any>>;
     updateHeader: (field: 'name' | 'required' | 'value', value: string | boolean) => void;
     existingSearch: string;
+    openUpward?: boolean;
 }
 
 export default function RequestHeaderListSearch({
@@ -20,6 +21,7 @@ export default function RequestHeaderListSearch({
     setIsOpen,
     updateHeader,
     existingSearch,
+    openUpward = false,
 }: HeaderSearchProps) {
     const [search, setSearch] = useState('');
     const [selected, setSelected] = useState<Option | null>(null);
@@ -146,7 +148,11 @@ export default function RequestHeaderListSearch({
                     id="autocomplete-list"
                     ref={listRef}
                     role="listbox"
-                    className={`absolute top-full left-0 z-50 w-full p-1 bg-white border rounded-md shadow max-h-48 overflow-auto mt-1 transform origin-top transition-all duration-200 ${isOpen ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-95 pointer-events-none'}`}>
+                    className={`absolute left-0 z-50 w-full p-1 bg-white border rounded-md shadow max-h-48 overflow-auto transform transition-all duration-200 ${
+                        openUpward
+                            ? 'bottom-full mb-1 origin-bottom'
+                            : 'top-full mt-1 origin-top'
+                    } ${isOpen ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-95 pointer-events-none'}`}>
                     {filtered.length > 0 ? (
                         filtered.map((opt, idx) => (
                             <li

@@ -551,7 +551,7 @@ export default function CreateMethodPageView({
           </div>
 
           {/* HTTP Request Headers */}
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <div className="border border-gray-200 rounded-lg">
             <Collapsible
               open={openSections.httpHeaders}
               onOpenChange={() => onToggleSection("httpHeaders")}
@@ -604,6 +604,7 @@ export default function CreateMethodPageView({
                                     onUpdateHeader(header.id, field, value)
                                   }
                                   existingSearch={header.name}
+                                  openUpward={!openSections.requestBody}
                                 />
                               </div>
 
