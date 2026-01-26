@@ -18,6 +18,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { useCreateModel } from '@/hooks/use-model';
 import { useClipboard } from 'use-clipboard-copy';
 import AceEditor from 'react-ace';
+import { Info } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
 import { CreateModelProps } from "@/apis/models.api"
@@ -56,11 +63,7 @@ export default function CreateModelDialog({
   const [createModelForm, setCreateModelForm] = useState<CreateModelProps>({
     modelName: '',
     description: '',
-    schema: {
-      type: 'object',
-      required: [],
-      properties: {},
-    },
+    schema: {},
     createdBy: '',
   });
 
@@ -70,11 +73,7 @@ export default function CreateModelDialog({
       setCreateModelForm({
         modelName: '',
         description: '',
-        schema: {
-          type: 'object',
-          required: [],
-          properties: {},
-        },
+        schema: {},
         createdBy: userKey,
       });
   }, [open]);
@@ -85,10 +84,7 @@ export default function CreateModelDialog({
 
       const updatedForm = {
         ...createModelForm,
-        schema: {
-          ...createModelForm.schema,
-          properties: parsed,
-        },
+        schema: parsed,
         createdBy: userKey,
       };
 
@@ -188,7 +184,29 @@ export default function CreateModelDialog({
               <Label className="text-sm font-medium text-gray-700 mb-2 block">모델 스키마</Label>
               <div className="border rounded-lg overflow-hidden">
                 <div className="bg-gray-50 px-3 py-2 border-b flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">JSON Schema</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm font-medium text-gray-700">JSON Schema</span>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-gray-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="right" align="start">
+                          <p>
+                            JSON Schema 형식으로 작성해주세요.{' '}
+                            <a
+                              href="https://www.notion.so/Request-Body-Schema-2f46a5e88b51809ca856df13aeafdc57?source=copy_link"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-500 underline hover:text-blue-600"
+                            >
+                              자세히 보기
+                            </a>
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   {/* <div className="flex items-center space-x-2">
                     <Button
                       variant="ghost"

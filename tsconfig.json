@@ -15,7 +15,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     /* Linting - 중복 제거하고 여기만 유지 */
     "strict": false,
     "noImplicitAny": false,
@@ -28,7 +28,10 @@
       "@/*": [
         "src/*"
       ]
-    }
+    },
+    "allowJs": true,
+    "incremental": true,
+    "esModuleInterop": true
   },
   "include": [
     "src",

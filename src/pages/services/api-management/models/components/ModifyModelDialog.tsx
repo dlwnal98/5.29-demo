@@ -11,13 +11,19 @@ import {
 import { Button } from '@/components/ui/button';
 import React, { useEffect, useRef } from 'react';
 import { toast, Toaster } from 'sonner';
-import { Copy, Edit } from 'lucide-react';
+import { Copy, Edit, Info } from 'lucide-react';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useModifyModel, ModelData, ModifyModelProps } from '@/hooks/use-model';
 import { useClipboard } from 'use-clipboard-copy';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
@@ -58,11 +64,7 @@ export default function ModifyModelDialog({
   const [modelForm, setModelForm] = useState<ModifyModelProps>({
     modelName: '',
     description: '',
-    schema: {
-      type: 'object',
-      required: [],
-      properties: {},
-    },
+    schema: {},
     updatedBy: '',
   });
 
@@ -71,16 +73,16 @@ export default function ModifyModelDialog({
   }, [open]);
 
   useEffect(() => {
-    const propertiesJson = selectedModel?.schema?.properties
-      ? JSON.stringify(selectedModel?.schema?.properties, null, 2)
+    const schemaJson = selectedModel?.schema
+      ? JSON.stringify(selectedModel?.schema, null, 2)
       : '{}';
-    setJson(propertiesJson);
+    setJson(schemaJson);
 
     setModelForm((prev) => ({
       ...prev,
       modelName: selectedModel.modelName || '',
       description: selectedModel.description || '',
-      schema: selectedModel.schema || { type: 'object', required: [], properties: {} },
+      schema: selectedModel.schema || {},
       updatedBy: userKey || '',
     }));
   }, [selectedModel]);
@@ -91,10 +93,7 @@ export default function ModifyModelDialog({
 
       const updatedForm = {
         ...modelForm,
-        schema: {
-          ...modelForm.schema,
-          properties: parsed,
-        },
+        schema: parsed,
         updatedBy: userKey,
       };
 
@@ -198,7 +197,7 @@ export default function ModifyModelDialog({
                 <Textarea
                   id="description"
                   placeholder="모델 설명을 입력하세요"
-                  value={modelForm.description ? modelForm.description : selectedModel?.description}
+                  value={modelForm.description}
                   onChange={(e) =>
                     setModelForm((prev) => ({
                       ...prev,
@@ -218,13 +217,35 @@ export default function ModifyModelDialog({
                 <Label className="text-sm font-medium text-gray-700 mb-2 block">모델 스키마</Label>
                 <div className="border rounded-lg overflow-hidden">
                   <div className="bg-gray-50 px-3 py-2 border-b flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">JSON Schema</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-medium text-gray-700">JSON Schema</span>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-400 cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent side="right" align="start">
+                            <p>
+                              JSON Schema 형식으로 작성해주세요.{' '}
+                              <a
+                                href="https://www.notion.so/Request-Body-Schema-2f46a5e88b51809ca856df13aeafdc57?source=copy_link"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 underline hover:text-blue-600"
+                              >
+                                자세히 보기
+                              </a>
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <div className="flex items-center space-x-2">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() =>
-                          copySchema(JSON.stringify(modelForm?.schema?.properties, null, 2))
+                          copySchema(JSON.stringify(modelForm?.schema, null, 2))
                         }
                         className="h-7 px-2">
                         <Copy className="h-3 w-3" />
@@ -387,7 +408,29 @@ export default function ModifyModelDialog({
                 <Label className="text-sm font-medium text-gray-500 mb-2 block">모델 스키마</Label>
                 <div className="border rounded-lg overflow-hidden">
                   <div className="bg-gray-50 px-3 py-2 border-b flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">JSON Schema</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-medium text-gray-700">JSON Schema</span>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-400 cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent side="right" align="start">
+                            <p>
+                              JSON Schema 형식으로 작성해주세요.{' '}
+                              <a
+                                href="https://www.notion.so/Request-Body-Schema-2f46a5e88b51809ca856df13aeafdc57?source=copy_link"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 underline hover:text-blue-600"
+                              >
+                                자세히 보기
+                              </a>
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <div className="flex items-center space-x-2">
                       <Button
                         variant="ghost"
