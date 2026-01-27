@@ -83,10 +83,11 @@ interface CreateMethodPageViewProps {
   headers: Header[];
   bodyModelId: string;
   openId: string | null;
-  isValidCreateMethod: boolean;
+  isSubmitted: boolean;
   setBodyModelId: (id: string) => void;
   setOpenId: (id: string | null) => void;
   onBack: () => void;
+  onCancel: () => void;
   onCreateMethod: () => void;
   onToggleSection: (section: keyof OpenSections) => void;
   onApiKeyToggle: (checked: boolean) => void;
@@ -127,10 +128,11 @@ export default function CreateMethodPageView({
   headers,
   bodyModelId,
   openId,
-  isValidCreateMethod,
+  isSubmitted,
   setBodyModelId,
   setOpenId,
   onBack,
+  onCancel,
   onCreateMethod,
   onToggleSection,
   onApiKeyToggle,
@@ -188,10 +190,10 @@ export default function CreateMethodPageView({
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={onBack}>
+          <Button variant="outline" onClick={onCancel}>
             취소
           </Button>
-          <Button onClick={onCreateMethod} disabled={!isValidCreateMethod}>
+          <Button onClick={onCreateMethod}>
             생성
           </Button>
         </div>
@@ -213,7 +215,7 @@ export default function CreateMethodPageView({
                     type="text"
                     value={methodForm.summary}
                     onChange={(e) => onMethodFormChange("summary", e.target.value)}
-                    className="mt-1 lg:w-2/3"
+                    className={`mt-1 lg:w-2/3 ${isSubmitted && !methodForm.summary ? 'border-red-500' : ''}`}
                   />
                 </div>
 
@@ -246,7 +248,7 @@ export default function CreateMethodPageView({
                       value={methodForm.methodType}
                       onValueChange={(value) => onMethodFormChange("methodType", value)}
                     >
-                      <SelectTrigger className="mt-2 w-full lg:w-2/3">
+                      <SelectTrigger className={`mt-2 w-full lg:w-2/3 ${isSubmitted && !methodForm.methodType ? 'border-red-500' : ''}`}>
                         <SelectValue placeholder="Method 유형" />
                       </SelectTrigger>
                       <SelectContent className="hover:cursor-pointer">
@@ -343,8 +345,8 @@ export default function CreateMethodPageView({
                               </button>
                             </div>
                             <p className="text-red-500 text-xs mb-2">
-                              Add the <strong>X-API-Key</strong> field to the HTTP(S) header
-                              and include the copied key value in your request.
+                              HTTP(S) 헤더에 <strong>X-API-Key</strong> 필드를 추가하고,
+                              복사한 키 값을 요청에 포함하세요.
                             </p>
                           </div>
                         </div>
@@ -391,7 +393,7 @@ export default function CreateMethodPageView({
 
                     {isDirectUrlInput ? (
                       <Input
-                        className="w-full lg:w-2/3"
+                        className={`w-full lg:w-2/3 ${isSubmitted && !methodForm.customEndpointUrl ? 'border-red-500' : ''}`}
                         placeholder="https://your-api-endpoint.com"
                         value={methodForm.customEndpointUrl}
                         onChange={(e) => onCustomUrlChange(e.target.value)}
@@ -402,7 +404,7 @@ export default function CreateMethodPageView({
                           value={methodForm.endpointUrl}
                           onValueChange={(value) => onMethodFormChange("endpointUrl", value)}
                         >
-                          <SelectTrigger className="w-full lg:w-2/3">
+                          <SelectTrigger className={`w-full lg:w-2/3 ${isSubmitted && !methodForm.endpointUrl ? 'border-red-500' : ''}`}>
                             <SelectValue
                               placeholder={
                                 endpointList?.length > 0

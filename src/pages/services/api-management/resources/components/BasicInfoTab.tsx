@@ -54,7 +54,7 @@ export function BasicInfoTab({ selectedMethod, handleCopyEndpoint }: BasicInfoTa
                 <div className="flex flex-wrap gap-1">
                   <span className="text-sm text-gray-400"> <code className="text-sm font-mono">
                     {info?.['x-route-endpoint'] ?? ''}
-                    {selectedMethod.resourcePath}
+                    {info?.['x-append-path'] !== false && selectedMethod.resourcePath}
                   </code>
                     <Button className="h-2 w-3" variant="ghost" onClick={handleCopyEndpoint}>
                       <Copy className="h-2 w-3" />

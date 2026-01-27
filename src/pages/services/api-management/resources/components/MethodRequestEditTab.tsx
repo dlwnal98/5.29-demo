@@ -178,7 +178,7 @@ export function MethodRequestEditTab({
                       )}
                     </div>
                     <p className="text-red-500 text-xs mb-2">
-                      Add the X-API-Key field to your HTTP(S) header and include the copied key value in your request.
+                      HTTP(S) 헤더에 X-API-Key 필드를 추가하고, 복사한 키 값을 요청에 포함하세요.
                     </p>
                   </div>
                 </div>

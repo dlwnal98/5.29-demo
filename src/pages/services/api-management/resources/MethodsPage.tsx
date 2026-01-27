@@ -28,7 +28,7 @@ export default function CreateMethodPage() {
     isApiKeyModalOpen,
     isCreatingNewApiKey,
     newApiKeyForm,
-    isValidCreateMethod,
+    isSubmitted,
     setSelectedApiKeyValue,
     setSelectedApiKeyId,
     setApiKeyToggle,
@@ -38,6 +38,7 @@ export default function CreateMethodPage() {
     setBodyModelId,
     setOpenId,
     onBack,
+    onCancel,
     onCreateMethod,
     onToggleSection,
     onApiKeyToggle,
@@ -73,10 +74,11 @@ export default function CreateMethodPage() {
           headers={headers}
           bodyModelId={bodyModelId}
           openId={openId}
-          isValidCreateMethod={isValidCreateMethod}
+          isSubmitted={isSubmitted}
           setBodyModelId={setBodyModelId}
           setOpenId={setOpenId}
           onBack={onBack}
+          onCancel={onCancel}
           onCreateMethod={onCreateMethod}
           onToggleSection={onToggleSection}
           onApiKeyToggle={onApiKeyToggle}
