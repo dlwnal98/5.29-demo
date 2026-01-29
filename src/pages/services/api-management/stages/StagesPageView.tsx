@@ -101,7 +101,7 @@ export default function StagesPageView({
 
       <div className="grid grid-cols-12 gap-6 items-start">
         {/* Left Sidebar - Resource Tree */}
-        <div className="col-span-3 sticky top-6">
+        <div className="col-span-3 sticky top-20">
           <div className="h-[77vh] bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3 overflow-auto">
             <div className="flex items-center justify-end p-2">
               <Button
