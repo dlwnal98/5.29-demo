@@ -110,6 +110,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
   // Test Method mutation
   const { mutate: testMethodMutate, isPending: isTestLoading } = useTestMethod({
     onSuccess: (response: any) => {
+      console.log(response)
       setTestResponse(response);
       toast.success('API 테스트가 성공적으로 완료되었습니다.');
     },

@@ -69,22 +69,26 @@ export default function DeployResourceDialog({
               <SelectTrigger className="mt-2">
                 <SelectValue placeholder="Stage Selection" />
               </SelectTrigger>
-              <SelectContent>
-                {stageForDeployment.map((stage) => (
-                  <SelectItem key={stage.id} value={stage.stageId} className="cursor-pointer">
-                    {stage?.stageName}
+              <SelectContent className="flex flex-col p-0">
+                <div className="max-h-[200px] overflow-y-auto p-1">
+                  {stageForDeployment.map((stage) => (
+                    <SelectItem key={stage.id} value={stage.stageId} className="cursor-pointer">
+                      {stage?.stageName}
+                    </SelectItem>
+                  ))}
+                </div>
+                <div className="border-t p-1 sticky bottom-0 bg-popover">
+                  <SelectItem value="new" className="cursor-pointer">
+                    <div className="flex items-center gap-2">
+                      <Plus className="h-4 w-4" />새 스테이지 생성
+                    </div>
                   </SelectItem>
-                ))}
-                <SelectItem value="new" className="cursor-pointer">
-                  <div className="flex items-center gap-2">
-                    <Plus className="h-4 w-4" />새 스테이지 생성
-                  </div>
-                </SelectItem>
-                <SelectItem value="snapshot" className="cursor-pointer">
-                  <div className="flex items-center gap-2">
-                    <Plus className="h-4 w-4" />새 스냅샷 생성
-                  </div>
-                </SelectItem>
+                  <SelectItem value="snapshot" className="cursor-pointer">
+                    <div className="flex items-center gap-2">
+                      <Plus className="h-4 w-4" />새 스냅샷 생성
+                    </div>
+                  </SelectItem>
+                </div>
               </SelectContent>
             </Select>
           </div>
