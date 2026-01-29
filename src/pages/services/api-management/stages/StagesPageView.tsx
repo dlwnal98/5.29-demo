@@ -294,7 +294,7 @@ export default function StagesPageView({
                   </div>
                 </div>
 
-                <div className="p-4 space-y-4 h-[300px]">
+                <div className="p-4 space-y-4 min-h-[300px]">
                   <div>
                     <Label className="text-sm font-medium text-muted-foreground">
                       ID
