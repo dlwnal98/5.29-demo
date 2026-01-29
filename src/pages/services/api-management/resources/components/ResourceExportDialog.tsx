@@ -213,7 +213,7 @@ const ResourceExportDialog = ({
         </div>
 
         {/* 푸터 */}
-        <DialogFooter className="flex-shrink-0 px-6 pb-6">
+        <DialogFooter className="flex-shrink-0 px-6 pb-3">
           <Button
             onClick={handleDownload}
             disabled={isDownloading || isLoading || !previewContent}
