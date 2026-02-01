@@ -12,7 +12,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { ko } from "date-fns/locale";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
 
 interface NewApiKeyForm {
   keyName: string;
@@ -35,6 +34,7 @@ export default function CreateAPIKeyDialog({
   onNewApiKeyChange,
   onSubmit,
 }: CreateAPIKeyDialogProps) {
+
   const { keyName, description } = newApiKey;
 
   return (
@@ -42,13 +42,13 @@ export default function CreateAPIKeyDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-blue-600 mb-2">
-            Create API Key
+            API 키 생성
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
           <div>
             <Label htmlFor="keyName" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Name <span className="text-red-500">*</span>
+              이름 <span className="text-red-500">*</span>
             </Label>
             <Input
               id="keyName"
@@ -61,7 +61,7 @@ export default function CreateAPIKeyDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-sm">Expiration Date</Label>
+            <Label className="text-sm">만료일</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -71,7 +71,7 @@ export default function CreateAPIKeyDialog({
                   {newApiKey.expiresAt ? (
                     format(new Date(newApiKey.expiresAt), 'yyyy-MM-dd HH:mm:ss', { locale: ko })
                   ) : (
-                    <span className="text-gray-400">Select expiration date (optional)</span>
+                    <span className="text-gray-400">만료일 선택 (선택사항)</span>
                   )}
                 </Button>
               </PopoverTrigger>
@@ -100,12 +100,12 @@ export default function CreateAPIKeyDialog({
               </PopoverContent>
             </Popover>
             <p className="text-xs text-gray-500">
-              If not set, the key will be valid indefinitely.
+              설정하지 않으면 키가 무기한 유효합니다.
             </p>
           </div>
           <div>
             <Label htmlFor="description" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Description
+              설명
             </Label>
             <Textarea
               id="description"
@@ -120,10 +120,10 @@ export default function CreateAPIKeyDialog({
 
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={onClose}>
-              Cancel
+              취소
             </Button>
             <Button onClick={onSubmit} disabled={!keyName}>
-              Create
+              생성
             </Button>
           </div>
         </div>

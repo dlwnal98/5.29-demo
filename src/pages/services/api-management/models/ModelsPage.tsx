@@ -21,7 +21,7 @@ export default function ModelsPage() {
     openDeleteModal,
     closeDeleteModal,
   } = useModelsPage();
-
+  console.log(models)
   return (
     <>
       <ModelsPageView
@@ -55,8 +55,8 @@ export default function ModelsPage() {
         <DeleteModelDialog
           open={isDeleteModalOpen}
           onOpenChange={(open) => !open && closeDeleteModal()}
-          modelId={selectedModel.modelId}
-          modelName={selectedModel.modelName}
+          modelId={selectedModel?.modelId}
+          modelName={selectedModel?.modelName}
           userKey={userKey}
         />
       )}

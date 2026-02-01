@@ -17,27 +17,18 @@ import type { MethodResponse, ResponseHeader, ResponseBody, Model } from '@/type
 import RequestHeaderListSearch from '../../models/components/RequestHeaderListSearch';
 
 interface MethodResponseEditProps {
-  methodResponses: MethodResponse[];
-  handleCreateResponse: () => void;
-  handleEditResponse: (response: MethodResponse) => void;
-  handleDeleteResponse: (response: MethodResponse) => void;
   handleCancelEdit: () => void;
   handleSaveEdit: () => void;
   editingResponse?: MethodResponse | null;
   availableModels?: Model[];
-  deleteModel?: (modelId: string) => void;
 }
 
 export function MethodResponseEdit({
-  methodResponses,
-  handleCreateResponse,
-  handleEditResponse,
-  handleDeleteResponse,
+
   handleCancelEdit,
   handleSaveEdit,
   editingResponse,
   availableModels,
-  deleteModel,
 }: MethodResponseEditProps) {
   const [editForm, setEditForm] = useState({
     statusCode: '',

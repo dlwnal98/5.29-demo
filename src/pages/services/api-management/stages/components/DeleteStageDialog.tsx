@@ -13,7 +13,6 @@ import { AlertTriangle } from 'lucide-react';
 interface DeleteStageDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    userKey: string;
     stageDetailData: any;
     // 훅의 handleDeleteStage가 인자를 받지 않으므로 아래와 같이 수정
     deleteStage: () => void;
@@ -22,7 +21,6 @@ interface DeleteStageDialogProps {
 export default function DeleteStageDialog({
     open,
     onOpenChange,
-    userKey,
     stageDetailData,
     deleteStage,
 }: DeleteStageDialogProps) {
@@ -32,34 +30,32 @@ export default function DeleteStageDialog({
             <AlertDialog open={open} onOpenChange={onOpenChange}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="flex items-center gap-2 text-red-600">
-                            <AlertTriangle className="h-5 w-5" />
-                            Delete Stage Confirmation
+                        <AlertDialogTitle className="flex items-center gap-2 text-red-600 text-xl">
+                            Stage 삭제
                         </AlertDialogTitle>
                         <AlertDialogDescription className="text-gray-600 dark:text-gray-300">
                             <div className="space-y-2">
-                                <p className="font-semibold">⚠️ Warning: This action cannot be undone!</p>
+                                <p className="font-semibold">⚠️ 경고: 이 작업은 되돌릴 수 없습니다!</p>
                                 <p>
-                                    Stage{' '}
                                     <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
                                         {stageDetailData?.stageName}
                                     </span>
-                                    Do you want to delete this stage?
+                                    를 삭제하시겠습니까?
                                 </p>
-                                <p className="text-sm text-red-600">
-                                    • This stage's all deployments will be stopped
-                                    <br />• API calls may fail
-                                    <br />• This action cannot be undone
-                                </p>
+                                <div className="text-sm text-red-600 font-medium">
+                                    <p>• 이 스테이지의 모든 배포가 중단됩니다.</p>
+                                    <p>• API 호출이 실패할 수 있습니다.</p>
+                                    <p>• 이 작업은 실행 후 취소할 수 없습니다.</p>
+                                </div>
                             </div>
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>취소</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={deleteStage}
                             className="bg-red-600 hover:bg-red-700 text-white">
-                            Delete
+                            삭제
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

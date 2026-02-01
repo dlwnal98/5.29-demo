@@ -2,11 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { AxiosError } from 'axios';
-import { createStage } from '@/apis/stages.api';
 import { useDeployAPI } from '@/hooks/use-resources';
-import { useGetStagesDocData } from '@/hooks/use-stages';
-import { useGetStagesListData } from '@/hooks/use-stages';
 import { getStagesListData } from '@/apis/stages.api';
 
 export interface DeployData {
@@ -77,17 +73,7 @@ export function useDeployResourceDialog({
 
   }, [open]);
 
-  const { mutate: handleDeploy, isPending } = useDeployAPI({
-    onSuccess: () => {
-      handleNavigateStage();
-    },
-    onError: (error: any) => {
-      const serverMessage = error?.response?.data?.message ?? '배포에 실패하였습니다.';
-      toast.error(serverMessage);
-    },
-  });
-
-  const handleNavigateStage = async () => {
+  const handleNavigateStage = async (targetStageId?: string) => {
     onOpenChange(false);
 
     await toast.promise(
@@ -97,6 +83,10 @@ export function useDeployResourceDialog({
 
         await queryClient.invalidateQueries({ queryKey: ['getDeployHistoryData', tenantId] });
         await queryClient.refetchQueries({ queryKey: ['getDeployHistoryData', tenantId] });
+
+        // StagesPage에서 사용하는 deployment history도 갱신
+        await queryClient.invalidateQueries({ queryKey: ['getDeployHistoryDataByApiId', apiId] });
+        await queryClient.refetchQueries({ queryKey: ['getDeployHistoryDataByApiId', apiId] });
 
         // Stages 페이지 목록 갱신
         await queryClient.invalidateQueries({ queryKey: ['getStagesListData', apiId] });
@@ -109,8 +99,22 @@ export function useDeployResourceDialog({
       }
     );
 
-    navigate(`/services/api-management/stages?apiId=${apiId}`);
+    // stageId가 있으면 URL에 포함하여 해당 스테이지 선택
+    const stageParam = targetStageId ? `&stageId=${targetStageId}` : '';
+    navigate(`/services/api-management/stages?apiId=${apiId}${stageParam}`);
   };
+
+  const { mutate: handleDeploy, isPending } = useDeployAPI({
+    onSuccess: (data) => {
+      // 새 스테이지 생성의 경우 응답에서 stageId 추출, 기존 스테이지는 deploymentData.stageId 사용
+      const targetStageId = data?.stageId || (deploymentData.stageId !== 'new' && deploymentData.stageId !== 'snapshot' ? deploymentData.stageId : undefined);
+      handleNavigateStage(targetStageId);
+    },
+    onError: (error: any) => {
+      const serverMessage = error?.response?.data?.message ?? '배포에 실패하였습니다.';
+      toast.error(serverMessage);
+    },
+  });
 
 
   const handleDeploySubmit = () => {
@@ -124,7 +128,7 @@ export function useDeployResourceDialog({
         deployedBy: userKey,
       });
       if (!deploymentData.newStageName.trim()) {
-        toast.error('New stage name is required.');
+        toast.error('New stage name이 입력되지 않았습니다.');
         return;
       }
 

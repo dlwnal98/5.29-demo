@@ -166,7 +166,7 @@ export function ApiKeyDetailDialog({
             apiKeyExpired: res.expired,
           });
         } catch (error) {
-          console.error('Failed to fetch usage data:', error);
+          console.error('API 키 사용처 데이터를 가져오는데 실패했습니다:', error);
           setUsageData({ deployedUsages: [] });
           setStatusData({
             apiKeyActive: false,
@@ -184,7 +184,7 @@ export function ApiKeyDetailDialog({
   // Rate Limit 유효성 검사
   useEffect(() => {
     if (rateLimitForm.burstCapacity < rateLimitForm.requestsPerSecond) {
-      setRateLimitError('Burst capacity must be greater than or equal to requests per second.');
+      setRateLimitError('버스트 용량(Burst capacity)은 초당 요청 수(Requests per second)보다 크거나 같아야 합니다.');
     } else {
       setRateLimitError('');
     }
@@ -195,7 +195,7 @@ export function ApiKeyDetailDialog({
     if (!apiKeyDetail) return;
 
     if (!basicInfoForm.keyName.trim()) {
-      toast.error('Please enter the API Key name.');
+      toast.error('API Key 이름을 입력해주세요.');
       return;
     }
 
@@ -208,11 +208,11 @@ export function ApiKeyDetailDialog({
         expiresAt: basicInfoForm.expiresAt || undefined,
         updatedBy: userData?.userKey || '',
       });
-      toast.success('API Key information has been updated.');
+      toast.success('API Key 정보가 성공적으로 업데이트되었습니다.');
       setIsBasicInfoEditMode(false);
       onRefresh?.();
     } catch (error) {
-      toast.error('Failed to update API Key information.');
+      toast.error('API Key 정보 업데이트에 실패했습니다.');
     } finally {
       setIsBasicInfoSaving(false);
     }
@@ -246,11 +246,11 @@ export function ApiKeyDetailDialog({
         requestLimit: quotaForm.requestLimit,
         updatedBy: userData?.userKey || '',
       });
-      toast.success('Quota settings have been saved.');
+      toast.success('Quota 설정이 성공적으로 저장되었습니다.');
       setIsQuotaEditMode(false);
       onRefresh?.();
     } catch (error) {
-      toast.error('Failed to save Quota settings.');
+      toast.error('Quota 설정 저장에 실패했습니다.');
     } finally {
       setIsQuotaSaving(false);
     }
@@ -271,7 +271,7 @@ export function ApiKeyDetailDialog({
     if (!apiKeyDetail) return;
 
     if (rateLimitForm.burstCapacity < rateLimitForm.requestsPerSecond) {
-      toast.error('Burst capacity must be greater than or equal to requests per second.');
+      toast.error('버스트 용량(Burst capacity)은 초당 요청 수(Requests per second)보다 크거나 같아야 합니다.');
       return;
     }
 
@@ -286,11 +286,11 @@ export function ApiKeyDetailDialog({
         requestsPerHour: rateLimitForm.requestsPerHour,
         updatedBy: userData?.userKey || '',
       });
-      toast.success('Rate Limit settings have been saved.');
+      toast.success('Rate Limit 설정이 성공적으로 저장되었습니다.');
       setIsRateLimitEditMode(false);
       onRefresh?.();
     } catch (error) {
-      toast.error('Failed to save Rate Limit settings.');
+      toast.error('Rate Limit 설정 저장에 실패했습니다.');
     } finally {
       setIsRateLimitSaving(false);
     }
@@ -345,7 +345,7 @@ export function ApiKeyDetailDialog({
       <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col overflow-hidden">
         <DialogHeader className="flex-shrink-0 border-b pb-4">
           <DialogTitle className="text-xl font-bold text-blue-600">
-            API Key Details
+            API Key 상세 정보
           </DialogTitle>
         </DialogHeader>
 
@@ -355,7 +355,7 @@ export function ApiKeyDetailDialog({
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base flex items-center gap-2">
-                  Basic Information
+                  기본 정보
                 </CardTitle>
                 {!isBasicInfoEditMode ? (
                   <Button
@@ -405,7 +405,7 @@ export function ApiKeyDetailDialog({
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm">Name <span className="text-red-500">*</span></Label>
+                    <Label className="text-sm">이름 <span className="text-red-500">*</span></Label>
                     <Input
                       value={basicInfoForm.keyName}
                       onChange={(e) =>
@@ -416,18 +416,18 @@ export function ApiKeyDetailDialog({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm">Description</Label>
+                    <Label className="text-sm">설명</Label>
                     <Textarea
                       value={basicInfoForm.description}
                       onChange={(e) =>
                         setBasicInfoForm((prev) => ({ ...prev, description: e.target.value }))
                       }
                       className="min-h-[80px]"
-                      placeholder="Enter description (optional)"
+                      placeholder="설명을 입력하세요."
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm">Expiration Date</Label>
+                    <Label className="text-sm">만료일</Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -438,12 +438,12 @@ export function ApiKeyDetailDialog({
                           {/* {expiresAtDate ? (
                             format(expiresAtDate, 'yyyy-MM-dd HH:mm', { locale: ko })
                           ) : (
-                            <span className="text-gray-400">Select expiration date (optional)</span>
+                            <span className="text-gray-400">만료일을 선택하세요.</span>
                           )} */}
                           {basicInfoForm.expiresAt ? (
                             format(basicInfoForm.expiresAt, 'yyyy-MM-dd HH:mm:ss', { locale: ko })
                           ) : (
-                            <span className="text-gray-400">Select expiration date (optional)</span>
+                            <span className="text-gray-400">만료일을 선택하세요.</span>
                           )}
                         </Button>
                       </PopoverTrigger>
@@ -483,11 +483,11 @@ export function ApiKeyDetailDialog({
                       </PopoverContent>
                     </Popover>
                     <p className="text-xs text-gray-500">
-                      If not set, the key will be valid indefinitely.
+                      만료일을 설정하지 않으면 키는 무기한 유효합니다.
                     </p>
                   </div>
                   <div className="flex items-center gap-2 pt-2">
-                    <span className="text-sm text-gray-500">Created:</span>
+                    <span className="text-sm text-gray-500">생성일:</span>
                     <span className="text-sm">{formatDate(apiKeyDetail.createdAt)}</span>
                   </div>
                 </div>
@@ -501,24 +501,24 @@ export function ApiKeyDetailDialog({
                       </p>
                     </div>
                     <div>
-                      <span className="text-sm text-gray-500">Name</span>
+                      <span className="text-sm text-gray-500">이름</span>
                       <p className="font-medium mt-1">{apiKeyDetail.keyName}</p>
                     </div>
 
                   </div>
 
                   <div>
-                    <span className="text-sm text-gray-500">Description</span>
+                    <span className="text-sm text-gray-500">설명</span>
                     <p className="text-sm mt-1">{apiKeyDetail.description || '-'}</p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex items-center gap-2 pt-2">
-                      <span className="text-sm text-gray-500">Expiration:</span>
+                      <span className="text-sm text-gray-500">만료일:</span>
                       <span className="text-sm">{formatDate(apiKeyDetail.expirationInfo?.expiresAt)}</span>
                     </div>
                     <div className="flex items-center gap-2 pt-2">
-                      <span className="text-sm text-gray-500">Created:</span>
+                      <span className="text-sm text-gray-500">생성일:</span>
                       <span className="text-sm">{formatDate(apiKeyDetail.createdAt)}</span>
                     </div>
                   </div>
@@ -528,7 +528,7 @@ export function ApiKeyDetailDialog({
 
               <div className="grid grid-cols-3 gap-4 pt-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">Status:</span>
+                  <span className="text-sm text-gray-500">상태:</span>
                   {statusData.apiKeyActive ? (
                     <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
                       <CheckCircle className="h-3 w-3 mr-1" />
@@ -542,21 +542,21 @@ export function ApiKeyDetailDialog({
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">Expired:</span>
+                  <span className="text-sm text-gray-500">만료:</span>
                   {statusData.apiKeyExpired ? (
                     <Badge variant="destructive">
                       <AlertCircle className="h-3 w-3 mr-1" />
-                      Expired
+                      만료됨
                     </Badge>
                   ) : (
                     <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">
                       <Clock className="h-3 w-3 mr-1" />
-                      Valid
+                      유효함
                     </Badge>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">Deletable:</span>
+                  <span className="text-sm text-gray-500">삭제가능:</span>
                   {statusData.apikeyCanDelete ? (
                     <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Yes</Badge>
                   ) : (
@@ -565,13 +565,13 @@ export function ApiKeyDetailDialog({
                 </div>
 
               </div>
-              {apiKeyDetail.expirationInfo?.expiresAt && (
+              {/* {apiKeyDetail.expirationInfo?.expiresAt && (
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-gray-400" />
-                  <span className="text-sm text-gray-500">Expiration:</span>
+                  <span className="text-sm text-gray-500">만료일:</span>
                   <span className="text-sm">{formatDate(apiKeyDetail.expirationInfo.expiresAt)}</span>
                 </div>
-              )}
+              )} */}
             </CardContent>
           </Card>
 
@@ -582,7 +582,7 @@ export function ApiKeyDetailDialog({
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base flex items-center gap-2">
-                    Quota Settings
+                    Quota 설정
                   </CardTitle>
                   {!isQuotaEditMode ? (
                     <Button
@@ -626,7 +626,7 @@ export function ApiKeyDetailDialog({
                 {isQuotaEditMode ? (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <Label className="text-sm">Enable</Label>
+                      <Label className="text-sm">사용</Label>
                       <Switch
                         checked={quotaForm.enabled}
                         onCheckedChange={(checked) =>
@@ -635,7 +635,7 @@ export function ApiKeyDetailDialog({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm">Period</Label>
+                      <Label className="text-sm">기간</Label>
                       <RadioGroup
                         value={quotaForm.period}
                         onValueChange={(value: 'DAILY' | 'MONTHLY') =>
@@ -649,7 +649,7 @@ export function ApiKeyDetailDialog({
                             htmlFor="DAILY"
                             className={`text-sm hover:cursor-pointer ${!quotaForm.enabled ? 'text-gray-500' : ''}`}
                           >
-                            Daily (DAILY)
+                            일간 (DAILY)
                           </Label>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -658,14 +658,14 @@ export function ApiKeyDetailDialog({
                             htmlFor="MONTHLY"
                             className={`text-sm  hover:cursor-pointer ${!quotaForm.enabled ? 'text-gray-500' : ''}`}
                           >
-                            Monthly (MONTHLY)
+                            월간 (MONTHLY)
                           </Label>
                         </div>
                       </RadioGroup>
 
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm">Request Limit</Label>
+                      <Label className="text-sm">요청 한도</Label>
                       <Input
                         type="number"
                         value={quotaForm.requestLimit}
@@ -679,36 +679,36 @@ export function ApiKeyDetailDialog({
                         className="h-8"
                       />
                       <p className="text-xs text-gray-500">
-                        Maximum number of requests allowed in the selected period
+                        선택한 기간 동안 허용되는 최대 요청 수
                       </p>
                     </div>
                   </div>
                 ) : apiKeyDetail.quotaInfo?.enabled ? (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">Status</span>
+                      <span className="text-sm text-gray-500">상태</span>
                       <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
-                        Enabled
+                        사용
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">Period</span>
+                      <span className="text-sm text-gray-500">기간</span>
                       <span className="text-sm font-medium">
-                        {apiKeyDetail.quotaInfo.period === 'DAILY' ? 'Daily' : 'Monthly'}
+                        {apiKeyDetail.quotaInfo.period === 'DAILY' ? '일간' : '월간'}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">Request Limit</span>
+                      <span className="text-sm text-gray-500">요청 한도</span>
                       <span className="text-sm font-medium font-mono">
-                        {apiKeyDetail.quotaInfo.requestLimit.toLocaleString()} requests
+                        {apiKeyDetail.quotaInfo.requestLimit.toLocaleString()} 회
                       </span>
                     </div>
                   </div>
                 ) : (
                   <div className="text-center py-4 text-gray-500">
                     <Gauge className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                    <p className="text-sm">Quota is <span className="font-medium text-red-600">disabled</span>.</p>
-                    <p className="text-xs mt-1">Click the edit button to configure.</p>
+                    <p className="text-sm">Quota <span className="font-medium text-red-600">비활성화</span>.</p>
+                    <p className="text-xs mt-1">설정하려면 편집 버튼을 클릭하세요.</p>
                   </div>
                 )}
               </CardContent>
@@ -719,7 +719,7 @@ export function ApiKeyDetailDialog({
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base flex items-center gap-2">
-                    Rate Limit Settings
+                    Rate Limit 설정
                   </CardTitle>
                   {!isRateLimitEditMode ? (
                     <Button
@@ -762,7 +762,7 @@ export function ApiKeyDetailDialog({
                 {isRateLimitEditMode ? (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <Label className="text-sm">Enable</Label>
+                      <Label className="text-sm">사용</Label>
                       <Switch
                         checked={rateLimitForm.enabled}
                         onCheckedChange={(checked) =>
@@ -771,7 +771,7 @@ export function ApiKeyDetailDialog({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm">Requests per Second (Token Refill Rate)</Label>
+                      <Label className="text-sm">초당 요청 수 (토큰 리필 속도)</Label>
                       <Input
                         type="number"
                         value={rateLimitForm.requestsPerSecond}
@@ -784,10 +784,10 @@ export function ApiKeyDetailDialog({
                         disabled={!rateLimitForm.enabled}
                         className="h-8"
                       />
-                      <p className="text-xs text-gray-500">Token refill rate per second</p>
+                      <p className="text-xs text-gray-500">초당 토큰 리필 속도</p>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm">Burst Capacity (Bucket Capacity)</Label>
+                      <Label className="text-sm">버스트 용량 (버스트 용량)</Label>
                       <Input
                         type="number"
                         value={rateLimitForm.burstCapacity}
@@ -801,14 +801,14 @@ export function ApiKeyDetailDialog({
                         className={`h-8 ${rateLimitError ? 'border-red-500' : ''}`}
                       />
                       <p className="text-xs text-gray-500">
-                        Bucket capacity (maximum burst requests)
+                        최대 버스트 요청 수
                       </p>
                       {rateLimitError && (
                         <p className="text-xs text-red-500">{rateLimitError}</p>
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm">Requests per Minute</Label>
+                      <Label className="text-sm">분당 요청 수</Label>
                       <Input
                         type="number"
                         value={rateLimitForm.requestsPerMinute}
@@ -823,7 +823,7 @@ export function ApiKeyDetailDialog({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm">Requests per Hour</Label>
+                      <Label className="text-sm">시간당 요청 수</Label>
                       <Input
                         type="number"
                         value={rateLimitForm.requestsPerHour}
@@ -841,41 +841,41 @@ export function ApiKeyDetailDialog({
                 ) : apiKeyDetail.rateLimitInfo?.enabled ? (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">Status</span>
+                      <span className="text-sm text-gray-500">상태</span>
                       <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
-                        Enabled
+                        사용
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">Requests/Second</span>
+                      <span className="text-sm text-gray-500">초당 요청 수</span>
                       <span className="text-sm font-medium font-mono">
-                        {apiKeyDetail.rateLimitInfo.requestsPerSecond}/sec
+                        {apiKeyDetail.rateLimitInfo.requestsPerSecond}/초
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">Burst Capacity</span>
+                      <span className="text-sm text-gray-500">버스트 용량</span>
                       <span className="text-sm font-medium font-mono">
                         {apiKeyDetail.rateLimitInfo.burstCapacity}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">Requests/Minute</span>
+                      <span className="text-sm text-gray-500">분당 요청 수</span>
                       <span className="text-sm font-medium font-mono">
-                        {apiKeyDetail.rateLimitInfo.requestsPerMinute}/min
+                        {apiKeyDetail.rateLimitInfo.requestsPerMinute}/분
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">Requests/Hour</span>
+                      <span className="text-sm text-gray-500">시간당 요청 수</span>
                       <span className="text-sm font-medium font-mono">
-                        {apiKeyDetail.rateLimitInfo.requestsPerHour}/hr
+                        {apiKeyDetail.rateLimitInfo.requestsPerHour}/시간
                       </span>
                     </div>
                   </div>
                 ) : (
                   <div className="text-center py-4 text-gray-500">
                     <Clock className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                    <p className="text-sm">Rate Limit is <span className="font-medium text-red-600">disabled</span>.</p>
-                    <p className="text-xs mt-1">Click the edit button to configure.</p>
+                    <p className="text-sm">Rate Limit  <span className="font-medium text-red-600">비활성화</span>.</p>
+                    <p className="text-xs mt-1">수정 버튼을 클릭하여 설정하세요.</p>
                   </div>
                 )}
               </CardContent>
@@ -886,8 +886,7 @@ export function ApiKeyDetailDialog({
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
-                <Server className="h-4 w-4" />
-                Usage
+                사용처
                 <Badge variant="secondary" className="ml-2">
                   {usageData?.deployedUsages?.length || 0}
                 </Badge>
@@ -897,7 +896,7 @@ export function ApiKeyDetailDialog({
               {isUsageLoading ? (
                 <div className="flex items-center justify-center py-6">
                   <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
-                  <span className="ml-2 text-gray-500">Loading usage information...</span>
+                  <span className="ml-2 text-gray-500">사용처 정보를 불러오는 중...</span>
                 </div>
               ) : usageData?.deployedUsages && usageData.deployedUsages.length > 0 ? (
                 <div className="space-y-3">
@@ -937,7 +936,7 @@ export function ApiKeyDetailDialog({
               ) : (
                 <div className="text-center py-6 text-gray-500">
                   <Server className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm">No deployed usages.</p>
+                  <p className="text-sm">사용처가 없습니다.</p>
                 </div>
               )}
             </CardContent>

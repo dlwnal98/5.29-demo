@@ -83,10 +83,11 @@ interface CreateMethodPageViewProps {
   headers: Header[];
   bodyModelId: string;
   openId: string | null;
-  isValidCreateMethod: boolean;
+  isSubmitted: boolean;
   setBodyModelId: (id: string) => void;
   setOpenId: (id: string | null) => void;
   onBack: () => void;
+  onCancel: () => void;
   onCreateMethod: () => void;
   onToggleSection: (section: keyof OpenSections) => void;
   onApiKeyToggle: (checked: boolean) => void;
@@ -127,10 +128,11 @@ export default function CreateMethodPageView({
   headers,
   bodyModelId,
   openId,
-  isValidCreateMethod,
+  isSubmitted,
   setBodyModelId,
   setOpenId,
   onBack,
+  onCancel,
   onCreateMethod,
   onToggleSection,
   onApiKeyToggle,
@@ -169,7 +171,7 @@ export default function CreateMethodPageView({
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Create Method</BreadcrumbPage>
+            <BreadcrumbPage>Method 생성</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -181,18 +183,18 @@ export default function CreateMethodPageView({
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Create Method</h1>
+            <h1 className="text-3xl font-bold">Method 생성</h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
               Resource: <span className="font-mono text-blue-600">{resourcePath}</span>
             </p>
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={onBack}>
-            Cancel
+          <Button variant="outline" onClick={onCancel}>
+            취소
           </Button>
-          <Button onClick={onCreateMethod} disabled={!isValidCreateMethod}>
-            Save
+          <Button onClick={onCreateMethod}>
+            생성
           </Button>
         </div>
       </div>
@@ -205,47 +207,49 @@ export default function CreateMethodPageView({
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="new-method-name" className="text-[16px] font-semibold mb-4">
-                    Method Summary <span className="text-red-500">*</span>
+                    요약 <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="new-method-name"
-                    placeholder="e.g. User Information"
+                    placeholder="e.g. 사용자 정보 조회"
                     type="text"
                     value={methodForm.summary}
                     onChange={(e) => onMethodFormChange("summary", e.target.value)}
-                    className="mt-1"
+                    className={`mt-1 lg:w-2/3 ${isSubmitted && !methodForm.summary ? 'border-red-500' : ''}`}
                   />
                 </div>
 
+
+              </div>
+              <div>
                 <div>
                   <Label
                     htmlFor="new-method-description"
                     className="text-[16px] font-semibold mb-4"
                   >
-                    Description
+                    설명
                   </Label>
                   <Textarea
                     id="new-method-description"
-                    placeholder="Enter method description"
+                    placeholder="Method 설명을 입력해주세요."
                     value={methodForm.description}
                     onChange={(e) => onMethodFormChange("description", e.target.value)}
-                    className="mt-1 min-h-[80px]"
+                    className="mt-1 min-h-[80px] lg:w-2/3"
                   />
                 </div>
               </div>
-
               <div>
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="method-type" className="text-[16px] font-semibold mb-4">
-                      Method Type <span className="text-red-500">*</span>
+                      유형 <span className="text-red-500">*</span>
                     </Label>
                     <Select
                       value={methodForm.methodType}
                       onValueChange={(value) => onMethodFormChange("methodType", value)}
                     >
-                      <SelectTrigger className="mt-2">
-                        <SelectValue placeholder="Method Type" />
+                      <SelectTrigger className={`mt-2 w-full lg:w-2/3 ${isSubmitted && !methodForm.methodType ? 'border-red-500' : ''}`}>
+                        <SelectValue placeholder="Method 유형" />
                       </SelectTrigger>
                       <SelectContent className="hover:cursor-pointer">
                         {availableMethodList.map((method) => (
@@ -265,7 +269,7 @@ export default function CreateMethodPageView({
 
               <div>
                 <h3 className="text-[16px] font-semibold mb-4">
-                  Integration Type <span className="text-red-500">*</span>
+                  통합 유형 <span className="text-red-500">*</span>
                 </h3>
                 <RadioGroup
                   value={methodForm.integrationType}
@@ -316,7 +320,7 @@ export default function CreateMethodPageView({
                   <div>
                     <div className="flex items-center mb-3 gap-3">
                       <div>
-                        <Label className="text-[16px] font-semibold mb-4">API Key Setting</Label>
+                        <Label className="text-[16px] font-semibold mb-4">API Key 설정</Label>
                       </div>
                       <Switch checked={apiKeyToggle} onCheckedChange={onApiKeyToggle} />
                     </div>
@@ -328,7 +332,7 @@ export default function CreateMethodPageView({
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
                               <h4 className="font-semibold text-green-900 dark:text-green-100">
-                                Selected API Key
+                                선택된 API Key
                               </h4>
                               <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-xs rounded-full font-medium">
                                 Activated
@@ -341,8 +345,8 @@ export default function CreateMethodPageView({
                               </button>
                             </div>
                             <p className="text-red-500 text-xs mb-2">
-                              Add the <strong>X-API-Key</strong> field to the HTTP(S) header
-                              and include the copied key value in your request.
+                              HTTP(S) 헤더에 <strong>X-API-Key</strong> 필드를 추가하고,
+                              복사한 키 값을 요청에 포함하세요.
                             </p>
                           </div>
                         </div>
@@ -356,7 +360,7 @@ export default function CreateMethodPageView({
                         Route Endpoint URL <span className="text-red-500">*</span>
                       </Label>
                       <div className="flex items-center gap-2">
-                        <Label className="text-sm text-gray-600">Direct Input</Label>
+                        <Label className="text-sm text-gray-600">직접 입력</Label>
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -365,7 +369,7 @@ export default function CreateMethodPageView({
                             <TooltipContent side="top" className=" relative top-[-10px] left-[60px] w-80 p-3 bg-slate-900 text-slate-50 shadow-xl border-none">
                               <div className="space-y-2 text-xs leading-relaxed">
                                 <p className="font-semibold text-blue-400 border-b border-slate-700 pb-1 mb-2">
-                                  Direct Input 가이드
+                                  Route Endpoint URL 가이드
                                 </p>
                                 <div className="flex gap-2">
                                   <span className="text-blue-400">•</span>
@@ -389,6 +393,7 @@ export default function CreateMethodPageView({
 
                     {isDirectUrlInput ? (
                       <Input
+                        className={`w-full lg:w-2/3 ${isSubmitted && !methodForm.customEndpointUrl ? 'border-red-500' : ''}`}
                         placeholder="https://your-api-endpoint.com"
                         value={methodForm.customEndpointUrl}
                         onChange={(e) => onCustomUrlChange(e.target.value)}
@@ -399,12 +404,12 @@ export default function CreateMethodPageView({
                           value={methodForm.endpointUrl}
                           onValueChange={(value) => onMethodFormChange("endpointUrl", value)}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className={`w-full lg:w-2/3 ${isSubmitted && !methodForm.endpointUrl ? 'border-red-500' : ''}`}>
                             <SelectValue
                               placeholder={
                                 endpointList?.length > 0
-                                  ? "Select an Endpoint URL"
-                                  : "No endpoint URLs available."
+                                  ? "Endpoint URL 선택"
+                                  : "Endpoint URL이 없습니다."
                               }
                             />
                           </SelectTrigger>
@@ -426,19 +431,19 @@ export default function CreateMethodPageView({
                     )}
                     {checkUrl && (
                       <span className="text-xs mt-2 ml-2 text-red-500">
-                        Korean input is not allowed.
+                        한글은 입력되지 않습니다.
                       </span>
                     )}
                   </div>
 
                   {/* Request Validator */}
                   <div>
-                    <Label className="text-[16px] font-semibold mb-4m">Request Validator</Label>
+                    <Label className="text-[16px] font-semibold mb-4m">요청 검사기</Label>
                     <Select
                       value={methodForm.requestValidator}
                       onValueChange={(value) => onMethodFormChange("requestValidator", value)}
                     >
-                      <SelectTrigger className="mt-1">
+                      <SelectTrigger className="w-full lg:w-2/3 mt-1">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -473,7 +478,7 @@ export default function CreateMethodPageView({
                   className="w-full justify-between p-4 h-auto bg-green-50 hover:bg-green-100 dark:bg-green-950/20 dark:hover:bg-green-950/30 border-0 rounded-none"
                 >
                   <span className="text-lg font-semibold text-green-900 dark:text-green-100">
-                    URL Query String Parameters
+                    URL 쿼리 스트링 파라미터
                   </span>
                   {openSections.urlQuery ? (
                     <ChevronDown className="h-5 w-5 text-green-700" />
@@ -487,18 +492,18 @@ export default function CreateMethodPageView({
                   <div className="space-y-4">
                     <div className="dark:bg-blue-950/20 rounded-lg">
                       <h4 className="flex items-center gap-3 font-semibold text-gray-900 dark:text-blue-100 mb-4">
-                        Query String Parameters
+                        쿼리 스트링 파라미터
                         <Button
                           size="sm"
                           variant={"outline"}
                           className="h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
                           onClick={onAddQueryParameter}
                         >
-                          <span className="font-bold">Add</span>
+                          <span className="font-bold">추가</span>
                         </Button>
                       </h4>
                       {queryParameters.length === 0 ? (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">No query parameters found.</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">쿼리 스트링 파라미터가 없습니다.</p>
                       ) : (
                         <>
                           {queryParameters.map((param) => (
@@ -508,7 +513,8 @@ export default function CreateMethodPageView({
                             >
                               <div className="col-span-10">
                                 <Input
-                                  placeholder="Name"
+                                  className="w-full"
+                                  placeholder="이름"
                                   value={param.name}
                                   onChange={(e) =>
                                     onUpdateQueryParameter(param.id, "name", e.target.value)
@@ -517,7 +523,7 @@ export default function CreateMethodPageView({
                               </div>
                               <div className="col-span-2 gap-1 flex items-center">
                                 <div className="flex items-center space-x-2">
-                                  <Label className="text-xs">Required</Label>
+                                  <Label className="text-xs">필수</Label>
                                   <Switch
                                     checked={param.required}
                                     onCheckedChange={(checked) =>
@@ -547,7 +553,7 @@ export default function CreateMethodPageView({
           </div>
 
           {/* HTTP Request Headers */}
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <div className="border border-gray-200 rounded-lg">
             <Collapsible
               open={openSections.httpHeaders}
               onOpenChange={() => onToggleSection("httpHeaders")}
@@ -558,7 +564,7 @@ export default function CreateMethodPageView({
                   className="w-full justify-between p-4 h-auto bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/20 dark:hover:bg-purple-950/30 border-0 rounded-none"
                 >
                   <span className="text-lg font-semibold text-purple-900 dark:text-purple-100">
-                    HTTP Request Headers
+                    HTTP 요청 헤더
                   </span>
                   {openSections.httpHeaders ? (
                     <ChevronDown className="h-5 w-5 text-purple-700" />
@@ -572,18 +578,18 @@ export default function CreateMethodPageView({
                   <div className="space-y-4">
                     <div className="dark:bg-green-950/20 rounded-lg">
                       <h4 className="flex items-center gap-3 font-semibold text-gray-900 dark:text-green-100 mb-4">
-                        Headers
+                        헤더
                         <Button
                           size="sm"
                           variant={"outline"}
                           className="h-[25px] !gap-1 border-2 border-blue-500 text-blue-700 hover:text-blue-700 hover:bg-blue-50"
                           onClick={onAddHeader}
                         >
-                          <span className="font-bold">Add</span>
+                          <span className="font-bold">추가</span>
                         </Button>
                       </h4>
                       {headers.length === 0 ? (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">No headers found.</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">헤더가 없습니다.</p>
                       ) : (
                         <>
                           {headers.map((header) => (
@@ -600,6 +606,7 @@ export default function CreateMethodPageView({
                                     onUpdateHeader(header.id, field, value)
                                   }
                                   existingSearch={header.name}
+                                  openUpward={!openSections.requestBody}
                                 />
                               </div>
 
@@ -608,7 +615,7 @@ export default function CreateMethodPageView({
                                   }`}
                               >
                                 <div className="flex items-center space-x-2">
-                                  <Label className="text-xs">Required</Label>
+                                  <Label className="text-xs">필수</Label>
                                   <Switch
                                     checked={header.required}
                                     onCheckedChange={(checked) =>
@@ -649,7 +656,7 @@ export default function CreateMethodPageView({
                   className="w-full justify-between p-4 h-auto bg-orange-50 hover:bg-orange-100 dark:bg-orange-950/20 dark:hover:bg-orange-950/30 border-0 rounded-none"
                 >
                   <span className="text-lg font-semibold text-orange-900 dark:text-orange-100">
-                    Request Body
+                    요청 바디
                   </span>
                   {openSections.requestBody ? (
                     <ChevronDown className="h-5 w-5 text-orange-700" />
@@ -662,7 +669,7 @@ export default function CreateMethodPageView({
                 <div className="p-6 bg-white dark:bg-gray-900 space-y-6">
                   <div className="dark:bg-orange-950/20 rounded-lg">
                     <h4 className="flex items-center gap-3 font-semibold text-gray-900 dark:text-green-100 mb-4">
-                      Request Model
+                      요청 모델
                     </h4>
 
                     <div className="grid grid-cols-12 gap-3 items-center mb-3">
@@ -670,18 +677,18 @@ export default function CreateMethodPageView({
                         <Select value={bodyModelId} onValueChange={(value) => setBodyModelId(value)}
                           disabled={!modelList || modelList.length === 0}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="w-full">
                             <SelectValue
                               placeholder={
                                 modelList && modelList.length > 0
-                                  ? "Select a model"
-                                  : "No models available."
+                                  ? "모델을 선택해주세요."
+                                  : "모델이 없습니다."
                               }
                             />
                           </SelectTrigger>
                           <SelectContent>
                             {modelList?.map((model) => (
-                              <SelectItem key={model.modelId} value={model.modelId}>
+                              <SelectItem className="cursor-pointer" key={model.modelId} value={model.modelId}>
                                 {model.modelName}
                               </SelectItem>
                             ))}

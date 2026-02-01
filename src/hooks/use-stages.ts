@@ -1,5 +1,5 @@
 import { useQueryClient, useMutation, useQuery, UseMutationOptions } from '@tanstack/react-query';
-import { createStage, deleteStage, getDeployHistoryData, getDeploymentResourceTreeData, getStagesListData, getStagesOpenApiDocData, modifyStage } from '@/apis/stages.api';
+import { createStage, deleteStage, getDeployHistoryData, getDeployHistoryDataByApiId, getDeploymentResourceTreeData, getStagesListData, getStagesOpenApiDocData, modifyStage } from '@/apis/stages.api';
 import { CreateStageProps } from '@/apis/stages.api';
 import { PreviousDeploymentProps } from '@/apis/stages.api';
 import { activatePreviousDeployment, getStageDetailData } from '@/apis/stages.api';
@@ -49,6 +49,18 @@ export function useGetDeployHistoryData(tenantId: string, page?: number, size?: 
     queryKey: ['getDeployHistoryData', tenantId], // pathId별 캐싱
     queryFn: () => getDeployHistoryData(tenantId, page, size),
     enabled: !!tenantId, // pathId 있을 때만 실행
+    staleTime: Infinity, // 데이터 오래 유지
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+}
+
+export function useGetDeployHistoryDataByApiId(apiId: string, page?: number, size?: number) {
+  return useQuery({
+    queryKey: ['getDeployHistoryDataByApiId', apiId], // pathId별 캐싱
+    queryFn: () => getDeployHistoryDataByApiId(apiId, page, size),
+    enabled: !!apiId, // pathId 있을 때만 실행
     staleTime: Infinity, // 데이터 오래 유지
     refetchOnWindowFocus: false,
     refetchOnMount: false,

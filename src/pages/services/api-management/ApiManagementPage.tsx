@@ -76,7 +76,6 @@ export default function ApiManagementPage() {
           open={isDeleteModalOpen}
           onOpenChange={(open) => !open && onCloseDeleteModal()}
           selectedAPIId={selectedAPIId}
-          userKey={userKey}
           apiName={selectedApiName}
         />
 

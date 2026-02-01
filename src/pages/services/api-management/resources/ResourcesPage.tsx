@@ -3,6 +3,7 @@ import { Toaster } from "sonner";
 import ResourcesPageView from "./ResourcesPageView";
 import { ResourceCreateDialog } from "./components/ResourceCreateDialog";
 import DeployResourceDialog from "./components/DeployResourceDialog";
+import ResourceExportDialog from "./components/ResourceExportDialog";
 import { useResourcesPage } from "./hooks/useResourcesPage";
 import { useResourceCreateDialog } from "./hooks/useResourceCreateDialog";
 import { useDeployResourceDialog } from "./hooks/useDeployResourceDialog";
@@ -21,6 +22,7 @@ export default function ApiResourcesPage() {
     tenantId,
     isDeployModalOpen,
     isCreateModalOpen,
+    isExportModalOpen,
     setSelectedResource,
     setCreatedResourceId,
     onNavigateBack,
@@ -31,6 +33,8 @@ export default function ApiResourcesPage() {
     onCloseDeployModal,
     onOpenCreateModal,
     onCloseCreateModal,
+    onOpenExportModal,
+    onCloseExportModal,
     onMethodDeleted,
     onResourceDeleted,
     onCorsSettingsSaved,
@@ -71,6 +75,7 @@ export default function ApiResourcesPage() {
         onMethodClick={onMethodClick}
         onToggleResourceExpansion={onToggleResourceExpansion}
         onOpenDeployModal={onOpenDeployModal}
+        onOpenExportModal={onOpenExportModal}
         onOpenCreateModal={onOpenCreateModal}
         setSelectedResource={setSelectedResource}
         setCreatedResourceId={setCreatedResourceId}
@@ -108,6 +113,13 @@ export default function ApiResourcesPage() {
         onStageDescriptionChange={deployDialog.onStageDescriptionChange}
         onDescriptionChange={deployDialog.onDescriptionChange}
         onDeployModalClose={deployDialog.onDeployModalClose}
+      />
+
+      <ResourceExportDialog
+        open={isExportModalOpen}
+        onOpenChange={(open) => !open && onCloseExportModal()}
+        apiId={currentApiId}
+        apiName={currentApiName}
       />
     </>
   );

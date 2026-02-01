@@ -1,12 +1,11 @@
-import { useEffect, useState, useMemo, useRef, useCallback } from "react";
-import { useSearchParams, useLocation } from "react-router-dom";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useClipboard } from "use-clipboard-copy";
 import { useAuthStore } from "@/stores/store";
-import { useGetStagesDocData } from "@/hooks/use-stages";
-import { buildTree, resoureceBuildTree } from "@/libs/etc";
+import { resoureceBuildTree } from "@/libs/etc";
 import { requestGet } from "@/libs/apiClient";
-import { useGetStagesListData } from "@/hooks/use-stages";
+import { useGetStagesListData, useGetDeployHistoryDataByApiId } from "@/hooks/use-stages";
 import { getStagesOpenApiDocData, getStageDetailData } from "@/apis/stages.api";
 
 interface ApiResource {
@@ -49,11 +48,15 @@ export function useStagesPage() {
   const tenantId = userData?.organizationId ?? "kwwwksAsvmas";
   const [searchParams] = useSearchParams();
   const apiId = searchParams.get("apiId") || "";
-  const stageId = "0rsCzZzPY6li";
-  const { pathname } = useLocation();
+  const urlStageId = searchParams.get("stageId") || "";
   const clipboard = useClipboard();
 
   const { data: stagesListData } = useGetStagesListData(apiId);
+  const { data: deploymentHistoryData, refetch: refetchDeploymentHistory } = useGetDeployHistoryDataByApiId(
+    apiId,
+    0,
+    20
+  );
 
   const [selectedWholeStageInfo, setSelectedWholeStageInfo] =
     useState<SelectedWholeStageInfo>({
@@ -76,16 +79,12 @@ export function useStagesPage() {
   const [stageDetailData, setStageDetailData] = useState<any | null>(null);
 
 
-  // const { data: stagesDocData = [] } = useGetStagesDocData(selectedStageId);
-
-
   const getFinalEndpoint = useCallback(async (stageId: string) => {
     if (!stageId) return;
     const res = await requestGet(`/api/v1/gateway/stage/${stageId}`);
     setSelectedStageEndpointUrl(res.data.baseUrl);
   }, []);
 
-  const prevLengthRef = useRef(0);
   const initializedRef = useRef(false);
   const pendingDeleteSelectionRef = useRef(false);
   const pendingCreateSelectionRef = useRef(false);
@@ -103,41 +102,6 @@ export function useStagesPage() {
     },
     []
   );
-
-  // useEffect(() => {
-
-  //   if (resourceTree?.length === 0) return;
-
-  //   const prevLength = prevLengthRef.current;
-  //   prevLengthRef.current = resourceTree.length;
-
-  //   const currentId = selectedWholeStageInfo.resource?.deploymentId;
-  //   const updated = currentId ? findResourceById(resourceTree, currentId) : null;
-
-  //   if (!currentId) {
-  //     getFinalEndpoint(resourceTree[0]?.stageId || "");
-  //     setSelectedWholeStageInfo({ resource: resourceTree[0], type: "stage" });
-  //     return;
-  //   }
-
-  //   if (!updated) {
-  //     getFinalEndpoint(resourceTree[0]?.stageId || "");
-  //     setSelectedWholeStageInfo({ resource: resourceTree[0], type: "stage" });
-  //     return;
-  //   }
-
-  //   if (resourceTree.length > prevLength) {
-  //     getFinalEndpoint(resourceTree[0]?.stageId || "");
-  //     setSelectedWholeStageInfo({ resource: resourceTree[0], type: "stage" });
-  //     return;
-  //   }
-
-  //   getFinalEndpoint(updated?.stageId || "");
-  //   setSelectedWholeStageInfo((prev) => ({
-  //     ...prev,
-  //     resource: updated,
-  //   }));
-  // }, [resourceTree, findResourceById, getFinalEndpoint, selectedWholeStageInfo.resource?.deploymentId]);
 
   const getResourceKey = useCallback(
     (resource: ApiResource, parentPath = "") => {
@@ -188,13 +152,13 @@ export function useStagesPage() {
 
   const handleCopyUrl = useCallback(() => {
     clipboard.copy(selectedStageEndpointUrl);
-    toast.success("URL copied to clipboard.");
+    toast.success("URL이 클립보드에 복사되었습니다.");
   }, [clipboard, selectedStageEndpointUrl]);
 
   const handleCopyMethodUrl = useCallback(
     (url: string) => {
       clipboard.copy(url);
-      toast.success("Method URL copied to clipboard.");
+      toast.success("Method URL이 클립보드에 복사되었습니다.");
     },
     [clipboard]
   );
@@ -244,7 +208,7 @@ export function useStagesPage() {
     }
   }, [stageResourcesMap]);
 
-  // 첫 번째 stage 자동 선택
+  // 첫 번째 stage 자동 선택 또는 URL에서 지정된 stageId 선택
   useEffect(() => {
     if (
       !initializedRef.current &&
@@ -252,10 +216,23 @@ export function useStagesPage() {
       stagesListData.length > 0
     ) {
       initializedRef.current = true;
-      const firstStage = stagesListData[0];
-      handleStageOpenApiData(firstStage.stageId);
+
+      // URL에 stageId가 있으면 해당 스테이지 선택, 없으면 첫 번째 스테이지 선택
+      if (urlStageId) {
+        const targetStage = stagesListData.find((stage: any) => stage.stageId === urlStageId);
+        if (targetStage) {
+          handleStageOpenApiData(targetStage.stageId);
+        } else {
+          // URL의 stageId가 존재하지 않으면 첫 번째 스테이지 선택
+          const firstStage = stagesListData[0];
+          handleStageOpenApiData(firstStage.stageId);
+        }
+      } else {
+        const firstStage = stagesListData[0];
+        handleStageOpenApiData(firstStage.stageId);
+      }
     }
-  }, [stagesListData, handleStageOpenApiData]);
+  }, [stagesListData, handleStageOpenApiData, urlStageId]);
 
   // 삭제 후 마지막 스테이지 선택
   useEffect(() => {
@@ -306,7 +283,9 @@ export function useStagesPage() {
     setExpandedStages(new Set());
     // 마지막 스테이지 선택을 위한 플래그 설정
     pendingCreateSelectionRef.current = true;
-  }, []);
+    // deployment history 갱신
+    refetchDeploymentHistory();
+  }, [refetchDeploymentHistory]);
 
   const handleToggleResourceExpansion = useCallback((resourceId: string) => {
     setExpandedResources((prev) => {
@@ -322,13 +301,52 @@ export function useStagesPage() {
     setSelectedTreeMethod(null);
   }, []);
 
+  // 리소스 트리에서 특정 리소스까지의 경로를 찾는 함수
+  const findResourcePath = useCallback((
+    tree: any[],
+    targetId: string,
+    stageId: string,
+    currentPath: string[] = []
+  ): string[] | null => {
+    for (const node of tree) {
+      const uniqueId = `${stageId}-${node.id}`;
+      const newPath = [...currentPath, uniqueId];
+
+      if (node.id === targetId) {
+        return newPath;
+      }
+
+      if (node.children?.length > 0) {
+        const foundPath = findResourcePath(node.children, targetId, stageId, newPath);
+        if (foundPath) {
+          return foundPath;
+        }
+      }
+    }
+    return null;
+  }, []);
+
   const handleTreeMethodClick = useCallback((method: any, resource: any) => {
     setSelectedTreeMethod(method);
     setSelectedResource(resource);
-  }, []);
+
+    // 해당 리소스까지의 경로를 찾아서 모두 펼치기
+    if (resource?.stageId && resource?.id) {
+      const resourceTree = stageResourcesMap[resource.stageId] || [];
+      const pathToResource = findResourcePath(resourceTree, resource.id, resource.stageId);
+
+      if (pathToResource && pathToResource.length > 0) {
+        setExpandedResources((prev) => {
+          const newExpanded = new Set(prev);
+          pathToResource.forEach((id) => newExpanded.add(id));
+          return Array.from(newExpanded);
+        });
+      }
+    }
+  }, [stageResourcesMap, findResourcePath]);
 
   const handleExportApi = useCallback(() => {
-    toast.success("API export started.");
+    toast.success("API 내보내기가 시작되었습니다.");
   }, []);
 
   const handleOpenCreateModal = useCallback(() => {
@@ -379,6 +397,8 @@ export function useStagesPage() {
     tenantId,
     apiId,
     stagesListData,
+    deploymentHistoryData,
+    refetchDeploymentHistory,
     selectedWholeStageInfo,
     selectedMethod,
     expandedPaths,

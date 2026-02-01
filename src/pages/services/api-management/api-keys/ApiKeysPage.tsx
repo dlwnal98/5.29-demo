@@ -15,7 +15,6 @@ export default function ApiKeysPage() {
     currentPage,
     totalPages,
     isCreateModalOpen,
-    isCalendarOpen,
     isDeleteModalOpen,
     isCopyModalOpen,
     isDetailModalOpen,
@@ -23,7 +22,6 @@ export default function ApiKeysPage() {
     setSearchTerm,
     setCurrentPage,
     setNewApiKey,
-    setIsCalendarOpen,
     handleCreate,
     handleRefresh,
     handleDeleteClick,
@@ -48,7 +46,6 @@ export default function ApiKeysPage() {
         totalPages={totalPages}
         onSearchTermChange={setSearchTerm}
         onPageChange={setCurrentPage}
-        onRefresh={handleRefresh}
         onCreateClick={openCreateModal}
         onDelete={handleDeleteClick}
         onCopy={handleCopyApiKey}
@@ -63,8 +60,6 @@ export default function ApiKeysPage() {
       {/* API key 생성 */}
       <CreateAPIKeyDialog
         isOpen={isCreateModalOpen}
-        isCalendarOpen={isCalendarOpen}
-        setIsCalendarOpen={setIsCalendarOpen}
         newApiKey={newApiKey}
         onClose={closeCreateModal}
         onNewApiKeyChange={setNewApiKey}

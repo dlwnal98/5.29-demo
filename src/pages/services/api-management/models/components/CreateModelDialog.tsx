@@ -18,6 +18,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { useCreateModel } from '@/hooks/use-model';
 import { useClipboard } from 'use-clipboard-copy';
 import AceEditor from 'react-ace';
+import { Info } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
 import { CreateModelProps } from "@/apis/models.api"
@@ -39,14 +46,14 @@ export default function CreateModelDialog({
 }: CreateModelDialogProps) {
   const { mutate: createModelSchema } = useCreateModel({
     onSuccess: () => {
-      toast.success('Model created successfully.');
+      toast.success('Model이 성공적으로 생성되었습니다.');
       onOpenChange(false);
     },
     onError: (error: any) => {
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || 'Model creation failed.';
+        || 'Model 생성 중 오류가 발생했습니다.';
       toast.error(errorMessage);
     },
   });
@@ -56,11 +63,7 @@ export default function CreateModelDialog({
   const [createModelForm, setCreateModelForm] = useState<CreateModelProps>({
     modelName: '',
     description: '',
-    schema: {
-      type: 'object',
-      required: [],
-      properties: {},
-    },
+    schema: {},
     createdBy: '',
   });
 
@@ -70,11 +73,7 @@ export default function CreateModelDialog({
       setCreateModelForm({
         modelName: '',
         description: '',
-        schema: {
-          type: 'object',
-          required: [],
-          properties: {},
-        },
+        schema: {},
         createdBy: userKey,
       });
   }, [open]);
@@ -85,10 +84,7 @@ export default function CreateModelDialog({
 
       const updatedForm = {
         ...createModelForm,
-        schema: {
-          ...createModelForm.schema,
-          properties: parsed,
-        },
+        schema: parsed,
         createdBy: userKey,
       };
 
@@ -96,7 +92,7 @@ export default function CreateModelDialog({
       setCreateModelForm(updatedForm); // 상태는 업데이트
       createModelSchema({ apiId, tenantId, data: updatedForm }); // 동일한 최신 값으로 API 호출
     } catch (error) {
-      toast.error('Invalid JSON format.');
+      toast.error('JSON 형식이 유효하지 않습니다.');
       console.error('Invalid JSON:', error);
     }
   };
@@ -114,21 +110,21 @@ export default function CreateModelDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-blue-600">Create Model</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-blue-600">Model 생성</DialogTitle>
             <DialogDescription className="text-gray-600">
-              Create a new model. (<span className="text-red-500">*</span> Required fields)
+              새로운 모델을 생성합니다. (<span className="text-red-500">*</span> 필수 항목)
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
+          <div className="space-y-6 py-2">
             {/* Model Name */}
             <div>
               <Label htmlFor="model-name" className="text-sm font-medium text-gray-700 mb-2 block">
-                Name <span className="text-red-500">*</span>
+                이름 <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="model-name"
-                placeholder="Enter model name"
+                placeholder="모델 이름을 입력하세요"
                 value={createModelForm.modelName}
                 onChange={(e) =>
                   setCreateModelForm((prev) => ({
@@ -136,8 +132,11 @@ export default function CreateModelDialog({
                     modelName: e.target.value,
                   }))
                 }
-                className="w-full"
+                className={`w-full ${createModelForm.modelName.includes(' ') ? 'border-red-500 focus:ring-red-500' : ''}`}
               />
+              {createModelForm.modelName.includes(' ') && (
+                <p className="text-xs text-red-500 mt-1">모델 이름에 공백을 포함할 수 없습니다.</p>
+              )}
             </div>
 
             {/* Content Type */}
@@ -145,7 +144,7 @@ export default function CreateModelDialog({
               <Label
                 htmlFor="content-type"
                 className="text-sm font-medium text-gray-700 mb-2 block">
-                Content Type
+                콘텐츠 유형
               </Label>
               <Input
                 id="content-type"
@@ -160,11 +159,11 @@ export default function CreateModelDialog({
             {/* Description */}
             <div>
               <Label htmlFor="description" className="text-sm font-medium text-gray-700 mb-2 block">
-                Description
+                설명
               </Label>
               <Textarea
                 id="description"
-                placeholder="Enter model description"
+                placeholder="모델 설명을 입력하세요"
                 value={createModelForm.description}
                 onChange={(e) =>
                   setCreateModelForm((prev) => ({
@@ -176,16 +175,38 @@ export default function CreateModelDialog({
                 maxLength={500}
               />
               <div className="text-right text-sm text-gray-500 mt-1">
-                {createModelForm?.description?.length}/500 characters
+                {createModelForm?.description?.length}/500 자
               </div>
             </div>
 
             {/* Model Schema */}
             <div>
-              <Label className="text-sm font-medium text-gray-700 mb-2 block">Model Schema</Label>
+              <Label className="text-sm font-medium text-gray-700 mb-2 block">모델 스키마</Label>
               <div className="border rounded-lg overflow-hidden">
                 <div className="bg-gray-50 px-3 py-2 border-b flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">JSON Schema</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm font-medium text-gray-700">JSON Schema</span>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-gray-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="right" align="start">
+                          <p>
+                            JSON Schema 형식으로 작성해주세요.{' '}
+                            <a
+                              href="https://www.notion.so/Request-Body-Schema-2f46a5e88b51809ca856df13aeafdc57?source=copy_link"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-500 underline hover:text-blue-600"
+                            >
+                              자세히 보기
+                            </a>
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   {/* <div className="flex items-center space-x-2">
                     <Button
                       variant="ghost"
@@ -239,12 +260,13 @@ export default function CreateModelDialog({
               onClick={() => {
                 onOpenChange(false);
               }}>
-              Cancel
+              취소
             </Button>
             <Button
               onClick={handleCreateModel}
+              disabled={!createModelForm.modelName.trim() || createModelForm.modelName.includes(' ')}
               className="bg-blue-500 hover:bg-blue-600 text-white">
-              Create
+              생성
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -70,14 +70,14 @@ export default function ApiManagementPageView({
             API Plan
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Manage and deploy your API plans.
+            API Plan을 관리하고 배포하세요.
           </p>
         </div>
         <div className="flex items-center space-x-2">
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
-              placeholder="Enter search term"
+              placeholder="검색어를 입력하세요."
               value={searchTerm}
               onChange={(e) => onSearchTermChange(e.target.value)}
               className="pl-10"
@@ -89,7 +89,7 @@ export default function ApiManagementPageView({
             className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg"
           >
             <Plus className="h-4 w-4" />
-            Create API
+            API Plan 생성
           </Button>
         </div>
       </div>
@@ -102,10 +102,10 @@ export default function ApiManagementPageView({
             <TableHeader className="hover:bg-white dark:hover:bg-transparent">
               <TableRow className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
                 <TableHead className="w-[10%] text-center">ID</TableHead>
-                <TableHead className="w-[30%] text-center">Name</TableHead>
-                <TableHead className="w-auto text-center">Description</TableHead>
-                <TableHead className="w-[10%] text-center">Updated Date</TableHead>
-                <TableHead className="w-[8%] text-center">Actions</TableHead>
+                <TableHead className="w-[30%] text-center">이름</TableHead>
+                <TableHead className="w-auto text-center">설명</TableHead>
+                <TableHead className="w-[10%] text-center">수정일</TableHead>
+                <TableHead className="w-[8%] text-center">작업</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -113,15 +113,19 @@ export default function ApiManagementPageView({
                 filteredPlans?.map((plan) => (
                   <TableRow
                     key={plan.apiId}
-                    onClick={() => onApiClick(plan)}
-                    className="hover:cursor-pointer dark:hover:bg-gradient-to-r dark:hover:from-gray-700 dark:hover:to-gray-600 "
+                    className="dark:hover:bg-gradient-to-r dark:hover:from-gray-700 dark:hover:to-gray-600"
                   >
-                    <TableCell className="font-mono text-sm text-center text-blue-600 ">
+                    <TableCell className="font-mono text-sm text-center ">
                       {plan.apiId}
                     </TableCell>
 
-                    <TableCell className="text-center">
-                      {plan.name}
+                    <TableCell
+                      className="text-center hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer transition-colors"
+                      onClick={() => onApiClick(plan)}
+                    >
+                      <span className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline">
+                        {plan.name}
+                      </span>
                     </TableCell>
                     <TableCell className="max-w-xs text-center truncate">
                       {plan.description}
@@ -176,7 +180,7 @@ export default function ApiManagementPageView({
                     colSpan={6}
                     className="text-center py-8 text-gray-500"
                   >
-                    No search results found.
+                    일치하는 검색 결과가 없습니다.
                   </TableCell>
                 </TableRow>
               )}

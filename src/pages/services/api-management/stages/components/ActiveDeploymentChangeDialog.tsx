@@ -19,7 +19,6 @@ interface ActiveDeploymentChangeProps {
     userKey: string;
     apiId: string;
     selectedStage: any;
-    currentActiveDeployment: any;
     selectedDeploymentData: any;
     setSelectedDeploymentId: (value: string | null) => void;
     selectedDeploymentId: string | null;
@@ -31,7 +30,6 @@ export default function ActiveDeploymentChangeDialog({
     onOpenChange,
     userKey,
     selectedStage,
-    currentActiveDeployment,
     selectedDeploymentData,
     setSelectedDeploymentId,
     selectedDeploymentId,
@@ -53,7 +51,7 @@ export default function ActiveDeploymentChangeDialog({
                     <DialogHeader>
                         <div className="flex items-center justify-between">
                             <DialogTitle className="text-xl font-bold text-blue-600 mb-2">
-                                Active Deployment Change
+                                활성 배포 변경
                             </DialogTitle>
                         </div>
                     </DialogHeader>
@@ -63,18 +61,18 @@ export default function ActiveDeploymentChangeDialog({
                             <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded mr-1">
                                 {selectedStage.name}
                             </span>
-                            Update the active deployment of the stage?
+                            스테이지의 활성화된 배포를 업데이트하시겠습니까?
                             <div className="text-xs text-red-400 dark:text-red-400 font-medium mt-2">
-                                * The current active deployment will be immediately replaced by the new deployment.
+                                * 현재 활성화된 배포가 즉시 새 배포로 교체됩니다.
                             </div>
                         </div>
 
                         <div className="flex items-center bg-blue-50 dark:bg-blue-900/20 p-5 px-8 rounded">
                             <div>
                                 <div className="text-sm font-bold text-center text-gray-900 dark:text-white mb-1">
-                                    Current Active Deployment
+                                    현재 활성 배포
                                 </div>
-                                <div className="text-sm text-gray-600 dark:text-gray-400 font-mono">
+                                <div className="text-center text-blue-600 text-sm font-mono">
                                     {selectedStage?.activeDeploymentId || '-'}
                                 </div>
                             </div>
@@ -85,9 +83,9 @@ export default function ActiveDeploymentChangeDialog({
                             </div>
                             <div>
                                 <div className="text-sm font-bold text-center text-gray-900 dark:text-white mb-1">
-                                    New Active Deployment
+                                    새로운 활성 배포
                                 </div>
-                                <div className="text-sm text-gray-600 dark:text-gray-400 font-mono">
+                                <div className="text-center text-blue-600 text-sm font-mono">
                                     {selectedDeploymentData?.deploymentId}
                                 </div>
                             </div>
@@ -96,10 +94,10 @@ export default function ActiveDeploymentChangeDialog({
 
                     <DialogFooter>
                         <Button variant="outline" onClick={() => onOpenChange(false)}>
-                            Cancel
+                            취소
                         </Button>
                         <Button onClick={confirmActiveDeploymentChange} variant={'default'}>
-                            Change
+                            변경
                         </Button>
                     </DialogFooter>
                 </DialogContent>

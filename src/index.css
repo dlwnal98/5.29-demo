@@ -17,6 +17,12 @@ body {
   font-family: 'Pretendard', sans-serif;
 }
 
+/* 모든 요소에 word-break 적용 - 컨테이너 초과 방지 */
+* {
+  word-break: break-all;
+  min-width: 0;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

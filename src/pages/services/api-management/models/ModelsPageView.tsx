@@ -56,7 +56,7 @@ export default function ModelsPageView({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Models</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your API model schemas.</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">API 모델 스키마를 관리합니다.</p>
         </div>
 
         <div className="flex gap-2">
@@ -65,7 +65,7 @@ export default function ModelsPageView({
             className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg"
           >
             <Plus className="h-4 w-4" />
-            Create Model
+            Model 생성
           </Button>
         </div>
       </div>
@@ -78,23 +78,23 @@ export default function ModelsPageView({
             <TableHeader className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
               <TableRow className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
                 <TableHead className="w-[15%] text-center">ID</TableHead>
-                <TableHead className="w-[20%] text-center">Name</TableHead>
-                <TableHead className="text-center">Description</TableHead>
-                <TableHead className="w-[12%] text-center">Created Date</TableHead>
-                <TableHead className="w-[10%] text-center">Actions</TableHead>
+                <TableHead className="w-[20%] text-center">이름</TableHead>
+                <TableHead className="text-center">설명</TableHead>
+                <TableHead className="w-[12%] text-center">생성일</TableHead>
+                <TableHead className="w-[10%] text-center">작업</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {models?.length > 0 ? (
                 models.map((model) => (
                   <TableRow
-                    key={model.modelId}
+                    key={model?.modelId}
                     className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700"
                   >
-                    <TableCell className="font-mono text-sm text-center font-medium text-blue-600">{model.modelId}</TableCell>
-                    <TableCell className="text-center">{model.modelName}</TableCell>
-                    <TableCell className="text-center">{model.description}</TableCell>
-                    <TableCell className="text-center">{new Date(model.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell className="font-mono text-sm text-center font-medium text-blue-600">{model?.modelId}</TableCell>
+                    <TableCell className="text-center">{model?.modelName}</TableCell>
+                    <TableCell className="text-center">{model?.description}</TableCell>
+                    <TableCell className="text-center">{new Date(model?.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell className="text-center">
                       <div className="flex gap-2 justify-end">
                         <Button
@@ -119,7 +119,7 @@ export default function ModelsPageView({
               ) : (
                 <TableRow className="hover:bg-white dark:hover:bg-gray-800">
                   <TableCell colSpan={5} className="text-center py-8 text-gray-500 dark:text-gray-400">
-                    No models registered.
+                    등록된 모델이 없습니다.
                   </TableCell>
                 </TableRow>
               )}

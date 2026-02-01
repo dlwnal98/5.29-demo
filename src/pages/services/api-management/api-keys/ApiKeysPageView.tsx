@@ -30,7 +30,6 @@ interface ApiKeysPageViewProps {
   totalPages: number;
   onSearchTermChange: (value: string) => void;
   onPageChange: React.Dispatch<React.SetStateAction<number>>;
-  onRefresh: () => void;
   onCreateClick: () => void;
   onDelete: (apiKey: ApiKey) => void;
   onCopy: (apiKeyName: string, apiKey: string) => void;
@@ -49,7 +48,6 @@ export default function ApiKeysPageView({
   totalPages,
   onSearchTermChange,
   onPageChange,
-  onRefresh,
   onCreateClick,
   onDelete,
   onCopy,
@@ -83,7 +81,7 @@ export default function ApiKeysPageView({
       <div className="flex items-center justify-between mb-6">
         <div className="gap-2">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">API Keys</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your API Keys</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">API Key를 관리합니다.</p>
         </div>
         <div className="flex items-center gap-1">
           <div className="flex items-center justify-between">
@@ -91,7 +89,7 @@ export default function ApiKeysPageView({
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="API Key Name"
+                  placeholder="검색어를 입력하세요."
                   value={searchTerm}
                   onChange={(e) => onSearchTermChange(e.target.value)}
                   className="pl-10 w-64"
@@ -107,7 +105,7 @@ export default function ApiKeysPageView({
             className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Create API Key
+            API Key 생성
           </Button>
         </div>
       </div>
@@ -120,17 +118,17 @@ export default function ApiKeysPageView({
             <TableHeader className="hover:bg-white dark:border-gray-700 dark:hover:bg-transparent">
               <TableRow className="hover:bg-white dark:hover:bg-transparent dark:border-gray-700">
                 <TableHead className="w-[10%] text-center">ID</TableHead>
-                <TableHead className="w-[30%] text-center">Name</TableHead>
-                <TableHead className="w-[auto] text-center">Description</TableHead>
-                <TableHead className="w-[10%] text-center">Created Date</TableHead>
-                <TableHead className="text-center w-[8%]">Actions</TableHead>
+                <TableHead className="w-[30%] text-center">이름</TableHead>
+                <TableHead className="w-[auto] text-center">설명</TableHead>
+                <TableHead className="w-[10%] text-center">생성일</TableHead>
+                <TableHead className="text-center w-[8%]">작업</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {currentApiKeys?.length === 0 ? (
                 <TableRow className="hover:bg-white dark:hover:bg-gray-800">
                   <TableCell colSpan={5} className="text-center !py-8 text-gray-500 dark:text-gray-400">
-                    No API Keys exist.
+                    API Key가 존재하지 않습니다.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -155,7 +153,7 @@ export default function ApiKeysPageView({
                           className="text-white hover:text-white bg-blue-500 hover:bg-blue-600"
                           size="sm"
                           onClick={() => onViewDetail(apiKey)}
-                          title="View Details"
+                          title="상세보기"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -163,7 +161,7 @@ export default function ApiKeysPageView({
                           className="text-white hover:text-white bg-amber-500 hover:bg-amber-500"
                           size="sm"
                           onClick={() => onCopy(apiKey.keyName, apiKey.apiKeyId)}
-                          title="Copy"
+                          title="복사"
                         >
                           <Copy className="h-4 w-4" />
                         </Button>
@@ -172,7 +170,7 @@ export default function ApiKeysPageView({
                           size="sm"
                           onClick={() => onDelete(apiKey)}
                           className="hover:bg-destructive"
-                          title="Delete"
+                          title="삭제"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

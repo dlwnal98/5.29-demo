@@ -1,7 +1,6 @@
 // components/layout/sidebar/SidebarItem.tsx
 import { Button } from '@/components/ui/button';
 import {
-    clearSelectedApiInfo,
     setSelectedApiInfo,
     selectedApiName,
 } from '@/constants/app-layout-data';
@@ -93,23 +92,14 @@ const SubNavButton = ({
     };
 
     const handleSubSubItemClick = (label: string, href: string) => {
-        if (label === 'APIs') {
-            // APIs 메뉴를 클릭했을 때만 API 정보 초기화
-            clearSelectedApiInfo();
-        }
+        // 특정 API 선택 시 생기는 하위 메뉴를 초기화해야 하는 메뉴들
+        // const clearApiInfoMenus = ['API Plan', 'Route Endpoints', 'API Keys', 'Usage Dashboard'];
+        // if (clearApiInfoMenus.includes(label)) {
+        //     clearSelectedApiInfo();
+        // }
         router(href);
     };
 
-    // resource 페이지가 아닐 때 selectedApiInfo를 초기화
-    useEffect(() => {
-        const isResourcePage =
-            pathname.startsWith('/services/api-management/resources') ||
-            pathname.startsWith('/services/api-management/models') ||
-            pathname.startsWith('/services/api-management/stages');
-        if (!isResourcePage) {
-            clearSelectedApiInfo();
-        }
-    }, [pathname]);
 
 
     // 3depth 메뉴가 있다면
@@ -151,17 +141,21 @@ const SubNavButton = ({
                             const normalizePath = (path: string) => path.replace(/\/$/, '').split('?')[0];
 
                             const isSubSubActive = normalizePath(pathname) === normalizePath(subSubItem.href!);
+                            // API 이름이 포함된 메뉴인지 확인
+                            const isApiLabel = subSubItem.label.startsWith('API : ');
                             return (
                                 <Button
                                     key={subSubItem.href || `item-${index}`}
                                     variant="ghost"
                                     size="sm"
-                                    className={`w-full !h-10  text-[13px] justify-start bg-transparent hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${isSubSubActive
+                                    className={`w-full ${isApiLabel ? '!h-auto min-h-10 py-2' : '!h-10'} text-[13px] justify-start bg-transparent hover:bg-blue-50 dark:hover:bg-gray-800 hover:rounded-[8px] ${isSubSubActive
                                         ? 'bg-blue-50 font-bold hover:bg-blue-50 rounded-[8px] dark:bg-blue-800 dark:text-blue-400'
                                         : 'text-[#8c8c8c]'
                                         }`}
                                     onClick={() => handleSubSubItemClick(subSubItem.label, subSubItem.href!)}>
-                                    <span className="text-xs">{subSubItem.label}</span>
+                                    <span className={`text-xs ${isApiLabel ? 'break-words whitespace-normal text-left leading-tight' : ''}`}>
+                                        {subSubItem.label}
+                                    </span>
                                 </Button>
                             );
                         })}

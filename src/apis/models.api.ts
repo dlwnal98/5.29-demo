@@ -45,11 +45,7 @@ export const getModelList = async (apiId: string, page?: number, size?: number):
 export interface CreateModelProps {
     modelName: string,
     description: string,
-    schema: {
-        type: "object";
-        required: string[];
-        properties: {};
-    },
+    schema: {};
     createdBy: string
 }
 
@@ -65,11 +61,7 @@ export const createModel = async (apiId: string, tenantId: string, data: CreateM
 export interface ModifyModelProps {
     modelName: string;
     description?: string;
-    schema: {
-        type: "object";
-        required: string[];
-        properties: {};
-    };
+    schema: {};
     updatedBy: string;
 }
 

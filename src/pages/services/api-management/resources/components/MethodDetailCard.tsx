@@ -59,19 +59,18 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
     isDirty,
   } = useMethodEditForm(selectedMethod, userKey);
 
-  console.log(formData)
 
   // 메서드 수정 mutation
   const { mutate: modifyMethod, isPending: isModifying } = useModifyMethod({
     onSuccess: () => {
-      toast.success('Method modified successfully.');
+      toast.success('Method가 성공적으로 수정되었습니다.');
       setIsEditMode(false);
     },
     onError: (error: any) => {
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || 'Method modification failed.';
+        || 'Method 수정 중 오류가 발생했습니다.';
       toast.error(errorMessage);
     },
   });
@@ -79,7 +78,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
   // Delete Method mutation
   const { mutate: deleteMethod, isPending: isDeleting } = useDeleteMethod({
     onSuccess: () => {
-      toast.success('Method deleted successfully.');
+      toast.success('Method가 성공적으로 삭제되었습니다.');
       setIsMethodDeleteDialogOpen(false);
       setMethodToDelete(null);
     },
@@ -87,7 +86,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || 'Method deletion failed.';
+        || 'Method 삭제 중 오류가 발생했습니다.';
       toast.error(errorMessage);
     },
   });
@@ -111,14 +110,15 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
   // Test Method mutation
   const { mutate: testMethodMutate, isPending: isTestLoading } = useTestMethod({
     onSuccess: (response: any) => {
+      console.log(response)
       setTestResponse(response);
-      toast.success('API test completed successfully.');
+      toast.success('API 테스트가 성공적으로 완료되었습니다.');
     },
     onError: (error: any) => {
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || 'API test failed.';
+        || 'API 테스트 중 오류가 발생했습니다.';
       setTestResponse({
         error: true,
         message: errorMessage,
@@ -137,7 +137,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
 
   const handleCopyEndpoint = () => {
     clipboard.copy(methodInfo?.['x-route-endpoint'] ?? '');
-    toast.success('ARN copied to clipboard.');
+    toast.success('URL이 클립보드에 복사되었습니다.');
   };
 
   const handleFlowStepClick = (step: string) => {
@@ -180,8 +180,6 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
     testMethodMutate({ methodId, data: requestBody });
   };
 
-  console.log(selectedMethod)
-
   return (
     <>
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -190,7 +188,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
           <div>
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white break-all">
                   <span
                     className={`${getMethodStyle(selectedMethod.type as HttpMethod)} !font-mono !font-bold !text-xl !px-1.5 !py-0.5 rounded mr-2`}>
                     {selectedMethod.type}
@@ -204,7 +202,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                         variant="outline"
                         className="border-blue-200 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                         onClick={handleEditMethod}>
-                        Edit
+                        편집
                       </Button>
                       <Button
                         variant="outline"
@@ -213,19 +211,19 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                           setMethodToDelete(selectedMethod);
                           setIsMethodDeleteDialogOpen(true);
                         }}>
-                        Delete
+                        삭제
                       </Button>
                     </>
                   ) : (
                     <>
                       <Button variant="outline" onClick={handleCancelEdit} disabled={isModifying}>
-                        Cancel
+                        취소
                       </Button>
                       <Button
                         onClick={handleSaveMethod}
                         disabled={isModifying}
                         className="bg-blue-500 hover:bg-blue-600 text-white">
-                        {isModifying ? 'Saving...' : 'Save'}
+                        {isModifying ? '저장 중...' : '저장'}
                       </Button>
                     </>
                   )}
@@ -258,7 +256,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                           }`}
                         onClick={() => handleFlowStepClick('method-request')}>
                         <div className="text-xs font-medium text-blue-700 dark:text-blue-300">
-                          Method Request
+                          Method 요청
                         </div>
                       </div>
 
@@ -269,7 +267,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                           }`}
                         onClick={() => handleFlowStepClick('method-response')}>
                         <div className="text-xs font-medium text-blue-700 dark:text-blue-300">
-                          Method Response
+                          Method 응답
                         </div>
                       </div>
                     </div>
@@ -284,11 +282,11 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                       <div className="bg-white border-2 border-blue-300 rounded-lg p-3 mb-2 min-w-[80px]">
                         <div className="text-center">
                           <div className="text-xs font-bold text-gray-600">{selectedMethod?.info?.['x-integration-type']}</div>
-                          <div className="text-xs text-gray-500">Response</div>
+                          {/* <div className="text-xs text-gray-500">Response</div> */}
                         </div>
                       </div>
                       <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                        {selectedMethod?.info?.['x-integration-type']} Response
+                        {selectedMethod?.info?.['x-integration-type']} 응답
                       </span>
                     </div>
                   </div>
@@ -301,12 +299,12 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
         {/* Method Tabs */}
         <div className="p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className={`grid w-full ${['GET', 'PUT', 'POST'].includes(selectedMethod.type) ? 'grid-cols-4' : 'grid-cols-3'}`}>
-              <TabsTrigger value="basic-info">Basic Info</TabsTrigger>
-              <TabsTrigger value="method-request">Method Request</TabsTrigger>
-              <TabsTrigger value="method-response">Method Response</TabsTrigger>
-              {['GET', 'PUT', 'POST'].includes(selectedMethod.type) && (
-                <TabsTrigger value="test">Test</TabsTrigger>
+            <TabsList className={`grid w-full ${['GET', 'PUT', 'POST'].includes(selectedMethod.type) && selectedMethod?.info?.['x-integration-type'] !== 'MOCK' ? 'grid-cols-4' : 'grid-cols-3'}`}>
+              <TabsTrigger value="basic-info">Method 기본 정보</TabsTrigger>
+              <TabsTrigger value="method-request">Method 요청</TabsTrigger>
+              <TabsTrigger value="method-response">Method 응답</TabsTrigger>
+              {['GET', 'PUT', 'POST'].includes(selectedMethod.type) && selectedMethod?.info?.['x-integration-type'] !== 'MOCK' && (
+                <TabsTrigger value="test">테스트</TabsTrigger>
               )}
             </TabsList>
 
@@ -345,15 +343,14 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                     type: p.schema?.type || 'string',
                     required: p.required,
                   }))}
-                  requestBodyModels={[]}
                   modelId={formData.requestBodyConfig.modelId}
-                  handleEditMethod={handleEditMethod}
                 />
               ) : (
                 <MethodRequestEditTab
                   formData={formData}
                   validatorList={validatorList}
                   modelList={modelList || []}
+                  httpMethod={selectedMethod.type}
                   onChange={updateRequestSettings}
                 />
               )}
@@ -366,15 +363,12 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
                   methodResponses={formData.responses.map((r, idx) => ({
                     id: `response-${idx}`,
                     statusCode: r.statusCode,
+                    description: r.description,
                     headers: r.headers,
                     bodies: r.modelId
                       ? [{ id: `body-${idx}`, contentType: 'application/json', model: r.modelId }]
                       : [],
                   }))}
-                  handleCreateResponse={() => { }}
-                  handleEditResponse={() => { }}
-                  handleDeleteResponse={() => { }}
-                  availableModels={[]}
                 />
               ) : (
                 <MethodResponseEditTab
@@ -385,13 +379,11 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
               )}
             </TabsContent>
 
-            {/* Enhanced Test Tab - Only for GET, PUT, POST methods */}
-            {['GET', 'PUT', 'POST'].includes(selectedMethod.type) && (
+            {/* Enhanced Test Tab - Only for GET, PUT, POST methods and non-MOCK integration */}
+            {['GET', 'PUT', 'POST'].includes(selectedMethod.type) && selectedMethod?.info?.['x-integration-type'] !== 'MOCK' && (
               <TabsContent value="test" className="space-y-6 mt-6">
                 <MethodTestTab
                   selectedMethod={selectedMethod}
-                  testSettings={testSettings}
-                  setTestSettings={setTestSettings}
                   handleTest={handleTest}
                   isTestLoading={isTestLoading}
                   testResponse={testResponse}

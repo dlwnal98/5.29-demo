@@ -11,13 +11,19 @@ import {
 import { Button } from '@/components/ui/button';
 import React, { useEffect, useRef } from 'react';
 import { toast, Toaster } from 'sonner';
-import { Copy, Edit } from 'lucide-react';
+import { Copy, Edit, Info } from 'lucide-react';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useModifyModel, ModelData, ModifyModelProps } from '@/hooks/use-model';
 import { useClipboard } from 'use-clipboard-copy';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
@@ -37,7 +43,7 @@ export default function ModifyModelDialog({
 }: ModifyModelDialogProps) {
   const { mutate: modifyModelSchema } = useModifyModel({
     onSuccess: () => {
-      toast.success('Model modified successfully.');
+      toast.success('Model이 성공적으로 수정되었습니다.');
       onOpenChange(false);
     },
     onError: (error: any) => {
@@ -58,11 +64,7 @@ export default function ModifyModelDialog({
   const [modelForm, setModelForm] = useState<ModifyModelProps>({
     modelName: '',
     description: '',
-    schema: {
-      type: 'object',
-      required: [],
-      properties: {},
-    },
+    schema: {},
     updatedBy: '',
   });
 
@@ -71,16 +73,16 @@ export default function ModifyModelDialog({
   }, [open]);
 
   useEffect(() => {
-    const propertiesJson = selectedModel?.schema?.properties
-      ? JSON.stringify(selectedModel?.schema?.properties, null, 2)
+    const schemaJson = selectedModel?.schema
+      ? JSON.stringify(selectedModel?.schema, null, 2)
       : '{}';
-    setJson(propertiesJson);
+    setJson(schemaJson);
 
     setModelForm((prev) => ({
       ...prev,
       modelName: selectedModel.modelName || '',
       description: selectedModel.description || '',
-      schema: selectedModel.schema || { type: 'object', required: [], properties: {} },
+      schema: selectedModel.schema || {},
       updatedBy: userKey || '',
     }));
   }, [selectedModel]);
@@ -91,10 +93,7 @@ export default function ModifyModelDialog({
 
       const updatedForm = {
         ...modelForm,
-        schema: {
-          ...modelForm.schema,
-          properties: parsed,
-        },
+        schema: parsed,
         updatedBy: userKey,
       };
 
@@ -102,7 +101,7 @@ export default function ModifyModelDialog({
       setModelForm(updatedForm); // 상태는 업데이트
       modifyModelSchema({ modelId: selectedModel.modelId, data: updatedForm }); // 동일한 최신 값으로 API 호출
     } catch (error) {
-      toast.error('Invalid JSON format.');
+      toast.error('JSON 형식이 유효하지 않습니다.');
       console.error('Invalid JSON:', error);
     }
   };
@@ -129,7 +128,7 @@ export default function ModifyModelDialog({
           <DialogContent ref={ref} className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-blue-600 flex items-center gap-2">
-                <span>Modify Model</span>
+                <span>Model 수정</span>
                 {!isEditMode && (
                   <Button
                     variant="outline"
@@ -144,30 +143,33 @@ export default function ModifyModelDialog({
               </DialogTitle>
 
               <DialogDescription className="text-gray-600">
-                Edit existing model. (<span className="text-red-500">*</span> Required fields.)
+                기존 모델을 수정합니다. (<span className="text-red-500">*</span> 필수 항목)
               </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-6 py-4">
+            <div className="space-y-6 py-2">
               {/* Model Name */}
               <div>
                 <Label
                   htmlFor="model-name"
                   className="text-sm font-medium text-gray-700 mb-2 block">
-                  Name <span className="text-red-500">*</span>
+                  이름 <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="model-name"
-                  placeholder="Enter model name"
-                  value={modelForm.modelName ? modelForm.modelName : selectedModel?.modelName}
+                  placeholder="모델 이름을 입력하세요"
+                  value={modelForm.modelName}
                   onChange={(e) =>
                     setModelForm((prev) => ({
                       ...prev,
                       modelName: e.target.value,
                     }))
                   }
-                  className="w-full"
+                  className={`w-full ${modelForm.modelName.includes(' ') ? 'border-red-500 focus:ring-red-500' : ''}`}
                 />
+                {modelForm.modelName.includes(' ') && (
+                  <p className="text-xs text-red-500 mt-1">모델 이름에 공백을 포함할 수 없습니다.</p>
+                )}
               </div>
 
               {/* Content Type */}
@@ -175,7 +177,7 @@ export default function ModifyModelDialog({
                 <Label
                   htmlFor="content-type"
                   className="text-sm font-medium text-gray-700 mb-2 block">
-                  Content Type
+                  콘텐츠 유형
                 </Label>
                 <Input
                   id="content-type"
@@ -190,12 +192,12 @@ export default function ModifyModelDialog({
                 <Label
                   htmlFor="description"
                   className="text-sm font-medium text-gray-700 mb-2 block">
-                  Description
+                  설명
                 </Label>
                 <Textarea
                   id="description"
-                  placeholder="Enter model description"
-                  value={modelForm.description ? modelForm.description : selectedModel?.description}
+                  placeholder="모델 설명을 입력하세요"
+                  value={modelForm.description}
                   onChange={(e) =>
                     setModelForm((prev) => ({
                       ...prev,
@@ -206,22 +208,44 @@ export default function ModifyModelDialog({
                   maxLength={500}
                 />
                 <div className="text-right text-sm text-gray-500 mt-1">
-                  {modelForm?.description?.length}/500 characters
+                  {modelForm?.description?.length}/500 자
                 </div>
               </div>
 
               {/* Model Schema */}
               <div>
-                <Label className="text-sm font-medium text-gray-700 mb-2 block">Model Schema</Label>
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">모델 스키마</Label>
                 <div className="border rounded-lg overflow-hidden">
                   <div className="bg-gray-50 px-3 py-2 border-b flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">JSON Schema</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-medium text-gray-700">JSON Schema</span>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-400 cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent side="right" align="start">
+                            <p>
+                              JSON Schema 형식으로 작성해주세요.{' '}
+                              <a
+                                href="https://www.notion.so/Request-Body-Schema-2f46a5e88b51809ca856df13aeafdc57?source=copy_link"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 underline hover:text-blue-600"
+                              >
+                                자세히 보기
+                              </a>
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <div className="flex items-center space-x-2">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() =>
-                          copySchema(JSON.stringify(modelForm?.schema?.properties, null, 2))
+                          copySchema(JSON.stringify(modelForm?.schema, null, 2))
                         }
                         className="h-7 px-2">
                         <Copy className="h-3 w-3" />
@@ -232,7 +256,7 @@ export default function ModifyModelDialog({
                     {/* Schema Editor */}
                     <div className="col-span-12 p-0">
                       <AceEditor
-                        placeholder="Enter model schema"
+                        placeholder="모델 스키마를 입력하세요"
                         mode="json"
                         theme="monokai"
                         name="blah2"
@@ -277,13 +301,14 @@ export default function ModifyModelDialog({
                   ref?.current?.scrollTo({ top: 0, behavior: 'smooth' });
                   console.log(ref, ref?.current)
                 }}>
-                Cancel
+                취소
               </Button>
 
               <Button
                 onClick={handleModifyModel}
+                disabled={!modelForm.modelName.trim() || modelForm.modelName.includes(' ')}
                 className="bg-blue-500 hover:bg-blue-600 text-white">
-                Modify
+                수정
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -298,7 +323,7 @@ export default function ModifyModelDialog({
           <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-blue-600 flex items-center gap-2">
-                <span>Model Details</span>
+                <span>Model 상세 정보</span>
                 <Button
                   variant="outline"
                   size="sm"
@@ -311,7 +336,7 @@ export default function ModifyModelDialog({
               </DialogTitle>
 
               <DialogDescription className="text-gray-600">
-                View details of the created model.
+                생성된 모델의 상세 정보 보기
               </DialogDescription>
             </DialogHeader>
 
@@ -321,11 +346,11 @@ export default function ModifyModelDialog({
                 <Label
                   htmlFor="model-name"
                   className="text-sm font-medium text-gray-500 mb-1 block">
-                  Name
+                  이름
                 </Label>
                 <Input
                   id="model-name"
-                  placeholder="Enter model name"
+                  placeholder="모델 이름을 입력하세요"
                   disabled
                   value={modelForm.modelName ? modelForm.modelName : selectedModel?.modelName}
                   onChange={(e) =>
@@ -343,7 +368,7 @@ export default function ModifyModelDialog({
                 <Label
                   htmlFor="content-type"
                   className="text-sm font-medium text-gray-500 mb-1 block">
-                  Content Type
+                  콘텐츠 유형
                 </Label>
                 <Input
                   id="content-type"
@@ -360,11 +385,11 @@ export default function ModifyModelDialog({
                 <Label
                   htmlFor="description"
                   className="text-sm font-medium text-gray-500 mb-1 block">
-                  Description
+                  설명
                 </Label>
                 <Textarea
                   id="description"
-                  placeholder="Enter model description"
+                  placeholder="모델 설명을 입력하세요"
                   value={modelForm.description ? modelForm.description : selectedModel?.description}
                   onChange={(e) =>
                     setModelForm((prev) => ({
@@ -380,10 +405,32 @@ export default function ModifyModelDialog({
 
               {/* Model Schema */}
               <div>
-                <Label className="text-sm font-medium text-gray-500 mb-2 block">Model Schema</Label>
+                <Label className="text-sm font-medium text-gray-500 mb-2 block">모델 스키마</Label>
                 <div className="border rounded-lg overflow-hidden">
                   <div className="bg-gray-50 px-3 py-2 border-b flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">JSON Schema</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-medium text-gray-700">JSON Schema</span>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-400 cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent side="right" align="start">
+                            <p>
+                              JSON Schema 형식으로 작성해주세요.{' '}
+                              <a
+                                href="https://www.notion.so/Request-Body-Schema-2f46a5e88b51809ca856df13aeafdc57?source=copy_link"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 underline hover:text-blue-600"
+                              >
+                                자세히 보기
+                              </a>
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <div className="flex items-center space-x-2">
                       <Button
                         variant="ghost"
@@ -444,13 +491,13 @@ export default function ModifyModelDialog({
                 onClick={() => {
                   onOpenChange(false)
                 }}>
-                Close
+                닫기
               </Button>
               <Button
                 onClick={() => {
                   onOpenChange(false);
                 }}>
-                Confirm
+                확인
               </Button>
             </DialogFooter>
           </DialogContent>

@@ -14,6 +14,13 @@ export default function LoginPage() {
 
   useEffect(() => {
     setTheme('light');
+
+    // 리다이렉트 이유가 있으면 toast로 표시
+    const redirectReason = sessionStorage.getItem('auth_redirect_reason');
+    if (redirectReason) {
+      toast.error(redirectReason);
+      sessionStorage.removeItem('auth_redirect_reason');
+    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

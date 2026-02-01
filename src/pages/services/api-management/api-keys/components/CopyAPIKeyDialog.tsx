@@ -26,15 +26,15 @@ export default function CopyAPIKeyDialog({
 
   const handleCopy = () => {
     clipboard.copy(copyApiKey);
-    toast.success("API Key copied");
+    toast.success("API Key가 복사되었습니다.");
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Issued API Key</DialogTitle>
-          <DialogDescription>The API Key can be copied.</DialogDescription>
+          <DialogTitle>발급된 API Key</DialogTitle>
+          <DialogDescription>API Key를 복사할 수 있습니다.</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-1 gap-4">
@@ -57,7 +57,7 @@ export default function CopyAPIKeyDialog({
             className="bg-amber-400 hover:bg-amber-500"
             onClick={onClose}
           >
-            Confirm
+            확인
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -137,6 +137,7 @@ export function useCreateMethodPage() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [paramCounter, setParamCounter] = useState(0);
   const nextHeaderIdRef = useRef<number>(0);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleGetValidatorList = async () => {
     const res = await getValidatorList();
@@ -153,19 +154,13 @@ export function useCreateMethodPage() {
     handleGetIntegrationTypeList();
   }, []);
 
-  const handleBack = useCallback(async () => {
-    await toast.promise(
-      (async () => {
-        await queryClient.invalidateQueries({ queryKey: ["getOpenAPIDoc", apiId] });
-        await queryClient.refetchQueries({ queryKey: ["getOpenAPIDoc", apiId] });
-      })(),
-      {
-        loading: "Method creation in progress...",
-        success: "Method created successfully.",
-        error: "Method creation failed.",
-      }
-    );
+  const handleCancel = useCallback(() => {
+    navigate(`/services/api-management/resources?apiId=${apiId}&apiName=${apiName}`);
+  }, [apiId, apiName, navigate]);
 
+  const handleBack = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ["getOpenAPIDoc", apiId] });
+    await queryClient.refetchQueries({ queryKey: ["getOpenAPIDoc", apiId] });
     navigate(`/services/api-management/resources?apiId=${apiId}&apiName=${apiName}`);
   }, [apiId, apiName, navigate, queryClient]);
 
@@ -180,19 +175,21 @@ export function useCreateMethodPage() {
       const errorMessage = error?.response?.data?.message
         || error?.response?.data?.detail
         || error?.message
-        || 'Method creation failed.';
+        || 'Method 생성 중 오류가 발생했습니다.';
       toast.error(errorMessage);
     },
   });
 
   const handleCreateMethod = useCallback(() => {
-    if (!methodForm.methodType) {
-      toast.error("Method type not selected.");
+    setIsSubmitted(true);
+
+    if (!methodForm.summary) {
+      toast.error("요약을 입력해주세요.");
       return;
     }
 
-    if (methodForm.integrationType === "HTTP" && !methodForm.methodType) {
-      toast.error("HTTP method not selected.");
+    if (!methodForm.methodType) {
+      toast.error("메소드 유형을 선택해주세요.");
       return;
     }
 
@@ -201,7 +198,7 @@ export function useCreateMethodPage() {
         ? methodForm.customEndpointUrl
         : methodForm.endpointUrl;
       if (!finalUrl) {
-        toast.error("Endpoint URL not provided.");
+        toast.error("Endpoint URL을 입력해주세요.");
         return;
       }
     }
@@ -232,7 +229,7 @@ export function useCreateMethodPage() {
             resourceId
           });
         } else {
-          toast.error("Invalid endpoint URL.");
+          toast.error("유효하지 않은 endpoint URL입니다.");
         }
       } else {
         createMethod({
@@ -245,6 +242,7 @@ export function useCreateMethodPage() {
             apiKeyId: selectedApiKeyId,
             apiKeyRequired: apiKeyToggle,
             routingEndpoint: methodForm.customEndpointUrl || methodForm.endpointUrl,
+            routingMode: methodForm.routingMode,
             requestBodyConfig: bodyModelId ? {
               modelId: bodyModelId,
               required: false,
@@ -340,7 +338,7 @@ export function useCreateMethodPage() {
   const handleCopyAPIKey = useCallback(
     (apiKey: string) => {
       clipboard.copy(apiKey);
-      toast.success("API Key copied to clipboard.");
+      toast.success("API Key가 클립보드에 복사되었습니다.");
     },
     [clipboard]
   );
@@ -362,7 +360,6 @@ export function useCreateMethodPage() {
   }, []);
 
   const handleDirectUrlToggle = useCallback((checked: boolean) => {
-    console.log(checked)
     if (checked) {
       setMethodForm((prev) => ({
         ...prev,
@@ -381,26 +378,6 @@ export function useCreateMethodPage() {
     }));
     setIsDirectUrlInput(checked);
   }, []);
-
-  console.log(methodForm.routingMode)
-
-  const isValidCreateMethod = useMemo(() => {
-    if (methodForm.integrationType === 'HTTP') {
-      return Boolean(
-        methodForm.summary &&
-        methodForm.methodType &&
-        methodForm.integrationType &&
-        (isDirectUrlInput ? methodForm.customEndpointUrl : methodForm.endpointUrl)
-      );
-    } else {
-      return Boolean(
-        methodForm.summary &&
-        methodForm.methodType &&
-        methodForm.integrationType
-      );
-    }
-
-  }, [methodForm, isDirectUrlInput]);
 
   return {
     // Data
@@ -429,7 +406,7 @@ export function useCreateMethodPage() {
     isApiKeyModalOpen,
     isCreatingNewApiKey,
     newApiKeyForm,
-    isValidCreateMethod,
+    isSubmitted,
 
     // Setters
     setMethodForm,
@@ -444,6 +421,7 @@ export function useCreateMethodPage() {
 
     // Handlers
     onBack: handleBack,
+    onCancel: handleCancel,
     onCreateMethod: handleCreateMethod,
     onToggleSection: toggleSection,
     onApiKeyToggle: handleApiKeyToggle,

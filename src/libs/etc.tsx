@@ -122,7 +122,7 @@ export function onInputChange(value: string) {
 }
 
 const endpointRegex =
-  /^(?:(?:https?:\/\/)[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)*(?::\d{1,5})?)?(?:\/[A-Za-z0-9{}\-_]+(?:\/[A-Za-z0-9{}\-_]+)*)?$/;
+  /^(?:(?:https?:\/\/)[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)*(?::\d{1,5})?)?(?:\/[A-Za-z0-9{}\-_.]+(?:\/[A-Za-z0-9{}\-_.]+)*)?$/;
 
 // 최종 저장 시
 export function onSave(value: string) {

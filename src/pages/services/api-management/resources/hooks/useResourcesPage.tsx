@@ -4,7 +4,6 @@ import type { Resource, Method } from "@/types/resource";
 import { useGetOpenAPIDoc } from "@/hooks/use-resources";
 import { useAuthStore, useMethodEditStore } from "@/stores/store";
 import { resoureceBuildTree } from "@/libs/etc";
-import { useGetStagesListData } from "@/hooks/use-stages";
 
 export function useResourcesPage() {
   const navigate = useNavigate();
@@ -36,6 +35,7 @@ export function useResourcesPage() {
   const [expandedResources, setExpandedResources] = useState<string[]>();
   const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [createdResourceId, setCreatedResourceId] = useState("");
   const [createdMethodId, setCreatedMethodId] = useState("");
 
@@ -242,6 +242,14 @@ export function useResourcesPage() {
     setIsCreateModalOpen(false);
   }, []);
 
+  const handleOpenExportModal = useCallback(() => {
+    setIsExportModalOpen(true);
+  }, []);
+
+  const handleCloseExportModal = useCallback(() => {
+    setIsExportModalOpen(false);
+  }, []);
+
   const handleMethodDeleted = useCallback(() => {
     setSelectedMethod(null);
     setSelectedMethodId("");
@@ -294,6 +302,7 @@ export function useResourcesPage() {
     // Modal states
     isDeployModalOpen,
     isCreateModalOpen,
+    isExportModalOpen,
 
     // Setters for child components
     setSelectedResource,
@@ -308,6 +317,8 @@ export function useResourcesPage() {
     onCloseDeployModal: handleCloseDeployModal,
     onOpenCreateModal: handleOpenCreateModal,
     onCloseCreateModal: handleCloseCreateModal,
+    onOpenExportModal: handleOpenExportModal,
+    onCloseExportModal: handleCloseExportModal,
     onMethodDeleted: handleMethodDeleted,
     onResourceDeleted: handleResourceDeleted,
     onResourceCreated: refetch,

@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface CreateEndpointDialogViewProps {
   isOpen: boolean;
@@ -18,11 +17,9 @@ interface CreateEndpointDialogViewProps {
   description: string;
   hasUrlError: boolean;
   isSubmitDisabled: boolean;
-  routeOption: string;
   onClose: () => void;
   onRouteUrlChange: (value: string) => void;
   onRouteNameChange: (value: string) => void;
-  onRouteOptionChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
   onSubmit: () => void;
 }
@@ -34,11 +31,9 @@ export default function CreateEndpointDialogView({
   description,
   hasUrlError,
   isSubmitDisabled,
-  routeOption,
   onClose,
   onRouteUrlChange,
   onRouteNameChange,
-  onRouteOptionChange,
   onDescriptionChange,
   onSubmit,
 }: CreateEndpointDialogViewProps) {
@@ -53,7 +48,7 @@ export default function CreateEndpointDialogView({
         <div className="space-y-4">
           <div>
             <Label htmlFor="create-routeName" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Route Name <span className="text-red-500">*</span>
+              이름 <span className="text-red-500">*</span>
             </Label>
             <Input
               id="create-routeName"
@@ -80,51 +75,26 @@ export default function CreateEndpointDialogView({
               </span>
             )}
           </div>
-          {/* <div>
-            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 block">
-              Route Option <span className="text-red-500">*</span>
-            </Label>
-            <RadioGroup
-              value={routeOption}
-              onValueChange={(value) => onRouteOptionChange(value)}
-              className="grid grid-cols-2 gap-4">
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="AUTO" id="AUTO" />
-                <Label
-                  htmlFor="AUTO"
-                  className={`text-sm hover:cursor-pointer`}>
-                  자동 생성
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="DIRECT" id="DIRECT" />
-                <Label
-                  htmlFor="DIRECT"
-                  className={`text-sm hover:cursor-pointer`}>
-                  직접 입력
-                </Label>
-              </div>
-            </RadioGroup>
-          </div> */}
+
           <div>
             <Label htmlFor="create-description" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Description
+              설명
             </Label>
             <Textarea
               id="create-description"
               value={description}
               onChange={(e) => onDescriptionChange(e.target.value)}
-              placeholder="엔드포인트 설명을 입력하세요"
+              placeholder="Route Endpoint 설명을 입력하세요"
               className="mt-2"
             />
           </div>
         </div>
         <DialogFooter className="flex space-x-2">
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            취소
           </Button>
           <Button onClick={onSubmit} disabled={isSubmitDisabled}>
-            Create
+            생성
           </Button>
         </DialogFooter>
       </DialogContent>

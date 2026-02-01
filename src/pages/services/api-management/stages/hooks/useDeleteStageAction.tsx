@@ -3,25 +3,23 @@ import { toast } from "sonner";
 
 export function useDeleteStageAction({
     stageDetailData,
-    userKey,
     onOpenChange,
     onSuccess,
 }: {
     stageDetailData: any;
-    userKey: string;
     onOpenChange: (open: boolean) => void;
     onSuccess?: () => void;
 }) {
     const { mutate: deleteStage } = useDeleteStage({
         onSuccess: () => {
-            toast.success('Stage deleted successfully.');
+            toast.success('Stage가 성공적으로 삭제되었습니다.');
             onOpenChange(false);
             onSuccess?.();
         },
     });
 
     const handleDeleteStage = () => {
-        if (userKey && stageDetailData)
+        if (stageDetailData)
             deleteStage({
                 stageId: stageDetailData?.stageId,
             });
