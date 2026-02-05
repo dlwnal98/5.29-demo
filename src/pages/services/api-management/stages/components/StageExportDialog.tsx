@@ -16,7 +16,7 @@ import {
   SelectContent,
   SelectItem,
 } from '@/components/ui/select';
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
 import { getStageDocForExport, getStageDocForExportPreview } from '@/apis/stages.api';
@@ -119,13 +119,13 @@ const StageExportDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-hidden flex flex-col p-0">
         {/* 상단 고정 영역: 헤더 + 내보내기 형식 */}
-        <div className="sticky top-0 z-10 bg-white dark:bg-gray-950 px-6 pt-6 pb-4 border-b">
+        <div className="flex-shrink-0 bg-white dark:bg-gray-950 px-6 pt-6 pb-4 border-b">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-blue-600">Stage 내보내기</DialogTitle>
             <DialogDescription className="text-gray-600 dark:text-gray-400">
-              {stageName ? `"${stageName}" Stage 내보내기.` : 'Stage 내보내기.'} Format을 선택하고 다운로드 전 미리보기를 확인하세요.
+              {stageName ? `"${stageName}" Stage를 내보냅니다.` : 'Stage를 파일로 내보냅니다.'} 형식을 선택하고 미리보기를 확인한 후 다운로드합니다.
             </DialogDescription>
           </DialogHeader>
 
@@ -135,25 +135,25 @@ const StageExportDialog = ({
             </Label>
             <Select value={format} onValueChange={handleFormatChange}>
               <SelectTrigger className="w-full h-[50px]">
-                <SelectValue placeholder="내보내기 형식 선택" />
+                <SelectValue placeholder="형식 선택" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="OPENAPI_JSON">
                   <div className="flex flex-col items-start">
                     <span className="font-medium">OpenAPI JSON</span>
-                    <span className="text-xs text-gray-500">JSON 형식 OpenAPI 3.0 문서</span>
+                    <span className="text-xs text-gray-500">OpenAPI 3.0 문서 JSON 형식</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="OPENAPI_YAML">
                   <div className="flex flex-col items-start">
                     <span className="font-medium">OpenAPI YAML</span>
-                    <span className="text-xs text-gray-500">YAML 형식 OpenAPI 3.0 문서</span>
+                    <span className="text-xs text-gray-500">OpenAPI 3.0 문서 YAML 형식</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="POSTMAN">
                   <div className="flex flex-col items-start">
                     <span className="font-medium">Postman Collection</span>
-                    <span className="text-xs text-gray-500">Postman Collection 형식</span>
+                    <span className="text-xs text-gray-500">Postman으로 가져올 수 있는 Collection 형식</span>
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -177,31 +177,43 @@ const StageExportDialog = ({
         </div>
 
         {/* 스크롤 영역: 미리보기 본문 */}
-        <div className="px-6 py-4">
-          <div className="border rounded-lg bg-gray-50 dark:bg-gray-900 relative min-h-[200px]">
+        <div className="flex-1 min-h-0 px-6 py-4">
+          <div className="relative border rounded-lg bg-gray-50 dark:bg-gray-900 min-h-[200px] h-full">
+            {previewContent && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-4 right-8 h-8 w-8 z-20"
+                onClick={() => {
+                  navigator.clipboard.writeText(previewContent);
+                  toast.success('클립보드에 복사되었습니다.');
+                }}
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+            )}
             {isLoading && (
               <div className="absolute inset-0 flex items-center justify-center bg-gray-50/80 dark:bg-gray-900/80 z-10 rounded-lg">
                 <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
-                <span className="ml-2 text-sm text-gray-500">미리보기 로딩 중...</span>
+                <span className="ml-2 text-sm text-gray-500">미리보기를 로딩중입니다...</span>
               </div>
             )}
-            {previewContent ? (
-              <pre className="text-xs p-4 font-mono whitespace-pre-wrap break-all">
-                {previewContent}
-              </pre>
-            ) : (
-              <div className="flex items-center justify-center h-[200px] text-sm text-gray-500">
-                미리보기 콘텐츠가 없습니다.
-              </div>
-            )}
+            <div className="h-full max-h-[calc(90vh-350px)] overflow-y-auto">
+              {previewContent ? (
+                <pre className="text-xs p-4 font-mono whitespace-pre-wrap break-all">
+                  {previewContent}
+                </pre>
+              ) : (
+                <div className="flex items-center justify-center h-[200px] text-sm text-gray-500">
+                  미리보기가 없습니다.
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* 푸터 */}
-        <DialogFooter className="px-6 pb-6 gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            취소
-          </Button>
+        <DialogFooter className="flex-shrink-0 px-6 pb-3">
           <Button
             onClick={handleDownload}
             disabled={isDownloading || isLoading || !previewContent}
@@ -210,12 +222,12 @@ const StageExportDialog = ({
             {isDownloading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                저장 중...
+                내려받기 중...
               </>
             ) : (
               <>
                 <Download className="h-4 w-4 mr-2" />
-                저장
+                내려받기
               </>
             )}
           </Button>
