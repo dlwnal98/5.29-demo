@@ -9,6 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { toast } from "sonner";
 import {
   ChevronRight,
   Copy,
@@ -23,14 +24,20 @@ import { StageResourceTree } from "./components/StageResourceTree";
 interface StagesPageViewProps {
   stagesListData: any;
   deploymentHistoryData: any;
+  deploymentPage: number;
+  setDeploymentPage: (page: number) => void;
+  deploymentSize: number;
+  setDeploymentSize: (size: number) => void;
   // Stage Resource Tree 관련
   stageResourcesMap: Record<string, any[]>;
   expandedStages: Set<string>;
   expandedResources: string[];
   selectedResource: any | null;
   selectedTreeMethod: any | null;
+  selectedWholeStageInfo: any | null;
   stageDetailData: any | null;
   refreshStageDetailData: () => Promise<void>;
+  onGetApiKeyValue: (apiKeyId: string) => Promise<string>;
   onCopyUrl: () => void;
   onCopyMethodUrl: (url: string) => void;
   onOpenCreateModal: () => void;
@@ -46,14 +53,20 @@ interface StagesPageViewProps {
 export default function StagesPageView({
   stagesListData,
   deploymentHistoryData,
+  deploymentPage,
+  setDeploymentPage,
+  deploymentSize,
+  setDeploymentSize,
   // Stage Resource Tree 관련
   stageResourcesMap,
   expandedStages,
   expandedResources,
   selectedResource,
   selectedTreeMethod,
+  selectedWholeStageInfo,
   stageDetailData,
   refreshStageDetailData,
+  onGetApiKeyValue,
   onCopyUrl,
   onCopyMethodUrl,
   onOpenCreateModal,
@@ -65,7 +78,28 @@ export default function StagesPageView({
   onTreeResourceClick,
   onTreeMethodClick,
 }: StagesPageViewProps) {
-  console.log(stageDetailData)
+  console.log(stagesListData, selectedWholeStageInfo, selectedResource, selectedTreeMethod)
+
+  const convertValidator = (validator: string) => {
+    switch (validator) {
+      case 'ALL':
+        return '전체 검증';
+      case 'BODY_ONLY':
+        return '본문만 검증';
+      case 'PARAMS_ONLY':
+        return '파라미터만 검증';
+      default:
+        return '없음';
+    }
+  }
+
+  const copyToClipboard = async (apiKeyId: string) => {
+    const apiKey = await onGetApiKeyValue(apiKeyId);
+    navigator.clipboard.writeText(apiKey);
+    toast.success('복사되었습니다.');
+  }
+
+
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Breadcrumb */}
@@ -150,7 +184,7 @@ export default function StagesPageView({
                     </CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent className="h-[300px] space-y-4">
+                <CardContent className="h-[320px] space-y-3 overflow-y-auto">
                   {/* <div>
                     <Label className="text-sm font-medium text-muted-foreground dark:text-gray-300">
                       유형
@@ -198,6 +232,28 @@ export default function StagesPageView({
                       </div>
                     </div>
                   )}
+                  <div>
+                    <Label className="flex items-center text-sm font-medium text-muted-foreground dark:text-gray-300">
+                      API Key ID
+                      <button
+                        onClick={() => copyToClipboard(`${selectedTreeMethod.info?.['x-api-key-id']}`)}
+                        className="ml-2 cursor-pointer"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </button>
+                    </Label>
+                    <div className="text-sm mt-1 text-gray-900 dark:text-gray-100">
+                      {selectedTreeMethod.info?.['x-api-key-required'] === false ? '없음' : selectedTreeMethod.info?.['x-api-key-id']}
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground dark:text-gray-300">
+                      요청 검사기
+                    </Label>
+                    <div className="text-sm mt-1 text-gray-900 dark:text-gray-100">
+                      {convertValidator(selectedTreeMethod.info?.['x-request-validator'])}
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             ) : selectedResource ? (
@@ -389,6 +445,10 @@ export default function StagesPageView({
                 }}
                 onActiveDeploymentChanged={refreshStageDetailData}
                 deploymentHistoryData={deploymentHistoryData}
+                deploymentPage={deploymentPage}
+                setDeploymentPage={setDeploymentPage}
+                deploymentSize={deploymentSize}
+                setDeploymentSize={setDeploymentSize}
               />
             ) : (
               <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex-1 min-h-[calc(100vh-450px)]" />

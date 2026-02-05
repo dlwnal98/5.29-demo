@@ -7,6 +7,7 @@ import { resoureceBuildTree } from "@/libs/etc";
 import { requestGet } from "@/libs/apiClient";
 import { useGetStagesListData, useGetDeployHistoryDataByApiId } from "@/hooks/use-stages";
 import { getStagesOpenApiDocData, getStageDetailData } from "@/apis/stages.api";
+import { getAPIKeyDetail } from "@/apis/api-keys.api";
 
 interface ApiResource {
   id: string;
@@ -52,10 +53,15 @@ export function useStagesPage() {
   const clipboard = useClipboard();
 
   const { data: stagesListData } = useGetStagesListData(apiId);
+
+  // 배포 히스토리 페이지네이션 상태
+  const [deploymentPage, setDeploymentPage] = useState(0);
+  const [deploymentSize, setDeploymentSize] = useState(20);
+
   const { data: deploymentHistoryData, refetch: refetchDeploymentHistory } = useGetDeployHistoryDataByApiId(
     apiId,
-    0,
-    20
+    deploymentPage,
+    deploymentSize
   );
 
   const [selectedWholeStageInfo, setSelectedWholeStageInfo] =
@@ -77,7 +83,13 @@ export function useStagesPage() {
   const [selectedResource, setSelectedResource] = useState<any | null>(null);
   const [selectedTreeMethod, setSelectedTreeMethod] = useState<any | null>(null);
   const [stageDetailData, setStageDetailData] = useState<any | null>(null);
+  // const [apiKeyValue, setApiKeyValue] = useState<string>("");
 
+
+  const handleGetApiKeyValue = async (apiKeyId: string) => {
+    const res = await getAPIKeyDetail(apiKeyId);
+    return res.keyValue;
+  };
 
   const getFinalEndpoint = useCallback(async (stageId: string) => {
     if (!stageId) return;
@@ -88,6 +100,7 @@ export function useStagesPage() {
   const initializedRef = useRef(false);
   const pendingDeleteSelectionRef = useRef(false);
   const pendingCreateSelectionRef = useRef(false);
+  const prevUrlStageIdRef = useRef<string | null>(null);
 
   const findResourceById = useCallback(
     (tree: ApiResource[], id: string): ApiResource | null => {
@@ -164,27 +177,20 @@ export function useStagesPage() {
   );
 
   const handleStageOpenApiData = useCallback(async (stageId: string) => {
-    // 다른 stage 선택 시 이전 선택 상태 초기화
+    // 이미 열린 같은 스테이지 클릭 시: 토글 유지, 리소스/메서드 선택 해제하여 스테이지 상세 표시
+    if (expandedStages.has(stageId)) {
+      setSelectedResource(null);
+      setSelectedTreeMethod(null);
+      return;
+    }
+
+    // 다른 스테이지 선택 시 이전 선택 상태 초기화
     setSelectedResource(null);
     setSelectedTreeMethod(null);
 
-    // 토글 로직: 이미 열려있으면 닫기, 아니면 해당 stage만 열기
-    let isClosing = false;
-    setExpandedStages((prev) => {
-      if (prev.has(stageId)) {
-        // 같은 stage 클릭 시 닫기
-        setSelectedStageId(null);
-        setStageDetailData(null);
-        isClosing = true;
-        return new Set();
-      } else {
-        // 다른 stage 클릭 시 이전 것 닫고 새로운 것만 열기
-        setSelectedStageId(stageId);
-        return new Set([stageId]);
-      }
-    });
-
-    if (isClosing) return;
+    // 다른 스테이지 클릭 시 이전 것 닫고 새로운 것만 열기
+    setExpandedStages(new Set([stageId]));
+    setSelectedStageId(stageId);
 
     // 스테이지 상세 정보 조회
     const detailRes = await getStageDetailData(stageId);
@@ -206,7 +212,7 @@ export function useStagesPage() {
         [stageId]: tree,
       }));
     }
-  }, [stageResourcesMap]);
+  }, [stageResourcesMap, expandedStages]);
 
   // 첫 번째 stage 자동 선택 또는 URL에서 지정된 stageId 선택
   useEffect(() => {
@@ -217,22 +223,34 @@ export function useStagesPage() {
     ) {
       initializedRef.current = true;
 
-      // URL에 stageId가 있으면 해당 스테이지 선택, 없으면 첫 번째 스테이지 선택
+      // URL에 stageId가 있으면 해당 스테이지 선택 (목록에 없어도 직접 선택 시도)
       if (urlStageId) {
-        const targetStage = stagesListData.find((stage: any) => stage.stageId === urlStageId);
-        if (targetStage) {
-          handleStageOpenApiData(targetStage.stageId);
-        } else {
-          // URL의 stageId가 존재하지 않으면 첫 번째 스테이지 선택
-          const firstStage = stagesListData[0];
-          handleStageOpenApiData(firstStage.stageId);
-        }
+        // URL의 stageId를 직접 선택 (새로 배포된 스테이지는 목록에 아직 없을 수 있음)
+        handleStageOpenApiData(urlStageId);
       } else {
         const firstStage = stagesListData[0];
         handleStageOpenApiData(firstStage.stageId);
       }
     }
   }, [stagesListData, handleStageOpenApiData, urlStageId]);
+
+  // URL stageId 변경 감지 (다른 페이지에서 스테이지 페이지로 이동 시)
+  useEffect(() => {
+    // 초기화가 완료된 후에만 URL 변경을 감지
+    if (!initializedRef.current) {
+      prevUrlStageIdRef.current = urlStageId;
+      return;
+    }
+
+    // URL stageId가 변경되었고, 유효한 값인 경우
+    if (urlStageId && urlStageId !== prevUrlStageIdRef.current) {
+      // 현재 선택된 스테이지와 다른 경우에만 선택 (목록에 없어도 직접 선택 시도)
+      if (selectedStageId !== urlStageId) {
+        handleStageOpenApiData(urlStageId);
+      }
+    }
+    prevUrlStageIdRef.current = urlStageId;
+  }, [urlStageId, selectedStageId, handleStageOpenApiData]);
 
   // 삭제 후 마지막 스테이지 선택
   useEffect(() => {
@@ -399,6 +417,10 @@ export function useStagesPage() {
     stagesListData,
     deploymentHistoryData,
     refetchDeploymentHistory,
+    deploymentPage,
+    setDeploymentPage,
+    deploymentSize,
+    setDeploymentSize,
     selectedWholeStageInfo,
     selectedMethod,
     expandedPaths,
@@ -423,6 +445,7 @@ export function useStagesPage() {
     onAfterStageCreate: handleAfterStageCreate,
 
     // Handlers
+    onGetApiKeyValue: handleGetApiKeyValue,
     onResourceClick: handleResourceClick,
     onMethodClick: handleMethodClick,
     onToggleExpanded: toggleExpanded,

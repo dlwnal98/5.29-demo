@@ -25,6 +25,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -92,6 +93,7 @@ export function ApiKeyDetailDialog({
   // 사용처 데이터 (getAPIKeyDetail2)
   const [usageData, setUsageData] = useState<{
     deployedUsages: ApiKeyDeployedUsage[];
+    draftUsages: ApiKeyDeployedUsage[];
   } | null>(null);
   const [statusData, setStatusData] = useState<apiKeyStatusDataProps>({
     apiKeyActive: false,
@@ -159,6 +161,7 @@ export function ApiKeyDetailDialog({
           const res = await getAPIKeyDetail2(apiKeyDetail.apiKeyId);
           setUsageData({
             deployedUsages: res.deployedUsages || [],
+            draftUsages: res.draftUsages || [],
           });
           setStatusData({
             apiKeyActive: res.active,
@@ -167,7 +170,7 @@ export function ApiKeyDetailDialog({
           });
         } catch (error) {
           console.error('API 키 사용처 데이터를 가져오는데 실패했습니다:', error);
-          setUsageData({ deployedUsages: [] });
+          setUsageData({ deployedUsages: [], draftUsages: [] });
           setStatusData({
             apiKeyActive: false,
             apikeyCanDelete: false,
@@ -338,12 +341,12 @@ export function ApiKeyDetailDialog({
     });
   };
 
-  console.log(apiKeyDetail)
+  console.log(apiKeyDetail, usageData)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col overflow-hidden">
-        <DialogHeader className="flex-shrink-0 border-b pb-4">
+        <DialogHeader className="flex-shrink-0 pb-2">
           <DialogTitle className="text-xl font-bold text-blue-600">
             API Key 상세 정보
           </DialogTitle>
@@ -888,51 +891,111 @@ export function ApiKeyDetailDialog({
               <CardTitle className="text-base flex items-center gap-2">
                 사용처
                 <Badge variant="secondary" className="ml-2">
-                  {usageData?.deployedUsages?.length || 0}
+                  {(usageData?.deployedUsages?.length || 0) + (usageData?.draftUsages?.length || 0)}
                 </Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent className='max-h-[192px] overflow-y-auto'>
+            <CardContent>
               {isUsageLoading ? (
                 <div className="flex items-center justify-center py-6">
                   <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
                   <span className="ml-2 text-gray-500">사용처 정보를 불러오는 중...</span>
                 </div>
-              ) : usageData?.deployedUsages && usageData.deployedUsages.length > 0 ? (
-                <div className="space-y-3">
-                  {usageData.deployedUsages.map((usage, idx) => (
-                    <div
-                      key={`deployed-${idx}`}
-                      className="border rounded-lg p-3 bg-gray-50 dark:bg-gray-800"
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="outline" className="font-mono text-xs">
-                          {usage.stageName}
-                        </Badge>
-                        <span className="text-xs text-gray-500">
-                          Stage ID: {usage.stageId}
-                        </span>
-                      </div>
-                      <div className="space-y-1">
-                        {usage.methods.map((method, mIdx) => (
+              ) : (usageData?.deployedUsages && usageData.deployedUsages.length > 0) ||
+                (usageData?.draftUsages && usageData.draftUsages.length > 0) ? (
+                <Tabs defaultValue="deployed" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="deployed" className="flex items-center gap-2">
+                      배포된 사용처
+                      <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs">
+                        {usageData?.deployedUsages?.length || 0}
+                      </Badge>
+                    </TabsTrigger>
+                    <TabsTrigger value="draft" className="flex items-center gap-2">
+                      드래프트 사용처
+                      <Badge className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100 text-xs">
+                        {usageData?.draftUsages?.length || 0}
+                      </Badge>
+                    </TabsTrigger>
+                  </TabsList>
+
+                  {/* 배포된 사용처 탭 */}
+                  <TabsContent value="deployed" className="mt-4 max-h-[250px] overflow-y-auto">
+                    {usageData?.deployedUsages && usageData.deployedUsages.length > 0 ? (
+                      <div className="space-y-2 px-2">
+                        {usageData.deployedUsages.map((usage, idx) => (
                           <div
-                            key={`method-${mIdx}`}
-                            className="flex items-center gap-2 text-sm bg-white dark:bg-gray-900 px-2 py-1 rounded"
+                            key={`deployed-${idx}`}
+                            className="border rounded-lg p-3 bg-gray-50 dark:bg-gray-800"
                           >
-                            <span
-                              className={`${getMethodStyle(method.httpMethod as HttpMethod)} !text-xs !px-1.5 !py-0.5 rounded font-mono font-bold`}
-                            >
-                              {method.httpMethod}
-                            </span>
-                            <code className="text-gray-600 dark:text-gray-400">
-                              {method.resourcePath}
-                            </code>
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge variant="outline" className="font-mono text-xs">
+                                {usage.stageName}
+                              </Badge>
+                              <span className="text-xs text-gray-500">
+                                Stage ID: {usage.stageId}
+                              </span>
+                            </div>
+                            <div className="space-y-1">
+                              {usage.methods.map((method, mIdx) => (
+                                <div
+                                  key={`method-${mIdx}`}
+                                  className="flex items-center gap-2 text-sm bg-white dark:bg-gray-900 px-2 py-1 rounded"
+                                >
+                                  <span
+                                    className={`${getMethodStyle(method.httpMethod as HttpMethod)} !text-xs !px-1.5 !py-0.5 rounded font-mono font-bold`}
+                                  >
+                                    {method.httpMethod}
+                                  </span>
+                                  <code className="text-gray-600 dark:text-gray-400">
+                                    {method.resourcePath}
+                                  </code>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         ))}
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ) : (
+                      <div className="text-center py-4 text-gray-500">
+                        <p className="text-sm">배포된 사용처가 없습니다.</p>
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  {/* 드래프트 사용처 탭 */}
+                  <TabsContent value="draft" className="mt-4 max-h-[250px] overflow-y-auto">
+                    {usageData?.draftUsages && usageData.draftUsages.length > 0 ? (
+                      <div className="space-y-2 px-2">
+                        {usageData.draftUsages.map((draft: any, idx: number) => (
+                          <div
+                            key={`draft-${idx}`}
+                            className=" text-sm border rounded p-3 space-y-2v bg-gray-50 dark:bg-gray-800"
+                          >
+                            <p className="text-xs text-gray-500 mb-2">
+                              Resource ID: {draft.resourceId}
+                            </p>
+                            <div className="flex items-center gap-2 px-2 py-1 bg-white dark:bg-gray-900">
+
+                              <span
+                                className={`${getMethodStyle(draft.httpMethod as HttpMethod)} !text-xs !px-1.5 !py-0.5 rounded font-mono font-bold`}
+                              >
+                                {draft.httpMethod}
+                              </span>
+                              <code className="text-gray-600 dark:text-gray-400">
+                                {draft.resourcePath}
+                              </code>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-4 text-gray-500">
+                        <p className="text-sm">드래프트 사용처가 없습니다.</p>
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
               ) : (
                 <div className="text-center py-6 text-gray-500">
                   <Server className="h-8 w-8 mx-auto mb-2 opacity-30" />

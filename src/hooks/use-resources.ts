@@ -92,13 +92,7 @@ export function useDeleteResource(options?: UseMutationOptions<any, Error, Delet
 
 export function useDeployAPI(options?: UseMutationOptions<any, Error, deploymentProps>) {
   return useMutation({
-    ...options,
     mutationFn: (data: deploymentProps) => deployAPI(data),
-    onSuccess: (data, variables, context) => {
-      // ✅ getState()로 안전하게 Zustand 스토어에 접근
-
-      // 기존 컴포넌트에서 전달한 onSuccess도 호출
-      options?.onSuccess?.(data, variables, context);
-    },
+    ...options,
   });
 }

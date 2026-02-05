@@ -56,12 +56,12 @@ export function useGetDeployHistoryData(tenantId: string, page?: number, size?: 
   });
 }
 
-export function useGetDeployHistoryDataByApiId(apiId: string, page?: number, size?: number) {
+export function useGetDeployHistoryDataByApiId(apiId: string, page: number = 0, size: number = 20) {
   return useQuery({
-    queryKey: ['getDeployHistoryDataByApiId', apiId], // pathId별 캐싱
+    queryKey: ['getDeployHistoryDataByApiId', apiId, page, size],
     queryFn: () => getDeployHistoryDataByApiId(apiId, page, size),
-    enabled: !!apiId, // pathId 있을 때만 실행
-    staleTime: Infinity, // 데이터 오래 유지
+    enabled: !!apiId,
+    staleTime: Infinity,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,

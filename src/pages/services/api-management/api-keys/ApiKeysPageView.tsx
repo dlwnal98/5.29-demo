@@ -64,11 +64,11 @@ export default function ApiKeysPageView({
       <Breadcrumb className="mb-6">
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/vpc">VPC</BreadcrumbLink>
+            <BreadcrumbLink href="/services/api-management">Services</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/infra-packages/gateway">API Gateway</BreadcrumbLink>
+            <BreadcrumbLink href="/services/api-management">API Management</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>

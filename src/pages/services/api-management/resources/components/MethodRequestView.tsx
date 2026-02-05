@@ -10,8 +10,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Copy } from 'lucide-react';
 import type { Method, QueryParameter, RequestHeader } from '@/types/resource';
+import { getAPIKeyDetail } from '@/apis/api-keys.api';
+import { toast } from 'sonner';
 
 interface MethodRequestViewProps {
   selectedMethod: Method;
@@ -60,6 +62,14 @@ export function MethodRequestView({
     }
   };
 
+  console.log(selectedMethod)
+
+  const copyToClipboard = async (apiKeyId: string) => {
+    const res = await getAPIKeyDetail(apiKeyId);
+    navigator.clipboard.writeText(res.keyValue);
+    toast.success('API Key 값이 복사되었습니다.');
+  };
+
   return (
     <>
       {/* Method Request Settings */}
@@ -83,6 +93,11 @@ export function MethodRequestView({
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground dark:text-gray-300">
                     API Key ID
+                    {selectedMethod?.info['x-api-key-id'] && (
+                      <button className="ml-2" onClick={() => copyToClipboard(selectedMethod?.info['x-api-key-id'] || '')}>
+                        <Copy className="h-3 w-3" />
+                      </button>
+                    )}
                   </Label>
                 </div>
               </div>

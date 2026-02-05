@@ -15,7 +15,12 @@ export default function StagesPage() {
     apiId,
     stagesListData,
     deploymentHistoryData,
+    selectedWholeStageInfo,
     refetchDeploymentHistory,
+    deploymentPage,
+    setDeploymentPage,
+    deploymentSize,
+    setDeploymentSize,
     isEditModalOpen,
     isCreateStageModalOpen,
     isDeleteStageDialogOpen,
@@ -45,6 +50,7 @@ export default function StagesPage() {
     onCloseDeleteDialog,
     onOpenExportModal,
     onCloseExportModal,
+    onGetApiKeyValue,
   } = useStagesPage();
 
   const { handleDeleteStage } = useDeleteStageAction({
@@ -70,8 +76,13 @@ export default function StagesPage() {
       <StagesPageView
         stagesListData={stagesListData}
         deploymentHistoryData={deploymentHistoryData}
+        deploymentPage={deploymentPage}
+        setDeploymentPage={setDeploymentPage}
+        deploymentSize={deploymentSize}
+        setDeploymentSize={setDeploymentSize}
         // Stage Resource Tree 관련
         stageResourcesMap={stageResourcesMap}
+        selectedWholeStageInfo={selectedWholeStageInfo}
         expandedStages={expandedStages}
         expandedResources={expandedResources}
         selectedResource={selectedResource}
@@ -88,6 +99,7 @@ export default function StagesPage() {
         onOpenEditModal={onOpenEditModal}
         onOpenDeleteDialog={onOpenDeleteDialog}
         onOpenExportModal={onOpenExportModal}
+        onGetApiKeyValue={onGetApiKeyValue}
       />
 
       <CreateStageDialog

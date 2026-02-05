@@ -52,6 +52,7 @@ export function SelectAPIKeyModal({
 
     const { mutate: createAPIKey } = useCreateAPIKey({
         onSuccess: (data) => {
+            console.log(data)
             setApiKeyToggle(true);
             setSelectedApiKeyValue(data.keyValue || data.key);
             // 백엔드 응답에서 apiKeyId 또는 keyId 필드 사용
@@ -88,6 +89,8 @@ export function SelectAPIKeyModal({
         setIsCreatingNewApiKey(false);
         setNewApiKeyForm({ name: '', description: '' });
     }, [open]);
+
+    console.log(apiKeyList)
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -147,7 +150,7 @@ export function SelectAPIKeyModal({
                                                     name: apiKey.keyName,
                                                     description: apiKey.description,
                                                 });
-                                                setSelectedApiKeyValue(apiKey.keyValue);
+                                                // setSelectedApiKeyValue(apiKey.keyValue);
                                             }}>
                                             <div className="flex items-start gap-3">
                                                 <input
@@ -162,7 +165,7 @@ export function SelectAPIKeyModal({
                                                             name: apiKey.keyName,
                                                             description: apiKey.description,
                                                         });
-                                                        setSelectedApiKeyValue(apiKey.keyValue);
+                                                        // setSelectedApiKeyValue(apiKey.keyValue);
                                                     }}
                                                     className="mt-1"
                                                 />

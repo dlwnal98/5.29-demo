@@ -1,25 +1,48 @@
 import { useState, useMemo } from 'react';
 import { useAuthStore } from '@/stores/store';
 
+export interface ColumnVisibility {
+  deployedAt: boolean;
+  status: boolean;
+  description: boolean;
+  deploymentId: boolean;
+}
+
 interface UseDeploymentListProps {
   deploymentHistoryData: any;
+  deploymentPage: number;
+  setDeploymentPage: (page: number) => void;
+  deploymentSize: number;
+  setDeploymentSize: (size: number) => void;
 }
 
 /**
  * DeploymentList의 상태 및 비즈니스 로직을 관리하는 hook
  */
-export function useDeploymentList({ deploymentHistoryData }: UseDeploymentListProps) {
+export function useDeploymentList({
+  deploymentHistoryData,
+  deploymentPage,
+  setDeploymentPage,
+  deploymentSize,
+  setDeploymentSize,
+}: UseDeploymentListProps) {
   const userData = useAuthStore((state) => state.user);
   const tenantId = userData?.organizationId ?? "kwwwksAsvmas";
 
   // 상태 관리
   const [selectedDeploymentId, setSelectedDeploymentId] = useState<string | null>(null);
   const [deploymentSearchTerm, setDeploymentSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [isActiveDeploymentModalOpen, setIsActiveDeploymentModalOpen] = useState(false);
   const [isDeploymentResourceTreeOpen, setIsDeploymentResourceTreeOpen] = useState(false);
+  const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
 
-  const itemsPerPage = 10;
+  // 설정 상태 (열 표시만 내부 관리, 페이지 크기는 외부에서 관리)
+  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>({
+    deployedAt: true,
+    status: true,
+    description: true,
+    deploymentId: true,
+  });
 
   // 배포 기록 필터링
   const filteredDeployments = useMemo(
@@ -43,10 +66,14 @@ export function useDeploymentList({ deploymentHistoryData }: UseDeploymentListPr
     [filteredDeployments]
   );
 
-  // 페이지네이션
-  const totalPages = Math.ceil(sortedDeployments?.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedDeployments = sortedDeployments?.slice(startIndex, startIndex + itemsPerPage);
+  // 서버 측 페이지네이션 정보 (API 응답에서 가져옴)
+  const totalElements = deploymentHistoryData?.totalElements || 0;
+  const totalPages = deploymentHistoryData?.totalPages || Math.ceil(totalElements / deploymentSize);
+  const currentPage = deploymentPage + 1; // UI에서는 1-based로 표시
+  const startIndex = deploymentPage * deploymentSize;
+
+  // 서버에서 이미 페이지네이션된 데이터를 반환하므로 content를 그대로 사용
+  const paginatedDeployments = sortedDeployments;
 
   // 현재 활성 배포
   const currentActiveDeployment = useMemo(
@@ -87,12 +114,27 @@ export function useDeploymentList({ deploymentHistoryData }: UseDeploymentListPr
 
   // 이전 페이지로
   const handlePreviousPage = () => {
-    setCurrentPage((prev) => Math.max(1, prev - 1));
+    if (deploymentPage > 0) {
+      setDeploymentPage(deploymentPage - 1);
+    }
   };
 
   // 다음 페이지로
   const handleNextPage = () => {
-    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+    if (currentPage < totalPages) {
+      setDeploymentPage(deploymentPage + 1);
+    }
+  };
+
+  // 설정 다이얼로그 열기
+  const handleOpenSettings = () => {
+    setIsSettingsDialogOpen(true);
+  };
+
+  // 페이지 크기 변경 시 현재 페이지 리셋
+  const handleItemsPerPageChange = (value: number) => {
+    setDeploymentSize(value);
+    setDeploymentPage(0); // 0-based로 리셋
   };
 
   return {
@@ -119,8 +161,15 @@ export function useDeploymentList({ deploymentHistoryData }: UseDeploymentListPr
 
     // 페이지네이션 정보
     totalPages,
+    totalElements,
     startIndex,
-    itemsPerPage,
+    itemsPerPage: deploymentSize,
+
+    // 설정 상태
+    isSettingsDialogOpen,
+    setIsSettingsDialogOpen,
+    columnVisibility,
+    setColumnVisibility,
 
     // 핸들러
     handleDeploymentSelect,
@@ -128,5 +177,7 @@ export function useDeploymentList({ deploymentHistoryData }: UseDeploymentListPr
     handleDetailDeployment,
     handlePreviousPage,
     handleNextPage,
+    handleOpenSettings,
+    handleItemsPerPageChange,
   };
 }

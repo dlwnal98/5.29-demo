@@ -148,6 +148,8 @@ export default function CreateMethodPageView({
   onDirectUrlToggle,
 }: CreateMethodPageViewProps) {
 
+  const apiId = sessionStorage.getItem("selectedApiId") || "";
+  const apiName = sessionStorage.getItem("selectedApiName") || "";
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -165,8 +167,8 @@ export default function CreateMethodPageView({
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/services/api-management/resources">
-              Resources
+            <BreadcrumbLink href={`/services/api-management/resources?apiId=${apiId}&apiName=${apiName}`}>
+              Resources : {apiName}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />

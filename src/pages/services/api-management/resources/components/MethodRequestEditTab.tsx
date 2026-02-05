@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -19,6 +19,7 @@ import { useAuthStore } from '@/stores/store';
 import { useGetAPIKeyList } from '@/hooks/use-apiKeys';
 import { useClipboard } from 'use-clipboard-copy';
 import { MethodFormData, ValidatorOption } from '../hooks/useMethodEditForm';
+import { getAPIKeyDetail } from '@/apis/api-keys.api';
 
 interface ModelItem {
   modelId: string;
@@ -59,7 +60,7 @@ export function MethodRequestEditTab({
     name: '',
     description: '',
   });
-  const [apiKeyContent, setApiKeyContent] = useState('');
+  const [apiKeyValue, setApiKeyValue] = useState('');
   const [openId, setOpenId] = useState<string | null>(null);
 
   const nextHeaderIdRef = useRef<number>(formData.headerParameters.length);
@@ -136,14 +137,26 @@ export function MethodRequestEditTab({
   const handleCopyAPIKey = (apiKey: string) => {
     clipboard.copy(apiKey);
     toast.success('API Key가 클립보드에 복사되었습니다.');
+
+
   };
 
-  const handleApiKeySelected = (keyId: string, keyValue: string) => {
+  const handleApiKeySelected = (keyId: string) => {
     setSelectedApiKeyId(keyId);
-    setApiKeyContent(keyValue);
+
     onChange({ apiKeyRequired: true, apiKeyId: keyId });
   };
 
+  const getApiKeyDetail = async (apiKeyId: string) => {
+    const res = await getAPIKeyDetail(apiKeyId);
+    setApiKeyValue(res?.keyValue)
+  }
+
+  useEffect(() => {
+    getApiKeyDetail(selectedApiKeyId)
+  }, [selectedApiKeyId])
+
+  console.log(formData, formData.apiKeyRequired, apiKeyValue)
   return (
     <>
       <div className="space-y-6">
@@ -169,10 +182,10 @@ export function MethodRequestEditTab({
                       <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 text-xs rounded-full font-medium">
                         활성화
                       </span>
-                      {apiKeyContent && (
+                      {(formData.apiKeyId || apiKeyValue) && (
                         <button
                           className="hover:underline"
-                          onClick={() => handleCopyAPIKey(apiKeyContent)}>
+                          onClick={() => handleCopyAPIKey(apiKeyValue)}>
                           <Copy className="h-4 w-4 ml-2" />
                         </button>
                       )}
@@ -407,7 +420,7 @@ export function MethodRequestEditTab({
             // 기존 목록에서 찾거나, 새로 생성된 경우 id만으로 업데이트
             const selectedKey = apiKeyList?.find((k) => k.apiKeyId === id || k.keyId === id);
             if (selectedKey) {
-              handleApiKeySelected(id, selectedKey.keyValue);
+              handleApiKeySelected(id);
             } else {
               // 새로 생성된 API Key의 경우 - apiKeyList에 아직 없으므로 직접 업데이트
               onChange({ apiKeyRequired: true, apiKeyId: id });
@@ -418,7 +431,7 @@ export function MethodRequestEditTab({
           userKey={userData?.userKey || ''}
           tenantId={tenantId}
           setApiKeyToggle={(val: boolean) => onChange({ apiKeyRequired: val })}
-          setSelectedApiKeyValue={setApiKeyContent}
+          setSelectedApiKeyValue={setApiKeyValue}
         />
       </div>
     </>

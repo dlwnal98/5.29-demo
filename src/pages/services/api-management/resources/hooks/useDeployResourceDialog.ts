@@ -93,9 +93,9 @@ export function useDeployResourceDialog({
         await queryClient.refetchQueries({ queryKey: ['getStagesListData', apiId] });
       })(),
       {
-        loading: 'Stage creation in progress...',
-        success: 'Stage successfully created and deployed.',
-        error: 'Failed to deploy after stage creation.',
+        loading: '스테이지 생성 중...',
+        success: '스테이지가 성공적으로 배포되었습니다.',
+        error: '스테이지 배포에 실패하였습니다.',
       }
     );
 
@@ -105,10 +105,31 @@ export function useDeployResourceDialog({
   };
 
   const { mutate: handleDeploy, isPending } = useDeployAPI({
-    onSuccess: (data) => {
-      // 새 스테이지 생성의 경우 응답에서 stageId 추출, 기존 스테이지는 deploymentData.stageId 사용
-      const targetStageId = data?.stageId || (deploymentData.stageId !== 'new' && deploymentData.stageId !== 'snapshot' ? deploymentData.stageId : undefined);
-      handleNavigateStage(targetStageId);
+    onSuccess: async (_data, variables) => {
+      // 기존 스테이지에 배포한 경우 variables.stageId 사용
+      if (variables?.stageId) {
+        handleNavigateStage(variables.stageId);
+        return;
+      }
+
+      // 새 스테이지 생성의 경우: 스테이지 목록에서 방금 생성한 스테이지 찾기
+      if (variables?.stageName) {
+        try {
+          const stagesList = await getStagesListData(apiId);
+          const newStage = stagesList?.find(
+            (stage: any) => stage.label === variables.stageName || stage.stageName === variables.stageName
+          );
+          if (newStage) {
+            handleNavigateStage(newStage.stageId || newStage.value);
+            return;
+          }
+        } catch (error) {
+          console.error('Failed to fetch stages list:', error);
+        }
+      }
+
+      // fallback: stageId 없이 이동
+      handleNavigateStage();
     },
     onError: (error: any) => {
       const serverMessage = error?.response?.data?.message ?? '배포에 실패하였습니다.';
