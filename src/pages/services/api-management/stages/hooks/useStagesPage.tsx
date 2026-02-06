@@ -176,21 +176,32 @@ export function useStagesPage() {
     [clipboard]
   );
 
-  const handleStageOpenApiData = useCallback(async (stageId: string) => {
-    // 이미 열린 같은 스테이지 클릭 시: 토글 유지, 리소스/메서드 선택 해제하여 스테이지 상세 표시
-    if (expandedStages.has(stageId)) {
-      setSelectedResource(null);
-      setSelectedTreeMethod(null);
-      return;
-    }
+  // 스테이지 토글 (펼침/접힘만 제어) - 토글 버튼 클릭 시 사용
+  const handleToggleStageExpansion = useCallback((stageId: string) => {
+    setExpandedStages(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(stageId)) {
+        newSet.delete(stageId);
+      } else {
+        newSet.add(stageId);
+      }
+      return newSet;
+    });
+  }, []);
 
-    // 다른 스테이지 선택 시 이전 선택 상태 초기화
+  // 스테이지 선택 (상세정보 표시 + 펼침) - 스테이지 이름 클릭 시 사용
+  const handleStageOpenApiData = useCallback(async (stageId: string) => {
+    // 리소스/메서드 선택 해제
     setSelectedResource(null);
     setSelectedTreeMethod(null);
 
-    // 다른 스테이지 클릭 시 이전 것 닫고 새로운 것만 열기
-    setExpandedStages(new Set([stageId]));
+    // 선택된 스테이지 설정
     setSelectedStageId(stageId);
+
+    // 아직 펼쳐지지 않은 경우에만 펼침 (기존 펼쳐진 스테이지 유지)
+    if (!expandedStages.has(stageId)) {
+      setExpandedStages(prev => new Set([...prev, stageId]));
+    }
 
     // 스테이지 상세 정보 조회
     const detailRes = await getStageDetailData(stageId);
@@ -223,10 +234,16 @@ export function useStagesPage() {
     ) {
       initializedRef.current = true;
 
-      // URL에 stageId가 있으면 해당 스테이지 선택 (목록에 없어도 직접 선택 시도)
+      // URL에 stageId가 있으면 해당 스테이지 선택, 없으면 첫 번째 스테이지 선택
       if (urlStageId) {
-        // URL의 stageId를 직접 선택 (새로 배포된 스테이지는 목록에 아직 없을 수 있음)
-        handleStageOpenApiData(urlStageId);
+        const targetStage = stagesListData.find((stage: any) => stage.stageId === urlStageId);
+        if (targetStage) {
+          handleStageOpenApiData(targetStage.stageId);
+        } else {
+          // URL의 stageId가 존재하지 않으면 첫 번째 스테이지 선택
+          const firstStage = stagesListData[0];
+          handleStageOpenApiData(firstStage.stageId);
+        }
       } else {
         const firstStage = stagesListData[0];
         handleStageOpenApiData(firstStage.stageId);
@@ -243,14 +260,17 @@ export function useStagesPage() {
     }
 
     // URL stageId가 변경되었고, 유효한 값인 경우
-    if (urlStageId && urlStageId !== prevUrlStageIdRef.current) {
-      // 현재 선택된 스테이지와 다른 경우에만 선택 (목록에 없어도 직접 선택 시도)
-      if (selectedStageId !== urlStageId) {
-        handleStageOpenApiData(urlStageId);
+    if (urlStageId && urlStageId !== prevUrlStageIdRef.current && stagesListData) {
+      const targetStage = stagesListData.find((stage: any) => stage.stageId === urlStageId);
+      if (targetStage) {
+        // 현재 선택된 스테이지와 다른 경우에만 선택
+        if (selectedStageId !== urlStageId) {
+          handleStageOpenApiData(urlStageId);
+        }
       }
     }
     prevUrlStageIdRef.current = urlStageId;
-  }, [urlStageId, selectedStageId, handleStageOpenApiData]);
+  }, [urlStageId, stagesListData, selectedStageId, handleStageOpenApiData]);
 
   // 삭제 후 마지막 스테이지 선택
   useEffect(() => {
@@ -314,10 +334,19 @@ export function useStagesPage() {
     });
   }, []);
 
-  const handleTreeResourceClick = useCallback((resource: any) => {
+  const handleTreeResourceClick = useCallback(async (resource: any) => {
     setSelectedResource(resource);
     setSelectedTreeMethod(null);
-  }, []);
+
+    // 스테이지가 변경된 경우에만 stageDetailData 업데이트
+    if (resource?.stageId && resource.stageId !== selectedStageId) {
+      setSelectedStageId(resource.stageId);
+      const detailRes = await getStageDetailData(resource.stageId);
+      if (detailRes) {
+        setStageDetailData(detailRes);
+      }
+    }
+  }, [selectedStageId]);
 
   // 리소스 트리에서 특정 리소스까지의 경로를 찾는 함수
   const findResourcePath = useCallback((
@@ -344,9 +373,18 @@ export function useStagesPage() {
     return null;
   }, []);
 
-  const handleTreeMethodClick = useCallback((method: any, resource: any) => {
+  const handleTreeMethodClick = useCallback(async (method: any, resource: any) => {
     setSelectedTreeMethod(method);
     setSelectedResource(resource);
+
+    // 스테이지가 변경된 경우에만 stageDetailData 업데이트
+    if (method?.stageId && method.stageId !== selectedStageId) {
+      setSelectedStageId(method.stageId);
+      const detailRes = await getStageDetailData(method.stageId);
+      if (detailRes) {
+        setStageDetailData(detailRes);
+      }
+    }
 
     // 해당 리소스까지의 경로를 찾아서 모두 펼치기
     if (resource?.stageId && resource?.id) {
@@ -361,7 +399,7 @@ export function useStagesPage() {
         });
       }
     }
-  }, [stageResourcesMap, findResourcePath]);
+  }, [selectedStageId, stageResourcesMap, findResourcePath]);
 
   const handleExportApi = useCallback(() => {
     toast.success("API 내보내기가 시작되었습니다.");
@@ -461,6 +499,7 @@ export function useStagesPage() {
     onOpenExportModal: handleOpenExportModal,
     onCloseExportModal: handleCloseExportModal,
     onStageOpenApiData: handleStageOpenApiData,
+    onToggleStageExpansion: handleToggleStageExpansion,
     onToggleResourceExpansion: handleToggleResourceExpansion,
     onTreeResourceClick: handleTreeResourceClick,
     onTreeMethodClick: handleTreeMethodClick,

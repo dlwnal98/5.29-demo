@@ -64,7 +64,8 @@ export function MethodRequestView({
 
   console.log(selectedMethod)
 
-  const copyToClipboard = async (apiKeyId: string) => {
+  const copyToClipboard = async (apiKeyId?: string) => {
+    if (!apiKeyId) return;
     const res = await getAPIKeyDetail(apiKeyId);
     navigator.clipboard.writeText(res.keyValue);
     toast.success('API Key 값이 복사되었습니다.');
@@ -93,11 +94,7 @@ export function MethodRequestView({
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground dark:text-gray-300">
                     API Key ID
-                    {selectedMethod?.info['x-api-key-id'] && (
-                      <button className="ml-2" onClick={() => copyToClipboard(selectedMethod?.info['x-api-key-id'] || '')}>
-                        <Copy className="h-3 w-3" />
-                      </button>
-                    )}
+
                   </Label>
                 </div>
               </div>
@@ -133,6 +130,11 @@ export function MethodRequestView({
                 <div>
                   <div className="mt-1 text-sm text-gray-900 dark:text-white">
                     {selectedMethod?.info['x-api-key-id'] || '없음'}
+                    {selectedMethod?.info['x-api-key-id'] && (
+                      <button className="ml-2" onClick={() => copyToClipboard(selectedMethod?.info['x-api-key-id'] || '')}>
+                        <Copy className="h-3 w-3" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

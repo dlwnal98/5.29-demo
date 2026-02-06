@@ -39,6 +39,7 @@ export default function StagesPage() {
     onCopyUrl,
     onCopyMethodUrl,
     onStageOpenApiData,
+    onToggleStageExpansion,
     onToggleResourceExpansion,
     onTreeResourceClick,
     onTreeMethodClick,
@@ -87,11 +88,13 @@ export default function StagesPage() {
         expandedResources={expandedResources}
         selectedResource={selectedResource}
         selectedTreeMethod={selectedTreeMethod}
+        selectedStageId={selectedStageId}
         stageDetailData={stageDetailData}
         refreshStageDetailData={handleRefreshStageDetailDataWithRefetch}
         onCopyUrl={onCopyUrl}
         onCopyMethodUrl={onCopyMethodUrl}
         onStageOpenApiData={onStageOpenApiData}
+        onToggleStageExpansion={onToggleStageExpansion}
         onToggleResourceExpansion={onToggleResourceExpansion}
         onTreeResourceClick={onTreeResourceClick}
         onTreeMethodClick={onTreeMethodClick}

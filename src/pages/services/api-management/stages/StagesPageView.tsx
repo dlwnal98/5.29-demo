@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,6 +36,7 @@ interface StagesPageViewProps {
   selectedResource: any | null;
   selectedTreeMethod: any | null;
   selectedWholeStageInfo: any | null;
+  selectedStageId: string | null;
   stageDetailData: any | null;
   refreshStageDetailData: () => Promise<void>;
   onGetApiKeyValue: (apiKeyId: string) => Promise<string>;
@@ -45,9 +47,11 @@ interface StagesPageViewProps {
   onOpenDeleteDialog: () => void;
   onOpenExportModal: () => void;
   onStageOpenApiData: (stageId: string) => void;
+  onToggleStageExpansion: (stageId: string) => void;
   onToggleResourceExpansion: (resourceId: string) => void;
   onTreeResourceClick: (resource: any) => void;
   onTreeMethodClick: (method: any, resource: any) => void;
+  onScrollToTop?: () => void;
 }
 
 export default function StagesPageView({
@@ -64,6 +68,7 @@ export default function StagesPageView({
   selectedResource,
   selectedTreeMethod,
   selectedWholeStageInfo,
+  selectedStageId,
   stageDetailData,
   refreshStageDetailData,
   onGetApiKeyValue,
@@ -74,11 +79,23 @@ export default function StagesPageView({
   onOpenDeleteDialog,
   onOpenExportModal,
   onStageOpenApiData,
+  onToggleStageExpansion,
   onToggleResourceExpansion,
   onTreeResourceClick,
   onTreeMethodClick,
+  onScrollToTop,
 }: StagesPageViewProps) {
   console.log(stagesListData, selectedWholeStageInfo, selectedResource, selectedTreeMethod)
+
+  // Scroll to top handler
+  const handleScrollToTop = useCallback(() => {
+    if (onScrollToTop) {
+      onScrollToTop();
+    } else {
+      // Default behavior: scroll window to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [onScrollToTop]);
 
   const convertValidator = (validator: string) => {
     switch (validator) {
@@ -93,10 +110,11 @@ export default function StagesPageView({
     }
   }
 
-  const copyToClipboard = async (apiKeyId: string) => {
+  const copyToClipboard = async (apiKeyId?: string) => {
+    if (!apiKeyId) return;
     const apiKey = await onGetApiKeyValue(apiKeyId);
     navigator.clipboard.writeText(apiKey);
-    toast.success('복사되었습니다.');
+    toast.success('API Key 값이 복사되었습니다.');
   }
 
 
@@ -155,10 +173,13 @@ export default function StagesPageView({
                 expandedResources={expandedResources}
                 selectedResource={selectedResource}
                 selectedTreeMethod={selectedTreeMethod}
+                selectedStageId={selectedStageId}
                 onStageOpenApiData={onStageOpenApiData}
+                onToggleStageExpansion={onToggleStageExpansion}
                 onToggleResourceExpansion={onToggleResourceExpansion}
                 onTreeResourceClick={onTreeResourceClick}
                 onTreeMethodClick={onTreeMethodClick}
+                onScrollToTop={handleScrollToTop}
               />
             </div>
           </div>
@@ -174,7 +195,7 @@ export default function StagesPageView({
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-xl flex items-center gap-2">
                       <span
-                        className={`px-2 py-1 rounded text-xl font-mono ${getMethodStyle(
+                        className={`px-2 py-1 rounded text-xl !font-bold font-mono ${getMethodStyle(
                           selectedTreeMethod.type
                         )}`}
                       >
@@ -235,15 +256,18 @@ export default function StagesPageView({
                   <div>
                     <Label className="flex items-center text-sm font-medium text-muted-foreground dark:text-gray-300">
                       API Key ID
-                      <button
-                        onClick={() => copyToClipboard(`${selectedTreeMethod.info?.['x-api-key-id']}`)}
-                        className="ml-2 cursor-pointer"
-                      >
-                        <Copy className="h-3 w-3" />
-                      </button>
+
                     </Label>
                     <div className="text-sm mt-1 text-gray-900 dark:text-gray-100">
                       {selectedTreeMethod.info?.['x-api-key-required'] === false ? '없음' : selectedTreeMethod.info?.['x-api-key-id']}
+                      {selectedTreeMethod.info?.['x-api-key-required'] && (
+                        <button
+                          onClick={() => copyToClipboard(`${selectedTreeMethod.info?.['x-api-key-id']}`)}
+                          className="ml-2 cursor-pointer"
+                        >
+                          <Copy className="h-3 w-3" />
+                        </button>
+                      )}
                     </div>
                   </div>
                   <div>
