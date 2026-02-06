@@ -20,6 +20,7 @@ import { Download, Loader2, Copy, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
 import { getAPIDocForExport, getAPIDocForExportPreview } from '@/apis/api-management.api';
+import { useClipboard } from 'use-clipboard-copy';
 
 type ExportFormat = 'OPENAPI_JSON' | 'OPENAPI_YAML' | 'POSTMAN';
 
@@ -41,6 +42,8 @@ const ResourceExportDialog = ({
   const [previewContent, setPreviewContent] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  const clipboard = useClipboard();
 
   const fetchPreview = useCallback(async () => {
     if (!apiId || !open) return;
@@ -185,7 +188,7 @@ const ResourceExportDialog = ({
                 size="icon"
                 className="absolute top-4 right-8 h-8 w-8 z-20"
                 onClick={() => {
-                  navigator.clipboard.writeText(previewContent);
+                  clipboard.copy(previewContent);
                   toast.success('클립보드에 복사되었습니다.');
                 }}
               >

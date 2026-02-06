@@ -14,6 +14,7 @@ import { ChevronLeft, ChevronRight, Copy } from 'lucide-react';
 import type { Method, QueryParameter, RequestHeader } from '@/types/resource';
 import { getAPIKeyDetail } from '@/apis/api-keys.api';
 import { toast } from 'sonner';
+import { useClipboard } from 'use-clipboard-copy';
 
 interface MethodRequestViewProps {
   selectedMethod: Method;
@@ -64,10 +65,14 @@ export function MethodRequestView({
 
   console.log(selectedMethod)
 
+  const clipboard = useClipboard();
+
   const copyToClipboard = async (apiKeyId?: string) => {
     if (!apiKeyId) return;
     const res = await getAPIKeyDetail(apiKeyId);
-    navigator.clipboard.writeText(res.keyValue);
+
+    if (!res.keyValue) return;
+    clipboard.copy(res.keyValue);
     toast.success('API Key 값이 복사되었습니다.');
   };
 

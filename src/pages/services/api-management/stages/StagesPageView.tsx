@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { useClipboard } from "use-clipboard-copy";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -87,6 +88,8 @@ export default function StagesPageView({
 }: StagesPageViewProps) {
   console.log(stagesListData, selectedWholeStageInfo, selectedResource, selectedTreeMethod)
 
+  const clipboard = useClipboard();
+
   // Scroll to top handler
   const handleScrollToTop = useCallback(() => {
     if (onScrollToTop) {
@@ -113,7 +116,8 @@ export default function StagesPageView({
   const copyToClipboard = async (apiKeyId?: string) => {
     if (!apiKeyId) return;
     const apiKey = await onGetApiKeyValue(apiKeyId);
-    navigator.clipboard.writeText(apiKey);
+    if (!apiKey) return;
+    clipboard.copy(apiKey);
     toast.success('API Key 값이 복사되었습니다.');
   }
 
