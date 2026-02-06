@@ -87,9 +87,9 @@ export default function ResourcesPageView({
           return (
             <div key={res.id}>
               <div
-                className={`flex items-center gap-2 py-1 px-2 mb-1 rounded cursor-pointer ${isSelected
-                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                  : ""
+                className={`flex items-center gap-2 py-1 px-2 mb-1 rounded cursor-pointer ${isSelected && !selectedMethod
+                  ? "bg-blue-50 dark:bg-blue-900/30"
+                  : "hover:bg-gray-50 dark:hover:bg-gray-700"
                   }`}
                 onClick={handleRowClick}>
                 {hasChildren ? (
@@ -122,7 +122,7 @@ export default function ResourcesPageView({
                     return (
                       <div
                         key={m.id}
-                        className={`flex items-center w-[100%] gap-2 py-1 px-2 cursor-pointer dark:hover:bg-green-900/20 ${isMethodSelected ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" : "hover:bg-gray-50 dark:hover:bg-gray-700"}`}
+                        className={`flex items-center w-[100%] gap-2 py-1 px-2 cursor-pointer rounded ${isMethodSelected ? "bg-blue-50 dark:bg-blue-900/30" : "hover:bg-gray-50 dark:hover:bg-gray-700"}`}
                         onClick={() => onMethodClick(m, res)}
                       >
                         <span

@@ -54,8 +54,8 @@ export function StageResourceTree({
           return (
             <div key={uniqueId} >
               <div
-                className={`flex items-center gap-2 py-1 px-2 mb-1 cursor-pointer rounded ${isSelected
-                  ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                className={`flex items-center gap-2 py-1 px-2 mb-1 cursor-pointer rounded ${isSelected && !selectedTreeMethod
+                  ? "bg-blue-50 dark:bg-blue-900/30"
                   : "hover:bg-gray-50 dark:hover:bg-gray-700"
                   }`}
                 style={{ paddingLeft: `${depth * 12 + 8}px` }}
@@ -100,7 +100,7 @@ export function StageResourceTree({
                     return (
                       <div
                         key={methodUniqueId}
-                        className={`flex items-center gap-2 py-1 px-2 cursor-pointer rounded ${isMethodSelected ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" : "hover:bg-gray-50 dark:hover:bg-gray-700"}`}
+                        className={`flex items-center gap-2 py-1 px-2 cursor-pointer rounded ${isMethodSelected ? "bg-blue-50 dark:bg-blue-900/30" : "hover:bg-gray-50 dark:hover:bg-gray-700"}`}
                         onClick={() => {
                           onTreeMethodClick({ ...m, uniqueId: methodUniqueId, stageId }, { ...res, uniqueId, stageId });
                           onScrollToTop?.();
@@ -140,7 +140,7 @@ export function StageResourceTree({
           <div key={stage.stageId}>
             {/* Stage 버튼 */}
             <div
-              className={`flex items-center gap-2 py-2 px-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-sm ${isStageSelected ? "bg-blue-100 dark:bg-blue-900/20" : ""
+              className={`flex items-center gap-2 py-2 px-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded text-sm ${isStageSelected && !selectedResource && !selectedTreeMethod ? "bg-blue-50 dark:bg-blue-900/20" : ""
                 }`}
               onClick={() => {
                 onStageOpenApiData(stage.stageId);
@@ -154,12 +154,12 @@ export function StageResourceTree({
                 }}
               >
                 {isStageExpanded ? (
-                  <SquareMinus className={`h-4 w-4 ${isStageSelected ? "text-blue-600" : ""}`} />
+                  <SquareMinus className={`h-4 w-4 ${isStageSelected && !selectedResource && !selectedTreeMethod ? "text-blue-600" : ""}`} />
                 ) : (
-                  <SquarePlus className={`h-4 w-4 ${isStageSelected ? "text-blue-600" : ""}`} />
+                  <SquarePlus className={`h-4 w-4 ${isStageSelected && !selectedResource && !selectedTreeMethod ? "text-blue-600" : ""}`} />
                 )}
               </button>
-              <span className={`font-medium ${isStageSelected ? "text-blue-600" : ""}`}>
+              <span className={`font-medium ${isStageSelected && !selectedResource && !selectedTreeMethod ? "text-blue-600" : ""}`}>
                 {stage.stageName}
               </span>
             </div>
