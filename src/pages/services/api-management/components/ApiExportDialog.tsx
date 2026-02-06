@@ -16,10 +16,11 @@ import {
   SelectContent,
   SelectItem,
 } from '@/components/ui/select';
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
 import { getAPIDocForExport, getAPIDocForExportPreview } from '@/apis/api-management.api';
+import { useClipboard } from 'use-clipboard-copy';
 
 type ExportFormat = 'OPENAPI_JSON' | 'OPENAPI_YAML' | 'POSTMAN';
 
@@ -41,6 +42,8 @@ const ApiExportDialog = ({
   const [previewContent, setPreviewContent] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  const clipboard = useClipboard();
 
   const fetchPreview = useCallback(async () => {
     if (!selectedAPIId || !open) return;
@@ -132,9 +135,9 @@ const ApiExportDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-hidden flex flex-col p-0">
         {/* 상단 고정 영역: 헤더 + 내보내기 형식 */}
-        <div className="sticky top-0 z-10 bg-white dark:bg-gray-950 px-6 pt-6 pb-4 border-b ">
+        <div className="flex-shrink-0  bg-white dark:bg-gray-950 px-6 pt-6 pb-4 border-b ">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-blue-600">API 내보내기</DialogTitle>
             <DialogDescription className="text-gray-600 dark:text-gray-400">
@@ -190,7 +193,7 @@ const ApiExportDialog = ({
         </div>
 
         {/* 스크롤 영역: 미리보기 본문 */}
-        <div className="px-6 py-4">
+        {/* <div className="px-6 py-4">
           <div className="border rounded-lg bg-gray-50 dark:bg-gray-900 relative min-h-[200px]">
             {isLoading && (
               <div className="absolute inset-0 flex items-center justify-center bg-gray-50/80 dark:bg-gray-900/80 z-10 rounded-lg">
@@ -208,13 +211,48 @@ const ApiExportDialog = ({
               </div>
             )}
           </div>
+        </div> */}
+        <div className="flex-1 min-h-0 px-6 py-4">
+          <div className="relative border rounded-lg bg-gray-50 dark:bg-gray-900 min-h-[200px] h-full">
+            {previewContent && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-4 right-8 h-8 w-8 z-20"
+                onClick={() => {
+                  clipboard.copy(previewContent);
+                  toast.success('클립보드에 복사되었습니다.');
+                }}
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+            )}
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-50/80 dark:bg-gray-900/80 z-10 rounded-lg">
+                <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
+                <span className="ml-2 text-sm text-gray-500">미리보기를 로딩중입니다...</span>
+              </div>
+            )}
+            <div className="h-full max-h-[calc(90vh-350px)] overflow-y-auto">
+              {previewContent ? (
+                <pre className="text-xs p-4 font-mono whitespace-pre-wrap break-all">
+                  {previewContent}
+                </pre>
+              ) : (
+                <div className="flex items-center justify-center h-[200px] text-sm text-gray-500">
+                  미리보기가 없습니다.
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
+
         {/* 푸터 */}
-        <DialogFooter className="px-6 pb-6 gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <DialogFooter className="px-6 pb-3 flex-shrink-0">
+          {/* <Button variant="outline" onClick={() => onOpenChange(false)}>
             취소
-          </Button>
+          </Button> */}
           <Button
             onClick={handleDownload}
             disabled={isDownloading || isLoading || !previewContent}
@@ -223,12 +261,12 @@ const ApiExportDialog = ({
             {isDownloading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                저장 중...
+                내려받는 중...
               </>
             ) : (
               <>
                 <Download className="h-4 w-4 mr-2" />
-                저장
+                내려받기
               </>
             )}
           </Button>

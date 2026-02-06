@@ -124,7 +124,7 @@ const ResourceExportDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-hidden flex flex-col p-0">
         {/* 상단 고정 영역: 헤더 + 내보내기 형식 */}
-        <div className="flex-shrink-0 bg-white dark:bg-gray-950 px-6 pt-6 pb-4 border-b">
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-950 px-6 pt-6 pb-4 border-b">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-blue-600">API 내보내기</DialogTitle>
             <DialogDescription className="text-gray-600 dark:text-gray-400">
