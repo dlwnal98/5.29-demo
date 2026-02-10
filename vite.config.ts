@@ -122,6 +122,10 @@ export default defineConfig({
         changeOrigin: true,
         secure: false, // HTTPS 자체 서명 인증서 허용
       },
+      //  '/api/v1/metrics': {
+      //   target: 'http://1.224.162.188:51428',
+      //   changeOrigin: true,
+      // },
     },
   },
 

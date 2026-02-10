@@ -19,11 +19,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { useModifyModel, ModelData, ModifyModelProps } from '@/hooks/use-model';
 import { useClipboard } from 'use-clipboard-copy';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
@@ -110,7 +110,7 @@ export default function ModifyModelDialog({
 
   const copySchema = (schema: string) => {
     clipboard.copy(schema);
-    toast.success('Schema copied to clipboard.');
+    toast.success('스키마가 클립보드에 복사되었습니다.');
   };
 
   const getSchemaByteCount = (schema: string) => {
@@ -219,14 +219,14 @@ export default function ModifyModelDialog({
                   <div className="bg-gray-50 px-3 py-2 border-b flex items-center justify-between">
                     <div className="flex items-center gap-1">
                       <span className="text-sm font-medium text-gray-700">JSON Schema</span>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Info className="h-4 w-4 text-gray-400 cursor-help" />
-                          </TooltipTrigger>
-                          <TooltipContent side="right" align="start">
-                            <p>
-                              JSON Schema 형식으로 작성해주세요.{' '}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Info className="h-4 w-4 text-gray-400 cursor-pointer" />
+                        </PopoverTrigger>
+                        <PopoverContent side="right" align="start" className="w-auto">
+                          <p>
+                            JSON Schema 형식으로 작성해주세요.{' '}
+                            <PopoverClose asChild>
                               <a
                                 href="https://www.notion.so/Request-Body-Schema-2f46a5e88b51809ca856df13aeafdc57?source=copy_link"
                                 target="_blank"
@@ -235,10 +235,10 @@ export default function ModifyModelDialog({
                               >
                                 자세히 보기
                               </a>
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                            </PopoverClose>
+                          </p>
+                        </PopoverContent>
+                      </Popover>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Button
@@ -410,14 +410,14 @@ export default function ModifyModelDialog({
                   <div className="bg-gray-50 px-3 py-2 border-b flex items-center justify-between">
                     <div className="flex items-center gap-1">
                       <span className="text-sm font-medium text-gray-700">JSON Schema</span>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Info className="h-4 w-4 text-gray-400 cursor-help" />
-                          </TooltipTrigger>
-                          <TooltipContent side="right" align="start">
-                            <p>
-                              JSON Schema 형식으로 작성해주세요.{' '}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Info className="h-4 w-4 text-gray-400 cursor-pointer" />
+                        </PopoverTrigger>
+                        <PopoverContent side="right" align="start" className="w-auto">
+                          <p>
+                            JSON Schema 형식으로 작성해주세요.{' '}
+                            <PopoverClose asChild>
                               <a
                                 href="https://www.notion.so/Request-Body-Schema-2f46a5e88b51809ca856df13aeafdc57?source=copy_link"
                                 target="_blank"
@@ -426,17 +426,17 @@ export default function ModifyModelDialog({
                               >
                                 자세히 보기
                               </a>
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                            </PopoverClose>
+                          </p>
+                        </PopoverContent>
+                      </Popover>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() =>
-                          copySchema(JSON.stringify(modelForm?.jsonSchema?.properties, null, 2))
+                          copySchema(JSON.stringify(modelForm?.schema, null, 2))
                         }
                         className="h-7 px-2">
                         <Copy className="h-3 w-3" />

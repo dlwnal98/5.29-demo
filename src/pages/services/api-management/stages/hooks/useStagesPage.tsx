@@ -272,13 +272,13 @@ export function useStagesPage() {
     prevUrlStageIdRef.current = urlStageId;
   }, [urlStageId, stagesListData, selectedStageId, handleStageOpenApiData]);
 
-  // 삭제 후 마지막 스테이지 선택
+  // 삭제 후 첫 번째 스테이지 선택
   useEffect(() => {
     if (pendingDeleteSelectionRef.current && stagesListData) {
       pendingDeleteSelectionRef.current = false;
       if (stagesListData.length > 0) {
-        const lastStage = stagesListData[stagesListData.length - 1];
-        handleStageOpenApiData(lastStage.stageId);
+        const firstStage = stagesListData[0];
+        handleStageOpenApiData(firstStage.stageId);
       } else {
         // 스테이지가 없으면 상태 초기화
         setSelectedStageId(null);
@@ -302,7 +302,7 @@ export function useStagesPage() {
     pendingDeleteSelectionRef.current = true;
   }, []);
 
-  // 생성 후 마지막 스테이지 선택 (새로 생성된 스테이지가 마지막에 위치)
+  // 생성 후 마지막 스테이지 선택 (stageId가 없는 경우 fallback)
   useEffect(() => {
     if (pendingCreateSelectionRef.current && stagesListData && stagesListData.length > 0) {
       pendingCreateSelectionRef.current = false;
@@ -312,18 +312,25 @@ export function useStagesPage() {
   }, [stagesListData, handleStageOpenApiData]);
 
   // 스테이지 생성 후 처리
-  const handleAfterStageCreate = useCallback(() => {
+  const handleAfterStageCreate = useCallback((stageId?: string) => {
     // 현재 선택 상태 초기화
-    setSelectedStageId(null);
-    setStageDetailData(null);
     setSelectedResource(null);
     setSelectedTreeMethod(null);
     setExpandedStages(new Set());
-    // 마지막 스테이지 선택을 위한 플래그 설정
+
+    // stageId가 있으면 직접 해당 스테이지 선택
+    if (stageId) {
+      handleStageOpenApiData(stageId);
+      refetchDeploymentHistory();
+      return;
+    }
+
+    // stageId가 없는 경우 fallback: ref 기반 방식
+    setSelectedStageId(null);
+    setStageDetailData(null);
     pendingCreateSelectionRef.current = true;
-    // deployment history 갱신
     refetchDeploymentHistory();
-  }, [refetchDeploymentHistory]);
+  }, [handleStageOpenApiData, refetchDeploymentHistory]);
 
   const handleToggleResourceExpansion = useCallback((resourceId: string) => {
     setExpandedResources((prev) => {

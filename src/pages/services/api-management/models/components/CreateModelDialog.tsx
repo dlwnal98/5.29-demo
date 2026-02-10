@@ -20,11 +20,11 @@ import { useClipboard } from 'use-clipboard-copy';
 import AceEditor from 'react-ace';
 import { Info } from 'lucide-react';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
 import { CreateModelProps } from "@/apis/models.api"
@@ -186,14 +186,14 @@ export default function CreateModelDialog({
                 <div className="bg-gray-50 px-3 py-2 border-b flex items-center justify-between">
                   <div className="flex items-center gap-1">
                     <span className="text-sm font-medium text-gray-700">JSON Schema</span>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-4 w-4 text-gray-400 cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent side="right" align="start">
-                          <p>
-                            JSON Schema 형식으로 작성해주세요.{' '}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Info className="h-4 w-4 text-gray-400 cursor-pointer" />
+                      </PopoverTrigger>
+                      <PopoverContent side="right" align="start" className="w-auto">
+                        <p>
+                          JSON Schema 형식으로 작성해주세요.{' '}
+                          <PopoverClose asChild>
                             <a
                               href="https://www.notion.so/Request-Body-Schema-2f46a5e88b51809ca856df13aeafdc57?source=copy_link"
                               target="_blank"
@@ -202,10 +202,10 @@ export default function CreateModelDialog({
                             >
                               자세히 보기
                             </a>
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                          </PopoverClose>
+                        </p>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   {/* <div className="flex items-center space-x-2">
                     <Button

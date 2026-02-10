@@ -60,11 +60,10 @@ export default function StagesPage() {
     onSuccess: onAfterStageDelete,
   });
 
-  // Stage 생성 후 refetch 호출
-  const handleAfterStageCreateWithRefetch = useCallback(() => {
-    onAfterStageCreate();
-    refetchDeploymentHistory();
-  }, [onAfterStageCreate, refetchDeploymentHistory]);
+  // Stage 생성 후 처리 (stageId로 직접 선택)
+  const handleAfterStageCreateWithRefetch = useCallback((stageId?: string) => {
+    onAfterStageCreate(stageId);
+  }, [onAfterStageCreate]);
 
   // 활성배포 변경 후 refetch 호출
   const handleRefreshStageDetailDataWithRefetch = useCallback(async () => {
