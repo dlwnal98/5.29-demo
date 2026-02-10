@@ -19,7 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Plus } from 'lucide-react';
 import { useCreateStageForm } from '../hooks/useCreateStageForm';
 import { useDeploymentResourceTree } from '../hooks/useDeploymentResourceTree';
 import { DeploymentResourceTreeItem } from './DeploymentResourceTreeItem';
@@ -135,7 +135,12 @@ export default function CreateStageDialog({
                                 </Label>
 
                                 <div className="flex items-center gap-2 mt-2">
-                                    <Select value={selectedDeploymentRecord} onValueChange={setSelectedDeploymentRecord}>
+                                    <Select value={selectedDeploymentRecord} onValueChange={(value) => {
+                                        setSelectedDeploymentRecord(value);
+                                        if (value === 'new') {
+                                            setShowPreview(false);
+                                        }
+                                    }}>
                                         <SelectTrigger className="h-[48px] flex-1 cursor-pointer">
                                             <SelectValue placeholder="배포 기록을 선택해주세요" />
                                         </SelectTrigger>
@@ -157,6 +162,13 @@ export default function CreateStageDialog({
                                                     </div>
                                                 </SelectItem>
                                             ))}
+                                            <div className="border-t pt-1 sticky bottom-[-5px] bg-popover">
+                                                <SelectItem value="new" className="cursor-pointer">
+                                                    <div className="flex items-center gap-2">
+                                                        <Plus className="h-4 w-4" />현재 정의된 리소스로 스테이지 생성
+                                                    </div>
+                                                </SelectItem>
+                                            </div>
                                         </SelectContent>
                                     </Select>
                                     <Button
@@ -164,11 +176,11 @@ export default function CreateStageDialog({
                                         variant="outline"
                                         size="icon"
                                         className="h-[48px] w-[48px] shrink-0"
-                                        disabled={!selectedDeploymentRecord}
+                                        disabled={!selectedDeploymentRecord || selectedDeploymentRecord === 'new'}
                                         onClick={() => setShowPreview(!showPreview)}
                                         title={showPreview ? "Close Preview" : "View Deployment Details"}
                                     >
-                                        {showPreview ? (
+                                        {showPreview || selectedDeploymentRecord === 'new' ? (
                                             <EyeOff className="h-4 w-4" />
                                         ) : (
                                             <Eye className="h-4 w-4" />
@@ -176,6 +188,27 @@ export default function CreateStageDialog({
                                     </Button>
                                 </div>
                             </div>
+                            {selectedDeploymentRecord === 'new' && (
+                                <div>
+                                    <Label
+                                        htmlFor="create-stage-description"
+                                        className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        배포 설명
+                                    </Label>
+                                    <Textarea
+                                        id="create-stage-description"
+                                        value={createStageForm.deploymentReason}
+                                        onChange={(e) =>
+                                            setCreateStageForm({
+                                                ...createStageForm,
+                                                deploymentReason: e.target.value,
+                                            })
+                                        }
+                                        placeholder="배포 설명을 입력해주세요"
+                                        className="mt-2"
+                                    />
+                                </div>
+                            )}
                         </div>
 
                         {/* 오른쪽: 배포 상세 미리보기 */}
@@ -217,7 +250,7 @@ export default function CreateStageDialog({
                         </Button>
                         <Button
                             onClick={handleCreateStage}
-                            disabled={!isValid}
+                            // disabled={!isValid}
                             variant={'default'}
                             className="transition-colors duration-200 ease-in-out">
                             생성
