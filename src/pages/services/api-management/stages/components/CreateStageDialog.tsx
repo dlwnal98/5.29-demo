@@ -250,7 +250,7 @@ export default function CreateStageDialog({
                         </Button>
                         <Button
                             onClick={handleCreateStage}
-                            // disabled={!isValid}
+                            disabled={!isValid}
                             variant={'default'}
                             className="transition-colors duration-200 ease-in-out">
                             생성
