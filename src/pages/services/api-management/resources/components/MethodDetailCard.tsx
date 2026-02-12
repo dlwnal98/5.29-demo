@@ -133,6 +133,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
   useEffect(() => {
     setIsEditMode(false);
     setActiveTab('basic-info');
+    setTestResponse(null);
   }, [methodInfo?.['x-method-id']]);
 
   const handleCopyEndpoint = () => {
