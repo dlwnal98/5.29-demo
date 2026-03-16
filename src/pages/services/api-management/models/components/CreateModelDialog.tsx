@@ -106,7 +106,7 @@ export default function CreateModelDialog({
 
   return (
     <>
-      <Toaster position="bottom-center" richColors expand={true} />
+      {/* <Toaster position="bottom-center" richColors expand={true} /> */}
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>

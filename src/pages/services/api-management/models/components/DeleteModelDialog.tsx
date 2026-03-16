@@ -44,7 +44,7 @@ export default function DeleteModelDialog({
 
   return (
     <>
-      <Toaster position="bottom-center" richColors expand={true} />
+      {/* <Toaster position="bottom-center" richColors expand={true} /> */}
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader className="space-y-4">

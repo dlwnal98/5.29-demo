@@ -6,6 +6,7 @@ import PublicRoute from './components/PublicRoute'
 import LoginPage from '@/pages/login/LoginPage'
 import AuthCallbackPage from '@/components/AuthCallbackPage'
 import { AppLayout } from '@/components/layout/AppLayout'
+import { Toaster } from "sonner"; // sonner 임포트
 
 // Lazy load (지연 로드) - 나머지 페이지들
 const SignupPage = lazy(() => import('@/pages/signup/SignupPage'))
@@ -45,6 +46,7 @@ const ModelsPage = lazy(() => import('@/pages/services/api-management/models/Mod
 const RouteEndpointsPage = lazy(() => import('@/pages/services/api-management/route-endpoints/RouteEndpointsPage'))
 const ApiKeysPage = lazy(() => import('@/pages/services/api-management/api-keys/ApiKeysPage'))
 const UsageDashboardPage = lazy(() => import('@/pages/services/api-management/usage-dashboard/UsageDashboardPage'))
+const ResourcesGridPage = lazy(() => import('@/pages/services/api-management/resources/ResourcesGridPage'))
 
 // Other pages
 const OrganizationManagePage = lazy(() => import('@/pages/OrganizationManagePage'))
@@ -64,6 +66,7 @@ export default function AppRoutes() {
       <Routes>
         {/* Public routes */}
         <Route element={<PublicRoute />}>
+
           <Route path="/" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/signup/member" element={<MemberSignupPage />} />
@@ -74,6 +77,7 @@ export default function AppRoutes() {
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
+
             {/* Dashboard */}
             <Route path="/dashboard" element={<Dashboard />} />
 
@@ -109,6 +113,7 @@ export default function AppRoutes() {
             <Route path="/services/api-management/route-endpoints" element={<RouteEndpointsPage />} />
             <Route path="/services/api-management/api-keys" element={<ApiKeysPage />} />
             <Route path="/services/api-management/usage-dashboard" element={<UsageDashboardPage />} />
+            <Route path="/services/api-management/resources-grid" element={<ResourcesGridPage />} />
 
             {/* Organization */}
             <Route path="/organization-manage" element={<OrganizationManagePage />} />

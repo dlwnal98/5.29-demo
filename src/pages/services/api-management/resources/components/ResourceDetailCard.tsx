@@ -31,6 +31,7 @@ interface ResourceDetailCardProps {
   onMethodDeleted?: () => void;
   onResourceDeleted?: () => void;
   onCorsSettingsSaved?: () => void;
+  noBorder?: boolean;
 }
 
 export function ResourceDetailCard({
@@ -42,6 +43,7 @@ export function ResourceDetailCard({
   onMethodDeleted,
   onResourceDeleted,
   onCorsSettingsSaved,
+  noBorder = false,
 }: ResourceDetailCardProps) {
   const userData = useAuthStore((state) => state.user);
   const userKey = userData?.userKey || '';
@@ -100,7 +102,7 @@ export function ResourceDetailCard({
 
   return (
     <>
-      <div className="min-h-[77vh] bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className={`min-h-[77vh] bg-white dark:bg-gray-800 rounded-lg ${noBorder ? '' : 'border border-gray-200 dark:border-gray-700'}`}>
         {/* Resource Details Header */}
         <div className="border-b border-gray-200 dark:border-gray-700 p-6  space-y-3">
           <div className="flex items-center justify-between mb-4">
@@ -209,10 +211,10 @@ export function ResourceDetailCard({
               <TableHeader className="hover:bg-white dark:hover:bg-gray-700">
                 <TableRow className="hover:bg-white dark:hover:bg-gray-700">
                   <TableHead className="w-[10%] text-center">유형</TableHead>
-                  <TableHead className='text-center'>요약</TableHead>
-                  <TableHead className='text-center'>통합 유형</TableHead>
-                  <TableHead className='text-center'>API Key</TableHead>
-                  <TableHead className='text-center'>Route Endpoint URL</TableHead>
+                  <TableHead className='w-[30%] text-center'>요약</TableHead>
+                  <TableHead className='w-[11%] text-center'>통합 유형</TableHead>
+                  <TableHead className='w-[10%] text-center'>API Key</TableHead>
+                  <TableHead className='w-[30%] text-center'>Route Endpoint URL</TableHead>
                   <TableHead className="w-[7%] text-center">작업</TableHead>
                 </TableRow>
               </TableHeader>
@@ -222,29 +224,29 @@ export function ResourceDetailCard({
 
                     <TableRow
                       key={method.id}
-                      className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
+                      className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 "
                       onClick={() => {
                         handleMethodClick(method, selectedResource);
                       }}>
-                      <TableCell className='text-center'>
+                      <TableCell className='!px-1 !py-3 text-center '>
                         <span
-                          className={`${getMethodStyle(method.type)}  font-mono text-sm px-2 py-1 rounded`}>
+                          className={`${getMethodStyle(method.type)} text-[13px] !px-1.5 rounded`}>
                           {method.type}
                         </span>
                       </TableCell>
-                      <TableCell className='text-center'>{method?.info?.summary}</TableCell>
-                      <TableCell className='text-center'>{method?.info['x-integration-type']}</TableCell>
-                      <TableCell className='text-center' onClick={() => handleMethodClick(method, selectedResource)}>
+                      <TableCell className='!px-3 !py-3 text-center'>{method?.info?.summary}</TableCell>
+                      <TableCell className='!px-3 !py-3 text-center'>{method?.info['x-integration-type']}</TableCell>
+                      <TableCell className='!px-3 !py-3 text-center' onClick={() => handleMethodClick(method, selectedResource)}>
                         {method?.info['x-api-key-required'] ? 'True' : 'False'}
                       </TableCell>
-                      <TableCell className='text-center' onClick={() => handleMethodClick(method, selectedResource)}>
+                      <TableCell className='!px-3 !py-3 text-center' onClick={() => handleMethodClick(method, selectedResource)}>
                         {method?.info['x-route-endpoint'] && (
                           <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                             {method?.info['x-route-endpoint'] ?? ''}
                           </code>
                         )}
                       </TableCell>
-                      <TableCell className='text-center'>
+                      <TableCell className='!px-3 !py-3 text-center'>
                         <Button
                           size="sm"
                           variant="outline"

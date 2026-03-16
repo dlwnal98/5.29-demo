@@ -22,7 +22,13 @@ import { useMethodEditForm } from '../hooks/useMethodEditForm';
 import { useModifyMethod } from '@/hooks/use-methods';
 import { useGetEndpointsList } from '@/hooks/use-endpoints';
 
-export default function MethodDetailCard({ selectedMethod }: { selectedMethod: Method }) {
+export default function MethodDetailCard({
+  selectedMethod,
+  noBorder = false,
+}: {
+  selectedMethod: Method;
+  noBorder?: boolean;
+}) {
   // info 타입 캐스팅 (Method 타입의 info가 {} 로 정의되어 있음)
   const methodInfo = selectedMethod?.info as any;
 
@@ -185,7 +191,7 @@ export default function MethodDetailCard({ selectedMethod }: { selectedMethod: M
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className={`bg-white dark:bg-gray-800 rounded-lg ${noBorder ? '' : 'border border-gray-200 dark:border-gray-700'}`}>
         {/* Method Header */}
         <div className="p-6">
           <div>

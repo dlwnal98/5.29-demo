@@ -123,7 +123,7 @@ export default function ModifyModelDialog({
   if (isEditMode)
     return (
       <>
-        <Toaster position="bottom-center" richColors expand={true} />
+        {/* <Toaster position="bottom-center" richColors expand={true} /> */}
         <Dialog open={open} onOpenChange={onOpenChange}>
           <DialogContent ref={ref} className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -318,7 +318,7 @@ export default function ModifyModelDialog({
   else
     return (
       <>
-        <Toaster position="bottom-center" richColors expand={true} />
+        {/* <Toaster position="bottom-center" richColors expand={true} /> */}
         <Dialog open={open} onOpenChange={onOpenChange}>
           <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
