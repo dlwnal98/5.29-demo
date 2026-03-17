@@ -1,5 +1,5 @@
 
-import { requestDelete, requestGet, requestPatch, requestPost } from '@/libs/apiClient';
+import { requestDelete, requestGet, requestPatch, requestPost } from '@/libs/request';
 
 
 // 전체 유저 목록 조회 (super)

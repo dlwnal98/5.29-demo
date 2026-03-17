@@ -1,4 +1,4 @@
-import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from '@/libs/apiClient';
+import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from '@/libs/request';
 
 
 // 전체 스테이지 목록

@@ -47,11 +47,13 @@ export default function ModifyModelDialog({
       onOpenChange(false);
     },
     onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message
-        || error?.response?.data?.detail
-        || error?.message
-        || 'Error modifying model.';
-      toast.error(errorMessage);
+      // const errorMessage = error?.response?.data?.message
+      //   || error?.response?.data?.detail
+      //   || error?.message
+      //   || 'Error modifying model.';
+      // toast.error(errorMessage);
+      toast.error(error.message)
+
     },
   });
 

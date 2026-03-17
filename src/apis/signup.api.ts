@@ -1,4 +1,4 @@
-import { requestPost, requestPatch } from '../libs/apiClient';
+import { requestPost, requestPatch } from '../libs/request';
 
 // 유저 생성
 export const createUser = async (

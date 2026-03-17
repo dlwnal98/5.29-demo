@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Server } from "lucide-react";
 
 export default function InstanceTable({ data }: any) {
+  console.log(data)
   return (
     <Card className="border-blue-200/50 bg-white/70 backdrop-blur-sm dark:border-gray-600/50 dark:bg-gray-800/70">
       <CardContent className="p-6">

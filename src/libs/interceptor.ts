@@ -1,8 +1,9 @@
-import axios from 'axios';
+// import axios from 'axios';
 import { useAuthStore } from '@/stores/store';
+import { axiosInstance, axiosAuth } from './axios-Instance';
 
 // 요청 전 인터셉터: 토큰 만료 1분 전이면 재발급
-axios.interceptors.request.use(
+axiosInstance.interceptors.request.use(
   async (config) => {
     const { accessToken, refreshToken, expiresAt, setTokens, clearAuth } = useAuthStore.getState();
 
@@ -12,7 +13,7 @@ axios.interceptors.request.use(
       // 만료 1분 전 감지 (expiresAt은 ms 단위라고 가정)
       if (parseInt(expiresAt) - currentTime < 60 * 1000) {
         try {
-          const res = await axios.post('/api/v1/access-token/reissue', {
+          const res = await axiosAuth.post('/api/v1/access-token/reissue', {
             accessToken,
             refreshToken,
           });
@@ -40,7 +41,7 @@ axios.interceptors.request.use(
 );
 
 // 응답 인터셉터: 401 에러 발생 시 재발급 시도
-axios.interceptors.response.use(
+axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
@@ -50,7 +51,7 @@ axios.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshRes = await axios.post('/api/v1/access-token/reissue', {
+        const refreshRes = await axiosAuth.post('/api/v1/access-token/reissue', {
           refreshToken: refreshToken,
           accessToken: accessToken,
         });
@@ -63,7 +64,7 @@ axios.interceptors.response.use(
         setTokens(newAccessToken, newRefreshToken, newExpiresAt);
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        return axios(originalRequest); // 재요청
+        return axiosInstance(originalRequest); // 재요청
       } catch (refreshError) {
         clearAuth();
         sessionStorage.setItem('auth_redirect_reason', '인증이 만료되었습니다. 다시 로그인해 주세요.');

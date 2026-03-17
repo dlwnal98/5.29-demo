@@ -1,4 +1,4 @@
-import { requestGet, requestPatch, requestPost, requestDelete, requestPut } from '@/libs/apiClient';
+import { requestGet, requestPatch, requestPost, requestDelete, requestPut } from '@/libs/request';
 
 
 export interface OpenAPIData {

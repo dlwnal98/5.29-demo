@@ -1,4 +1,4 @@
-import { requestGet, requestDelete, requestPost, requestPut } from '@/libs/apiClient';
+import { requestGet, requestDelete, requestPost, requestPut } from '@/libs/request';
 
 
 export interface EndpointsData {

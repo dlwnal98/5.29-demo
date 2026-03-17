@@ -11,7 +11,6 @@ interface DecodedUser {
   userId: string;
   organizationId?: string;
   organizationName?: string;
-  // JWT에서 추출하는 필드에 따라 자유롭게 추가
 }
 
 interface AuthState {
@@ -22,32 +21,6 @@ interface AuthState {
   setTokens: (accessToken: string, refreshToken: string, expiresAt: string) => void;
   clearAuth: () => void;
 }
-
-// export const useAuthStore = create<AuthState>()((set) => ({
-//   accessToken: null,
-//   refreshToken: null,
-//   expiresAt: null,
-//   user: null,
-//   setTokens: (accessToken, refreshToken, expiresAt) => {
-//     sessionStorage.setItem('access_token', accessToken);
-//     sessionStorage.setItem('refresh_token', refreshToken);
-//     sessionStorage.setItem('expires_at', expiresAt);
-
-//     const decodedData = parseJwt(accessToken);
-
-//     set({
-//       accessToken: accessToken,
-//       refreshToken: refreshToken,
-//       expiresAt: expiresAt,
-//       user: decodedData,
-//     });
-//   },
-
-//   clearAuth: () => {
-//     sessionStorage.clear();
-//     set({ accessToken: null, refreshToken: null, expiresAt: null, user: null });
-//   },
-// }));
 
 
 export const useAuthStore = create<AuthState>()(
@@ -76,10 +49,21 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage', // 스토리지에 저장될 키 이름
-      storage: createJSONStorage(() => sessionStorage), // 세션 스토리지 사용 (탭 닫으면 삭제)
+      storage: createJSONStorage(() => sessionStorage), // 세션 스토리지 사용 (탭 닫으면 삭제)  // storage를 명시하지 않으면 → localStorage가 기본값으로 사용됨
       // Storage에서 데이터를 읽어와 상태에 집어넣을 때 실행될 로직 (선택 사항)
-      onRehydrateStorage: () => (state) => {
+      onRehydrateStorage: () => (state, error) => {
         console.log('인증 정보 복구 완료');
+        if (error) {
+          // sessionStorage 데이터가 깨졌거나 파싱 실패
+          state?.clearAuth();
+          return;
+        }
+
+        if (state?.expiresAt && Date.now() > Number(state.expiresAt)) {
+          //복구된 토큰이 이미 만료됨
+          state.clearAuth();
+        }
+
       },
     }
   )

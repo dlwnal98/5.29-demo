@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useGetStagesDocData } from "@/hooks/use-stages";
 import { buildTree } from "@/libs/etc";
-import { requestGet } from "@/libs/apiClient";
+import { requestGet } from "@/libs/request";
 import type { ApiResource } from "../types";
 
 /**

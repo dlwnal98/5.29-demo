@@ -3,7 +3,7 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
 import { LogIn, Shield, CheckCircle } from 'lucide-react';
-import { requestPost } from '@/libs/apiClient';
+import { requestPost } from '@/libs/request';
 import { useAuthStore } from '@/stores/store';
 import { toast, Toaster } from 'sonner';
 

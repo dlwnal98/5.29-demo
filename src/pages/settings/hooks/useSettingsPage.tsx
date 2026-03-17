@@ -4,7 +4,7 @@ import { toast, Toaster } from 'sonner';
 import { getReJWTToken } from '@/apis/settings-account.api';
 import { useAuthStore } from '@/stores/store';
 import { passwordRegex } from '@/libs/etc';
-import { requestDelete, requestPut, requestPost } from '@/libs/apiClient';
+import { requestDelete, requestPut, requestPost } from '@/libs/request';
 export default function useSettingsPage() {
     const userData = useAuthStore((state) => state.user);
 

@@ -74,9 +74,11 @@ export function useCreateStageForm({
       setCreateStageForm({ name: '', description: '', deploymentReason: '' });
       setSelectedDeploymentRecord('');
       console.log(error)
-      const serverMessage =
-        error?.response?.data?.message ?? 'Stage 생성 중 오류가 발생했습니다. 필수 입력값을 확인해주세요';
-      toast.error(serverMessage);
+      // const serverMessage =
+      //   error?.response?.data?.message ?? 'Stage 생성 중 오류가 발생했습니다. 필수 입력값을 확인해주세요';
+      // toast.error(serverMessage);
+      toast.error(error.message)
+
     },
   });
   const handleDeploySuccess = async (stageName?: string, responseStageId?: string) => {
@@ -134,8 +136,10 @@ export function useCreateStageForm({
       handleDeploySuccess(variables?.stageName, responseStageId);
     },
     onError: (error: any) => {
-      const serverMessage = error?.response?.data?.message ?? '배포에 실패하였습니다.';
-      toast.error(serverMessage);
+      // const serverMessage = error?.response?.data?.message ?? '배포에 실패하였습니다.';
+      // toast.error(serverMessage);
+      toast.error(error.message)
+
     },
   });
 

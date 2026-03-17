@@ -1,5 +1,6 @@
 
-import axios, { type AxiosRequestConfig, type Method } from 'axios';
+import { isAxiosError, type AxiosRequestConfig, type Method } from 'axios';
+import { axiosInstance } from './axios-Instance';
 
 type PathParams = Record<string, string | number>;
 type QueryParams = Record<string, any>;
@@ -34,7 +35,7 @@ const request = async <T = any>(
   { pathParams, queryParams, body, headers }: RequestOptions = {}
 ): Promise<T> => {
   try {
-    const res = await axios({
+    const res = await axiosInstance({
       method,
       url: buildUrl(url, pathParams, queryParams),
       data: body,
@@ -43,7 +44,15 @@ const request = async <T = any>(
 
     return res.data;
   } catch (error) {
-    console.error(error);
+    if (isAxiosError(error)) {
+      const message =
+        error.response?.data?.message
+        ?? error.response?.data?.detail  // 서버가 detail로 내려주는 경우도 여기서 처리
+        ?? error.message
+        ?? '오류가 발생했습니다.';
+      const status = error.response?.status;
+      throw { status, message, original: error };
+    }
     throw error;
   }
 };

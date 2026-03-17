@@ -1,4 +1,4 @@
-import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from '@/libs/apiClient';
+import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from '@/libs/request';
 
 
 // 메서드 리스트 타입

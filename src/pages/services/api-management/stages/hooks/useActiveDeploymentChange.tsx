@@ -35,8 +35,10 @@ export function useActiveDeploymentChange({
         await onActiveDeploymentChanged();
       }
     },
-    onError: () => {
-      toast.error('Deployment 변경 중 오류가 발생했습니다.');
+    onError: (error: any) => {
+      // toast.error('Deployment 변경 중 오류가 발생했습니다.');
+      toast.error(error.message)
+
     },
   });
 

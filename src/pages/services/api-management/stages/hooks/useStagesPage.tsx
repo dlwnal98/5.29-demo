@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { useClipboard } from "use-clipboard-copy";
 import { useAuthStore } from "@/stores/store";
 import { resoureceBuildTree } from "@/libs/etc";
-import { requestGet } from "@/libs/apiClient";
+import { requestGet } from "@/libs/request";
 import { useGetStagesListData, useGetDeployHistoryDataByApiId } from "@/hooks/use-stages";
 import { getStagesOpenApiDocData, getStageDetailData } from "@/apis/stages.api";
 import { getAPIKeyDetail } from "@/apis/api-keys.api";

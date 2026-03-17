@@ -1,4 +1,4 @@
-import { requestDelete, requestGet, requestPost, requestPut } from '@/libs/apiClient';
+import { requestDelete, requestGet, requestPost, requestPut } from '@/libs/request';
 import axios from 'axios';
 
 

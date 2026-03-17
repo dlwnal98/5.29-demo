@@ -124,11 +124,13 @@ const ApiCreateDialog = ({
             toast.success(`API '${createApiForm.name}'가 생성되었습니다.`);
         },
         onError: (error: any) => {
-            const errorMessage = error?.response?.data?.message
-                || error?.response?.data?.detail
-                || error?.message
-                || 'API 생성 중 오류가 발생했습니다.';
-            toast.error(errorMessage);
+            // const errorMessage = error?.response?.data?.message
+            //     || error?.response?.data?.detail
+            //     || error?.message
+            //     || 'API 생성 중 오류가 발생했습니다.';
+            // toast.error(errorMessage);
+            toast.error(error.message)
+
         },
     });
 
@@ -141,11 +143,13 @@ const ApiCreateDialog = ({
             toast.success(`API '${createApiForm.name}'가 생성되었습니다.`);
         },
         onError: (error: any) => {
-            const errorMessage = error?.response?.data?.message
-                || error?.response?.data?.detail
-                || error?.message
-                || 'API 복제 중 오류가 발생했습니다.';
-            toast.error(errorMessage);
+            // const errorMessage = error?.response?.data?.message
+            //     || error?.response?.data?.detail
+            //     || error?.message
+            //     || 'API 복제 중 오류가 발생했습니다.';
+            // toast.error(errorMessage);
+            toast.error(error.message)
+
         },
     });
 
@@ -158,11 +162,13 @@ const ApiCreateDialog = ({
             toast.success('API가 Swagger 문서에서 생성되었습니다.');
         },
         onError: (error: any) => {
-            const errorMessage = error?.response?.data?.message
-                || error?.response?.data?.errors?.[0]?.detail
-                || error?.message
-                || 'API 생성 중 오류가 발생했습니다.';
-            toast.error(errorMessage);
+            // const errorMessage = error?.response?.data?.message
+            //     || error?.response?.data?.errors?.[0]?.detail
+            //     || error?.message
+            //     || 'API 생성 중 오류가 발생했습니다.';
+            // toast.error(errorMessage);
+            toast.error(error.message)
+
         },
     });
 

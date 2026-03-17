@@ -21,7 +21,7 @@ import { SelectAPIKeyModal } from '../methods/components/SelectAPIKeyModal';
 import { useAuthStore } from '@/stores/store';
 import { useGetAPIKeyList } from '@/hooks/use-apiKeys';
 import { Method } from '@/types/resource';
-import { requestGet } from '@/libs/apiClient';
+import { requestGet } from '@/libs/request';
 import { useClipboard } from 'use-clipboard-copy';
 import { Header } from '@/types/methods';
 import { useModifyMethod } from '@/hooks/use-methods';
@@ -48,11 +48,13 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
       setIsEditMode(false);
     },
     onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message
-        || error?.response?.data?.detail
-        || error?.message
-        || 'Method 요청 설정 수정 중 오류가 발생했습니다.';
-      toast.error(errorMessage);
+      // const errorMessage = error?.response?.data?.message
+      //   || error?.response?.data?.detail
+      //   || error?.message
+      //   || 'Method 요청 설정 수정 중 오류가 발생했습니다.';
+      // toast.error(errorMessage);
+      toast.error(error.message)
+
     },
   });
 

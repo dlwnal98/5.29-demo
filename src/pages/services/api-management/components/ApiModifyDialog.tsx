@@ -43,11 +43,13 @@ const ApiModifyDialog = ({
             toast.success(`API '${form.name}'가 수정되었습니다.`);
         },
         onError: (error: any) => {
-            const errorMessage = error?.response?.data?.message
-                || error?.response?.data?.detail
-                || error?.message
-                || 'API 수정 중 오류가 발생했습니다.';
-            toast.error(errorMessage);
+            // const errorMessage = error?.response?.data?.message
+            //     || error?.response?.data?.detail
+            //     || error?.message
+            //     || 'API 수정 중 오류가 발생했습니다.';
+            // toast.error(errorMessage);
+            toast.error(error.message)
+
         },
     });
 

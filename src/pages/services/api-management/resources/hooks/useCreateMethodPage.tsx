@@ -172,11 +172,13 @@ export function useCreateMethodPage() {
       handleBack();
     },
     onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message
-        || error?.response?.data?.detail
-        || error?.message
-        || 'Method 생성 중 오류가 발생했습니다.';
-      toast.error(errorMessage);
+      // const errorMessage = error?.response?.data?.message
+      //   || error?.response?.data?.detail
+      //   || error?.message
+      //   || 'Method 생성 중 오류가 발생했습니다.';
+      // toast.error(errorMessage);
+      toast.error(error.message)
+
     },
   });
 

@@ -73,11 +73,13 @@ export default function MethodDetailCard({
       setIsEditMode(false);
     },
     onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message
-        || error?.response?.data?.detail
-        || error?.message
-        || 'Method 수정 중 오류가 발생했습니다.';
-      toast.error(errorMessage);
+      // const errorMessage = error?.response?.data?.message
+      //   || error?.response?.data?.detail
+      //   || error?.message
+      //   || 'Method 수정 중 오류가 발생했습니다.';
+      // toast.error(errorMessage);
+      toast.error(error.message)
+
     },
   });
 
@@ -89,11 +91,13 @@ export default function MethodDetailCard({
       setMethodToDelete(null);
     },
     onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message
-        || error?.response?.data?.detail
-        || error?.message
-        || 'Method 삭제 중 오류가 발생했습니다.';
-      toast.error(errorMessage);
+      // const errorMessage = error?.response?.data?.message
+      //   || error?.response?.data?.detail
+      //   || error?.message
+      //   || 'Method 삭제 중 오류가 발생했습니다.';
+      // toast.error(errorMessage);
+      toast.error(error.message)
+
     },
   });
 

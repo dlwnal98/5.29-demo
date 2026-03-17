@@ -1,4 +1,4 @@
-import { requestPost, requestPut } from '@/libs/apiClient';
+import { requestPost, requestPut } from '@/libs/request';
 import { useAuthStore } from '@/stores/store';
 
 // 유저 정보 수정하고 나서 토큰 재발급

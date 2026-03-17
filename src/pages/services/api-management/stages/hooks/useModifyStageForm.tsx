@@ -41,8 +41,10 @@ export function useModifyStageForm({
       onOpenChange(false);
       onSuccess?.();
     },
-    onError: () => {
-      toast.error('Stage 수정 중 오류가 발생했습니다.');
+    onError: (error: any) => {
+      // toast.error('Stage 수정 중 오류가 발생했습니다.');
+      toast.error(error.message)
+
     },
   });
 

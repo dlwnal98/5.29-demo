@@ -68,11 +68,13 @@ export function useApiKeysPage() {
       setIsDeleteModalOpen(false);
       toast.success("API Key가 삭제되었습니다.");
     }, onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message
-        || error?.response?.data?.detail
-        || error?.message
-        || 'API Key 삭제 중 오류가 발생했습니다.';
-      toast.error(errorMessage);
+      // const errorMessage = error?.response?.data?.message
+      //   || error?.response?.data?.detail
+      //   || error?.message
+      //   || 'API Key 삭제 중 오류가 발생했습니다.';
+      // toast.error(errorMessage);
+      toast.error(error.message)
+
     },
   });
 

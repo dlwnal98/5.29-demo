@@ -36,3 +36,5 @@ build.zip
 *.njsproj
 *.sln
 *.sw?
+.env.development
+.env.production

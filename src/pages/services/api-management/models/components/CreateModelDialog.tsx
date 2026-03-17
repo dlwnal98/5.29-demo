@@ -50,11 +50,13 @@ export default function CreateModelDialog({
       onOpenChange(false);
     },
     onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message
-        || error?.response?.data?.detail
-        || error?.message
-        || 'Model 생성 중 오류가 발생했습니다.';
-      toast.error(errorMessage);
+      // const errorMessage = error?.response?.data?.message
+      //   || error?.response?.data?.detail
+      //   || error?.message
+      //   || 'Model 생성 중 오류가 발생했습니다.';
+      // toast.error(errorMessage);
+      toast.error(error.message)
+
     },
   });
 

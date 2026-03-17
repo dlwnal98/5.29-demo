@@ -1,5 +1,5 @@
 
-import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from '@/libs/apiClient';
+import { requestDelete, requestGet, requestPatch, requestPost, requestPut } from '@/libs/request';
 
 export interface ApiKey {
     apiKeyId: string;
