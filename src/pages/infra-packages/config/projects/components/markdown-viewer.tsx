@@ -1,7 +1,21 @@
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm'; // 테이블, 체크박스 등 지원
-import rehypeHighlight from 'rehype-highlight'; // 코드 하이라이트 지원
-import 'highlight.js/styles/github.css'; // 하이라이트 테마
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
+import 'highlight.js/styles/github.css';
+
+// 실제 서비스에서 쓰는 언어만 import
+import javascript from 'highlight.js/lib/languages/javascript';
+import typescript from 'highlight.js/lib/languages/typescript';
+import python from 'highlight.js/lib/languages/python';
+import bash from 'highlight.js/lib/languages/bash';
+import json from 'highlight.js/lib/languages/json';
+import sql from 'highlight.js/lib/languages/sql';
+import yaml from 'highlight.js/lib/languages/yaml';
+
+const highlightOptions = {
+  languages: { javascript, typescript, python, bash, json, sql, yaml },
+  detect: false,
+};
 
 interface MarkdownViewerProps {
   content: string;
@@ -18,7 +32,7 @@ export default function MarkdownViewer({ content }: MarkdownViewerProps) {
     <div className="prose prose-indigo max-w-none dark:prose-invert prose-a:text-blue-600 prose-h1:text-2xl prose-h2:text-xl prose-p:leading-relaxed prose-pre:bg-gray-100 prose-pre:border-0 prose-pre:rounded-md prose-pre:p-4 prose-pre:overflow-x-auto">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeHighlight]}
+        rehypePlugins={[[rehypeHighlight, highlightOptions]]}  // 옵션 적용
         components={{
           h1: ({ node, ...props }) => (
             <h1 className="border-b-2 border-gray-200 pb-2 mb-4 text-2xl font-bold" {...props} />

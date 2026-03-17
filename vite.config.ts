@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // vite.config.ts 상단에 분리
 const createProxyOptions = (target: string, extraOptions = {}) => ({
@@ -28,7 +29,14 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
-    plugins: [react()],
+    plugins: [react(),
+    visualizer({
+      filename: 'dist/stats.html',  // 결과 파일 위치
+      open: true,                    // 빌드 후 브라우저 자동 오픈
+      template: 'treemap',           // 시각화 방식 (treemap | sunburst | network)
+    })
+
+    ],
 
     resolve: {
       alias: {
@@ -86,53 +94,35 @@ export default defineConfig(({ mode }) => {
       sourcemap: true,
       rollupOptions: {
         output: {
-          manualChunks: (id) => {
-            // React 코어 라이브러리
-            if (id.includes('node_modules')) {
-              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
-                return 'react-vendor';
-              }
+          manualChunks(id) {
+            if (!id.includes('node_modules')) return;
 
-              // Radix UI 컴포넌트 (20+ 패키지를 하나로)
-              if (id.includes('@radix-ui')) {
-                return 'radix-ui-vendor';
-              }
-
-              // 데이터 fetching
-              if (id.includes('@tanstack/react-query') || id.includes('axios') || id.includes('swr')) {
-                return 'query-vendor';
-              }
-
-              // 상태 관리
-              if (id.includes('zustand')) {
-                return 'state-vendor';
-              }
-
-              // 에디터
-              if (id.includes('ace-builds') || id.includes('react-ace')) {
-                return 'editor-vendor';
-              }
-
-              // 차트
-              if (id.includes('recharts')) {
-                return 'chart-vendor';
-              }
-
-              // 마크다운/MDX
-              if (id.includes('react-markdown') || id.includes('remark') || id.includes('rehype') || id.includes('mdx')) {
-                return 'markdown-vendor';
-              }
-
-              // 유틸리티
-              if (id.includes('lucide-react') || id.includes('date-fns') || id.includes('clsx') || id.includes('class-variance-authority')) {
-                return 'utils-vendor';
-              }
-
-              // 나머지 node_modules
-              return 'vendor';
+            if (id.includes('ace-builds') || id.includes('react-ace')) {
+              return 'vendor-editor';
             }
+
+            if (id.includes('d3-') || id.includes('recharts')) {
+              return 'vendor-chart';
+            }
+
+            if (id.includes('react-dom')) {
+              return 'vendor-react';
+            }
+
+            if (
+              id.includes('highlight.js') ||
+              id.includes('rehype-highlight') ||
+              id.includes('micromark') ||
+              id.includes('remark') ||
+              id.includes('rehype') ||
+              id.includes('unified')
+            ) {
+              return 'vendor-markdown';
+            }
+
+            return 'vendor';
           },
-        },
+        }
       },
       chunkSizeWarningLimit: 1000,
     },
