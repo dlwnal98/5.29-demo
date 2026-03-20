@@ -9,11 +9,11 @@ export interface MethodFormData {
   description: string;
   tags: string[];
   integrationType: string;
-  routingEndpoint: string;
+  routingEndpoint: string[];
 
   // Direct Input 토글 관련 필드
   isDirectUrlInput: boolean;      // Direct Input 토글 상태
-  selectedEndpointUrl: string;    // Select에서 선택한 Endpoint URL
+  selectedEndpointUrl: string[];    // Select에서 선택한 Endpoint URL
   routingMode: string;            // "DIRECT" | "PATH_APPEND"
 
   // 요청 설정
@@ -135,12 +135,14 @@ export function useMethodEditForm(selectedMethod: Method | null, userKey: string
   };
 
   const getModifyMethodProps = (): ModifyMethodProps => {
+    const urls = formData.routingEndpoint.filter(u => u.trim() !== "");
     return {
       summary: formData.summary,
       description: formData.description,
       tags: formData.tags,
       integrationType: formData.integrationType,
-      routingEndpoint: formData.routingEndpoint,
+      routingEndpoint: urls.length === 1 ? urls[0] : undefined,
+      routingEndpoints: urls.length > 1 ? urls : undefined,
       routingMode: formData.routingMode,
       requestValidation: formData.requestValidation,
       apiKeyRequired: formData.apiKeyRequired,
@@ -149,7 +151,7 @@ export function useMethodEditForm(selectedMethod: Method | null, userKey: string
       queryParameters: formData.queryParameters as ModifyMethodProps['queryParameters'],
       headerParameters: formData.headerParameters as ModifyMethodProps['headerParameters'],
       requestBodyConfig: formData.requestBodyConfig,
-      responses: formData.responses as ModifyMethodProps['responses'],
+      responses: formData.responses as unknown as ModifyMethodProps['responses'],
       updatedBy: formData.updatedBy,
     };
   };
@@ -176,9 +178,9 @@ function getInitialFormData(selectedMethod: Method | null, userKey: string): Met
       description: '',
       tags: [],
       integrationType: 'HTTP',
-      routingEndpoint: '',
+      routingEndpoint: [""],
       isDirectUrlInput: false,
-      selectedEndpointUrl: '',
+      selectedEndpointUrl: [],
       routingMode: 'PATH_APPEND',
       requestValidation: 'NONE',
       apiKeyRequired: false,
@@ -281,7 +283,18 @@ function getInitialFormData(selectedMethod: Method | null, userKey: string): Met
   const appendPath = info?.['x-append-path'] ?? true;  // 기본값 true
   const isDirectUrlInput = !appendPath;
   const routingMode = isDirectUrlInput ? 'DIRECT' : 'PATH_APPEND';
-  const routingEndpoint = info?.['x-route-endpoint'] ?? '';
+  
+  const routingEndpointsRaw = info?.['x-route-endpoints'];
+  const routingEndpointRaw = info?.['x-route-endpoint'];
+  let routingEndpoint: string[] = [];
+  
+  if (routingEndpointsRaw && Array.isArray(routingEndpointsRaw)) {
+    routingEndpoint = routingEndpointsRaw;
+  } else if (routingEndpointRaw) {
+    routingEndpoint = [routingEndpointRaw];
+  } else if (isDirectUrlInput) {
+    routingEndpoint = [""];
+  }
 
   return {
     summary: info?.summary ?? '',
@@ -290,7 +303,7 @@ function getInitialFormData(selectedMethod: Method | null, userKey: string): Met
     integrationType: info?.['x-integration-type'] ?? 'HTTP',
     routingEndpoint,
     isDirectUrlInput,
-    selectedEndpointUrl: isDirectUrlInput ? '' : routingEndpoint,
+    selectedEndpointUrl: isDirectUrlInput ? [] : [...routingEndpoint],
     routingMode,
     requestValidation: info?.['x-request-validator'] ?? 'NONE',
     apiKeyRequired: info?.['x-api-key-required'] ?? false,

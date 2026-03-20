@@ -51,6 +51,8 @@ export default function CreateMethodPage() {
     onCopyAPIKey,
     onMethodFormChange,
     onCustomUrlChange,
+    onAddCustomUrl,
+    onRemoveCustomUrl,
     onDirectUrlToggle,
   } = useCreateMethodPage();
 
@@ -91,6 +93,8 @@ export default function CreateMethodPage() {
           onCopyAPIKey={onCopyAPIKey}
           onMethodFormChange={onMethodFormChange}
           onCustomUrlChange={onCustomUrlChange}
+          onAddCustomUrl={onAddCustomUrl}
+          onRemoveCustomUrl={onRemoveCustomUrl}
           onDirectUrlToggle={onDirectUrlToggle}
         />
 

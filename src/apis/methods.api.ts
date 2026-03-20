@@ -146,7 +146,8 @@ export interface CreateMethodProps {
     description?: string;
     tags?: string[];
     integrationType: string;
-    routingEndpoint: string;
+    routingEndpoint?: string;
+    routingEndpoints?: string[];
     routingMode: string;
     requestValidation?: string;
     apiKeyRequired?: boolean;
@@ -193,7 +194,8 @@ export interface ModifyMethodProps {
     description: string;
     tags: string[];
     integrationType: string;
-    routingEndpoint: string;
+    routingEndpoint?: string;
+    routingEndpoints?: string[];
     routingMode: string;  // "DIRECT" | "PATH_APPEND"
     requestValidation: string;
     apiKeyRequired: boolean;

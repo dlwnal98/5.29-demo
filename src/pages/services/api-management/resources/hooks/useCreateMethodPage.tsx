@@ -13,7 +13,7 @@ import { onInputChange, onSave, resoureceBuildTree } from "@/libs/etc";
 import { useQueryClient } from "@tanstack/react-query";
 import { getValidatorList, getIntegrationTypeList } from "@/apis/methods.api";
 import { getAPIKeyDetail } from "@/apis/api-keys.api";
-import { exampleMethodList } from "@/constants/data";
+import { exampleMethodList } from "@/constants/options";
 
 interface MethodForm {
   summary: string;
@@ -22,9 +22,9 @@ interface MethodForm {
   integrationType: string;
   apiKeyRequired: boolean;
   selectedApiKeyValue: string;
-  endpointUrl: string;
+  endpointUrl: string[];
   additionalParameter: string;
-  customEndpointUrl: string;
+  customEndpointUrl: string[];
   requestValidator: string;
   routingMode: string;
 }
@@ -99,9 +99,9 @@ export function useCreateMethodPage() {
     integrationType: "HTTP",
     apiKeyRequired: false,
     selectedApiKeyValue: "",
-    endpointUrl: "",
+    endpointUrl: [],
     additionalParameter: "",
-    customEndpointUrl: "",
+    customEndpointUrl: [""],
     requestValidator: "NONE",
     routingMode: "PATH_APPEND"
   });
@@ -196,46 +196,28 @@ export function useCreateMethodPage() {
     }
 
     if (methodForm.integrationType === "HTTP") {
-      const finalUrl = isDirectUrlInput
-        ? methodForm.customEndpointUrl
-        : methodForm.endpointUrl;
-      if (!finalUrl) {
+      if (isDirectUrlInput && methodForm.customEndpointUrl.filter(u => u.trim() !== "").length === 0) {
         toast.error("Endpoint URL을 입력해주세요.");
+        return;
+      }
+      if (!isDirectUrlInput && methodForm.endpointUrl.length === 0) {
+        toast.error("Endpoint URL을 선택해주세요.");
         return;
       }
     }
 
     if (resourceId) {
       if (isDirectUrlInput) {
-        if (onSave(methodForm.customEndpointUrl)) {
-          createMethod({
-            data: {
-              createdBy: userKey,
-              httpMethod: methodForm.methodType,
-              summary: methodForm.summary,
-              description: methodForm.description,
-              integrationType: methodForm.integrationType,
-              apiKeyId: selectedApiKeyId,
-              apiKeyRequired: apiKeyToggle,
-              routingEndpoint: methodForm.customEndpointUrl || methodForm.endpointUrl,
-              routingMode: methodForm.routingMode,
-              requestBodyConfig: bodyModelId ? {
-                modelId: bodyModelId,
-                required: false,
-              } : undefined,
-              queryParameters,
-              headerParameters: headers,
-              requestValidation: methodForm.requestValidator,
-            },
-            apiId,
-            resourceId
-          });
-        } else {
-          toast.error("유효하지 않은 endpoint URL입니다.");
+        const customUrls = methodForm.customEndpointUrl.filter(u => u.trim() !== "");
+        let isValid = true;
+        for (const url of customUrls) {
+          if (!onSave(url)) {
+            isValid = false;
+            break;
+          }
         }
-      } else {
-        createMethod({
-          data: {
+        if (isValid) {
+          const payloadData: any = {
             createdBy: userKey,
             httpMethod: methodForm.methodType,
             summary: methodForm.summary,
@@ -243,7 +225,6 @@ export function useCreateMethodPage() {
             integrationType: methodForm.integrationType,
             apiKeyId: selectedApiKeyId,
             apiKeyRequired: apiKeyToggle,
-            routingEndpoint: methodForm.customEndpointUrl || methodForm.endpointUrl,
             routingMode: methodForm.routingMode,
             requestBodyConfig: bodyModelId ? {
               modelId: bodyModelId,
@@ -252,7 +233,49 @@ export function useCreateMethodPage() {
             queryParameters,
             headerParameters: headers,
             requestValidation: methodForm.requestValidator,
-          },
+          };
+
+          if (customUrls.length > 1) {
+            payloadData.routingEndpoints = customUrls;
+          } else if (customUrls.length === 1) {
+            payloadData.routingEndpoint = customUrls[0];
+          }
+
+          createMethod({
+            data: payloadData,
+            apiId,
+            resourceId
+          });
+        } else {
+          toast.error("유효하지 않은 endpoint URL입니다.");
+        }
+      } else {
+        const payloadData: any = {
+          createdBy: userKey,
+          httpMethod: methodForm.methodType,
+          summary: methodForm.summary,
+          description: methodForm.description,
+          integrationType: methodForm.integrationType,
+          apiKeyId: selectedApiKeyId,
+          apiKeyRequired: apiKeyToggle,
+          routingMode: methodForm.routingMode,
+          requestBodyConfig: bodyModelId ? {
+            modelId: bodyModelId,
+            required: false,
+          } : undefined,
+          queryParameters,
+          headerParameters: headers,
+          requestValidation: methodForm.requestValidator,
+        };
+
+        if (methodForm.endpointUrl.length > 1) {
+          payloadData.routingEndpoints = methodForm.endpointUrl;
+        } else if (methodForm.endpointUrl.length === 1) {
+          payloadData.routingEndpoint = methodForm.endpointUrl[0];
+        }
+
+        createMethod({
+          data: payloadData,
           apiId,
           resourceId
         });
@@ -346,19 +369,37 @@ export function useCreateMethodPage() {
   );
 
   const handleMethodFormChange = useCallback(
-    (field: keyof MethodForm, value: string | boolean) => {
+    (field: keyof MethodForm, value: string | boolean | string[]) => {
       setMethodForm((prev) => ({ ...prev, [field]: value }));
     },
     []
   );
 
-  const handleCustomUrlChange = useCallback((value: string) => {
-    if (onInputChange(value)) {
+  const handleCustomUrlChange = useCallback((index: number, value: string) => {
+    if (onInputChange(value) || value === "") {
       setCheckUrl(false);
-      setMethodForm((prev) => ({ ...prev, customEndpointUrl: value }));
+      setMethodForm((prev) => {
+        const newUrls = [...prev.customEndpointUrl];
+        newUrls[index] = value;
+        return { ...prev, customEndpointUrl: newUrls };
+      });
     } else {
       setCheckUrl(true);
     }
+  }, []);
+
+  const handleAddCustomUrl = useCallback(() => {
+    setMethodForm((prev) => ({
+      ...prev,
+      customEndpointUrl: [...prev.customEndpointUrl, ""],
+    }));
+  }, []);
+
+  const handleRemoveCustomUrl = useCallback((index: number) => {
+    setMethodForm((prev) => ({
+      ...prev,
+      customEndpointUrl: prev.customEndpointUrl.filter((_, i) => i !== index),
+    }));
   }, []);
 
   const handleDirectUrlToggle = useCallback((checked: boolean) => {
@@ -375,8 +416,8 @@ export function useCreateMethodPage() {
     }
     setMethodForm((prev) => ({
       ...prev,
-      customEndpointUrl: "",
-      endpointUrl: "",
+      customEndpointUrl: [""],
+      endpointUrl: [],
     }));
     setIsDirectUrlInput(checked);
   }, []);
@@ -436,6 +477,8 @@ export function useCreateMethodPage() {
     onCopyAPIKey: handleCopyAPIKey,
     onMethodFormChange: handleMethodFormChange,
     onCustomUrlChange: handleCustomUrlChange,
+    onAddCustomUrl: handleAddCustomUrl,
+    onRemoveCustomUrl: handleRemoveCustomUrl,
     onDirectUrlToggle: handleDirectUrlToggle,
   };
 }

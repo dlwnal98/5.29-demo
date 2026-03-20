@@ -4,10 +4,13 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { MethodFormData, IntegrationTypeOption } from '../hooks/useMethodEditForm';
-import { Globe, Server, Cloud, Zap, HelpCircle } from 'lucide-react';
+import { Globe, Server, Cloud, Zap, HelpCircle, ChevronDown } from 'lucide-react';
 import { Method } from '@/types/resource';
 import { EndpointsData } from '@/apis/route-endpoints.api';
 
@@ -138,7 +141,7 @@ export function BasicInfoEditTab({ formData, integrationTypeList, onChange, sele
               </div>
 
               <div className="space-y-2 mt-4">
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-3 mb-1">
                   <Label htmlFor="routingEndpoint">
                     Routing Endpoint URL <span className="text-red-500">*</span>
                   </Label>
@@ -179,40 +182,107 @@ export function BasicInfoEditTab({ formData, integrationTypeList, onChange, sele
                     />
                   </div>
                 </div>
+                <p className="text-red-500 text-xs mb-2">* URL이 2개 이상일 경우 로드밸런싱이 적용됩니다.</p>
 
                 {formData.isDirectUrlInput ? (
-                  <Input
-                    id="routingEndpoint"
-                    className='w-full lg:w-2/3'
-                    value={formData.routingEndpoint}
-                    onChange={(e) => onChange({ routingEndpoint: e.target.value })}
-                    placeholder="https://api.example.com/endpoint"
-                  />
+                  <div className="space-y-3 w-full lg:w-2/3">
+                    {formData.routingEndpoint.map((url, index) => (
+                      <div key={index} className="flex gap-2 items-center">
+                        <Input
+                          className="flex-1"
+                          value={url}
+                          onChange={(e) => {
+                            const newArr = [...formData.routingEndpoint];
+                            newArr[index] = e.target.value;
+                            onChange({ routingEndpoint: newArr });
+                          }}
+                          placeholder="https://api.example.com/endpoint"
+                        />
+                        <div className="flex gap-1">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="h-10 w-10 shrink-0 text-gray-500"
+                            onClick={() => {
+                              onChange({ routingEndpoint: [...formData.routingEndpoint, ""] });
+                            }}
+                          >
+                            ＋
+                          </Button>
+                          {index > 0 && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              className="h-10 w-10 shrink-0 text-gray-500"
+                              onClick={() => {
+                                onChange({ routingEndpoint: formData.routingEndpoint.filter((_, i) => i !== index) });
+                              }}
+                            >
+                              －
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 ) : (
-                  <Select
-                    value={formData.selectedEndpointUrl || formData.routingEndpoint}
-                    onValueChange={(value) => onChange({
-                      selectedEndpointUrl: value,
-                      routingEndpoint: value
-                    })}
-                  >
-                    <SelectTrigger className='w-full lg:w-2/3'>
-                      <SelectValue placeholder={
-                        endpointList?.length > 0
-                          ? "Endpoint URL을 선택해주세요."
-                          : "Endpoint URL이 없습니다."
-                      } />
-                    </SelectTrigger>
-                    {endpointList?.length > 0 && (
-                      <SelectContent>
-                        {endpointList?.map((endpoint) => (
-                          <SelectItem key={endpoint.id} value={endpoint.routeUrl} className="hover:cursor-pointer">
-                            {endpoint.routeUrl}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    )}
-                  </Select>
+                  <div className="grid">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full lg:w-2/3 justify-between font-normal hover:bg-transparent"
+                        >
+                          <span className="truncate">
+                            {formData.routingEndpoint?.length > 0
+                              ? formData.routingEndpoint.join(", ")
+                              : endpointList?.length > 0
+                                ? "Endpoint URL을 선택해주세요."
+                                : "Endpoint URL이 없습니다."}
+                          </span>
+                          <ChevronDown className="ml-2 h-4 w-4 opacity-50 shrink-0" />
+                        </Button>
+                      </PopoverTrigger>
+                      {endpointList?.length > 0 && (
+                        <PopoverContent
+                          className="w-[var(--radix-popover-trigger-width)] min-w-[300px] p-0"
+                          align="start"
+                        >
+                          <ScrollArea className="max-h-60">
+                            <div className="p-1">
+                              {endpointList?.map((endpoint) => {
+                                const checked = formData.routingEndpoint?.includes(endpoint.routeUrl);
+                                return (
+                                  <div
+                                    key={endpoint.id}
+                                    className="flex items-center space-x-2 rounded-sm px-2 py-1.5 hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      let newArr = [...(formData.routingEndpoint || [])];
+                                      if (checked) {
+                                        newArr = newArr.filter((item) => item !== endpoint.routeUrl);
+                                      } else {
+                                        newArr.push(endpoint.routeUrl);
+                                      }
+                                      onChange({
+                                        routingEndpoint: newArr,
+                                        selectedEndpointUrl: newArr
+                                      });
+                                    }}
+                                  >
+                                    <Checkbox checked={checked} className="!rounded pointer-events-none" />
+                                    <span className="text-sm truncate">{endpoint.routeUrl}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </ScrollArea>
+                        </PopoverContent>
+                      )}
+                    </Popover>
+                  </div>
                 )}
 
 

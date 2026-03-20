@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,6 +26,12 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Copy,
   ArrowLeft,
@@ -53,10 +60,11 @@ interface MethodForm {
   integrationType: string;
   apiKeyRequired: boolean;
   selectedApiKeyValue: string;
-  endpointUrl: string;
+  endpointUrl: string[];
   additionalParameter: string;
-  customEndpointUrl: string;
+  customEndpointUrl: string[];
   requestValidator: string;
+  routingMode: string;
 }
 
 interface OpenSections {
@@ -106,8 +114,10 @@ interface CreateMethodPageViewProps {
   ) => void;
   onRemoveHeader: (id: number) => void;
   onCopyAPIKey: (apiKey: string) => void;
-  onMethodFormChange: (field: keyof MethodForm, value: string | boolean) => void;
-  onCustomUrlChange: (value: string) => void;
+  onMethodFormChange: (field: keyof MethodForm, value: string | boolean | string[]) => void;
+  onCustomUrlChange: (index: number, value: string) => void;
+  onAddCustomUrl: () => void;
+  onRemoveCustomUrl: (index: number) => void;
   onDirectUrlToggle: (checked: boolean) => void;
 }
 
@@ -145,6 +155,8 @@ export default function CreateMethodPageView({
   onCopyAPIKey,
   onMethodFormChange,
   onCustomUrlChange,
+  onAddCustomUrl,
+  onRemoveCustomUrl,
   onDirectUrlToggle,
 }: CreateMethodPageViewProps) {
 
@@ -357,10 +369,24 @@ export default function CreateMethodPageView({
                   </div>
 
                   <div>
-                    <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-3 mb-1">
                       <Label className="text-[16px] font-semibold">
                         Route Endpoint URL <span className="text-red-500">*</span>
                       </Label>
+
+                      {/* <div className="flex items-start space-x-2">
+                        <Checkbox
+                          id="terms"
+                          checked={true}
+                          onClick={() => { }}
+                          className="!rounded border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 mt-1"
+                        />
+                        <Label
+                          htmlFor="terms"
+                          className="text-sm text-gray-600 cursor-pointer leading-relaxed">
+                          로드 밸런싱 적용 |
+                        </Label>
+                      </div> */}
                       <div className="flex items-center gap-2">
                         <Label className="text-sm text-gray-600">직접 입력</Label>
                         <TooltipProvider>
@@ -392,43 +418,95 @@ export default function CreateMethodPageView({
                         <Switch checked={isDirectUrlInput} onCheckedChange={onDirectUrlToggle} />
                       </div>
                     </div>
+                    <p className="text-red-500 text-xs mb-2">* URL이 2개 이상일 경우 로드밸런싱이 적용됩니다.</p>
 
                     {isDirectUrlInput ? (
-                      <Input
-                        className={`w-full lg:w-2/3 ${isSubmitted && !methodForm.customEndpointUrl ? 'border-red-500' : ''}`}
-                        placeholder="https://your-api-endpoint.com"
-                        value={methodForm.customEndpointUrl}
-                        onChange={(e) => onCustomUrlChange(e.target.value)}
-                      />
+                      <div className="space-y-3 w-full lg:w-2/3">
+                        {methodForm.customEndpointUrl?.map((url, index) => (
+                          <div key={index} className="flex gap-2 items-center">
+                            <Input
+                              className={`flex-1 ${isSubmitted && !url ? 'border-red-500' : ''}`}
+                              placeholder="https://your-api-endpoint.com"
+                              value={url}
+                              onChange={(e) => onCustomUrlChange(index, e.target.value)}
+                            />
+                            <div className="flex gap-1">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                className="h-10 w-10 shrink-0 text-gray-500"
+                                onClick={onAddCustomUrl}
+                              >
+                                ＋
+                              </Button>
+                              {index > 0 && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-10 w-10 shrink-0 text-gray-500"
+                                  onClick={() => onRemoveCustomUrl(index)}
+                                >
+                                  －
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     ) : (
                       <div className="grid">
-                        <Select
-                          value={methodForm.endpointUrl}
-                          onValueChange={(value) => onMethodFormChange("endpointUrl", value)}
-                        >
-                          <SelectTrigger className={`w-full lg:w-2/3 ${isSubmitted && !methodForm.endpointUrl ? 'border-red-500' : ''}`}>
-                            <SelectValue
-                              placeholder={
-                                endpointList?.length > 0
-                                  ? "Endpoint URL 선택"
-                                  : "Endpoint URL이 없습니다."
-                              }
-                            />
-                          </SelectTrigger>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={`w-full lg:w-2/3 justify-between font-normal hover:bg-transparent ${isSubmitted && (!methodForm.endpointUrl || methodForm.endpointUrl.length === 0) ? 'border-red-500' : ''}`}
+                            >
+                              <span className="truncate">
+                                {methodForm.endpointUrl?.length > 0
+                                  ? methodForm.endpointUrl.join(", ")
+                                  : endpointList?.length > 0
+                                    ? "Endpoint URL 선택"
+                                    : "Endpoint URL이 없습니다."}
+                              </span>
+                              <ChevronDown className="ml-2 h-4 w-4 opacity-50 shrink-0" />
+                            </Button>
+                          </PopoverTrigger>
                           {endpointList?.length > 0 && (
-                            <SelectContent>
-                              {endpointList?.map((url) => (
-                                <SelectItem
-                                  key={url.id}
-                                  value={url.routeUrl}
-                                  className="hover:cursor-pointer"
-                                >
-                                  {url.routeUrl}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
+                            <PopoverContent
+                              className="w-[var(--radix-popover-trigger-width)] min-w-[300px] p-0"
+                              align="start"
+                            >
+                              <ScrollArea className="max-h-60">
+                                <div className="p-1">
+                                  {endpointList?.map((url) => {
+                                    const checked = methodForm.endpointUrl?.includes(url.routeUrl);
+                                    return (
+                                      <div
+                                        key={url.id}
+                                        className="flex items-center space-x-2 rounded-sm px-2 py-1.5 hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          let newArr = [...(methodForm.endpointUrl || [])];
+                                          if (checked) {
+                                            newArr = newArr.filter((item) => item !== url.routeUrl);
+                                          } else {
+                                            newArr.push(url.routeUrl);
+                                          }
+                                          onMethodFormChange("endpointUrl", newArr);
+                                        }}
+                                      >
+                                        <Checkbox checked={checked} className="!rounded pointer-events-none" />
+                                        <span className="text-sm truncate">{url.routeUrl}</span>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </ScrollArea>
+                            </PopoverContent>
                           )}
-                        </Select>
+                        </Popover>
                       </div>
                     )}
                     {checkUrl && (
