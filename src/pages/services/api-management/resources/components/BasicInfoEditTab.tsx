@@ -54,6 +54,8 @@ export function BasicInfoEditTab({ formData, integrationTypeList, onChange, sele
     }
   };
 
+  console.log(formData)
+
   return (
     <div className="space-y-6">
       <Card>
@@ -134,9 +136,17 @@ export function BasicInfoEditTab({ formData, integrationTypeList, onChange, sele
               <div className="space-y-2 mt-4">
                 <Label>URL</Label>
                 <p className="text-xs text-gray-500">API Gateway endpoint URL (읽기 전용)</p>
-                <div className="text-sm font-mono bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded text-gray-600 break-all">
-                  {methodInfo?.['x-route-endpoint'] ?? ''}{selectedMethod.resourcePath}
-                </div>
+                {methodInfo?.['x-route-endpoints'] ? (
+                  methodInfo?.['x-route-endpoints'].map((endpoint: string, i: number) => (
+                    <div className="text-sm font-mono bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded text-gray-600 break-all">
+                      {endpoint ?? ''}{selectedMethod.resourcePath}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-sm font-mono bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded text-gray-600 break-all">
+                    {methodInfo?.['x-route-endpoint'] ?? ''}{selectedMethod.resourcePath}
+                  </div>
+                )}
 
               </div>
 

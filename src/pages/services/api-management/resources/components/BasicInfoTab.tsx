@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 
 interface BasicInfoTabProps {
   selectedMethod: Method;
-  handleCopyEndpoint: () => void;
+  handleCopyEndpoint: (url: string) => void;
 }
 
 export function BasicInfoTab({ selectedMethod, handleCopyEndpoint }: BasicInfoTabProps) {
@@ -48,20 +48,40 @@ export function BasicInfoTab({ selectedMethod, handleCopyEndpoint }: BasicInfoTa
               <span className="text-sm text-gray-500">{integrationTypeLabel}</span>
             </div>
 
-            {info?.['x-integration-type'] === 'HTTP' && (
-              <>
-                <div className="text-sm text-gray-600 dark:text-gray-400">URL</div>
-                <div className="flex flex-wrap gap-1">
-                  <span className="text-sm text-gray-400"> <code className="text-sm font-mono">
-                    {info?.['x-route-endpoint'] ?? ''}
-                    {info?.['x-append-path'] !== false && selectedMethod.resourcePath}
-                  </code>
-                    <Button className="h-2 w-3" variant="ghost" onClick={handleCopyEndpoint}>
-                      <Copy className="h-2 w-3" />
-                    </Button></span>
-                </div>
-              </>
-            )}
+            {info?.['x-integration-type'] === 'HTTP' && <>
+              {info?.['x-route-endpoints'] ?
+                <>
+                  {info?.['x-route-endpoints'].map((endpoint: string, i: number) => (
+                    <>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">URL {i + 1}</div>
+                      <div className="flex flex-wrap gap-1">
+                        <span className="text-sm text-gray-400">
+                          <code className="text-sm font-mono">
+                            {endpoint}
+                            {info?.['x-append-path'] !== false && selectedMethod.resourcePath}
+                          </code>
+                          <Button className="h-2 w-3" variant="ghost" onClick={() => handleCopyEndpoint(endpoint)}>
+                            <Copy className="h-2 w-3" />
+                          </Button></span>
+                      </div>
+                    </>
+                  ))}
+                </>
+                :
+                <>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">URL</div>
+                  <div className="flex flex-wrap gap-1">
+                    <span className="text-sm text-gray-400">
+                      <code className="text-sm font-mono">
+                        {info?.['x-route-endpoint'] ?? ''}
+                        {info?.['x-append-path'] !== false && selectedMethod.resourcePath}
+                      </code>
+                      <Button className="h-2 w-3" variant="ghost" onClick={() => handleCopyEndpoint(info?.['x-route-endpoint'] ?? '')}>
+                        <Copy className="h-2 w-3" />
+                      </Button></span>
+                  </div>
+                </>
+              }</>}
 
             {info?.['x-integration-type'] === 'MOCK' && (
               <>

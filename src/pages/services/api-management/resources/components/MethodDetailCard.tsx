@@ -146,8 +146,8 @@ export default function MethodDetailCard({
     setTestResponse(null);
   }, [methodInfo?.['x-method-id']]);
 
-  const handleCopyEndpoint = () => {
-    clipboard.copy(methodInfo?.['x-route-endpoint'] ?? '');
+  const handleCopyEndpoint = (url: string) => {
+    clipboard.copy(url);
     toast.success('URL이 클립보드에 복사되었습니다.');
   };
 

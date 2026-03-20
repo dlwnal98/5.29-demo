@@ -240,10 +240,22 @@ export function ResourceDetailCard({
                         {method?.info['x-api-key-required'] ? 'True' : 'False'}
                       </TableCell>
                       <TableCell className='!px-3 !py-3 text-center' onClick={() => handleMethodClick(method, selectedResource)}>
-                        {method?.info['x-route-endpoint'] && (
-                          <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-                            {method?.info['x-route-endpoint'] ?? ''}
-                          </code>
+                        {method?.info['x-route-endpoints'] ? (
+                          <div className="flex flex-col gap-1 overflow-y-auto max-h-[80px] scrollbar-none">
+                            {method?.info['x-route-endpoints'].map((endpoint: string, index: number) => (
+                              <code key={index} className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                                {endpoint}
+                              </code>
+                            ))}
+                          </div>
+                        ) : (
+                          <>
+                            {method?.info['x-route-endpoint'] && (
+                              <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                                {method?.info['x-route-endpoint'] ?? ''}
+                              </code>
+                            )}
+                          </>
                         )}
                       </TableCell>
                       <TableCell className='!px-3 !py-3 text-center'>

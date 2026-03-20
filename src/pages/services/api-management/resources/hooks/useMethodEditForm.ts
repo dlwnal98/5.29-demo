@@ -172,6 +172,7 @@ export function useMethodEditForm(selectedMethod: Method | null, userKey: string
 }
 
 function getInitialFormData(selectedMethod: Method | null, userKey: string): MethodFormData {
+  console.log(selectedMethod)
   if (!selectedMethod) {
     return {
       summary: '',
@@ -283,11 +284,11 @@ function getInitialFormData(selectedMethod: Method | null, userKey: string): Met
   const appendPath = info?.['x-append-path'] ?? true;  // 기본값 true
   const isDirectUrlInput = !appendPath;
   const routingMode = isDirectUrlInput ? 'DIRECT' : 'PATH_APPEND';
-  
+
   const routingEndpointsRaw = info?.['x-route-endpoints'];
   const routingEndpointRaw = info?.['x-route-endpoint'];
   let routingEndpoint: string[] = [];
-  
+
   if (routingEndpointsRaw && Array.isArray(routingEndpointsRaw)) {
     routingEndpoint = routingEndpointsRaw;
   } else if (routingEndpointRaw) {
