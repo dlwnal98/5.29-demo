@@ -82,10 +82,9 @@ export default defineConfig(({ mode }) => {
 
         //VITE_API_GATEWAY
         '/api/v1/gateway/stage': createProxyOptions(env.VITE_API_GATWAY, { secure: true }),
-        //  '/api/v1/metrics': {
-        //   target: 'http://1.224.162.188:51428',
-        //   changeOrigin: true,
-        // },
+
+        //VITE_API_METRICS
+        // '/api/v1/metrics': createProxyOptions(env.VITE_API_METRICS),
       },
     },
 

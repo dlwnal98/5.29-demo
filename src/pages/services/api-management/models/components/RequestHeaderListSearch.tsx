@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { requestHeaderList } from '@/constants/data';
+import { requestHeaderList } from '@/constants/options';
 import { ChevronDown } from 'lucide-react';
 interface Option {
     id: string;
@@ -148,11 +148,10 @@ export default function RequestHeaderListSearch({
                     id="autocomplete-list"
                     ref={listRef}
                     role="listbox"
-                    className={`absolute left-0 z-50 w-full p-1 bg-white border rounded-md shadow max-h-48 overflow-auto transform transition-all duration-200 ${
-                        openUpward
+                    className={`absolute left-0 z-50 w-full p-1 bg-white border rounded-md shadow max-h-48 overflow-auto transform transition-all duration-200 ${openUpward
                             ? 'bottom-full mb-1 origin-bottom'
                             : 'top-full mt-1 origin-top'
-                    } ${isOpen ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-95 pointer-events-none'}`}>
+                        } ${isOpen ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-95 pointer-events-none'}`}>
                     {filtered.length > 0 ? (
                         filtered.map((opt, idx) => (
                             <li

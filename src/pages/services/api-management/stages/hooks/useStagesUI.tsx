@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useClipboard } from "use-clipboard-copy";
-import type { ApiResource, ApiMethod, SelectedWholeStageInfo, SelectedMethod } from "../types";
+import type { ApiResource, ApiMethod, SelectedWholeStageInfo, SelectedMethod } from "../../../../../types/stages";
 
 interface UseStagesUIProps {
   resourceTree: ApiResource[];

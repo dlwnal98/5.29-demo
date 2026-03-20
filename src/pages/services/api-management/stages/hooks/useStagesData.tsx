@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useGetStagesDocData } from "@/hooks/use-stages";
 import { buildTree } from "@/libs/etc";
 import { requestGet } from "@/libs/request";
-import type { ApiResource } from "../types";
+import type { ApiResource } from "../../../../../types/stages";
 
 /**
  * 서버 통신 및 데이터 처리 로직을 담당하는 hook

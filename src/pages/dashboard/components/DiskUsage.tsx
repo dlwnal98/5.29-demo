@@ -6,7 +6,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { tooltipDescriptions } from '@/constants/dashboard-data';
+import { tooltipDescriptions } from '@/constants/dashboard-mockData';
 
 export function DiskUsage() {
 

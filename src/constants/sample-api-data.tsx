@@ -1,3 +1,5 @@
+//ApiCreateDialog 에서 API 생성 옵션 '예시'에 보여줄 데이터
+
 export const sampleApiData = `
   _id: 'aBcD1234xYz',
   apiName: 'User Management API',

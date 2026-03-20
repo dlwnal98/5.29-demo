@@ -1,4 +1,6 @@
-import type { HttpMethod } from "@/libs/etc";
+
+// 메소드 별 색상 지정
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS' | 'HEAD';
 
 export interface ApiResource {
   id: string;

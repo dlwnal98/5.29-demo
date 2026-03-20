@@ -33,7 +33,8 @@ export default function DeleteModelDialog({
       toast.success('Model이 성공적으로 삭제되었습니다.');
     }, onError: (error) => {
       console.log(error)
-      toast.error(error?.response?.data?.detail);
+      // toast.error(error?.response?.data?.detail);
+      toast.error(error.message)
 
     }
   });

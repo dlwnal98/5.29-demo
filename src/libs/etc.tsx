@@ -1,4 +1,5 @@
 import { File, Folder, CircleAlert, ImageIcon, Code, Archive } from 'lucide-react';
+import type { HttpMethod } from '@/types/stages';
 
 export function formatTimeAgo(isoTime: string): string {
   const now = new Date();
@@ -86,8 +87,7 @@ export function goToBaseProjectUrl() {
   window.location.href = newUrl;
 }
 
-// 메소드 별 색상 지정
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS' | 'HEAD';
+
 
 export function getMethodStyle(method: HttpMethod): string {
   const base = 'text-[11px] font-medium px-2.5 py-0.5 rounded ';
