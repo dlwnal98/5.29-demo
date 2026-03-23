@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,6 +25,17 @@ interface BasicInfoEditTabProps {
 
 export function BasicInfoEditTab({ formData, integrationTypeList, onChange, selectedMethod, endpointList }: BasicInfoEditTabProps) {
   const methodInfo = selectedMethod?.info as any;
+
+  // 초기 상태 값 계산 (컴포넌트 로드 시점의 DB 값)
+  const initialIsDirectUrlInput = useMemo(() => !(methodInfo?.['x-append-path'] ?? true), [methodInfo]);
+  const initialEndpoints = useMemo(() => {
+    const endpoints = methodInfo?.['x-route-endpoints'];
+    if (Array.isArray(endpoints)) return [...endpoints];
+    const single = methodInfo?.['x-route-endpoint'];
+    if (single) return [single];
+    return initialIsDirectUrlInput ? [""] : [];
+  }, [methodInfo, initialIsDirectUrlInput]);
+
   const getIntegrationIcon = (code: string) => {
     switch (code) {
       case 'HTTP':
@@ -147,7 +159,6 @@ export function BasicInfoEditTab({ formData, integrationTypeList, onChange, sele
                     {methodInfo?.['x-route-endpoint'] ?? ''}{selectedMethod.resourcePath}
                   </div>
                 )}
-
               </div>
 
               <div className="space-y-2 mt-4">
@@ -185,10 +196,16 @@ export function BasicInfoEditTab({ formData, integrationTypeList, onChange, sele
                     </TooltipProvider>
                     <Switch
                       checked={formData.isDirectUrlInput}
-                      onCheckedChange={(checked) => onChange({
-                        isDirectUrlInput: checked,
-                        routingMode: checked ? 'DIRECT' : 'PATH_APPEND'
-                      })}
+                      onCheckedChange={(checked) => {
+                        const isBackToInitial = checked === initialIsDirectUrlInput;
+                        const nextEndpoints = isBackToInitial ? initialEndpoints : (checked ? [""] : []);
+                        onChange({
+                          isDirectUrlInput: checked,
+                          routingMode: checked ? 'DIRECT' : 'PATH_APPEND',
+                          routingEndpoint: nextEndpoints,
+                          selectedEndpointUrl: checked ? [] : nextEndpoints
+                        });
+                      }}
                     />
                   </div>
                 </div>

@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -54,7 +52,6 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
       //   || 'Method 요청 설정 수정 중 오류가 발생했습니다.';
       // toast.error(errorMessage);
       toast.error(error.message)
-
     },
   });
 
@@ -463,7 +460,7 @@ export function MethodRequestEdit({ selectedMethod, modelList }: MethodRequestEd
                     size="sm"
                     variant="outline"
                     className="border-0 hover:bg-transparent bg-transparent cursor-pointer"
-                    disabled={modelList?.length === 0} R
+                    disabled={modelList?.length === 0}
                     onClick={() => setRequestModelId('')}>
                     <Trash2 className="h-5 w-5" />
                   </Button>
