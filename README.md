@@ -148,11 +148,16 @@ npm run build
 Vite 환경 변수는 `.env` 파일에서 관리합니다:
 
 ```bash
-# .env.development (개발 환경)
-VITE_API_BASE_URL=http://localhost:8080
 
-# .env.production (프로덕션 환경)
-VITE_API_BASE_URL=https://api.example.com
+# Local Setup
+
+# 1. .env.example 파일 복사
+cp .env.example .env.development
+
+# 2. 팀원에 API 주소 요청
+
+# 3. .env.development 파일에 전달받은 API 주소 입력
+
 ```
 
 ## 문제 해결
