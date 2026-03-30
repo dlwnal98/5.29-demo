@@ -49,7 +49,7 @@ export default defineConfig(({ mode }) => {
       proxy: {
         // next.config.mjs의 19개 rewrites 규칙 이관
         //VITE_API_ADMIN
-        '/admin': createProxyOptions(env.ADMIN_URL),
+        '/admin': createProxyOptions(env.VITE_API_ADMIN),
 
         //VITE_API_VAULT
         '/v1/api/git': createProxyOptions(env.VITE_API_VAULT),
@@ -81,7 +81,7 @@ export default defineConfig(({ mode }) => {
         '/api/v1/role': createProxyOptions(env.VITE_API_MEMBER),
 
         //VITE_API_GATEWAY
-        '/api/v1/gateway/stage': createProxyOptions(env.VITE_API_GATWAY, { secure: true }),
+        '/api/v1/gateway/stage': createProxyOptions(env.VITE_API_GATEWAY, { secure: true }),
 
         //VITE_API_METRICS
         // '/api/v1/metrics': createProxyOptions(env.VITE_API_METRICS),

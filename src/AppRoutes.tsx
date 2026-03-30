@@ -6,12 +6,12 @@ import PublicRoute from './components/PublicRoute'
 import LoginPage from '@/pages/login/LoginPage'
 import AuthCallbackPage from '@/components/AuthCallbackPage'
 import { AppLayout } from '@/components/layout/AppLayout'
-import { Toaster } from "sonner"; // sonner 임포트
-
+import { Toaster } from "sonner"; // sonner 서포트
 // Lazy load (지연 로드) - 나머지 페이지들
 const SignupPage = lazy(() => import('@/pages/signup/SignupPage'))
 const MemberSignupPage = lazy(() => import('@/pages/signup/MemberSignupPage'))
 const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPasswordPage'))
+const SsoCallbackPage = lazy(() => import('@/pages/sso/SsoCallbackPage'))
 const Dashboard = lazy(() => import('@/pages/dashboard/Dashboard'))
 
 // Settings
@@ -53,7 +53,7 @@ const OrganizationManagePage = lazy(() => import('@/pages/OrganizationManagePage
 const MonitoringPage = lazy(() => import('@/pages/MonitoringPage'))
 const MembersPage = lazy(() => import('@/pages/members/MembersPage'))
 
-// Loading fallback component (app/**/loading.tsx 역할)
+// Loading fallback component (app/**/loading.tsx 등)
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-screen">
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -72,6 +72,7 @@ export default function AppRoutes() {
           <Route path="/signup/member" element={<MemberSignupPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/auth-callback" element={<AuthCallbackPage />} />
+          <Route path="/sso-callback" element={<SsoCallbackPage />} />
         </Route>
 
         {/* Protected routes */}
