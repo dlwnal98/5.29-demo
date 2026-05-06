@@ -1,0 +1,509 @@
+'use client';
+
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import React, { useEffect, useRef } from 'react';
+import { toast, Toaster } from 'sonner';
+import { Copy, Edit, Info } from 'lucide-react';
+import { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { useModifyModel, ModelData, ModifyModelProps } from '@/hooks/use-model';
+import { useClipboard } from 'use-clipboard-copy';
+import {
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import AceEditor from 'react-ace';
+import 'ace-builds/src-noconflict/mode-json';
+import 'ace-builds/src-noconflict/theme-github';
+
+interface ModifyModelDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  selectedModel: ModelData;
+  userKey: string;
+}
+
+export default function ModifyModelDialog({
+  open,
+  onOpenChange,
+  userKey,
+  selectedModel,
+}: ModifyModelDialogProps) {
+  const { mutate: modifyModelSchema } = useModifyModel({
+    onSuccess: () => {
+      toast.success('Model이 성공적으로 수정되었습니다.');
+      onOpenChange(false);
+    },
+    onError: (error: any) => {
+      // const errorMessage = error?.response?.data?.message
+      //   || error?.response?.data?.detail
+      //   || error?.message
+      //   || 'Error modifying model.';
+      // toast.error(errorMessage);
+      toast.error(error.message)
+
+    },
+  });
+
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [json, setJson] = useState('');
+
+
+  const ref = useRef(null);
+
+  const [modelForm, setModelForm] = useState<ModifyModelProps>({
+    modelName: '',
+    description: '',
+    schema: {},
+    updatedBy: '',
+  });
+
+  useEffect(() => {
+    setIsEditMode(false);
+  }, [open]);
+
+  useEffect(() => {
+    const schemaJson = selectedModel?.schema
+      ? JSON.stringify(selectedModel?.schema, null, 2)
+      : '{}';
+    setJson(schemaJson);
+
+    setModelForm((prev) => ({
+      ...prev,
+      modelName: selectedModel.modelName || '',
+      description: selectedModel.description || '',
+      schema: selectedModel.schema || {},
+      updatedBy: userKey || '',
+    }));
+  }, [selectedModel]);
+
+  const handleModifyModel = () => {
+    try {
+      const parsed = JSON.parse(json);
+
+      const updatedForm = {
+        ...modelForm,
+        schema: parsed,
+        updatedBy: userKey,
+      };
+
+
+      setModelForm(updatedForm); // 상태는 업데이트
+      modifyModelSchema({ modelId: selectedModel.modelId, data: updatedForm }); // 동일한 최신 값으로 API 호출
+    } catch (error) {
+      toast.error('JSON 형식이 유효하지 않습니다.');
+      console.error('Invalid JSON:', error);
+    }
+  };
+
+  const clipboard = useClipboard();
+
+  const copySchema = (schema: string) => {
+    clipboard.copy(schema);
+    toast.success('스키마가 클립보드에 복사되었습니다.');
+  };
+
+  const getSchemaByteCount = (schema: string) => {
+    return new TextEncoder().encode(schema).length;
+  };
+  const handleChange = (value: string) => {
+    setJson(value); // 에디터 상태 업데이트
+  };
+
+  if (isEditMode)
+    return (
+      <>
+        {/* <Toaster position="bottom-center" richColors expand={true} /> */}
+        <Dialog open={open} onOpenChange={onOpenChange}>
+          <DialogContent ref={ref} className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-blue-600 flex items-center gap-2">
+                <span>Model 수정</span>
+                {!isEditMode && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setIsEditMode(!isEditMode);
+                    }}
+                    className="h-8 w-8 p-0">
+                    <Edit className="h-4 w-4 text-gray-900" />
+                  </Button>
+                )}
+              </DialogTitle>
+
+              <DialogDescription className="text-gray-600">
+                기존 모델을 수정합니다. (<span className="text-red-500">*</span> 필수 항목)
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-6 py-2">
+              {/* Model Name */}
+              <div>
+                <Label
+                  htmlFor="model-name"
+                  className="text-sm font-medium text-gray-700 mb-2 block">
+                  이름 <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="model-name"
+                  placeholder="모델 이름을 입력하세요"
+                  value={modelForm.modelName}
+                  onChange={(e) =>
+                    setModelForm((prev) => ({
+                      ...prev,
+                      modelName: e.target.value,
+                    }))
+                  }
+                  className={`w-full ${modelForm.modelName.includes(' ') ? 'border-red-500 focus:ring-red-500' : ''}`}
+                />
+                {modelForm.modelName.includes(' ') && (
+                  <p className="text-xs text-red-500 mt-1">모델 이름에 공백을 포함할 수 없습니다.</p>
+                )}
+              </div>
+
+              {/* Content Type */}
+              <div>
+                <Label
+                  htmlFor="content-type"
+                  className="text-sm font-medium text-gray-700 mb-2 block">
+                  콘텐츠 유형
+                </Label>
+                <Input
+                  id="content-type"
+                  className="w-full bg-gray-50"
+                  placeholder="application/json"
+                  disabled
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <Label
+                  htmlFor="description"
+                  className="text-sm font-medium text-gray-700 mb-2 block">
+                  설명
+                </Label>
+                <Textarea
+                  id="description"
+                  placeholder="모델 설명을 입력하세요"
+                  value={modelForm.description}
+                  onChange={(e) =>
+                    setModelForm((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                  className="w-full min-h-[80px] resize-none"
+                  maxLength={500}
+                />
+                <div className="text-right text-sm text-gray-500 mt-1">
+                  {modelForm?.description?.length}/500 자
+                </div>
+              </div>
+
+              {/* Model Schema */}
+              <div>
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">모델 스키마</Label>
+                <div className="border rounded-lg overflow-hidden">
+                  <div className="bg-gray-50 px-3 py-2 border-b flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-medium text-gray-700">JSON Schema</span>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Info className="h-4 w-4 text-gray-400 cursor-pointer" />
+                        </PopoverTrigger>
+                        <PopoverContent side="right" align="start" className="w-auto">
+                          <p>
+                            JSON Schema 형식으로 작성해주세요.{' '}
+                            <PopoverClose asChild>
+                              <a
+                                href="https://www.notion.so/Request-Body-Schema-2f46a5e88b51809ca856df13aeafdc57?source=copy_link"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 underline hover:text-blue-600"
+                              >
+                                자세히 보기
+                              </a>
+                            </PopoverClose>
+                          </p>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          copySchema(JSON.stringify(modelForm?.schema, null, 2))
+                        }
+                        className="h-7 px-2">
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-12 min-h-[400px]">
+                    {/* Schema Editor */}
+                    <div className="col-span-12 p-0">
+                      <AceEditor
+                        placeholder="모델 스키마를 입력하세요"
+                        mode="json"
+                        theme="monokai"
+                        name="blah2"
+                        onChange={handleChange}
+                        width="100%"
+                        height="400px"
+                        fontSize={14}
+                        lineHeight={25}
+                        showPrintMargin={true}
+                        showGutter={true}
+                        highlightActiveLine={true}
+                        value={json}
+                        setOptions={{
+                          enableBasicAutocompletion: false,
+                          enableLiveAutocompletion: false,
+                          enableSnippets: false,
+                          enableMobileMenu: true,
+                          showLineNumbers: true,
+                          tabSize: 2,
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 px-3 py-2 border-t flex items-center justify-end text-xs text-gray-500">
+                    <div>
+                      {getSchemaByteCount(
+                        JSON.stringify(selectedModel?.jsonSchema?.properties, null, 2)
+                      )}{' '}
+                      bytes
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2">
+
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsEditMode(false);
+                  ref?.current?.scrollTo({ top: 0, behavior: 'smooth' });
+                  console.log(ref, ref?.current)
+                }}>
+                취소
+              </Button>
+
+              <Button
+                onClick={handleModifyModel}
+                disabled={!modelForm.modelName.trim() || modelForm.modelName.includes(' ')}
+                className="bg-blue-500 hover:bg-blue-600 text-white">
+                수정
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  else
+    return (
+      <>
+        {/* <Toaster position="bottom-center" richColors expand={true} /> */}
+        <Dialog open={open} onOpenChange={onOpenChange}>
+          <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-blue-600 flex items-center gap-2">
+                <span>Model 상세 정보</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setIsEditMode(!isEditMode);
+                  }}
+                  className="h-8 w-8 p-0">
+                  <Edit className="h-4 w-4 text-gray-900" />
+                </Button>
+              </DialogTitle>
+
+              <DialogDescription className="text-gray-600">
+                생성된 모델의 상세 정보 보기
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-3 py-4">
+              {/* Model Name */}
+              <div>
+                <Label
+                  htmlFor="model-name"
+                  className="text-sm font-medium text-gray-500 mb-1 block">
+                  이름
+                </Label>
+                <Input
+                  id="model-name"
+                  placeholder="모델 이름을 입력하세요"
+                  disabled
+                  value={modelForm.modelName ? modelForm.modelName : selectedModel?.modelName}
+                  onChange={(e) =>
+                    setModelForm((prev) => ({
+                      ...prev,
+                      modelName: e.target.value,
+                    }))
+                  }
+                  className="w-full border-0 text-gray-900 p-0 disabled:opacity-1"
+                />
+              </div>
+
+              {/* Content Type */}
+              <div>
+                <Label
+                  htmlFor="content-type"
+                  className="text-sm font-medium text-gray-500 mb-1 block">
+                  콘텐츠 유형
+                </Label>
+                <Input
+                  id="content-type"
+                  value={'application/json'}
+                  // onChange={(e) => setModelForm({ ...modelForm, contentType: e.target.value })}
+                  className="w-full border-0 text-gray-900 p-0 disabled:opacity-1"
+                  disabled
+                  placeholder="application/json"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <Label
+                  htmlFor="description"
+                  className="text-sm font-medium text-gray-500 mb-1 block">
+                  설명
+                </Label>
+                <Textarea
+                  id="description"
+                  placeholder="모델 설명을 입력하세요"
+                  value={modelForm.description ? modelForm.description : selectedModel?.description}
+                  onChange={(e) =>
+                    setModelForm((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                  className="w-full h-auto resize-none border-0 text-gray-900 p-0 disabled:opacity-1"
+                  disabled
+                  maxLength={500}
+                />
+              </div>
+
+              {/* Model Schema */}
+              <div>
+                <Label className="text-sm font-medium text-gray-500 mb-2 block">모델 스키마</Label>
+                <div className="border rounded-lg overflow-hidden">
+                  <div className="bg-gray-50 px-3 py-2 border-b flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-medium text-gray-700">JSON Schema</span>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Info className="h-4 w-4 text-gray-400 cursor-pointer" />
+                        </PopoverTrigger>
+                        <PopoverContent side="right" align="start" className="w-auto">
+                          <p>
+                            JSON Schema 형식으로 작성해주세요.{' '}
+                            <PopoverClose asChild>
+                              <a
+                                href="https://www.notion.so/Request-Body-Schema-2f46a5e88b51809ca856df13aeafdc57?source=copy_link"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 underline hover:text-blue-600"
+                              >
+                                자세히 보기
+                              </a>
+                            </PopoverClose>
+                          </p>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          copySchema(JSON.stringify(modelForm?.schema, null, 2))
+                        }
+                        className="h-7 px-2">
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-12 min-h-[400px]">
+                    {/* Schema Editor */}
+                    <div className="col-span-12 p-0">
+                      <AceEditor
+                        placeholder="Enter model schema"
+                        mode="json"
+                        theme="monokai"
+                        name="blah2"
+                        onChange={handleChange}
+                        width="100%"
+                        height="400px"
+                        fontSize={14}
+                        lineHeight={25}
+                        showPrintMargin={true}
+                        showGutter={true}
+                        highlightActiveLine={true}
+                        value={json}
+                        readOnly={true}
+                        setOptions={{
+                          enableBasicAutocompletion: false,
+                          enableLiveAutocompletion: false,
+                          enableSnippets: false,
+                          enableMobileMenu: true,
+                          showLineNumbers: true,
+                          tabSize: 2,
+                          // readOnly: true,
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 px-3 py-2 border-t flex items-center justify-end text-xs text-gray-500">
+                    <div>
+                      {getSchemaByteCount(
+                        JSON.stringify(selectedModel?.jsonSchema?.properties, null, 2)
+                      )}{' '}
+                      bytes
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  onOpenChange(false)
+                }}>
+                닫기
+              </Button>
+              <Button
+                onClick={() => {
+                  onOpenChange(false);
+                }}>
+                확인
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+}

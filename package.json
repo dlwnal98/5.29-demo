@@ -1,12 +1,14 @@
 {
-  "name": "my-v0-project",
+  "name": "Nexfron APIM",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "next build",
-    "dev": "rm -rf .next && next dev",
-    "lint": "next lint",
-    "start": "next start"
+    "dev": "vite --host 0.0.0.0",
+    "start": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -40,6 +42,7 @@
     "@radix-ui/react-tooltip": "latest",
     "@tailwindcss/typography": "latest",
     "@tanstack/react-query": "latest",
+    "@tanstack/react-table": "^8.21.3",
     "ace-builds": "^1.43.3",
     "autoprefixer": "^10.4.20",
     "axios": "latest",
@@ -53,7 +56,6 @@
     "input-otp": "latest",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.454.0",
-    "next": "15.2.4",
     "next-mdx-remote": "^5.0.0",
     "next-themes": "latest",
     "react": "^19",
@@ -63,8 +65,9 @@
     "react-hook-form": "latest",
     "react-markdown": "latest",
     "react-resizable-panels": "latest",
+    "react-router-dom": "^6.26.0",
     "recharts": "latest",
-    "rehype-highlight": "latest",
+    "rehype-highlight": "^7.0.2",
     "remark-gfm": "latest",
     "sonner": "latest",
     "swr": "latest",
@@ -80,9 +83,15 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4.3.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.9",
     "postcss": "^8.5",
     "prettier": "^3.6.2",
+    "rollup-plugin-visualizer": "^7.0.1",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite": "^5.4.2"
   }
 }
